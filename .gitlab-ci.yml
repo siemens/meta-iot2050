@@ -21,4 +21,5 @@ all:
     - kas build kas-iot2050-example.yml
     - kas build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
     - sudo rm -rf build/tmp
+    - kas build kas-iot2050-boot-basic.yml
     - kas build kas-iot2050-boot-advanced.yml
