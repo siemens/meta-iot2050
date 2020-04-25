@@ -1,12 +1,14 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2020
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
+#  Jan Kiszka <jan.kiszka@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
 inherit meta-version
 require recipes-bsp/u-boot/u-boot-custom.inc
 
@@ -34,38 +36,30 @@ SRC_URI += " \
     file://0018-feat-set-sdhci0-clock-frequency-to-142.86MHz.patch \
     file://atf/0001-feat-add-atf-support-to-iot2050-platform.patch;patchdir=${WORKDIR}/atf \
     file://optee/0001-feat-add-optee-support-to-iot2050-platform.patch;patchdir=${WORKDIR}/optee \
-    file://iot2050-uboot-build-rules \
+    file://${U_BOOT_RULES} \
     file://keys \
     file://prebuild \
     "
 
 U_BOOT_BRANCH = "processor-sdk-u-boot-2019.01"
 U_BOOT_REV = "029e4c009aaeaee2d06aa8271dbd3a9e73a28aa7"
-U_BOOT_BIN = "u-boot.img"
-export ATF_REV   = "996d37930996c2fa39eb091508b5ad4e0d69ad35"
-export OPTEE_REV = "e260ea8dde9669308336d194abec8dcc18784216"
+U_BOOT_BIN = "u-boot.itb"
+U_BOOT_RULES = "iot2050-uboot-ti-sdk-rules"
+ATF_REV   = "996d37930996c2fa39eb091508b5ad4e0d69ad35"
+OPTEE_REV = "e260ea8dde9669308336d194abec8dcc18784216"
 
 S = "${WORKDIR}/git"
 
+SPI_FLASH_IMG = "iot2050-image-boot-${IOT2050_VARIANT}.bin"
+SPI_FLASH_SIZE_KB = "8192"
+
 # Build environment
-CROSS_COMPILE_ARMV7 = "arm-linux-gnueabihf-"
-BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, python-crypto:native, crossbuild-essential-armhf:native, python3-pyelftools,"
+BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, python-crypto:native, python3-pyelftools,"
 
 do_prepare_build_append() {
-    cp ${WORKDIR}/iot2050-uboot-build-rules ${S}/debian/rules
-    echo "r5/tiboot3.bin /usr/lib/u-boot/${MACHINE}" >> \
-        ${S}/debian/u-boot-${MACHINE}.install
-    echo "tispl.bin /usr/lib/u-boot/${MACHINE}" >> \
-        ${S}/debian/u-boot-${MACHINE}.install
-    echo "sysfw.itb /usr/lib/u-boot/${MACHINE}" >> \
-        ${S}/debian/u-boot-${MACHINE}.install
-    echo "../prebuild/am65x-pru0-prueth-fw.elf /usr/lib/u-boot/${MACHINE}" >> \
-        ${S}/debian/u-boot-${MACHINE}.install
-    echo "../prebuild/am65x-pru1-prueth-fw.elf /usr/lib/u-boot/${MACHINE}" >> \
-        ${S}/debian/u-boot-${MACHINE}.install
-    echo "../prebuild/am65x-rtu0-prueth-fw.elf /usr/lib/u-boot/${MACHINE}" >> \
-        ${S}/debian/u-boot-${MACHINE}.install
-    echo "../prebuild/am65x-rtu1-prueth-fw.elf /usr/lib/u-boot/${MACHINE}" >> \
+    ln -sf ../keys ${S}
+    cp ${WORKDIR}/${U_BOOT_RULES} ${S}/debian/rules
+    echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     version=-$(get_meta_version)
     echo $version > ${S}/.scmversion
@@ -74,6 +68,14 @@ do_prepare_build_append() {
 do_build[dirs] += "${DEPLOY_DIR_IMAGE}"
 
 dpkg_runbuild_prepend() {
-    export CROSS_COMPILE_ARMV7=${CROSS_COMPILE_ARMV7}
-    export IOT2050_VARIANTS=${IOT2050_VARIANTS}
+    export IOT2050_VARIANT=${IOT2050_VARIANT}
+    export SPI_FLASH_IMG=${SPI_FLASH_IMG}
+    export SPI_FLASH_SIZE_KB=${SPI_FLASH_SIZE_KB}
 }
+
+do_deploy() {
+    cp -f "${S}/${SPI_FLASH_IMG}" "${DEPLOY_DIR_IMAGE}"
+}
+
+addtask deploy after do_dpkg_build before do_build
+do_deploy[dirs] = "${DEPLOY_DIR_IMAGE}"
