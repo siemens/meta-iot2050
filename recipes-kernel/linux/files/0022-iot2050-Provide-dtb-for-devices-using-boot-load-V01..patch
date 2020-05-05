@@ -1,0 +1,58 @@
+From b67f4cd98d12fe0f08b568f1ea230e1e7efb4798 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sat, 2 May 2020 11:02:12 +0200
+Subject: [PATCH 22/22] iot2050: Provide dtb for devices using boot load
+ V01.00.00.1
+
+That release came with sysfw 19.7.1 which had some... variations.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm64/boot/dts/siemens/Makefile          |  2 +-
+ .../boot/dts/siemens/iot2050-basic-oldfw.dts  | 21 +++++++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+
+diff --git a/arch/arm64/boot/dts/siemens/Makefile b/arch/arm64/boot/dts/siemens/Makefile
+index 39173d4ae1a4..8607c07ddc78 100644
+--- a/arch/arm64/boot/dts/siemens/Makefile
++++ b/arch/arm64/boot/dts/siemens/Makefile
+@@ -7,7 +7,7 @@
+ 
+ DTC_FLAGS += -@
+ 
+-dtb-$(CONFIG_ARCH_K3_AM6_SOC) += iot2050-basic.dtb \
++dtb-$(CONFIG_ARCH_K3_AM6_SOC) += iot2050-basic.dtb iot2050-basic-oldfw.dtb \
+ 	iot2050-advanced.dtb
+ 
+ $(obj)/%.dtbo: $(src)/%.dtso FORCE
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts b/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+new file mode 100644
+index 000000000000..79f18002a464
+--- /dev/null
++++ b/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * (C) Copyright 2019 Siemens AG
++ */
++
++/dts-v1/;
++#include "iot2050-basic.dts"
++
++/* Compat support for bootloader V01.00.00.1 */
++
++&ospi0 {
++	clocks = <&k3_clks 55 5>;
++	assigned-clocks = <&k3_clks 55 5>;
++	assigned-clock-parents = <&k3_clks 55 7>;
++	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
++};
++
++&ospi1 {
++	clocks = <&k3_clks 55 16>;
++	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
++};
+-- 
+2.26.1
+

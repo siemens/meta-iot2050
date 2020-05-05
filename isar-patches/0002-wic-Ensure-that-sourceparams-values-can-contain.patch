@@ -1,0 +1,29 @@
+From e59bba5ee21e9065dce86b912996b893f8946535 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 28 Feb 2019 09:47:56 +0100
+Subject: [PATCH] wic: Ensure that sourceparams values can contain '='
+
+This allows '--sourceparams key1=val1=val11,key2=val2'.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+---
+ scripts/lib/wic/partition.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/lib/wic/partition.py b/scripts/lib/wic/partition.py
+index 3da7e23e61..ca206ece02 100644
+--- a/scripts/lib/wic/partition.py
++++ b/scripts/lib/wic/partition.py
+@@ -173,7 +173,7 @@ class Partition():
+             # Split sourceparams string of the form key1=val1[,key2=val2,...]
+             # into a dict.  Also accepts valueless keys i.e. without =
+             splitted = self.sourceparams.split(',')
+-            srcparams_dict = dict(par.split('=') for par in splitted if par)
++            srcparams_dict = dict(par.split('=', 1) for par in splitted if par)
+ 
+         plugin = PluginMgr.get_plugins('source')[self.source]
+         plugin.do_configure_partition(self, srcparams_dict, creator,
+-- 
+2.26.1
+

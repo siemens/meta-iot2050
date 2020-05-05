@@ -8,6 +8,6 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-part / --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=setenv fdtfile siemens/iot2050-basic.dtb; run fdt_select" --fstype ext4 --label rootfs --align 1024 --use-uuid
+part / --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=env exists fdtfile || if test \${board_name} = IOT2050-ADVANCED; then set fdtfile siemens/iot2050-advanced.dtb; else setenv fdtfile siemens/iot2050-basic-oldfw.dtb; fi" --fstype ext4 --label rootfs --align 1024 --use-uuid
 
 bootloader --ptable gpt --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 mtdparts=47040000.spi.0:512k(ospi.tiboot3),2m(ospi.tispl),4m(ospi.u-boot),128k(ospi.env),128k(ospi.env.backup),1m(ospi.sysfw),64k(pru0-fw),64k(pru1-fw),64k(rtu0-fw),64k(rtu1-fw),-@8m(ospi.rootfs) rw rootwait"

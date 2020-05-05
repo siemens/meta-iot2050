@@ -33,7 +33,7 @@ SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0019-feat-set-sdhci0-clock-frequency-to-142.86MHz.patch \
     file://0020-feat-change-mmc-order-using-alias-in-dts.patch \
     file://0021-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
-    file://0022-iot2050-Roll-back-basic-dtb-to-V01.00.00.1-release.patch"
+    file://0022-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch"
 
 KERNEL_REV = "5f8c1c6121da785bbe7ecc5896877a2537b5d6eb"
 SRC_URI[sha256sum] = "ef031959fd8242b943d0aa54ad4bf6338b698577739867701f6d7c7d04ec6e1f"
