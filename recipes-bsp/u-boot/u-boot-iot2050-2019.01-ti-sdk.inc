@@ -9,7 +9,6 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-inherit meta-version
 require recipes-bsp/u-boot/u-boot-custom.inc
 
 SRC_URI += " \
@@ -61,8 +60,7 @@ do_prepare_build_append() {
     cp ${WORKDIR}/${U_BOOT_RULES} ${S}/debian/rules
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
-    version=-$(get_meta_version)
-    echo $version > ${S}/.scmversion
+    echo -$(${ISAR_RELEASE_CMD}) > ${S}/.scmversion
 }
 
 do_build[dirs] += "${DEPLOY_DIR_IMAGE}"
