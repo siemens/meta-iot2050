@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+export JAVA_HOME=/usr/lib/jvm/default-java
+
+override_dh_fixperms:
+	dh_fixperms 
+
+%:
+	dh $@
+
+override_dh_auto_test:
+	echo "skipping test"
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	  -DBUILDSWIGJAVA=ON
+

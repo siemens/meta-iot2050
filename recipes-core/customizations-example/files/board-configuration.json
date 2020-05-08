@@ -1,0 +1,156 @@
+{
+    "User_configuration": {
+        "External_Serial_Init_Mode": "RS232",
+        "External_Serial_Current_Mode": "RS232",
+        "External_Serial_Terminate": "off",
+        "IO0_MODE": "GPIO_Input",
+        "IO1_MODE": "GPIO_Input",
+        "IO2_MODE": "GPIO_Input",
+        "IO3_MODE": "GPIO_Input",
+        "IO4_MODE": "GPIO_Input",
+        "IO5_MODE": "GPIO_Input",
+        "IO6_MODE": "GPIO_Input",
+        "IO7_MODE": "GPIO_Input",
+        "IO8_MODE": "GPIO_Input",
+        "IO9_MODE": "GPIO_Input",
+        "IO10_MODE": "GPIO_Input",
+        "IO11_MODE": "GPIO_Input",
+        "IO12_MODE": "GPIO_Input",
+        "IO13_MODE": "GPIO_Input",
+        "IO14_MODE": "GPIO_Input",
+        "IO15_MODE": "GPIO_Input",
+        "IO16_MODE": "GPIO_Input",
+        "IO17_MODE": "GPIO_Input",
+        "IO18_MODE": "GPIO_Input",
+        "IO19_MODE": "GPIO_Input",
+        "IO0_PULL_MODE": "Hiz",
+        "IO1_PULL_MODE": "Hiz",
+        "IO2_PULL_MODE": "Hiz",
+        "IO3_PULL_MODE": "Hiz",
+        "IO4_PULL_MODE": "Hiz",
+        "IO5_PULL_MODE": "Hiz",
+        "IO6_PULL_MODE": "Hiz",
+        "IO7_PULL_MODE": "Hiz",
+        "IO8_PULL_MODE": "Hiz",
+        "IO9_PULL_MODE": "Hiz",
+        "IO10_PULL_MODE": "Hiz",
+        "IO11_PULL_MODE": "Hiz",
+        "IO12_PULL_MODE": "Hiz",
+        "IO13_PULL_MODE": "Hiz",
+        "IO14_PULL_MODE": "Hiz",
+        "IO15_PULL_MODE": "Hiz",
+        "IO16_PULL_MODE": "Hiz",
+        "IO17_PULL_MODE": "Hiz",
+        "IO18_PULL_MODE": "Hiz",
+        "IO19_PULL_MODE": "Hiz"
+    },
+    "Arduino_pinmux_map": {
+        "IO0": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "UART_RX"
+        ],
+        "IO1": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "UART_TX"
+        ],
+        "IO2": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "UART_CTS"
+        ],
+        "IO3": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "UART_RTS"
+        ],
+        "IO4": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "PWM_4"
+        ],
+        "IO5": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "PWM_5"
+        ],
+        "IO6": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "PWM_6"
+        ],
+        "IO7": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "PWM_7"
+        ],
+        "IO8": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "PWM_8"
+        ],
+        "IO9": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "PWM_9"
+        ],
+        "IO10": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "SPI_SS"
+        ],
+        "IO11": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "SPI_MOSI"
+        ],
+        "IO12": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "SPI_MISO"
+        ],
+        "IO13": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "SPI_SCK"
+        ],
+        "IO14": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "ADC_0"
+        ],
+        "IO15": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "ADC_1"
+        ],
+        "IO16": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "ADC_2"
+        ],
+        "IO17": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "ADC_3"
+        ],
+        "IO18": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "I2C_SDA",
+            "ADC_4"
+        ],
+        "IO19": [
+            "GPIO_Input",
+            "GPIO_Output",
+            "I2C_SCL",
+            "ADC_5"
+        ]
+    },
+    "Gpio_pull_mode": [
+        "Pull-down",
+        "Pull-up",
+        "Hiz"
+    ]
+}

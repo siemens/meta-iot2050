@@ -1,0 +1,56 @@
+{
+  "_from": "node-red-node-intel-gpio",
+  "_id": "node-red-node-intel-gpio@0.0.6",
+  "_inBundle": false,
+  "_integrity": "sha512-ykZKgpillqBa69oN7gvR3CCY4EbyIRZZTad+YAC1Q6peIebugUD1QttNNwUeVe4t3oR1aHP2kdUUuyuPOt3EJA==",
+  "_location": "/node-red-node-intel-gpio",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "node-red-node-intel-gpio",
+    "name": "node-red-node-intel-gpio",
+    "escapedName": "node-red-node-intel-gpio",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/node-red-node-intel-gpio/-/node-red-node-intel-gpio-0.0.6.tgz",
+  "_shasum": "e6439cb12edc4794331f414bef80b3c155575a44",
+  "_spec": "node-red-node-intel-gpio",
+  "_where": "/usr/local/lib/node_modules/node-red/node_modules",
+  "author": {
+    "name": "Dave Conway-Jones",
+    "email": "ceejay@vnet.ibm.com",
+    "url": "http://nodered.org"
+  },
+  "bundleDependencies": false,
+  "dependencies": {},
+  "deprecated": false,
+  "description": "A Node-RED node to talk to an Intel Galileo or Edison using mraa",
+  "keywords": [
+    "node-red",
+    "intel",
+    "galileo",
+    "edison"
+  ],
+  "license": "Apache-2.0",
+  "name": "node-red-node-intel-gpio",
+  "node-red": {
+    "nodes": {
+      "mraa-gpio-ain": "mraa-gpio-ain.js",
+      "mraa-gpio-din": "mraa-gpio-din.js",
+      "mraa-gpio-dout": "mraa-gpio-dout.js",
+      "mraa-gpio-pwm": "mraa-gpio-pwm.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/node-red/node-red-nodes/tree/master/hardware/intel"
+  },
+  "version": "0.0.6"
+}

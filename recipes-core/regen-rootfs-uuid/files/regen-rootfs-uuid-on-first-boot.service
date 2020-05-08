@@ -1,0 +1,26 @@
+#
+# Copyright (c) Siemens AG, 2020
+#
+# Authors:
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=Generate new UUID for rootfs partition
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=systemd-remount-fs.service
+Before=sysinit.target shutdown.target
+ConditionPathIsReadWrite=/etc
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/usr/share/regen-rootfs-uuid/regen-rootfs-uuid.sh
+ExecStartPost=-/bin/systemctl disable regen-rootfs-uuid-on-first-boot.service
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=sysinit.target

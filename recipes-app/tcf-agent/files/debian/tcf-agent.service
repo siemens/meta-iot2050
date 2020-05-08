@@ -1,0 +1,9 @@
+[Unit]
+Description=tcf-agent
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/tcf-agent -L- -l0 -s SSL:
+
+[Install]
+WantedBy=multi-user.target

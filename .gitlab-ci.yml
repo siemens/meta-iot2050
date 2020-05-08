@@ -1,0 +1,24 @@
+image: kasproject/kas-isar:2.0
+
+variables:
+  GIT_STRATEGY: clone
+
+all:
+  stage: build
+  script:
+    - export http_proxy=$HTTP_PROXY
+    - export https_proxy=$HTTPS_PROXY
+    - export ftp_proxy=$FTP_PROXY
+    - export no_proxy=$NO_PROXY
+
+    # only needed as long as we depend on private ssh-based repos
+    - mkdir -m 0700 ~/.ssh
+    - echo "host *" > ~/.ssh/config
+    - echo "StrictHostKeyChecking no" >> ~/.ssh/config
+    - echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+    - chmod 0600 ~/.ssh/id_ed25519
+
+    - kas build kas-iot2050-example.yml
+    - kas build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
+    - sudo rm -rf build/tmp
+    - kas build kas-iot2050-boot-advanced.yml

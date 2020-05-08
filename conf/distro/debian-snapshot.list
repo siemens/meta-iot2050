@@ -1,0 +1,8 @@
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster main contrib non-free
+
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20200117T184524Z/ buster/updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20200117T184524Z/ buster/updates main contrib non-free
+
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster-updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster-updates main contrib non-free

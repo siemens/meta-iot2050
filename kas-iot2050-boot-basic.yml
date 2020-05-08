@@ -1,0 +1,22 @@
+#
+# Copyright (c) Siemens AG, 2019
+#
+# Authors:
+#  Le Jin <le.jin@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 8
+  includes:
+    - kas/iot2050.yml
+
+target: iot2050-image-boot
+
+local_conf_header:
+  image: |
+    IMAGE_TYPE ?= "boot-flash-img"
+  platform-variants: |
+    IOT2050_VARIANTS ?= "BASIC"

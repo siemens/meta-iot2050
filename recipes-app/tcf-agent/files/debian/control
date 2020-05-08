@@ -1,0 +1,11 @@
+Source: tcf-agent
+Section: devel
+Priority: optional
+Standards-Version: 4.1.3
+Maintainer: Unknown maintainer <unknown@example.com>
+Build-Depends: debhelper (>= 10), libssl-dev, uuid-dev
+
+Package: tcf-agent
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Target Communication Framework for the Eclipse IDE

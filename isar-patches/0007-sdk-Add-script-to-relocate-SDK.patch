@@ -1,0 +1,91 @@
+From 1560303a740c1dfa2624b92d98e2be35a0e9a597 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 19 Mar 2020 19:21:44 +0100
+Subject: [PATCH 3/6] sdk: Add script to relocate SDK
+
+When run inside the unpacked SDK, this script tunes interp and rpath
+entry in relevant binaries so that the cross conpilation tool can be
+called outside of the chroot, irrespective of the host distribution.
+Then only "--sysroot /path/to/sdkroot" needs to be passed to the
+compiler.
+
+The script also supports restoring the original chroot-mode when invoked
+with the --restore-chroot option.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../sdkchroot/files/relocate-sdk.sh                | 41 ++++++++++++++++++++++
+ meta/recipes-devtools/sdkchroot/sdkchroot.bb       |  2 ++
+ 2 files changed, 43 insertions(+)
+ create mode 100755 meta/recipes-devtools/sdkchroot/files/relocate-sdk.sh
+
+diff --git a/meta/recipes-devtools/sdkchroot/files/relocate-sdk.sh b/meta/recipes-devtools/sdkchroot/files/relocate-sdk.sh
+new file mode 100755
+index 00000000..1c9b02fa
+--- /dev/null
++++ b/meta/recipes-devtools/sdkchroot/files/relocate-sdk.sh
+@@ -0,0 +1,41 @@
++#!/bin/sh
++#
++# This software is a part of ISAR.
++# Copyright (c) Siemens AG, 2020
++#
++# SPDX-License-Identifier: MIT
++
++sdkroot=$(realpath $(dirname $0))
++arch=$(uname -m)
++
++new_sdkroot=$sdkroot
++
++case "$1" in
++--help|-h)
++	echo "Usage: $0 [--restore-chroot|-r]"
++	exit 0
++	;;
++--restore-chroot|-r)
++	new_sdkroot=/
++	;;
++esac
++
++if [ -z $(which patchelf 2>/dev/null) ]; then
++	echo "Please install 'patchelf' package first."
++	exit 1
++fi
++
++echo -n "Adjusting path of SDK to '${new_sdkroot}'... "
++
++for binary in $(find ${sdkroot}/usr/bin ${sdkroot}/usr/sbin ${sdkroot}/usr/lib/gcc* -executable -type f); do
++	interpreter=$(patchelf --print-interpreter ${binary} 2>/dev/null)
++	oldpath=${interpreter%/lib*/ld-linux*}
++	interpreter=${interpreter#${oldpath}}
++	if [ -n "${interpreter}" ]; then
++		patchelf --set-interpreter ${new_sdkroot}${interpreter} \
++			--set-rpath ${new_sdkroot}/usr/lib:${new_sdkroot}/usr/lib/${arch}-linux-gnu \
++			$binary 2>/dev/null
++	fi
++done
++
++echo "done"
+diff --git a/meta/recipes-devtools/sdkchroot/sdkchroot.bb b/meta/recipes-devtools/sdkchroot/sdkchroot.bb
+index ab0a66dc..2bc9d291 100644
+--- a/meta/recipes-devtools/sdkchroot/sdkchroot.bb
++++ b/meta/recipes-devtools/sdkchroot/sdkchroot.bb
+@@ -10,6 +10,7 @@ LIC_FILES_CHKSUM = "file://${LAYERDIR_core}/licenses/COPYING.GPLv2;md5=751419260
+ 
+ SRC_URI = " \
+     file://configscript.sh \
++    file://relocate-sdk.sh \
+     file://README.sdk"
+ PV = "0.1"
+ 
+@@ -58,6 +59,7 @@ ROOTFS_POSTPROCESS_COMMAND =+ "sdkchroot_install_files"
+ sdkchroot_install_files() {
+     # Configure root filesystem
+     sudo install -m 644 ${WORKDIR}/README.sdk ${S}
++    sudo install -m 755 ${WORKDIR}/relocate-sdk.sh ${S}
+     sudo install -m 755 ${WORKDIR}/configscript.sh ${S}
+     sudo chroot ${S} /configscript.sh  ${DISTRO_ARCH}
+ }
+-- 
+2.16.4
+

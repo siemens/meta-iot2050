@@ -1,0 +1,39 @@
+From 7766a625d82ba40facf3bd33ffa7bdeab638d6c5 Mon Sep 17 00:00:00 2001
+From: Gao Nian <nian.gao@siemens.com>
+Date: Fri, 8 May 2020 16:09:23 +0800
+Subject: [PATCH 23/23] iot2050: Roll back advanced dtb to V01.00.00.1 release
+
+Signed-off-by: Gao Nian <nian.gao@siemens.com>
+---
+ .../arm64/boot/dts/siemens/iot2050-advanced.dts | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+index 946520f863cf..a0d8b50010de 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+@@ -62,4 +62,19 @@
+ 	non-removable;
+ 	ti,driver-strength-ohm = <50>;
+ 	disable-wp;
+-};
+\ No newline at end of file
++};
++
++/* Compat support for bootloader V01.00.00.1 */
++
++&ospi0 {
++        clocks = <&k3_clks 55 5>;
++        assigned-clocks = <&k3_clks 55 5>;
++        assigned-clock-parents = <&k3_clks 55 7>;
++        power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
++};
++
++&ospi1 {
++        clocks = <&k3_clks 55 16>;
++        power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
++};
++
+-- 
+2.25.1
+

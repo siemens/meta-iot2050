@@ -1,0 +1,62 @@
+From 81dc6e6f2f463a6f82bd3400b3ad841423f159d2 Mon Sep 17 00:00:00 2001
+From: zengchao <chao.zeng@siemens.com>
+Date: Tue, 17 Dec 2019 08:48:05 +0800
+Subject: [PATCH 2/2] extend gpio to D19
+
+Signed-off-by: zengchao <chao.zeng@siemens.com>
+---
+ hardware/intel/mraa-gpio-dout.html | 12 +++++++-----
+ hardware/intel/mraa-gpio-dout.js   |  7 +------
+ 2 files changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
+index f3f7060..d88995c 100644
+--- a/hardware/intel/mraa-gpio-dout.html
++++ b/hardware/intel/mraa-gpio-dout.html
+@@ -15,11 +15,7 @@
+         icon: "arrow.png",
+         align: "right",
+         label: function() {
+-            if (this.pin === "14") {
+-                return "LED";
+-            } else {
+-                return this.name||"D"+this.pin;
+-            }
++            return this.name||"D"+this.pin;
+         },
+         labelStyle: function() {
+             return this.name?"node_label_italic":"";
+@@ -79,6 +75,12 @@
+             <option value="11">D11</option>
+             <option value="12">D12</option>
+             <option value="13">D13</option>
++            <option value="14">D14</option>
++            <option value="15">D15</option>
++            <option value="16">D16</option>
++            <option value="17">D17</option>
++            <option value="18">D18</option>
++            <option value="19">D19</option>
+         </select>
+     </div>
+     <div class="form-row" id="node-set-tick">
+diff --git a/hardware/intel/mraa-gpio-dout.js b/hardware/intel/mraa-gpio-dout.js
+index 020db55..37d1429 100644
+--- a/hardware/intel/mraa-gpio-dout.js
++++ b/hardware/intel/mraa-gpio-dout.js
+@@ -8,12 +8,7 @@ module.exports = function(RED) {
+         this.set = n.set;
+         this.level = Number(n.level);
+         var node = this;
+-        if (node.pin === 14) {
+-            node.p = new m.Gpio(3,false,true);  // special for onboard LED v1
+-        }
+-        else {
+-            node.p = new m.Gpio(node.pin);
+-        }
++        node.p = new m.Gpio(node.pin);
+         node.p.mode(m.PIN_GPIO);
+         node.p.dir(m.DIR_OUT);
+         if (node.set) {
+-- 
+2.16.4
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=Node-RED
+After=syslog.target network.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/node-red -u /home/root/.node-red
+StandardOutput=syslog
+
+[Install]
+WantedBy=multi-user.target

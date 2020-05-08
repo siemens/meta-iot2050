@@ -1,0 +1,58 @@
+From bdbca046501c86ca5adca28439e0d7294b83c4b1 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 3 Apr 2020 12:18:21 +0200
+Subject: [PATCH] dpkg-raw: Correct path so that git fetching works
+
+Setting D to S and cleaning the former caused problems when fetching the
+to-be-installed files via git. Fix this by using a distinct D folder.
+This requires setting --sourcedir for dh_install accordingly.
+
+At this chance, simplify ${PN}.install creation and avoid resolving ${D}
+in the error message.
+
+Reported-by: Sven Schultschik <sven.schultschik@siemens.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/classes/dpkg-raw.bbclass | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/meta/classes/dpkg-raw.bbclass b/meta/classes/dpkg-raw.bbclass
+index 8c01a46a..9d4e8c19 100644
+--- a/meta/classes/dpkg-raw.bbclass
++++ b/meta/classes/dpkg-raw.bbclass
+@@ -5,22 +5,27 @@
+ 
+ inherit dpkg
+ 
+-D = "${S}"
++D = "${WORKDIR}/image"
+ 
+ # Populate folder that will be picked up as package
+ do_install() {
+-	bbnote "Put your files for this package in ${D}"
++	bbnote "Put your files for this package in $""{D}"
+ }
+ 
+ do_install[cleandirs] = "${D}"
+ addtask install after do_unpack before do_prepare_build
+ 
+-do_prepare_build[cleandirs] += "${D}/debian"
++do_prepare_build[cleandirs] += "${S}/debian"
+ do_prepare_build() {
+ 	cd ${D}
+ 	find . -maxdepth 1 ! -name .. -and ! -name . -and ! -name debian | \
+-		sed 's:^./::' > ${WORKDIR}/${PN}.install
+-	mv ${WORKDIR}/${PN}.install ${D}/debian/
++		sed 's:^./::' > ${S}/debian/${PN}.install
+ 
+ 	deb_debianize
++
++	cat <<EOF >> ${S}/debian/rules
++
++override_dh_install:
++	dh_install --sourcedir=${PP}/image
++EOF
+ }
+-- 
+2.16.4
+

@@ -1,0 +1,8 @@
+#
+# Copyright (c) Siemens AG, 2018
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+echo "keyboard=onboard" >> /etc/lightdm/lightdm-gtk-greeter.conf

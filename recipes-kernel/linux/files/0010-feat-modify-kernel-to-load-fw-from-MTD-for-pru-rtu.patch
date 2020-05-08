@@ -1,0 +1,130 @@
+From e2348e65a09f34c6d4896abdc1b920c08396ecaa Mon Sep 17 00:00:00 2001
+From: Gao Nian <nian.gao@siemens.com>
+Date: Fri, 25 Oct 2019 14:54:06 +0800
+Subject: [PATCH 10/23] feat:modify kernel to load fw from MTD for pru&rtu
+
+Signed-off-by: Gao Nian <nian.gao@siemens.com>
+---
+ .../boot/dts/siemens/iot2050-common.dtsi      |  8 +--
+ drivers/base/firmware_loader/main.c           | 65 ++++++++++++++++---
+ 2 files changed, 59 insertions(+), 14 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+index e1ba5572dcea..c0ac25d2f60c 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+@@ -75,10 +75,10 @@
+ 		interrupt-parent = <&main_udmass_inta>;
+ 
+ 		prus = <&pru0_0>, <&rtu0_0>, <&pru0_1>, <&rtu0_1>;
+-		firmware-name = "ti-pruss/am65x-pru0-prueth-fw.elf",
+-				"ti-pruss/am65x-rtu0-prueth-fw.elf",
+-				"ti-pruss/am65x-pru1-prueth-fw.elf",
+-				"ti-pruss/am65x-rtu1-prueth-fw.elf";
++		firmware-name = "mtd://pru0-fw",
++		                "mtd://rtu0-fw",
++		                "mtd://pru1-fw",
++		                "mtd://rtu1-fw";
+ 		mii-g-rt = <&icssg0_mii_g_rt>;
+ 		mii-rt = <&icssg0_mii_rt>;
+ 		dma-coherent;
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
+index 8e9213b36e31..bcf8aeef2823 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -33,7 +33,7 @@
+ #include <linux/syscore_ops.h>
+ #include <linux/reboot.h>
+ #include <linux/security.h>
+-
++#include <linux/mtd/mtd.h>
+ #include <generated/utsrelease.h>
+ 
+ #include "../base.h"
+@@ -346,6 +346,39 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv)
+ 	return rc;
+ }
+ 
++static int fw_get_mtd_firmware(struct device *device, struct fw_priv *fw_priv, const char *fw_name)
++{
++	int ret = 0;
++	size_t retlen = 0;
++	size_t size = 0;
++	unsigned char *buf = NULL;
++
++	struct mtd_info *mtd = get_mtd_device_nm(fw_name);
++	if (!mtd) {
++		dev_err(device, "%s: get_mtd_device_nm [%s] failed\n", __func__, fw_priv->fw_name);
++		return -ENODEV;
++	}
++
++	size = mtd->size;
++
++	buf = (unsigned char *)vmalloc(size);
++	if (!buf) {
++		dev_err(device, "%s: vmalloc(0x%lx) failed\n", __func__, size);
++		return -ENOMEM;
++	}
++
++	ret = mtd_read(mtd, 0, size, &retlen, buf);
++	if (ret || (retlen != size)) {
++		dev_err(device, "%s: mtd_read() failed\n", __func__);
++		return -EIO;
++	}
++
++	fw_priv->data = (void *)buf;
++	fw_priv->size = size;
++
++	return 0;
++}
++
+ /* firmware holds the ownership of pages */
+ static void firmware_free_data(const struct firmware *fw)
+ {
+@@ -570,6 +603,9 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
+ {
+ 	struct firmware *fw = NULL;
+ 	int ret;
++	struct fw_priv *priv = NULL;
++	const char *PRURTS_FW_PFEFIX = "mtd://";
++	const unsigned int len = strlen(PRURTS_FW_PFEFIX);
+ 
+ 	if (!firmware_p)
+ 		return -EINVAL;
+@@ -584,15 +620,24 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
+ 	if (ret <= 0) /* error or already assigned */
+ 		goto out;
+ 
+-	ret = fw_get_filesystem_firmware(device, fw->priv);
+-	if (ret) {
+-		if (!(opt_flags & FW_OPT_NO_WARN))
+-			dev_warn(device,
+-				 "Direct firmware load for %s failed with error %d\n",
+-				 name, ret);
+-		ret = firmware_fallback_sysfs(fw, name, device, opt_flags, ret);
+-	} else
+-		ret = assign_fw(fw, device, opt_flags);
++	priv = (struct fw_priv *)fw->priv;
++	if (!strncmp(priv->fw_name, PRURTS_FW_PFEFIX, len)) {
++		ret = fw_get_mtd_firmware(device, fw->priv, &(priv->fw_name[len]));
++		if (ret)
++			dev_err(device, "Load firmware for %s failed with error %d\n", device->kobj.name, ret);
++		else
++			ret = assign_fw(fw, device, opt_flags);
++	} else {
++		ret = fw_get_filesystem_firmware(device, fw->priv);
++		if (ret) {
++			if (!(opt_flags & FW_OPT_NO_WARN))
++				dev_warn(device,
++					"Direct firmware load for %s failed with error %d\n",
++					name, ret);
++			ret = firmware_fallback_sysfs(fw, name, device, opt_flags, ret);
++		} else
++			ret = assign_fw(fw, device, opt_flags);
++	}
+ 
+  out:
+ 	if (ret < 0) {
+-- 
+2.17.1
+

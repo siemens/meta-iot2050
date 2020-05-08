@@ -1,0 +1,3 @@
+#!/bin/sh
+
+systemctl enable regen-rootfs-uuid-on-first-boot.service

@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+ifeq ($(DEB_HOST_GNU_CPU),armv6l)
+  export MACHINE=arm
+endif
+ifeq ($(DEB_HOST_GNU_CPU),armv7l)
+  export MACHINE=arm
+endif
+ifeq ($(DEB_HOST_GNU_CPU),aarch64)
+  export MACHINE=a64
+endif
+
+export INSTALLROOT=$(CURDIR)/debian/tmp
+
+%:
+	dh $@ --with systemd --sourcedirectory=agent

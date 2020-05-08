@@ -1,0 +1,23 @@
+#
+# Copyright (c) Siemens AG, 2019
+#
+# Authors:
+#  Le Jin <le.jin@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 8
+  includes:
+   - kas/iot2050.yml
+
+target: iot2050-image-example
+
+local_conf_header:
+  root_password: |
+    # Set root password to 'root', see isar/meta-isar/conf/local.conf.sample 
+    # about how to generate encrypted password
+    USERS += "root"
+    USER_root[password] ??= "$6$rounds=10000$RXeWrnFmkY$DtuS/OmsAS2cCEDo0BF5qQsizIrq6jPgXnwv3PHqREJeKd1sXdHX/ayQtuQWVDHe0KIO0/sVH8dvQm1KthF0d/"

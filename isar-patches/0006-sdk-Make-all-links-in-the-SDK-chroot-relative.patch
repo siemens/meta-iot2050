@@ -1,0 +1,41 @@
+From 5176be74d9b8758bc8096c203aae528fd5495970 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 19 Mar 2020 16:21:59 +0100
+Subject: [PATCH 2/6] sdk: Make all links in the SDK chroot relative
+
+This, in combination with interp and rpatch rewriting, will allow to use
+the SDK outside of its chroot.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/classes/image-sdk-extension.bbclass | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/meta/classes/image-sdk-extension.bbclass b/meta/classes/image-sdk-extension.bbclass
+index b9f2cf4a..84ac9c6d 100644
+--- a/meta/classes/image-sdk-extension.bbclass
++++ b/meta/classes/image-sdk-extension.bbclass
+@@ -18,6 +18,20 @@ do_populate_sdk() {
+     # Remove setup scripts
+     sudo rm -f ${SDKCHROOT_DIR}/chroot-setup.sh ${SDKCHROOT_DIR}/configscript.sh
+ 
++    # Make all links relative
++    for link in $(find ${SDKCHROOT_DIR}/ -type l); do
++        target=$(readlink $link)
++
++        if [ "${target#/}" != "${target}" ]; then
++            basedir=$(dirname $link)
++            new_target=$(realpath --no-symlinks -m --relative-to=$basedir ${SDKCHROOT_DIR}/${target})
++
++            # remove first to allow rewriting directory links
++            sudo rm $link
++            sudo ln -s $new_target $link
++        fi
++    done
++
+     # Copy mount_chroot.sh for convenience
+     sudo cp ${ISARROOT}/scripts/mount_chroot.sh ${SDKCHROOT_DIR}
+ 
+-- 
+2.16.4
+

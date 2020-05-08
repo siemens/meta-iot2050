@@ -1,0 +1,33 @@
+From 95a9f63cf08115d42e6d3df892314a704dd671ce Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 5 May 2020 17:38:11 +0200
+Subject: [PATCH] image: Fix evaluation of complex ISAR_RELEASE_CMD values
+
+If ISAR_RELEASE_CMD contains a boolean expression make sure to evaluate
+it as a whole. So far, "false || true" was incorrectly be detected as
+unsuccessful.
+
+This allows to handle failing git version extractions gracefully, e.g.
+ISAR_RELEASE_CMD = "git ... describe ... || echo unknown".
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/classes/image.bbclass | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/classes/image.bbclass b/meta/classes/image.bbclass
+index 0150f271..a296cc06 100644
+--- a/meta/classes/image.bbclass
++++ b/meta/classes/image.bbclass
+@@ -99,7 +99,7 @@ get_build_id() {
+ 		       "considered in the build_id. Consider changing" \
+ 		       "ISAR_RELEASE_CMD."
+ 	fi
+-	if ! ${ISAR_RELEASE_CMD} 2>/dev/null; then
++	if ! ( ${ISAR_RELEASE_CMD} ) 2>/dev/null; then
+ 		bbwarn "\"${ISAR_RELEASE_CMD}\" failed, returning empty build_id."
+ 		echo ""
+ 	fi
+-- 
+2.26.1
+
