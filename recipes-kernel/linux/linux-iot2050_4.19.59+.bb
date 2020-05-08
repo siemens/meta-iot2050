@@ -33,8 +33,7 @@ SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0019-feat-set-sdhci0-clock-frequency-to-142.86MHz.patch \
     file://0020-feat-change-mmc-order-using-alias-in-dts.patch \
     file://0021-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
-    file://0022-iot2050-Roll-back-basic-dtb-to-V01.00.00.1-release.patch \
-    file://0023-iot2050-Roll-back-advanced-dtb-to-V01.00.00.1-releas.patch"
+    file://0022-iot2050-Roll-back-basic-dtb-to-V01.00.00.1-release.patch"
 
 KERNEL_BRANCH = "processor-sdk-linux-4.19.y"
 KERNEL_REV = "5f8c1c6121da785bbe7ecc5896877a2537b5d6eb"

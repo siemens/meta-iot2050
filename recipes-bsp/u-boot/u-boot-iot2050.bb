@@ -29,6 +29,9 @@ SRC_URI += " \
     file://0013-bugfix-set-gpio-direction-output-show-error.patch \
     file://0014-feat-add-config-for-skipping-certificate-verificatio.patch \
     file://0015-feat-enable-verified-boot.patch \
+    file://0016-feat-add-sysfw-19.12-support.patch \
+    file://0017-add-the-signature-support-for-fit-image-add-the-supp.patch \
+    file://0018-feat-set-sdhci0-clock-frequency-to-142.86MHz.patch \
     file://atf/0001-feat-add-atf-support-to-iot2050-platform.patch;patchdir=${WORKDIR}/atf \
     file://optee/0001-feat-add-optee-support-to-iot2050-platform.patch;patchdir=${WORKDIR}/optee \
     file://iot2050-uboot-build-rules \

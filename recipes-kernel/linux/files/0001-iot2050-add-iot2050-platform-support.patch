@@ -1,7 +1,7 @@
 From 5283cfac179d7c6a40d659d26d121747df9f73e3 Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH 01/23] iot2050: add iot2050 platform support
+Subject: [PATCH 01/22] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
 Also add support for fixed gpio number naming.

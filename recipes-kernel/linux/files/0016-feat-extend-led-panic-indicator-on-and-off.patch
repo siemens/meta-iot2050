@@ -1,7 +1,7 @@
 From 02d8a735b979126c08d7e40204f8854f0be09004 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 16/23] feat:extend led panic-indicator on and off
+Subject: [PATCH 16/22] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

@@ -1,7 +1,7 @@
 From 1da9df7f4ea442863cf4af24e3cba29d79de5ea3 Mon Sep 17 00:00:00 2001
 From: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 Date: Fri, 13 Dec 2019 12:35:56 +0800
-Subject: [PATCH 13/23] fix(4169461):fixed eth link down when autoneg off
+Subject: [PATCH 13/22] fix(4169461):fixed eth link down when autoneg off
 
 1.dp83867: enable robust auto-mdix
 

@@ -1,7 +1,7 @@
 From b10414684b81c4750614d240d1b0d86b9fbc6cab Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 09:58:29 +0800
-Subject: [PATCH 03/15] iot2050:turn on red led when something goes wrong
+Subject: [PATCH 03/18] iot2050:turn on red led when something goes wrong
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---

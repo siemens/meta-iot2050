@@ -1,7 +1,7 @@
 From ec439a9f4fc648e0757b69d4a673cfa6fc0f18c8 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Thu, 2 Jan 2020 13:54:01 +0800
-Subject: [PATCH 10/15] fix:rproc init error in u-boot
+Subject: [PATCH 10/18] fix:rproc init error in u-boot
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

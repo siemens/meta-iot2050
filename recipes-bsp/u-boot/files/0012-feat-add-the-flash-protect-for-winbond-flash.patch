@@ -1,7 +1,7 @@
 From 09622d175a5421e19dd6cf5cc65bfa3d061a8afb Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Wed, 8 Jan 2020 11:46:39 +0800
-Subject: [PATCH 12/15] feat: add the flash protect for winbond flash
+Subject: [PATCH 12/18] feat: add the flash protect for winbond flash
 
       as lack of the flash protect for winbond flash,
       add the flash protect for windbond

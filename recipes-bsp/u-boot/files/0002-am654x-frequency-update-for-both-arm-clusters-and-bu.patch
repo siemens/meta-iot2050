@@ -1,7 +1,7 @@
 From 8e4decfe354a5f8d21d8b00edaeb33e972065579 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Tue, 12 Nov 2019 18:26:14 +0800
-Subject: [PATCH 02/15] am654x: frequency update for both arm clusters and bump
+Subject: [PATCH 02/18] am654x: frequency update for both arm clusters and bump
  up to 1GHz
 
 Signed-off-by: le.jin <le.jin@siemens.com>

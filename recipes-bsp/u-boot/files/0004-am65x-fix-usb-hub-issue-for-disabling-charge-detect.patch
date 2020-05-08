@@ -1,7 +1,7 @@
 From 6da565a50598aa74ab6ef1654350c30274166295 Mon Sep 17 00:00:00 2001
 From: "le.jin@siemens.com" <le.jin@siemens.com>
 Date: Sun, 16 Feb 2020 18:39:15 +0800
-Subject: [PATCH 04/15] am65x:fix usb hub issue for disabling charge detect
+Subject: [PATCH 04/18] am65x:fix usb hub issue for disabling charge detect
 
 Signed-off-by: le <le.jin@siemens.com>
 ---

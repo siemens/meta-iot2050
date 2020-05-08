@@ -1,7 +1,7 @@
 From cbd91e849e606e1b7d24fc454620f266be5defed Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Mon, 17 Feb 2020 11:56:33 +0800
-Subject: [PATCH 19/23] feat: set sdhci0 clock frequency to 142.86MHz
+Subject: [PATCH 19/22] feat: set sdhci0 clock frequency to 142.86MHz
 
 1. catch up eth sdhci driver of SDK6.3
 2. merge the patch files provided by TI:

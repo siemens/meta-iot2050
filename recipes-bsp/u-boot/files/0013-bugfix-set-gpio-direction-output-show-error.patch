@@ -1,7 +1,7 @@
 From 487e7b37faf81c0af8c94b10bb1418da3cf7629d Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Sat, 11 Jan 2020 14:17:59 +0800
-Subject: [PATCH 13/15] bugfix: set gpio direction output show error
+Subject: [PATCH 13/18] bugfix: set gpio direction output show error
 
         when gpio pin exceed 31,init the output pin value would show error
 

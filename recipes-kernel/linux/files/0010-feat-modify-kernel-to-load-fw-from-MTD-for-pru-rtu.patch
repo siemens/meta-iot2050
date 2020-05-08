@@ -1,7 +1,7 @@
 From e2348e65a09f34c6d4896abdc1b920c08396ecaa Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 25 Oct 2019 14:54:06 +0800
-Subject: [PATCH 10/23] feat:modify kernel to load fw from MTD for pru&rtu
+Subject: [PATCH 10/22] feat:modify kernel to load fw from MTD for pru&rtu
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

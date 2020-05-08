@@ -1,7 +1,7 @@
 From 98cc8b6c0f116019e0b47a2c1a063d3dac5d5598 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 12 Nov 2019 19:30:14 +0800
-Subject: [PATCH 07/15] feat:add scripts to select fdt name
+Subject: [PATCH 07/18] feat:add scripts to select fdt name
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

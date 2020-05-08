@@ -1,7 +1,7 @@
 From a5588edb0176a045758165ea4b27ee51bbdd3b34 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Wed, 29 Jan 2020 21:22:51 +0800
-Subject: [PATCH 15/15] feat: enable verified boot
+Subject: [PATCH 15/18] feat: enable verified boot
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---

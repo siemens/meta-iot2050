@@ -1,7 +1,7 @@
 From 549a95faa2fca208d14bb614d8b1e17733d6c058 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Tue, 12 Nov 2019 19:23:40 +0800
-Subject: [PATCH 05/15] am654x: remove dependency of TI_SECURE_DEV_PKG
+Subject: [PATCH 05/18] am654x: remove dependency of TI_SECURE_DEV_PKG
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---

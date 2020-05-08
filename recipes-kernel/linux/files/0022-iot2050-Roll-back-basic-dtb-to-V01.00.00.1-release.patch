@@ -1,7 +1,7 @@
 From 0ef3b310bb5c63aeb1f1468c06a739a4e69b2066 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 2 May 2020 11:02:12 +0200
-Subject: [PATCH 22/23] iot2050: Roll back basic dtb to V01.00.00.1 release
+Subject: [PATCH 22/22] iot2050: Roll back basic dtb to V01.00.00.1 release
 
 That release came with sysfw 19.7.1 which had some... variations.
 

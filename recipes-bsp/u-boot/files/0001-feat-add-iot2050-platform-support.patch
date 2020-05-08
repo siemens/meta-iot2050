@@ -1,7 +1,7 @@
 From 2a37c06cafb717ab8d02d9d88b70b221d4755872 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Tue, 12 Nov 2019 17:36:06 +0800
-Subject: [PATCH 01/15] feat: add iot2050 platform support
+Subject: [PATCH 01/18] feat: add iot2050 platform support
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---

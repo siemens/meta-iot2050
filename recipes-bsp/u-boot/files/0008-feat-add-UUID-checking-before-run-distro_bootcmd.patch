@@ -1,7 +1,7 @@
 From d8aaae7d8b1ee73fb50a00abdde7f7a3c1e9a372 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 12 Nov 2019 19:31:47 +0800
-Subject: [PATCH 08/15] feat:add UUID checking before run distro_bootcmd
+Subject: [PATCH 08/18] feat:add UUID checking before run distro_bootcmd
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

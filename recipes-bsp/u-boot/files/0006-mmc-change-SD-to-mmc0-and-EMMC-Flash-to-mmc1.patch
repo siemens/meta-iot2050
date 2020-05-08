@@ -1,7 +1,7 @@
 From 1c315cc40a232f12ddf7897732f268187fbea360 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 12 Nov 2019 19:26:20 +0800
-Subject: [PATCH 06/15] mmc:change SD to mmc0 and EMMC-Flash to mmc1
+Subject: [PATCH 06/18] mmc:change SD to mmc0 and EMMC-Flash to mmc1
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

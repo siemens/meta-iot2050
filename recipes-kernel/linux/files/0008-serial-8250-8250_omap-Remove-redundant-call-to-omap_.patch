@@ -1,7 +1,7 @@
 From e4be373b1fbf9822e0d02c7d763980348ab254c9 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 17 Sep 2019 14:53:28 +0530
-Subject: [PATCH 08/23] serial: 8250: 8250_omap: Remove redundant call to
+Subject: [PATCH 08/22] serial: 8250: 8250_omap: Remove redundant call to
  omap_8250_rx_dma_flush
 
 omap_8250_rx_dma_flush() is called twice in am654_8250_handle_rx_dma()
