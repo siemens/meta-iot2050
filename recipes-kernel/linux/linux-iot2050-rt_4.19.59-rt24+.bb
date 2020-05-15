@@ -7,6 +7,6 @@
 
 require linux-iot2050_4.19.59+.bb
 
-SRC_URI += "file://rt-0001-rt-patch-for-IOT2050-kernel.patch"
-
-KERNEL_DEFCONFIG = "iot2050_defconfig_base-rt"
+SRC_URI += " \
+    file://rt-0001-rt-patch-for-IOT2050-kernel.patch \
+    file://iot2050-rt.cfg"
