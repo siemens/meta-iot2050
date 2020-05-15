@@ -23,3 +23,4 @@ sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART} ${NEW_UUID}
 
 sed -i 's/'${OLD_UUID}'/'${NEW_UUID}'/i' /etc/default/u-boot-script
 update-u-boot-script
+sync
