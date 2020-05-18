@@ -10,6 +10,9 @@
 
 inherit dpkg-raw
 
+# optional local customizations, not part of the repository
+include local.inc
+
 DESCRIPTION = "IOT2050 reference image customizations"
 
 DEBIAN_DEPENDS = "u-boot-tools"
@@ -33,4 +36,3 @@ do_install() {
     install -v -d ${D}/etc
     install -v -m 644 ${WORKDIR}/hosts ${D}/etc/hosts
 }
-

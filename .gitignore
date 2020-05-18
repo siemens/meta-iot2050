@@ -1,2 +1,3 @@
 build/
 isar/
+recipes-core/customizations-base/local.inc
