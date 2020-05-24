@@ -99,4 +99,5 @@ IMAGE_INSTALL += " \
     node-red-dashboard \
     node-red-contrib-opcua \
     node-red-contrib-modbus \
+    mindconnect-node-red-contrib-mindconnect \
     "
