@@ -98,4 +98,5 @@ IMAGE_INSTALL += " \
     node-red-gpio \
     node-red-dashboard \
     node-red-contrib-opcua \
+    node-red-contrib-modbus \
     "
