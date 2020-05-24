@@ -86,14 +86,15 @@ IMAGE_PREINSTALL += " \
     "
 
 IMAGE_INSTALL += " \
-                    expand-on-first-boot \
-                    sshd-regen-keys \
-                    regen-rootfs-uuid \
-                    customizations-example \
-                    switchserialmode \
-                    iot2050setup \
-                    tcf-agent \
-                    mraa \
-                    node-red \
-                    node-red-gpio \
-                    "
+    expand-on-first-boot \
+    sshd-regen-keys \
+    regen-rootfs-uuid \
+    customizations-example \
+    switchserialmode \
+    iot2050setup \
+    tcf-agent \
+    mraa \
+    node-red \
+    node-red-gpio \
+    node-red-dashboard \
+    "
