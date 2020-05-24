@@ -204,8 +204,6 @@ do_install() {
     export npm_config_cache=${PP}/npm_cache
     sudo rm -rf ${WORKDIR}/npm_cache
 
-    export npm_config_nodedir=${PP}/image/usr/
-
     INSTALL_FLAGS="--offline --only=production --no-package-lock --verbose \
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH}"
 
@@ -224,7 +222,6 @@ do_install() {
     export CHDIR INSTALL_FLAGS
     sudo -E chroot --userspec=$(id -u):$(id -g) ${BUILDCHROOT_DIR} sh -c ' \
         cd $CHDIR
-        echo $npm_config_nodedir
         npm install $INSTALL_FLAGS /downloads/${@get_npm_bundled_tgz(d)}
     '
 
