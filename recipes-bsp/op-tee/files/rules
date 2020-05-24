@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+#
+# Copyright (c) Siemens AG, 2020
+#
+# Authors:
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+
+PARALLEL_BUILD=-j $(shell echo $$(($$(nproc) * 2)))
+
+override_dh_auto_build:
+	CFLAGS= LDFLAGS= $(MAKE) $(PARALLEL_BUILD) PLATFORM=k3-am65x \
+		CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 ta-targets=ta_arm64 \
+		CFG_CONSOLE_UART=1
+
+%:
+	dh $@
