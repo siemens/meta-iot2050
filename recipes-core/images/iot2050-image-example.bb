@@ -97,4 +97,5 @@ IMAGE_INSTALL += " \
     node-red \
     node-red-gpio \
     node-red-dashboard \
+    node-red-contrib-opcua \
     "
