@@ -27,13 +27,22 @@ PV = "2.0"
 MRAA_BUILD_SWIG30_PATCH_FILE = "0001-Add-Node-7.x-aka-V8-5.2-support.patch"
 MRAA_BUILD_SWIG30_DIR = "${BUILDCHROOT_HOST_DIR}/usr/share/swig3.0"
 
+DEBIAN_BUILD_DEPENDS = " \
+    cmake, \
+    swig3.0, \
+    libpython-dev, \
+    libpython3-dev, \
+    nodejs, \
+    libnode-dev, \
+    libjson-c-dev, \
+    default-jdk"
+
 DEBIAN_DEPENDS = "python3, nodejs "
 
 do_prepare_build[cleandirs] += "${S}/debian"
 
 do_prepare_build() {
     deb_debianize
-    sed -i -e 's/Build-Depends: /Build-Depends: cmake, swig3.0, libpython-dev, libpython3-dev, nodejs, libnode-dev, libjson-c-dev, default-jdk, /g' ${S}/debian/control
 }
 
 # patch swig before build, see https://github.com/intel-iot-devkit/mraa/blob/master/docs/building.md#javascript-bindings-for-nodejs-700
