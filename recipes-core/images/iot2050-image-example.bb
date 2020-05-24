@@ -100,4 +100,5 @@ IMAGE_INSTALL += " \
     node-red-contrib-opcua \
     node-red-contrib-modbus \
     node-red-contrib-s7 \
+    mindconnect-node-red-contrib-mindconnect \
     "
