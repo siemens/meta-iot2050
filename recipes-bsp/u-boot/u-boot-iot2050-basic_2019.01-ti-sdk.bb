@@ -1,17 +1,13 @@
 #
-# Copyright (c) Siemens AG, 2019-2020
+# Copyright (c) Siemens AG, 2020
 #
 # Authors:
-#  Le Jin <le.jin@siemens.com>
 #  Jan Kiszka <jan.kiszka@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
 
-header:
-  version: 8
-  includes:
-    - kas/iot2050.yml
+IOT2050_VARIANT = "basic"
 
-target: u-boot-iot2050-basic
+require u-boot-iot2050-${PV}.inc
