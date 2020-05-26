@@ -159,8 +159,9 @@ python fetch_npm() {
     with open("package.json") as infile:
         json_objs = json.load(infile)
 
-    deps = [d for d in json_objs['dependencies']]
-    json_objs.update({'bundledDependencies': deps})
+    dependencies = json_objs.get('dependencies')
+    if dependencies:
+        json_objs.update({'bundledDependencies': [d for d in dependencies]})
 
     # update package.json so that all dependencies are bundled
     with open("package.json", 'w') as outfile:
