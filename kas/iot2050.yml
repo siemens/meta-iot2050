@@ -20,7 +20,7 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: c8ccb82b11c4d22d12a225aa2bc7fd10156b5e86
+    refspec: bf0aff2af6dfb8f6729ffced8c73d4a5ac73a871
     layers:
       meta:
     patches:
@@ -42,12 +42,6 @@ repos:
       10-sdk-adjust-readme:
         repo: meta-iot2050
         path: isar-patches/0010-sdk-Update-README.sdk.patch
-      11-dpkg-raw-fix:
-        repo: meta-iot2050
-        path: isar-patches/0011-dpkg-raw-Correct-path-so-that-git-fetching-works.patch
-      12-debianize:
-        repo: meta-iot2050
-        path: isar-patches/0012-debianize-Add-placeholder-for-original-version-to-CH.patch
       13-fix-isar-build-cmd:
         repo: meta-iot2050
         path: isar-patches/0013-image-Fix-evaluation-of-complex-ISAR_RELEASE_CMD-val.patch

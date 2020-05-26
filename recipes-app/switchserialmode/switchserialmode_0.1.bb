@@ -1,17 +1,27 @@
+#
+# Copyright (c) Siemens AG, 2019-2020
+#
+# Authors:
+#  Gao Nian <nian.gao@siemens.com>
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
 
 inherit dpkg
 
 DESCRIPTION = "Tool to switch between the uart0 modes"
 MAINTAINER = "nian.gao@siemens.com"
 
-SRC_URI = "file://switchserialmode.c file://CMakeLists.txt"
-S = "${WORKDIR}/switchserialmode"
+SRC_URI = "file://src"
+
+S = "${WORKDIR}/src"
+
+DEBIAN_BUILD_DEPENDS = "cmake, libusb-1.0-0-dev"
 
 do_prepare_build[cleandirs] += "${S}/debian"
 
 do_prepare_build() {
-    cp ${WORKDIR}/switchserialmode.c ${S}/
-    cp ${WORKDIR}/CMakeLists.txt ${S}/
     deb_debianize
-    sed -i -e 's/Build-Depends: /Build-Depends: cmake, libusb-1.0-0-dev, /g' ${S}/debian/control
 }

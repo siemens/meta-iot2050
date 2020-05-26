@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/node-red -u /home/root/.node-red
+ExecStart=/usr/bin/node-red -u %h/.node-red
 StandardOutput=syslog
 
 [Install]
