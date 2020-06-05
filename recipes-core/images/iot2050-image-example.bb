@@ -101,4 +101,5 @@ IMAGE_INSTALL += " \
     node-red-contrib-modbus \
     node-red-contrib-s7 \
     mindconnect-node-red-contrib-mindconnect \
+    node-red-node-serialport \
     "
