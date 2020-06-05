@@ -102,4 +102,5 @@ IMAGE_INSTALL += " \
     node-red-contrib-s7 \
     mindconnect-node-red-contrib-mindconnect \
     node-red-node-serialport \
+    node-red-node-sqlite \
     "
