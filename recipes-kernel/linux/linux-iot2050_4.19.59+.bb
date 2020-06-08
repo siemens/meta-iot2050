@@ -7,7 +7,7 @@
 
 require recipes-kernel/linux/linux-custom.inc
 
-SRC_URI += "git://git.ti.com/processor-sdk/processor-sdk-linux.git;branch=${KERNEL_BRANCH};rev=${KERNEL_REV}"
+SRC_URI += "https://git.ti.com/cgit/processor-sdk/processor-sdk-linux/snapshot/processor-sdk-linux-${KERNEL_REV}.tar.xz"
 
 SRC_URI += "file://${KERNEL_DEFCONFIG}"
 SRC_URI += "file://${KERNEL_DEFCONFIG_EXTRA}"
@@ -35,9 +35,10 @@ SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0021-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
     file://0022-iot2050-Roll-back-basic-dtb-to-V01.00.00.1-release.patch"
 
-KERNEL_BRANCH = "processor-sdk-linux-4.19.y"
 KERNEL_REV = "5f8c1c6121da785bbe7ecc5896877a2537b5d6eb"
+SRC_URI[sha256sum] = "ef031959fd8242b943d0aa54ad4bf6338b698577739867701f6d7c7d04ec6e1f"
+
 KERNEL_DEFCONFIG = "iot2050_defconfig_base"
 KERNEL_DEFCONFIG_EXTRA = "iot2050_defconfig_extra.cfg"
 
-S = "${WORKDIR}/git"
+S = "${WORKDIR}/processor-sdk-linux-${KERNEL_REV}"
