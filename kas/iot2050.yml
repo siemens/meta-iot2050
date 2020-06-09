@@ -24,6 +24,9 @@ repos:
     layers:
       meta:
     patches:
+      01-dpgk-raw-patch:
+        repo: meta-iot2050
+        path: isar-patches/0001-dpkg-raw-Allow-patching-and-templating.patch
       05-add-sdk-pack:
         repo: meta-iot2050
         path: isar-patches/0005-sdkchroot-Add-support-for-adding-self-defined-sdk-pa.patch

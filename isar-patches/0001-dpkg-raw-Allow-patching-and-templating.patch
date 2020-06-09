@@ -1,0 +1,30 @@
+From e00d054728bd6f179ef123389e56f403ff48ec74 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 9 Jun 2020 13:47:35 +0200
+Subject: [PATCH] dpkg-raw: Allow patching and templating
+
+We already allow pulling the artifacts from git, so it is also
+consequent to support patching as well as using templates before
+installing things.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/classes/dpkg-raw.bbclass | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/classes/dpkg-raw.bbclass b/meta/classes/dpkg-raw.bbclass
+index 9d4e8c19..dd7b761f 100644
+--- a/meta/classes/dpkg-raw.bbclass
++++ b/meta/classes/dpkg-raw.bbclass
+@@ -13,7 +13,7 @@ do_install() {
+ }
+ 
+ do_install[cleandirs] = "${D}"
+-addtask install after do_unpack before do_prepare_build
++addtask install after do_patch do_transform_template before do_prepare_build
+ 
+ do_prepare_build[cleandirs] += "${S}/debian"
+ do_prepare_build() {
+-- 
+2.26.2
+
