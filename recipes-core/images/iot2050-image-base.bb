@@ -13,8 +13,6 @@ inherit image
 DESCRIPTION = "IOT2050 Debian Base Image"
 IMAGE_INSTALL += "customizations-base"
 
-SDK_PREINSTALL += "zlib1g-dev"
-
 python aggregate_mainline_apt_sources () {
     import shutil
 
