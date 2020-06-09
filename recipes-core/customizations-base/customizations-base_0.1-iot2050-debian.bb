@@ -24,7 +24,8 @@ SRC_URI = " \
     file://ti-pruss/am65x-rtu0-prueth-fw.elf \
     file://ti-pruss/am65x-rtu1-prueth-fw.elf \
     file://rti_dwwdtest/iot2050/csl_rti_dwwd_test_app_mcu1_0_release.xer5f \
-    file://hosts"
+    file://hosts \
+    file://fw_env.config"
 
 do_install() {
     install -v -d ${D}/lib/firmware/ti-pruss
@@ -34,5 +35,6 @@ do_install() {
     install -v -m 644 ${WORKDIR}/rti_dwwdtest/iot2050/* ${D}/lib/firmware/rti_dwwdtest/iot2050
 
     install -v -d ${D}/etc
-    install -v -m 644 ${WORKDIR}/hosts ${D}/etc/hosts
+    install -v -m 644 ${WORKDIR}/hosts ${D}/etc/
+    install -v -m 644 ${WORKDIR}/fw_env.config ${D}/etc/
 }
