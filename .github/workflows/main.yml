@@ -1,0 +1,26 @@
+name: CI
+
+on: [push]
+
+jobs:
+  images:
+    name: Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Example image
+        run: ./kas-container build kas-iot2050-example.yml
+      - name: RT example image
+        run: ./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
+
+  bootloaders:
+    name: Bootloaders
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Basic
+        run: ./kas-container build kas-iot2050-boot-basic.yml
+      - name: Advanced
+        run: ./kas-container build kas-iot2050-boot-advanced.yml
