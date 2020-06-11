@@ -11,8 +11,18 @@ jobs:
         uses: actions/checkout@v2
       - name: Example image
         run: ./kas-container build kas-iot2050-example.yml
+      - name: Upload example image
+        uses: actions/upload-artifact@v2
+        with:
+          name: iot2050-example-image
+          path: build/tmp/deploy/images/iot2050/iot2050-image-example-isar-iot2050.wic.img*
       - name: RT example image
         run: ./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
+      - name: Upload RT example image
+        uses: actions/upload-artifact@v2
+        with:
+          name: iot2050-example-image-rt
+          path: build/tmp/deploy/images/iot2050/iot2050-image-example-isar-iot2050.wic.img*
 
   bootloaders:
     name: Bootloaders
@@ -24,3 +34,8 @@ jobs:
         run: ./kas-container build kas-iot2050-boot-basic.yml
       - name: Advanced
         run: ./kas-container build kas-iot2050-boot-advanced.yml
+      - name: Archive bootloaders
+        uses: actions/upload-artifact@v2
+        with:
+          name: iot2050-bootloaders
+          path: build/tmp/deploy/images/iot2050/*.bin
