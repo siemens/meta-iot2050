@@ -17,7 +17,7 @@ DESCRIPTION = "IOT2050 reference image customizations example"
 DEBIAN_DEPENDS = "openssh-server, bluez, pulseaudio-module-bluetooth"
 
 SRC_URI = " \
-    file://status-led \
+    file://status-led.service \
     file://postinst \
     file://board-configuration \
     file://board-configuration.service \
@@ -26,18 +26,21 @@ SRC_URI = " \
     file://eth0-default"
 
 do_install() {
-    # add board status led service (SysV LSB)
-    install -v -d ${D}/etc/init.d
-    install -v -m 644 ${WORKDIR}/status-led ${D}/etc/init.d/
+    # add board status led service
+    install -v -d ${D}/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/status-led.service ${D}/lib/systemd/system/
+
     # add board configuration service
     install -v -d ${D}/usr/bin
-    install -v -d ${D}/lib/systemd/system/
     install -v -m 755 ${WORKDIR}/board-configuration ${D}/usr/bin
     install -v -m 644 ${WORKDIR}/board-configuration.service ${D}/lib/systemd/system/
+    install -v -d ${D}/etc
     install -v -m 644 ${WORKDIR}/board-configuration.json ${D}/etc/
+
     # add cellular support
     install -v -d ${D}/etc/NetworkManager/system-connections/
     install -v -m 600 ${WORKDIR}/cellular-4g ${D}/etc/NetworkManager/system-connections/
+
     # add eth0 default ip configuration
     install -v -m 600 ${WORKDIR}/eth0-default ${D}/etc/NetworkManager/system-connections/
 }
