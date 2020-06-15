@@ -1,7 +1,7 @@
-From f390154dd87aec7ccee4f7f11ccb7c9d2be30bc4 Mon Sep 17 00:00:00 2001
+From 20b9740a1de4e03d292974188f6f59646f1ab4ad Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Thu, 2 Jan 2020 14:00:09 +0800
-Subject: [PATCH 15/22] fix: rproc r5-0 set_config failed in linux
+Subject: [PATCH 15/23] fix: rproc r5-0 set_config failed in linux
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

@@ -1,7 +1,7 @@
-From 5283cfac179d7c6a40d659d26d121747df9f73e3 Mon Sep 17 00:00:00 2001
+From 0150bce056a6628e4f9209672ca234a9bd815446 Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH 01/22] iot2050: add iot2050 platform support
+Subject: [PATCH 01/23] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
 Also add support for fixed gpio number naming.
@@ -177,7 +177,7 @@ index 000000000000..471f9b131db0
 +};
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 new file mode 100644
-index 000000000000..e1ba5572dcea
+index 000000000000..ab0362c70e97
 --- /dev/null
 +++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 @@ -0,0 +1,742 @@
@@ -194,8 +194,8 @@ index 000000000000..e1ba5572dcea
 +	model = "SIMATIC IOT2050 common";
 +
 +	aliases {
++		ethernet0 = &pruss0_emac1;
 +		ethernet1 = &pruss0_emac0;
-+		ethernet2 = &pruss0_emac1;
 +		gpio0 = &main_gpio0;
 +		gpio96 = &main_gpio1;
 +		gpio186 = &wkup_gpio0;

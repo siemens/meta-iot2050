@@ -1,0 +1,52 @@
+From f75956d44496092c325955dc93f4563656f58dbd Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Thu, 18 Jun 2020 09:13:39 +0800
+Subject: [PATCH 23/23] ethernet:add the  alias support for the ethernet driver
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 0984daafa585..3517be959f4d 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -1808,7 +1808,7 @@ static int prueth_probe(struct platform_device *pdev)
+ 	struct device_node *eth0_node, *eth1_node;
+ 	const struct of_device_id *match;
+ 	struct pruss *pruss[NUM_ICSSG];
+-	int i, ret, msmc_ram_size;
++	int i, ret, msmc_ram_size, id;
+ 
+ 	if (!np)
+ 		return -ENODEV;	/* we don't support non DT */
+@@ -2017,6 +2017,12 @@ static int prueth_probe(struct platform_device *pdev)
+ 
+ 	/* register the network devices */
+ 	if (eth0_node) {
++		id = of_alias_get_id(eth0_node,"ethernet");
++		if (id < 0){
++			dev_err(dev, "device does not have an alias id\n");
++			return id;
++		}
++		sprintf(prueth->emac[PRUETH_MAC0]->ndev->name,"eth%d",id);
+ 		ret = register_netdev(prueth->emac[PRUETH_MAC0]->ndev);
+ 		if (ret) {
+ 			dev_err(dev, "can't register netdev for port MII0");
+@@ -2027,6 +2033,12 @@ static int prueth_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (eth1_node) {
++		id = of_alias_get_id(eth1_node,"ethernet");
++		if (id < 0){
++			dev_err(dev, "device does not have an alias id\n");
++			return id;
++		}
++		sprintf(prueth->emac[PRUETH_MAC1]->ndev->name,"eth%d",id);
+ 		ret = register_netdev(prueth->emac[PRUETH_MAC1]->ndev);
+ 		if (ret) {
+ 			dev_err(dev, "can't register netdev for port MII1");
+-- 
+2.17.1
+

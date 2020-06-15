@@ -1,7 +1,7 @@
-From 7ce1011ad4a74b3dd0931ae633ca918a4dd18331 Mon Sep 17 00:00:00 2001
+From 9f2952f1975a38d7f4f3e9f7b20cbe06177888a8 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 10 Dec 2019 11:33:37 +0800
-Subject: [PATCH 14/22] refactor:move ioexpander node to mcu-i2c0 for LM5
+Subject: [PATCH 14/23] refactor:move ioexpander node to mcu-i2c0 for LM5
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  1 file changed, 24 insertions(+), 24 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-index c0ac25d2f60c..0b5e05ea8ba0 100644
+index d26185b60b18..a0862971a074 100644
 --- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 @@ -483,6 +483,30 @@

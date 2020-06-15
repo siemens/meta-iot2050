@@ -1,7 +1,7 @@
-From cbd91e849e606e1b7d24fc454620f266be5defed Mon Sep 17 00:00:00 2001
+From e78f7a6fd16adcd9120179a676846436845ce6a7 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Mon, 17 Feb 2020 11:56:33 +0800
-Subject: [PATCH 19/22] feat: set sdhci0 clock frequency to 142.86MHz
+Subject: [PATCH 19/23] feat: set sdhci0 clock frequency to 142.86MHz
 
 1. catch up eth sdhci driver of SDK6.3
 2. merge the patch files provided by TI:
@@ -51,7 +51,7 @@ index 88b04c974294..9a83edbbeae1 100644
  };
 \ No newline at end of file
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-index 89f354528830..c58ae32547a2 100644
+index 924c89bf0a46..e5cd3a6ba856 100644
 --- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 @@ -585,9 +585,16 @@

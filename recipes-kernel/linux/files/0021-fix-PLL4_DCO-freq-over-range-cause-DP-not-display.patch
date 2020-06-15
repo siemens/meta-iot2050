@@ -1,7 +1,7 @@
-From 02e86566ee70f66cfdb4fb49535ed5d78b20754d Mon Sep 17 00:00:00 2001
+From 25ee1f3560134b82edbe8c62e1c21d3986f70ed8 Mon Sep 17 00:00:00 2001
 From: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 Date: Tue, 7 Apr 2020 15:30:06 +0800
-Subject: [PATCH 21/22] fix:PLL4_DCO freq over range cause DP not display
+Subject: [PATCH 21/23] fix:PLL4_DCO freq over range cause DP not display
 
   1.some DP may be can not display.
   2.reason: TI sysfw can not correct set PLL4 some frequency
@@ -20,7 +20,7 @@ Signed-off-by: Sheng Long Wang <shenglong.wang.ext@siemens.com>
  1 file changed, 207 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/tidss/tidss_dispc7.c b/drivers/gpu/drm/tidss/tidss_dispc7.c
-index 3c81b1186e..74d2fb4c51 100644
+index 3c81b1186efb..74d2fb4c51d7 100644
 --- a/drivers/gpu/drm/tidss/tidss_dispc7.c
 +++ b/drivers/gpu/drm/tidss/tidss_dispc7.c
 @@ -33,6 +33,21 @@
@@ -258,5 +258,5 @@ index 3c81b1186e..74d2fb4c51 100644
  
  /* OVR */
 -- 
-2.22.0
+2.17.1
 

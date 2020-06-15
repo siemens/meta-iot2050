@@ -1,7 +1,7 @@
-From 7e8f41a7aa4ca5ac70c328447843a733a47419f9 Mon Sep 17 00:00:00 2001
+From 74ce03dde6d7dae58614dc6b4b83d63d8c3be8a6 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Mon, 2 Mar 2020 23:01:32 +0800
-Subject: [PATCH 18/22] change OSPI clock id to support sysfw 19.12
+Subject: [PATCH 18/23] change OSPI clock id to support sysfw 19.12
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---
