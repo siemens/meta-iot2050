@@ -1,0 +1,55 @@
+From 507174c1093de597e151aab17496e2bd288cd4d0 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Fri, 12 Jun 2020 10:39:21 +0800
+Subject: [PATCH 23/23] ethernet: Swap eth0 and eth1 port
+
+	The network port corresponds to the label on the box,swap the eth0 and eth1
+
+	Currently,interface P1 -- eth0
+                            P2 -- eht1
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 0984daafa585..9de7e256e438 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -2016,16 +2016,6 @@ static int prueth_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* register the network devices */
+-	if (eth0_node) {
+-		ret = register_netdev(prueth->emac[PRUETH_MAC0]->ndev);
+-		if (ret) {
+-			dev_err(dev, "can't register netdev for port MII0");
+-			goto netdev_exit;
+-		}
+-
+-		prueth->registered_netdevs[PRUETH_MAC0] = prueth->emac[PRUETH_MAC0]->ndev;
+-	}
+-
+ 	if (eth1_node) {
+ 		ret = register_netdev(prueth->emac[PRUETH_MAC1]->ndev);
+ 		if (ret) {
+@@ -2036,6 +2026,15 @@ static int prueth_probe(struct platform_device *pdev)
+ 		prueth->registered_netdevs[PRUETH_MAC1] = prueth->emac[PRUETH_MAC1]->ndev;
+ 	}
+ 
++	if (eth0_node) {
++		ret = register_netdev(prueth->emac[PRUETH_MAC0]->ndev);
++		if (ret) {
++			dev_err(dev, "can't register netdev for port MII0");
++			goto netdev_exit;
++		}
++
++		prueth->registered_netdevs[PRUETH_MAC0] = prueth->emac[PRUETH_MAC0]->ndev;
++	}
+ 	dev_info(dev,
+ 		 "TI PRU ethernet initialized: %s EMAC mode, dual_icssg %d\n",
+ 		 (!eth0_node || !eth1_node) ? "single" : "dual",
+-- 
+2.26.2
+
