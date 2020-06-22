@@ -23,7 +23,8 @@ SRC_URI = " \
     file://board-configuration.service \
     file://board-configuration.json \
     file://cellular-4g \
-    file://eth0-default"
+    file://eth0-default \
+    file://20-swap-ethernet-port.rules"
 
 do_install() {
     # add board status led service
@@ -43,4 +44,9 @@ do_install() {
 
     # add eth0 default ip configuration
     install -v -m 600 ${WORKDIR}/eth0-default ${D}/etc/NetworkManager/system-connections/
+
+    # swap ethernet port
+    install -v -d  ${D}/etc/udev/rules.d/
+    install -v -m 644 ${WORKDIR}/20-swap-ethernet-port.rules ${D}/etc/udev/rules.d/
+
 }
