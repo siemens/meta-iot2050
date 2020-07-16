@@ -100,24 +100,22 @@ class SoftwareMenu:
             return
         selection()
 
+    @staticmethod
+    def serviceEnabled(service):
+        return 'enabled' in subprocess.Popen('systemctl is-enabled %s' % service,
+                                             shell=True,
+                                             stdout=subprocess.PIPE,
+                                             stderr=open(os.devnull, 'wb')).stdout.read().decode('utf-8')
+
     def changeAutostart(self):
-        sshEnabled = 'enabled' in subprocess.Popen('systemctl is-enabled ssh',
-                                                   shell=True,
-                                                   stdout=subprocess.PIPE,
-                                                   stderr=open(os.devnull, 'wb')).stdout.read().decode('utf-8')
-        mosquittoAutostartEnabled = 'enabled' in subprocess.Popen('systemctl is-enabled mosquitto',
-                                                                  shell=True,
-                                                                  stdout=subprocess.PIPE,
-                                                                  stderr=open(os.devnull, 'wb')).stdout.read().decode('utf-8')
-        noderedAutostartEnabled = 'enabled' in subprocess.Popen('systemctl is-enabled node-red',
-                                                                shell=True,
-                                                                stdout=subprocess.PIPE,
-                                                                stderr=open(os.devnull, 'wb')).stdout.read().decode('utf-8')
+        sshEnabled = SoftwareMenu.serviceEnabled('ssh')
+        mosquittoAutostartEnabled = SoftwareMenu.serviceEnabled('mosquitto')
+        noderedAutostartEnabled = SoftwareMenu.serviceEnabled('node-red')
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
         ct = CheckboxTree(height=4, scroll=0)
-        ct.append('SSH Server Enabled', selected=sshEnabled)
-        ct.append('Auto Start Mosquitto Broker', selected=mosquittoAutostartEnabled)
-        ct.append('Auto Start node-red', selected=noderedAutostartEnabled)
+        ct.append('SSH Server enabled', selected=sshEnabled)
+        ct.append('Autostart Mosquitto Broker', selected=mosquittoAutostartEnabled)
+        ct.append('Autostart Node-RED', selected=noderedAutostartEnabled)
         g = GridForm(self.topmenu.gscreen, 'Advanced Options', 1, 2)
         g.add(ct, 0, 0)
         g.add(buttonbar, 0, 1)
@@ -125,9 +123,9 @@ class SoftwareMenu:
         if buttonbar.buttonPressed(result) == 'cancel':
             return
         selectedOptions = ct.getSelection()
-        sshEnabledNew = 'SSH Server Enabled' in selectedOptions
-        mosquittoAutostartEnabledNew = 'Auto Start Mosquitto Broker' in selectedOptions
-        noderedAutostartEnabledNew = 'Auto Start node-red' in selectedOptions
+        sshEnabledNew = 'SSH Server enabled' in selectedOptions
+        mosquittoAutostartEnabledNew = 'Autostart Mosquitto Broker' in selectedOptions
+        noderedAutostartEnabledNew = 'Autostart Node-RED' in selectedOptions
         if sshEnabled != sshEnabledNew:
             self.changeServiceSetting('ssh', sshEnabledNew)
         if mosquittoAutostartEnabled != mosquittoAutostartEnabledNew:
