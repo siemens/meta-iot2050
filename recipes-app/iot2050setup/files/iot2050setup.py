@@ -109,11 +109,13 @@ class SoftwareMenu:
 
     def changeAutostart(self):
         sshEnabled = SoftwareMenu.serviceEnabled('ssh')
+        tcfAgentEnabled = SoftwareMenu.serviceEnabled('tcf-agent')
         mosquittoAutostartEnabled = SoftwareMenu.serviceEnabled('mosquitto')
         noderedAutostartEnabled = SoftwareMenu.serviceEnabled('node-red')
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
         ct = CheckboxTree(height=4, scroll=0)
         ct.append('SSH Server enabled', selected=sshEnabled)
+        ct.append('TCF Agent enabled', selected=tcfAgentEnabled)
         ct.append('Autostart Mosquitto Broker', selected=mosquittoAutostartEnabled)
         ct.append('Autostart Node-RED', selected=noderedAutostartEnabled)
         g = GridForm(self.topmenu.gscreen, 'Advanced Options', 1, 2)
@@ -124,10 +126,13 @@ class SoftwareMenu:
             return
         selectedOptions = ct.getSelection()
         sshEnabledNew = 'SSH Server enabled' in selectedOptions
+        tcfAgentEnabledNew = 'TCF Agent enabled' in selectedOptions
         mosquittoAutostartEnabledNew = 'Autostart Mosquitto Broker' in selectedOptions
         noderedAutostartEnabledNew = 'Autostart Node-RED' in selectedOptions
         if sshEnabled != sshEnabledNew:
             self.changeServiceSetting('ssh', sshEnabledNew)
+        if tcfAgentEnabled != tcfAgentEnabledNew:
+            self.changeServiceSetting('tcf-agent', tcfAgentEnabledNew)
         if mosquittoAutostartEnabled != mosquittoAutostartEnabledNew:
             self.changeServiceSetting('mosquitto', mosquittoAutostartEnabledNew)
         if noderedAutostartEnabled != noderedAutostartEnabledNew:
