@@ -92,6 +92,7 @@ IMAGE_INSTALL += " \
     customizations-example \
     switchserialmode \
     iot2050setup \
+    iot2050-firmware-update \
     tcf-agent \
     mraa \
     node-red \
