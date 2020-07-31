@@ -2,28 +2,16 @@
 
 ## Building the image
 
-The boot loader for the basic version is built like this:
+The boot loader is built like this:
 
 ```shell
-./kas-docker --isar build kas-iot2050-boot-basic.yml
-```
-
-The advanced version is built like this:
-
-```shell
-./kas-docker --isar build kas-iot2050-boot-advanced.yml
+./kas-docker --isar build kas-iot2050-boot.yml
 ```
 
 After the build the boot image is under
 
 ```text
-build/tmp/deploy/images/iot2050/iot2050-image-boot-basic.bin
-```
-
-or
-
-```text
-build/tmp/deploy/images/iot2050/iot2050-image-boot-advanced.bin
+build/tmp/deploy/images/iot2050/iot2050-image-boot.bin
 ```
 
 ## Flashing the image
@@ -31,19 +19,14 @@ build/tmp/deploy/images/iot2050/iot2050-image-boot-advanced.bin
 > :warning:
 > Flashing an incorrect image may brick the device!
 
-Write `iot2050-image-boot-<variant>.bin` to an SD card and insert that into
+Write `iot2050-image-boot.bin` to an SD card and insert that into
 the target device. Then boot into the U-Boot shell and execute there:
 
 ```shell
 sf probe
-load mmc 0:1 $loadaddr /path/to/iot2050-image-boot-<variant>.bin
+load mmc 0:1 $loadaddr /path/to/iot2050-image-boot.bin
 sf update $loadaddr 0x0 $filesize
 ```
-
-> :note:
-> When updating the boot loader of the BASIC variant, make sure to remove
-> 0022-iot2050-Roll-back-basic-dtb-to-V01.00.00.1-release.patch from the kernel
-> patch queue in recipes-kernel/linux/linux-iot2050_*.bb.
 
 ## Recovering a bricked device
 

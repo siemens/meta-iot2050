@@ -71,11 +71,8 @@ First checkout the desired tag. Then build the image or sdk by appending the `ka
 # example rt image
 ./kas-docker --isar build kas-iot2050-example.yml:kas/opt/preempt-rt.yml:kas/opt/package-lock.yml
 
-# bootloader for advanced board
-./kas-docker --isar build kas-iot2050-boot-advanced.yml:kas/opt/package-lock.yml
-
-# bootloader for basic board
-./kas-docker --isar build kas-iot2050-boot-basic.yml:kas/opt/package-lock.yml
+# bootloader for the board
+./kas-docker --isar build kas-iot2050-boot.yml:kas/opt/package-lock.yml
 
 # SDK
 ./kas-docker --isar build kas-iot2050-example.yml:kas/opt/sdk.yml:kas/opt/package-lock.yml
