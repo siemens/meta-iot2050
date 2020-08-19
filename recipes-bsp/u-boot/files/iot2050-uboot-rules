@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+# Debian rules for custom U-Boot build
+#
+# Copyright (c) Siemens AG, 2019-2020
+#
+# Authors:
+#  Le Jin <le.jin@siemens.com>
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
+SET_CROSS_BUILD_TOOLS=CROSS_BUILD_TOOLS=y
+endif
+
+WORKDIR=$(shell cd ..; pwd)
+
+PARALLEL_BUILD=-j $(shell echo $$(($$(nproc) * 2)))
+
+export ATF=/usr/lib/arm-trusted-firmware/iot2050/bl31.bin
+export TEE=/usr/lib/op-tee/iot2050/tee-pager_v2.bin
+
+override_dh_auto_build:
+	# SPI image
+	$(MAKE) $(PARALLEL_BUILD) CROSS_COMPILE=$(CROSS_COMPILE) iot2050_defconfig
+	$(MAKE) $(PARALLEL_BUILD) CROSS_COMPILE=$(CROSS_COMPILE) IOT2050_BINARIES=$(WORKDIR)/prebuild $(U_BOOT_BIN)
+
+	# Tools
+	$(MAKE) $(PARALLEL_BUILD) $(SET_CROSS_BUILD_TOOLS) CROSS_COMPILE=$(CROSS_COMPILE) NO_SDL=1 tools-only envtools
+
+override_dh_auto_install:
+	mv tools/env/lib.a tools/env/libubootenv.a
+
+override_dh_auto_test:
+
+%:
+	CFLAGS= LDFLAGS= dh $@ --parallel
