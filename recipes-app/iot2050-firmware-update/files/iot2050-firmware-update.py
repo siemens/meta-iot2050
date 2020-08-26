@@ -111,8 +111,17 @@ class FirmwareUpdate(object):
         print("IOT2050 firmware update started - DO NOT INTERRUPT!")
         print("===================================================")
 
+        ospi_dev_path = "/sys/bus/platform/devices/47040000.spi"
+        if os.path.exists(ospi_dev_path + "/spi_master"):
+            # kernel 5.9 and later
+            spi_dev = os.listdir(ospi_dev_path + "/spi_master")[0]
+            mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(ospi_dev_path, spi_dev, spi_dev)
+        else:
+            # kernel 5.8 and earlier
+            mtd_base_path = "{}/mtd".format(ospi_dev_path)
+
         while True:
-            mtd_sys_path = "/sys/bus/platform/devices/47040000.spi/mtd/mtd{}".format(mtd_num)
+            mtd_sys_path = "{}/mtd{}".format(mtd_base_path, mtd_num)
             mtd_name_path = "{}/name".format(mtd_sys_path)
             mtd_size_path = "{}/size".format(mtd_sys_path)
             mtd_erasesize_path = "{}/erasesize".format(mtd_sys_path)
