@@ -35,7 +35,7 @@ DEBIAN_BUILD_DEPENDS = " \
     nodejs, \
     libnode-dev, \
     libjson-c-dev, \
-    default-jdk"
+    default-jdk:native"
 
 DEBIAN_DEPENDS = "python3, nodejs "
 
