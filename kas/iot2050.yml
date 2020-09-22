@@ -47,6 +47,8 @@ repos:
         path: isar-patches/0010-sdk-Update-README.sdk.patch
       13-fix-isar-build-cmd:
         path: isar-patches/0013-image-Fix-evaluation-of-complex-ISAR_RELEASE_CMD-val.patch
+      14-compat-arch:
+        path: isar-patches/0014-Add-compat-architecture-support-via-multiarch.patch
 
 bblayers_conf_header:
   standard: |
