@@ -3,6 +3,7 @@
  *
  * Authors:
  *  Gao Nian <nian.gao@siemens.com>
+ *  Chao Zeng <chao.zeng@siemens.com>
  *
  * This file is subject to the terms and conditions of the MIT License.  See
  * COPYING.MIT file in the top-level directory.
@@ -27,6 +28,7 @@
 #include <malloc.h>
 #include <libusb-1.0/libusb.h>
 #include <stdarg.h>
+#include <glob.h>
 
 typedef unsigned char   BYTE;
 typedef unsigned int    UINT;
@@ -47,6 +49,27 @@ typedef enum{
 }E_CASE_SENSITIVE;
 
 #define MUTIL_THREAD   100
+#define SYSFS_CLASS_GPIO "/sys/class/gpio"
+#define MAX_SIZE 64
+#define UART_CTRL_NUM   4
+
+enum uart_gpio_ctrl {
+    UART_MODE0_CTRL,
+    UART_MODE1_CTRL,
+    UART_EN_CTRL,
+    UART_TERMINATE_CTRL,
+};
+
+typedef struct uart_ctrl_info
+{
+    char (*uart_ctrl_path)[MAX_SIZE];
+    char (*uart_ctrl_base)[MAX_SIZE];
+}uart_ctrl_info_t;
+
+char uart_sysfs_base[UART_CTRL_NUM][MAX_SIZE];
+char uart_sysfs_path[UART_CTRL_NUM][MAX_SIZE];
+
+uart_ctrl_info_t ctr_info;
 
 static char *format(const char *fmt, ...)
 {
@@ -221,6 +244,43 @@ int exe_shell(const char **lines, int lines_num, char *res, int res_size)
     return 0;
 }
 
+static char* file_unglob(const char* filename)
+{
+    glob_t results;
+    char* res = NULL;
+    results.gl_pathc = 0;
+    glob(filename, 0, NULL, &results);
+    if (results.gl_pathc == 1)
+        res = strdup(results.gl_pathv[0]);
+    globfree(&results);
+    return res;
+}
+
+static int get_gpiochip_base(const char* device_path)
+{
+    char *base_file;
+    char buf[1024];
+    FILE* fh;
+    int ret;
+    snprintf(buf, sizeof(buf) - 1, "%s/gpio/gpiochip*/base", device_path);
+    base_file = file_unglob(buf);
+    if (!base_file)
+        return -1;
+
+    fh = fopen(base_file, "r");
+    if (!fh)
+        return -1;
+
+    ret = fread(buf, 1, sizeof(buf) - 1, fh);
+    fclose(fh);
+
+    if (ret < 0)
+        return -1;
+
+    buf[ret] = 0;
+    return strtol(buf, NULL, 10);
+}
+
 void gpio_set(const char *gpiodev, const char *offset, const char *value)
 {
     const char* cmd_is_exist[] = {"if [ -e ", gpiodev, " ]; then echo true; else echo false; fi"};
@@ -237,20 +297,53 @@ void gpio_set(const char *gpiodev, const char *offset, const char *value)
     exe_shell(cmd_set_gpio_value, LEN(cmd_set_gpio_value), NULL, 0);
 }
 
+static int uart_ctrl_info_init(void)
+{
+    int i;
+    int offset = 4;//uart mode0 gpio offset
+    char uart_path[MAX_SIZE] = {0};
+    char uart_base[MAX_SIZE] = {0};
+    int num;
+    int wkup_gpio0_base = get_gpiochip_base("/sys/devices/platform/interconnect@100000/interconnect@100000:interconnect@28380000/interconnect@100000:interconnect@28380000:interconnect@42040000/42110000.wkup_gpio0");
+
+    if(wkup_gpio0_base < 0)
+        return -1;
+
+    ctr_info.uart_ctrl_base = uart_sysfs_base;
+    ctr_info.uart_ctrl_path = uart_sysfs_path;
+
+    for(i = 0;i < UART_CTRL_NUM;i++)
+    {
+        num = wkup_gpio0_base+offset+i;
+        snprintf(uart_path, MAX_SIZE, SYSFS_CLASS_GPIO "/gpio%d", num);
+        strncpy(ctr_info.uart_ctrl_path[i],uart_path,strlen(uart_path)+1);
+
+        sprintf(uart_base,"%d",num);
+        strncpy(ctr_info.uart_ctrl_base[i],uart_base,strlen(uart_base)+1);
+    }
+    return 0;
+}
+
 static void gpio_set_mode(int va, int vb)
 {
-    gpio_set("/sys/class/gpio/gpio192", "192", "1");            /* uart_en gpio */
-    gpio_set("/sys/class/gpio/gpio190", "190", va ? "1" : "0"); /* uart_mode0 gpio */
-    gpio_set("/sys/class/gpio/gpio191", "191", vb ? "1" : "0"); /* uart_mode1 gpio */
+    gpio_set(ctr_info.uart_ctrl_path[UART_EN_CTRL],ctr_info.uart_ctrl_base[UART_EN_CTRL] , "1");            /* uart_en gpio */
+    gpio_set(ctr_info.uart_ctrl_path[UART_MODE0_CTRL], ctr_info.uart_ctrl_base[UART_MODE0_CTRL], va ? "1" : "0"); /* uart_mode0 gpio */
+    gpio_set(ctr_info.uart_ctrl_path[UART_MODE1_CTRL], ctr_info.uart_ctrl_base[UART_MODE1_CTRL], vb ? "1" : "0"); /* uart_mode1 gpio */
 }
 
 static void gpio_set_terminate(int onoff)
 {
-    gpio_set("/sys/class/gpio/gpio193", "193", onoff ? "1" : "0"); /* uart_terminate gpio */
+    gpio_set(ctr_info.uart_ctrl_path[UART_TERMINATE_CTRL], ctr_info.uart_ctrl_base[UART_TERMINATE_CTRL], onoff ? "1" : "0"); /* uart_terminate gpio */
 }
 
 static void gpio_switch_mode(const char *mode, int terminate)
 {
+    int ret;
+    ret = uart_ctrl_info_init();
+
+    if(ret < 0)
+        return;
+
     if(compare_string(mode, "rs232", e_case_insensitive))
     {
         gpio_set_mode(0, 1);
