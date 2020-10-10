@@ -1,4 +1,4 @@
-From 307404678bae5bf3d3eb2c39bd852def482ebaee Mon Sep 17 00:00:00 2001
+From b2f9dbfd70a15f036b94281f8047ede0638740b7 Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Mon, 15 Jul 2019 15:46:09 +0800
 Subject: [PATCH 03/22] feat: Add CP210x driver support to software flow
@@ -6,11 +6,11 @@ Subject: [PATCH 03/22] feat: Add CP210x driver support to software flow
 
 Signed-off-by: Wang Sheng Long <shenglong.wang.ext@siemens.com>
 ---
- drivers/usb/serial/cp210x.c | 126 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 121 insertions(+), 5 deletions(-)
+ drivers/usb/serial/cp210x.c | 79 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 74 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index e732949f6567..638bae915453 100644
+index e732949f6567..2985410e7331 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -380,6 +380,10 @@ static struct usb_serial_driver * const serial_drivers[] = {
@@ -41,65 +41,11 @@ index e732949f6567..638bae915453 100644
  /*
   * CP210X_PURGE - 16 bits passed in wValue of USB request.
   * SiLabs app note AN571 gives a strange description of the 4 bits:
-@@ -624,6 +638,52 @@ static int cp210x_read_vendor_block(struct usb_serial *serial, u8 type, u16 val,
- 	return result;
- }
- 
-+/*
-+ *func:  Read and Write Characrters Respones
-+ *       operate Register SET_CHARS/GET_CHATS
-+ */
-+static int cp210x_operate_chars_block(struct usb_serial_port *port, u8 req, u8 type,
-+		void *buf, int bufsize)
-+{
-+	struct usb_serial *serial = port->serial;
-+	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
-+	void *dmabuf;
-+	int result;
-+
-+	dmabuf = kmemdup(buf,bufsize, GFP_KERNEL);
-+	if (!dmabuf) {
-+		/*
-+		 * FIXME Some callers don't bother to check for error,
-+		 * at least give them consistent junk until they are fixed
-+		 */
-+		memset(buf, 0, bufsize);
-+		return -ENOMEM;
-+	}
-+
-+	result = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
-+			req, type, 0, port_priv->bInterfaceNumber, dmabuf, bufsize,
-+			USB_CTRL_SET_TIMEOUT);
-+	if (result == bufsize) {
-+		memcpy(buf, dmabuf, bufsize);
-+		result = 0;
-+	} else {
-+		dev_err(&port->dev, "failed get req 0x%x size %d status: %d\n",
-+				req, bufsize, result);
-+		if (result >= 0)
-+			result = -EIO;
-+
-+		/*
-+		 * FIXME Some callers don't bother to check for error,
-+		 * at least give them consistent junk until they are fixed
-+		 */
-+		memset(buf, 0, bufsize);
-+	}
-+
-+	kfree(dmabuf);
-+
-+	return result;
-+}
-+
- /*
-  * Writes any 16-bit CP210X_ register (req) whose value is passed
-  * entirely in the wValue field of the USB request.
-@@ -1134,11 +1194,18 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1134,11 +1148,17 @@ static void cp210x_set_termios(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
  	struct device *dev = &port->dev;
 -	unsigned int cflag, old_cflag;
-+	struct usb_serial *serial = port->serial;
 +	struct cp210x_chars_respones *CharsRes = NULL;
 +	struct cp210x_flow_ctl flow_ctl;
 +	unsigned int cflag, old_cflag, iflag;
@@ -114,7 +60,7 @@ index e732949f6567..638bae915453 100644
  
  	if (tty->termios.c_ospeed != old_termios->c_ospeed)
  		cp210x_change_speed(tty, port, old_termios);
-@@ -1212,10 +1279,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1212,10 +1232,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	}
  
  	if ((cflag & CRTSCTS) != (old_cflag & CRTSCTS)) {
@@ -125,7 +71,7 @@ index e732949f6567..638bae915453 100644
  		cp210x_read_reg_block(port, CP210X_GET_FLOW, &flow_ctl,
  				sizeof(flow_ctl));
  		ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
-@@ -1252,6 +1315,59 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1252,6 +1268,59 @@ static void cp210x_set_termios(struct tty_struct *tty,
  				sizeof(flow_ctl));
  	}
  
@@ -143,8 +89,8 @@ index e732949f6567..638bae915453 100644
 +					"xon/xoff software flow control\n");
 +			return;
 +		}
-+		result = cp210x_operate_chars_block(port, CP210X_GET_CHARS,
-+					  REQTYPE_DEVICE_TO_HOST, CharsRes, sizeof(*CharsRes));
++		result = cp210x_read_reg_block(port, CP210X_GET_CHARS,
++					CharsRes, sizeof(*CharsRes));
 +		dev_dbg(dev, "%s -  bXonchar=0x%x   bXoffchar=0x%x   \n",
 +				__func__, CharsRes->bXonchar ,CharsRes->bXoffchar);
 +		if (result < 0){
@@ -155,8 +101,8 @@ index e732949f6567..638bae915453 100644
 +		}
 +		CharsRes->bXonchar  = CP210X_VSTART;
 +		CharsRes->bXoffchar = CP210X_VSTOP;
-+		result = cp210x_operate_chars_block(port, CP210X_SET_CHARS,
-+					 REQTYPE_HOST_TO_INTERFACE, CharsRes, sizeof(*CharsRes));
++		result = cp210x_write_reg_block(port, CP210X_SET_CHARS,
++					CharsRes, sizeof(*CharsRes));
 +		if (result < 0){
 +			kfree(CharsRes);
 +			dev_err(dev, "Write Characrters Respones  failed"
