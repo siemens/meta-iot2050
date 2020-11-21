@@ -16,6 +16,8 @@ SRC_URI = " \
     "
 CHANGELOG_V="<orig-version>+iot2050"
 
+KEEP_INSTALLED_ON_CLEAN = "1"
+
 do_prepare_build() {
 	deb_add_changelog
 

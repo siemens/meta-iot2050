@@ -43,7 +43,7 @@ U_BOOT_RULES = "iot2050-uboot-ti-sdk-rules"
 ATF_REV   = "996d37930996c2fa39eb091508b5ad4e0d69ad35"
 OPTEE_REV = "e260ea8dde9669308336d194abec8dcc18784216"
 
-BUILD_DEPENDS =. "python-crypto:native, python3-pyelftools,"
+DEBIAN_BUILD_DEPENDS =. "python-crypto:native, python3-pyelftools,"
 
 U_BOOT_BIN = "u-boot.itb"
 

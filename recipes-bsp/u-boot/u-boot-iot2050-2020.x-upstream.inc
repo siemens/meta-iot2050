@@ -22,4 +22,4 @@ SPI_FLASH_IMG = "${U_BOOT_BIN}"
 SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
 
 DEPENDS += "arm-trusted-firmware-iot2050 op-tee-iot2050"
-BUILD_DEPENDS =. "arm-trusted-firmware-iot2050, op-tee-iot2050,"
+DEBIAN_BUILD_DEPENDS =. "arm-trusted-firmware-iot2050, op-tee-iot2050,"

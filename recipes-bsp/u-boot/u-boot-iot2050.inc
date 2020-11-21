@@ -20,7 +20,7 @@ SRC_URI += " \
 S = "${WORKDIR}/git"
 
 # Build environment
-BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64,"
+DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64,"
 
 do_prepare_build_append() {
     ln -sf ../keys ${S}

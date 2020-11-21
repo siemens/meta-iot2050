@@ -117,7 +117,7 @@ python fetch_npm() {
 
     shrinkwarp_path = fetch.localpath(shrinkwarp_url)
     filelist = shrinkwarp_path + ":True"
-    checksum_list = bb.fetch2.get_file_checksums(filelist, d.getVar('PN'))
+    checksum_list = bb.fetch2.get_file_checksums(filelist, d.getVar('PN'), [])
     _, shrinkwarp_chksum = checksum_list[0]
 
     bundled_tgz = d.getVar('DL_DIR') + "/" + get_npm_bundled_tgz(d)
