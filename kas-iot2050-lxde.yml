@@ -9,8 +9,10 @@
 #
 
 header:
-  version: 8
+  version: 10
   includes:
    - kas-iot2050-example.yml
+
+build_system: isar
 
 target: iot2050-image-lxde

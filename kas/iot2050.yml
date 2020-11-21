@@ -9,7 +9,9 @@
 #
 
 header:
-  version: 8
+  version: 10
+
+build_system: isar
 
 distro: isar
 target: iot2050-image-base
