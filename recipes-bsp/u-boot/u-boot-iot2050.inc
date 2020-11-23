@@ -12,7 +12,6 @@
 require recipes-bsp/u-boot/u-boot-custom.inc
 
 SRC_URI += " \
-    file://${U_BOOT_RULES} \
     file://keys \
     file://prebuild \
     "
@@ -24,7 +23,6 @@ DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64,"
 
 do_prepare_build_append() {
     ln -sf ../keys ${S}
-    cp ${WORKDIR}/${U_BOOT_RULES} ${S}/debian/rules
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     echo -$(${ISAR_RELEASE_CMD}) > ${S}/.scmversion

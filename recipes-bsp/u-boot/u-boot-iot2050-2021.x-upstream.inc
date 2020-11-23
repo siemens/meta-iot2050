@@ -15,11 +15,22 @@ SRC_URI += " \
     "
 
 U_BOOT_BRANCH = "jan/iot2050"
+U_BOOT_CONFIG = "iot2050_defconfig"
 U_BOOT_BIN = "flash.bin"
-U_BOOT_RULES = "iot2050-uboot-rules"
 
 SPI_FLASH_IMG = "${U_BOOT_BIN}"
 SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
 
 DEPENDS += "arm-trusted-firmware-iot2050 op-tee-iot2050"
-DEBIAN_BUILD_DEPENDS =. "arm-trusted-firmware-iot2050, op-tee-iot2050,"
+DEBIAN_BUILD_DEPENDS =. "arm-trusted-firmware-iot2050, op-tee-iot2050, \
+    swig:native, python3-dev:native, python3-pkg-resources,"
+
+do_prepare_build_append() {
+    cd ${S}
+    ln -sf ../prebuild/* ${S}
+}
+
+dpkg_runbuild_prepend() {
+    export ATF=/usr/lib/arm-trusted-firmware/iot2050/bl31.bin
+    export TEE=/usr/lib/op-tee/iot2050/tee-pager_v2.bin
+}
