@@ -83,17 +83,23 @@ def runcmd(d, cmd, dir):
     bb.note(output)
 
 do_install_npm() {
+    install_cmd="sudo -E chroot ${BUILDCHROOT_DIR} \
+        apt-get install -y -o Debug::pkgProblemResolver=yes \
+                --no-install-recommends"
+
     dpkg_do_mounts
+
     E="${@ bb.utils.export_proxies(d)}"
+    deb_dl_dir_import "${BUILDCHROOT_DIR}"
     sudo -E chroot ${BUILDCHROOT_DIR} \
             apt-get update \
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
-    sudo -E chroot ${BUILDCHROOT_DIR} \
-            apt-get install \
-                    -y -o Debug::pkgProblemResolver=yes \
-                    --no-install-recommends ${DEBIAN_NPM_PACKAGE}
+    ${install_cmd} --download-only ${DEBIAN_NPM_PACKAGE}
+    deb_dl_dir_export "${BUILDCHROOT_DIR}"
+    ${install_cmd} ${DEBIAN_NPM_PACKAGE}
+
     dpkg_undo_mounts
 }
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
