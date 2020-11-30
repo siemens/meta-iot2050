@@ -29,7 +29,7 @@ def npm_arch_map(target_arch, d):
 
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 
-DEBIAN_NPM_PACKAGE ?= "npm"
+DEBIAN_NPM_PACKAGE ?= "npm-buildchroot"
 
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
@@ -97,7 +97,7 @@ do_install_npm() {
     dpkg_undo_mounts
 }
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
-do_install_npm[depends] += "npm:do_deploy_deb"
+do_install_npm[depends] += "${DEBIAN_NPM_PACKAGE}:do_deploy_deb"
 do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
 
 addtask install_npm before do_fetch

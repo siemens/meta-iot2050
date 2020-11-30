@@ -1,0 +1,3 @@
+Package: npm node-*
+Pin: release n=buster-backports
+Pin-Priority: 801
