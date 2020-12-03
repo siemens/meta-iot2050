@@ -16,13 +16,13 @@ SRC_URI += "git://github.com/intel-iot-devkit/mraa.git;protocol=https;branch=${M
             file://0001-aio.c-fix-mraa_aio_set_bit-for-result-scaling.patch \
             file://0002-feat-iot2050-add-iot2050-platform-support.patch \
             file://0003-feat-iot2050-add-some-example-code-for-testing.patch \
+            file://0004-api-Add-explicit-close-methods-to-classes.patch \
             file://rules"
 SRC_URI[sha256sum] = "15783b4c4431a36d44ba95daf134318a04ff44a8190ba3f19abbda89ede35a26"
 MRAA_BRANCH = "master"
 MRAA_REV = "967585c9ea0e1a8818d2172d2395d8502f6180a2"
 
 S = "${WORKDIR}/git"
-PV = "2.0"
 
 MRAA_BUILD_SWIG30_PATCH_FILE = "0001-Add-Node-7.x-aka-V8-5.2-support.patch"
 MRAA_BUILD_SWIG30_DIR = "${BUILDCHROOT_HOST_DIR}/usr/share/swig3.0"

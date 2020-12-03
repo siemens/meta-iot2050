@@ -1,15 +1,15 @@
-From a387d2954da4ee92187b88c22d91f30d7dfe2e65 Mon Sep 17 00:00:00 2001
+From 953c82e926ff5419cbf61ba73ac67fd680cf0c1a Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Tue, 18 Jun 2019 16:16:02 +0800
-Subject: [PATCH 3/3] feat:iot2050:add some example code for testing
+Subject: [PATCH 3/4] feat:iot2050:add some example code for testing
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---
  examples/platform/CMakeLists.txt |  12 ++++
- examples/platform/aio_iot2050.c |  95 ++++++++++++++++++++++++++++
- examples/platform/led_iot2050.c |  81 ++++++++++++++++++++++++
- examples/platform/pwm_iot2050.c | 105 +++++++++++++++++++++++++++++++
- examples/platform/spi_iot2050.c |  82 ++++++++++++++++++++++++
+ examples/platform/aio_iot2050.c  |  95 ++++++++++++++++++++++++++++
+ examples/platform/led_iot2050.c  |  81 ++++++++++++++++++++++++
+ examples/platform/pwm_iot2050.c  | 105 +++++++++++++++++++++++++++++++
+ examples/platform/spi_iot2050.c  |  82 ++++++++++++++++++++++++
  5 files changed, 375 insertions(+)
  create mode 100644 examples/platform/aio_iot2050.c
  create mode 100644 examples/platform/led_iot2050.c
@@ -17,7 +17,7 @@ Signed-off-by: le.jin <le.jin@siemens.com>
  create mode 100644 examples/platform/spi_iot2050.c
 
 diff --git a/examples/platform/CMakeLists.txt b/examples/platform/CMakeLists.txt
-index 08b7bb4..b283a0d 100644
+index 08b7bb4..b03ce8d 100644
 --- a/examples/platform/CMakeLists.txt
 +++ b/examples/platform/CMakeLists.txt
 @@ -4,6 +4,18 @@ target_link_libraries (gpio_edison mraa)
@@ -428,5 +428,5 @@ index 0000000..81d0171
 +}
 \ No newline at end of file
 -- 
-2.22.0
+2.26.2
 

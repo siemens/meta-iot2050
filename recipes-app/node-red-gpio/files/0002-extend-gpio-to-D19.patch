@@ -1,7 +1,11 @@
-From 81dc6e6f2f463a6f82bd3400b3ad841423f159d2 Mon Sep 17 00:00:00 2001
+From 420c4b767f605dd5bd7849b7c610cb11e80cd231 Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Tue, 17 Dec 2019 08:48:05 +0800
-Subject: [PATCH 2/2] extend gpio to D19
+Subject: [PATCH 2/3] extend gpio to D19
+
+Upstreaming TODOs:
+ - do not break existing use cases
+ - extend depending on detected board
 
 Signed-off-by: zengchao <chao.zeng@siemens.com>
 ---
@@ -58,5 +62,5 @@ index 020db55..37d1429 100644
          node.p.dir(m.DIR_OUT);
          if (node.set) {
 -- 
-2.16.4
+2.26.2
 

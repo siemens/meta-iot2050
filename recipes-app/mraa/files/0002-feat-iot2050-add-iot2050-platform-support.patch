@@ -1,7 +1,7 @@
-From 28e96d6f9da99dcff425df4e0cb87401c02dde31 Mon Sep 17 00:00:00 2001
+From 6385b47325d8266d032a963ff73eec86b59b5dee Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Fri, 24 May 2019 14:33:42 +0800
-Subject: [PATCH 2/3] feat:iot2050:add iot2050 platform support
+Subject: [PATCH 2/4] feat:iot2050:add iot2050 platform support
 
 Add new iot2050 platform support with some modifications
 due to lack of support with register level pin mux hooks.
@@ -2193,5 +2193,5 @@ index da28c65..c4cd5fd 100644
          syslog(LOG_ERR, "uart%i: set_timeout: tcsetattr() failed: %s", dev->index, strerror(errno));
          return MRAA_ERROR_FEATURE_NOT_SUPPORTED;
 -- 
-2.22.0
+2.26.2
 
