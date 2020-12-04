@@ -9,7 +9,9 @@
 #
 
 header:
-  version: 8
+  version: 10
+
+build_system: isar
 
 distro: isar
 target: iot2050-image-base
@@ -25,30 +27,9 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: bf0aff2af6dfb8f6729ffced8c73d4a5ac73a871
+    refspec: 76eac233f1b1d0d117b3f05b3dec8a6da1cdf4c7
     layers:
       meta:
-    patches:
-      01-dpgk-raw-patch:
-        path: isar-patches/0001-dpkg-raw-Allow-patching-and-templating.patch
-      02-wks-parse-issue:
-        path: isar-patches/0002-wic-Ensure-that-sourceparams-values-can-contain.patch
-      05-add-sdk-pack:
-        path: isar-patches/0005-sdkchroot-Add-support-for-adding-self-defined-sdk-pa.patch
-      06-relative-sdk-links:
-        path: isar-patches/0006-sdk-Make-all-links-in-the-SDK-chroot-relative.patch
-      07-relocate-sdk:
-        path: isar-patches/0007-sdk-Add-script-to-relocate-SDK.patch
-      08-sdk-do-not-ship-isar-apt:
-        path: isar-patches/0008-sdk-Do-not-ship-the-isar-apt-repo.patch
-      09-sdk-inject-sysroot:
-        path: isar-patches/0009-sdk-Inject-sysroot-path-when-calling-relocated-toolc.patch
-      10-sdk-adjust-readme:
-        path: isar-patches/0010-sdk-Update-README.sdk.patch
-      13-fix-isar-build-cmd:
-        path: isar-patches/0013-image-Fix-evaluation-of-complex-ISAR_RELEASE_CMD-val.patch
-      14-compat-arch:
-        path: isar-patches/0014-Add-compat-architecture-support-via-multiarch.patch
 
 bblayers_conf_header:
   standard: |

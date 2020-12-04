@@ -6,3 +6,7 @@ deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-securit
 
 deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster-updates main contrib non-free
 deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster-updates main contrib non-free
+
+# activate on next freeze
+#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX buster-backports main
+#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX buster-backports main

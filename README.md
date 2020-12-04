@@ -16,19 +16,19 @@ sudo apt install docker.io
 Then build the example image
 
 ```shell
-./kas-docker --isar build kas-iot2050-example.yml
+./kas-container build kas-iot2050-example.yml
 ```
 
 Build the example RT image, for example
 
 ```shell
-./kas-docker --isar build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
+./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
 ```
 
 Using 3rd-party mirrors, for example
 
 ```shell
-./kas-docker --isar build kas-iot2050-example.yml:kas/opt/mirror-example.yml
+./kas-container build kas-iot2050-example.yml:kas/opt/mirror-example.yml
 ```
 
 After build complete, the final image is under
@@ -43,7 +43,7 @@ build/tmp/deploy/images/iot2050/iot2050-image-example-isar-iot2050.wic.img
 >>>
 
 ```shell
-./kas-docker --isar build kas-iot2050-example.yml:kas/opt/sdk.yml
+./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml
 ```
 
 After build complete, the SDK tarball is located at
@@ -57,7 +57,7 @@ Please follow the further instruction file `README.sdk` under the SDK tarball
 ## Clean build result
 
 ```shell
-./kas-docker --isar clean
+./kas-container --isar clean
 ```
 
 ## Build released version
@@ -66,19 +66,19 @@ First checkout the desired tag. Then build the image or sdk by appending the `ka
 
 ```shell
 # example image
-./kas-docker --isar build kas-iot2050-example.yml:kas/opt/package-lock.yml
+./kas-container build kas-iot2050-example.yml:kas/opt/package-lock.yml
 
 # example rt image
-./kas-docker --isar build kas-iot2050-example.yml:kas/opt/preempt-rt.yml:kas/opt/package-lock.yml
+./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml:kas/opt/package-lock.yml
 
 # bootloader for advanced board
-./kas-docker --isar build kas-iot2050-boot-advanced.yml:kas/opt/package-lock.yml
+./kas-container build kas-iot2050-boot-advanced.yml:kas/opt/package-lock.yml
 
 # bootloader for basic board
-./kas-docker --isar build kas-iot2050-boot-basic.yml:kas/opt/package-lock.yml
+./kas-container build kas-iot2050-boot-basic.yml:kas/opt/package-lock.yml
 
 # SDK
-./kas-docker --isar build kas-iot2050-example.yml:kas/opt/sdk.yml:kas/opt/package-lock.yml
+./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml:kas/opt/package-lock.yml
 ```
 
 ## Booting the Image from SD card

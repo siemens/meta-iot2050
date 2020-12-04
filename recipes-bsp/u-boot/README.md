@@ -5,13 +5,13 @@
 The boot loader for the basic version is built like this:
 
 ```shell
-./kas-docker --isar build kas-iot2050-boot-basic.yml
+./kas-container build kas-iot2050-boot-basic.yml
 ```
 
 The advanced version is built like this:
 
 ```shell
-./kas-docker --isar build kas-iot2050-boot-advanced.yml
+./kas-container build kas-iot2050-boot-advanced.yml
 ```
 
 After the build the boot image is under

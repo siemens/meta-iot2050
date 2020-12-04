@@ -29,7 +29,7 @@ def npm_arch_map(target_arch, d):
 
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 
-DEBIAN_NPM_PACKAGE ?= "npm"
+DEBIAN_NPM_PACKAGE ?= "npm-buildchroot"
 
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
@@ -83,21 +83,27 @@ def runcmd(d, cmd, dir):
     bb.note(output)
 
 do_install_npm() {
+    install_cmd="sudo -E chroot ${BUILDCHROOT_DIR} \
+        apt-get install -y -o Debug::pkgProblemResolver=yes \
+                --no-install-recommends"
+
     dpkg_do_mounts
+
     E="${@ bb.utils.export_proxies(d)}"
+    deb_dl_dir_import "${BUILDCHROOT_DIR}"
     sudo -E chroot ${BUILDCHROOT_DIR} \
             apt-get update \
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
-    sudo -E chroot ${BUILDCHROOT_DIR} \
-            apt-get install \
-                    -y -o Debug::pkgProblemResolver=yes \
-                    --no-install-recommends ${DEBIAN_NPM_PACKAGE}
+    ${install_cmd} --download-only ${DEBIAN_NPM_PACKAGE}
+    deb_dl_dir_export "${BUILDCHROOT_DIR}"
+    ${install_cmd} ${DEBIAN_NPM_PACKAGE}
+
     dpkg_undo_mounts
 }
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
-do_install_npm[depends] += "npm:do_deploy_deb"
+do_install_npm[depends] += "${DEBIAN_NPM_PACKAGE}:do_deploy_deb"
 do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
 
 addtask install_npm before do_fetch
@@ -117,7 +123,7 @@ python fetch_npm() {
 
     shrinkwarp_path = fetch.localpath(shrinkwarp_url)
     filelist = shrinkwarp_path + ":True"
-    checksum_list = bb.fetch2.get_file_checksums(filelist, d.getVar('PN'))
+    checksum_list = bb.fetch2.get_file_checksums(filelist, d.getVar('PN'), [])
     _, shrinkwarp_chksum = checksum_list[0]
 
     bundled_tgz = d.getVar('DL_DIR') + "/" + get_npm_bundled_tgz(d)

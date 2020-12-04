@@ -35,21 +35,25 @@ SRC_URI += " \
     file://0018-feat-set-sdhci0-clock-frequency-to-142.86MHz.patch \
     file://atf/0001-feat-add-atf-support-to-iot2050-platform.patch;patchdir=${WORKDIR}/atf \
     file://optee/0001-feat-add-optee-support-to-iot2050-platform.patch;patchdir=${WORKDIR}/optee \
+    file://iot2050-uboot-ti-sdk-rules \
     "
 
 U_BOOT_BRANCH = "processor-sdk-u-boot-2019.01"
 U_BOOT_REV = "029e4c009aaeaee2d06aa8271dbd3a9e73a28aa7"
-U_BOOT_RULES = "iot2050-uboot-ti-sdk-rules"
 ATF_REV   = "996d37930996c2fa39eb091508b5ad4e0d69ad35"
 OPTEE_REV = "e260ea8dde9669308336d194abec8dcc18784216"
 
-BUILD_DEPENDS =. "python-crypto:native, python3-pyelftools,"
+DEBIAN_BUILD_DEPENDS =. "python-crypto:native, python3-pyelftools,"
 
 U_BOOT_BIN = "u-boot.itb"
 
 SPI_FLASH_IMG = "iot2050-image-boot-${IOT2050_VARIANT}.bin"
 SPI_FLASH_SIZE_KB = "8192"
 SPI_FLASH_DEPLOY_IMG = "${SPI_FLASH_IMG}"
+
+do_prepare_build_append() {
+    cp ${WORKDIR}/iot2050-uboot-ti-sdk-rules ${S}/debian/rules
+}
 
 dpkg_runbuild_prepend() {
     export IOT2050_VARIANT=${IOT2050_VARIANT}
