@@ -5,7 +5,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require linux-iot2050_4.19.59+.bb
+require linux-iot2050_4.19.94+.bb
 
 SRC_URI += " \
     file://rt-0001-rt-patch-for-IOT2050-kernel.patch \

@@ -1,7 +1,7 @@
-From 8cc7ddc0bac1358c16d0ec3e3d1ae69cdbc4f923 Mon Sep 17 00:00:00 2001
+From 248cf3ba535cf442932b366d7ba3df2e20fc45ae Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 4 Feb 2020 22:03:52 +0800
-Subject: [PATCH 13/13] fix:can not auto negotiate to 100M with 4-wire
+Subject: [PATCH 13/17] fix:can not auto negotiate to 100M with 4-wire
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -98,5 +98,5 @@ index 0b23d3421860..af43cc9c9a18 100644
  		.ack_interrupt	= dp83867_ack_interrupt,
  		.config_intr	= dp83867_config_intr,
 -- 
-2.25.1
+2.17.1
 
