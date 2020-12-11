@@ -1,7 +1,7 @@
-From 7ce1011ad4a74b3dd0931ae633ca918a4dd18331 Mon Sep 17 00:00:00 2001
+From cffdad62b941948810033fa2a96ee689cafacaf1 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 10 Dec 2019 11:33:37 +0800
-Subject: [PATCH 14/22] refactor:move ioexpander node to mcu-i2c0 for LM5
+Subject: [PATCH 11/17] refactor:move ioexpander node to mcu-i2c0 for LM5
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

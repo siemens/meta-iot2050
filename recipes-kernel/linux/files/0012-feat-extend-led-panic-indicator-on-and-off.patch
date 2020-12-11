@@ -1,7 +1,7 @@
-From 02d8a735b979126c08d7e40204f8854f0be09004 Mon Sep 17 00:00:00 2001
+From 3bfdadfd677280e904bfcc25ee9ff3c777e90c0b Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 16/22] feat:extend led panic-indicator on and off
+Subject: [PATCH 12/17] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -25,10 +25,10 @@ index 0b5e05ea8ba0..89f354528830 100644
  		};
  
 diff --git a/drivers/leds/led-triggers.c b/drivers/leds/led-triggers.c
-index 17d73db1456e..29bbcb0795f6 100644
+index e4cb3811e82a..1ddf9f33e2cb 100644
 --- a/drivers/leds/led-triggers.c
 +++ b/drivers/leds/led-triggers.c
-@@ -321,8 +321,14 @@ void led_trigger_event(struct led_trigger *trig,
+@@ -322,8 +322,14 @@ void led_trigger_event(struct led_trigger *trig,
  		return;
  
  	read_lock(&trig->leddev_list_lock);
