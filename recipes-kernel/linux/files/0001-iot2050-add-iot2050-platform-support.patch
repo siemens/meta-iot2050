@@ -1,7 +1,7 @@
-From 5283cfac179d7c6a40d659d26d121747df9f73e3 Mon Sep 17 00:00:00 2001
+From 15efe2d1dbcd7aac108ae9540771ab510060338a Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH 01/22] iot2050: add iot2050 platform support
+Subject: [PATCH 01/13] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
 Also add support for fixed gpio number naming.
@@ -952,7 +952,7 @@ index 994ecd597abe..5030a14e86b5 100644
  	spin_lock_init(&chips->lock);
  	bank_base += ngpio;
 diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index e26d87b6ffc5..e8de5f087401 100644
+index aa4de6907f77..7019cc4e675d 100644
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
 @@ -1868,8 +1868,9 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
@@ -968,5 +968,5 @@ index e26d87b6ffc5..e8de5f087401 100644
  			status = serial8250_rx_chars(up, status);
  	}
 -- 
-2.17.1
+2.25.1
 

@@ -1,7 +1,7 @@
-From 6b72637818243212847489a51048f9ce5a2577d3 Mon Sep 17 00:00:00 2001
+From 5caa06181b9e5a462eada6a82157db48b7b2241a Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 26 Nov 2019 09:05:56 +0800
-Subject: [PATCH 12/22] fix:clear the cycle buffer of serial
+Subject: [PATCH 10/13] fix:clear the cycle buffer of serial
 
 1.the last residual data will be sent next time
 
@@ -11,7 +11,7 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 088232f6aa75..32c2568df552 100644
+index 979e4c861a6b..47d90ed7e96e 100644
 --- a/drivers/tty/serial/8250/8250_omap.c
 +++ b/drivers/tty/serial/8250/8250_omap.c
 @@ -706,6 +706,9 @@ static void omap_8250_shutdown(struct uart_port *port)
@@ -25,5 +25,5 @@ index 088232f6aa75..32c2568df552 100644
  	pm_runtime_put_autosuspend(port->dev);
  	free_irq(port->irq, port);
 -- 
-2.17.1
+2.25.1
 

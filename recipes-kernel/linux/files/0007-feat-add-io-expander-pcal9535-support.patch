@@ -1,7 +1,7 @@
-From 242bd3c176b132223ab67b05e1779a4653350691 Mon Sep 17 00:00:00 2001
+From 61798e1cfc49358c84de25cd6bcc2c033cf334f6 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Wed, 9 Oct 2019 17:08:43 +0800
-Subject: [PATCH 09/22] feat:add io expander pcal9535 support
+Subject: [PATCH 07/13] feat:add io expander pcal9535 support
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---
@@ -16,7 +16,7 @@ Signed-off-by: le.jin <le.jin@siemens.com>
  8 files changed, 190 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 2873b6e1d8b9..a5c26756d129 100644
+index 70443de224da..4d4fbc6e8131 100644
 --- a/drivers/gpio/gpio-pca953x.c
 +++ b/drivers/gpio/gpio-pca953x.c
 @@ -14,6 +14,7 @@
@@ -231,10 +231,10 @@ index 3dbaf489a8a5..ace48f06bc35 100644
  };
  
 diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index fd713326dcfc..48a39d553392 100644
+index a24f13df42f4..9846dee63be5 100644
 --- a/drivers/gpio/gpiolib.c
 +++ b/drivers/gpio/gpiolib.c
-@@ -2745,6 +2745,24 @@ int gpiod_is_active_low(const struct gpio_desc *desc)
+@@ -2798,6 +2798,24 @@ int gpiod_is_active_low(const struct gpio_desc *desc)
  }
  EXPORT_SYMBOL_GPL(gpiod_is_active_low);
  
@@ -291,7 +291,7 @@ index 19eadac415c4..4cbba8308161 100644
  {
  	return gpiod_get_raw_value_cansleep(gpio_to_desc(gpio));
 diff --git a/include/linux/gpio.h b/include/linux/gpio.h
-index 39745b8bdd65..8b7f8afe7c1a 100644
+index b3115d1a7d49..0dcea09debd5 100644
 --- a/include/linux/gpio.h
 +++ b/include/linux/gpio.h
 @@ -41,6 +41,11 @@
@@ -319,7 +319,7 @@ index 39745b8bdd65..8b7f8afe7c1a 100644
  {
  	/* GPIO can never have been requested or set as {in,out}put */
 diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index acc4279ad5e3..50c333d82dc5 100644
+index 8dfd8300d9c3..30093b6552b5 100644
 --- a/include/linux/gpio/consumer.h
 +++ b/include/linux/gpio/consumer.h
 @@ -138,6 +138,8 @@ int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
@@ -359,5 +359,5 @@ index a4d5eb37744a..c3af8cf978f6 100644
  						unsigned offset);
  
 -- 
-2.17.1
+2.25.1
 
