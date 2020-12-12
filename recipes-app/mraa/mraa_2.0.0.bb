@@ -30,7 +30,6 @@ MRAA_BUILD_SWIG30_DIR = "${BUILDCHROOT_DIR}/usr/share/swig3.0"
 DEBIAN_BUILD_DEPENDS = " \
     cmake, \
     swig3.0, \
-    libpython-dev, \
     libpython3-dev, \
     nodejs, \
     libnode-dev, \
