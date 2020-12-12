@@ -78,6 +78,7 @@ config KAS_INCLUDE_RT
 config CORAL
 	bool "Google Coral Edge TPU support"
 	default y
+	depends on !UBUNTU
 	help
 	  Add driver and libraries to use a Google Coral Edge TPU accelerator
 	  card if it is installed in the IOT2050 extension slot.
@@ -96,6 +97,17 @@ config KAS_INCLUDE_LXDE
 	string
 	default "kas/opt/lxde.yml"
 	depends on LXDE
+
+config UBUNTU
+	bool "Example based on Ubuntu"
+	help
+	  Use Ubuntu as base distribution for the example image. Note that this
+	  is not officially supported.
+
+config KAS_INCLUDE_UBUNTU
+	string
+	default "kas/opt/ubuntu.yml"
+	depends on UBUNTU
 
 endif
 

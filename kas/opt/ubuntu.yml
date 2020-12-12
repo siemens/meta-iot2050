@@ -1,0 +1,6 @@
+header:
+  version: 10
+  includes:
+   - kas/opt/no-coral.yml
+
+distro: iot2050-ubuntu

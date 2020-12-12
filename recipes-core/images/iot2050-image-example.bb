@@ -65,7 +65,9 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
 # wifi support
 IOT2050_DEBIAN_WIFI_PACKAGES = " \
     iw \
-    wpasupplicant \
+    wpasupplicant"
+
+IOT2050_DEBIAN_WIFI_PACKAGES_append_iot2050-debian = " \
     firmware-ath9k-htc \
     firmware-atheros \
     firmware-brcm80211 \
@@ -75,6 +77,9 @@ IOT2050_DEBIAN_WIFI_PACKAGES = " \
     firmware-realtek \
     firmware-ti-connectivity \
     "
+
+IOT2050_DEBIAN_WIFI_PACKAGES_append_iot2050-ubuntu = " \
+    linux-firmware"
 
 # bluetooth support
 IOT2050_DEBIAN_BT_PACKAGES = " \
