@@ -57,6 +57,17 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img.bmap
 
+  ubuntu-example-image:
+    name: Ubuntu example image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
+      - name: Ubuntu example image
+        run: ./kas-docker build kas-iot2050-example.yml:kas/opt/ubuntu.yml
+
   bootloaders:
     name: Bootloaders for both PG1 and PG2
     runs-on: ubuntu-latest
