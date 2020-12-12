@@ -13,7 +13,7 @@ header:
 
 build_system: isar
 
-distro: isar
+distro: iot2050-debian
 target: iot2050-image-base
 machine: iot2050
 
