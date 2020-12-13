@@ -18,7 +18,7 @@ DESCRIPTION = "IOT2050 reference image customizations"
 DEBIAN_DEPENDS = "u-boot-tools"
 
 SRC_URI = " \
-    file://postinst \
+    file://postinst.tmpl \
     file://ti-pruss/am65x-pru0-prueth-fw.elf \
     file://ti-pruss/am65x-pru1-prueth-fw.elf \
     file://ti-pruss/am65x-rtu0-prueth-fw.elf \
@@ -26,6 +26,9 @@ SRC_URI = " \
     file://rti_dwwdtest/iot2050/csl_rti_dwwd_test_app_mcu1_0_release.xer5f \
     file://hosts \
     file://fw_env.config"
+
+TEMPLATE_FILES = "postinst.tmpl"
+TEMPLATE_VARS = "HOSTNAME"
 
 do_install() {
     install -v -d ${D}/lib/firmware/ti-pruss
