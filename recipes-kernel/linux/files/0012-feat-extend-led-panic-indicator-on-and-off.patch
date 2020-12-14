@@ -1,7 +1,7 @@
-From 795b82b681aa4cacab19370c44238bd70c01ab10 Mon Sep 17 00:00:00 2001
+From 3bfdadfd677280e904bfcc25ee9ff3c777e90c0b Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 12/13] feat:extend led panic-indicator on and off
+Subject: [PATCH 12/17] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -134,5 +134,5 @@ index 577dadc4990a..73090c752808 100644
  	int 		num_leds;
  	const struct gpio_led *leds;
 -- 
-2.25.1
+2.17.1
 
