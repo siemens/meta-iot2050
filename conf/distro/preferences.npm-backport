@@ -1,3 +1,7 @@
+Package: node-cacache node-copy-concurrently node-mkdirp node-uuid
+Pin: release n=buster
+Pin-Priority: 802
+
 Package: npm node-*
 Pin: release n=buster-backports
 Pin-Priority: 801
