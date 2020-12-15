@@ -1,0 +1,301 @@
+From e9214bf46bc8013dbe8d38d253815ab14233d64f Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Tue, 15 Dec 2020 14:33:34 +0800
+Subject: [PATCH 18/18] add the sysfw ABI3.X support
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/siemens/Makefile          |  2 +-
+ .../dts/siemens/iot2050-advanced-oldfw.dts    | 65 +++++++++++++++++++
+ .../boot/dts/siemens/iot2050-advanced.dts     | 61 ++---------------
+ .../boot/dts/siemens/iot2050-basic-oldfw.dts  | 50 +++++++++++++-
+ arch/arm64/boot/dts/siemens/iot2050-basic.dts | 53 ++-------------
+ 5 files changed, 128 insertions(+), 103 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/siemens/iot2050-advanced-oldfw.dts
+
+diff --git a/arch/arm64/boot/dts/siemens/Makefile b/arch/arm64/boot/dts/siemens/Makefile
+index 8607c07ddc78..c51767d494e2 100644
+--- a/arch/arm64/boot/dts/siemens/Makefile
++++ b/arch/arm64/boot/dts/siemens/Makefile
+@@ -8,7 +8,7 @@
+ DTC_FLAGS += -@
+ 
+ dtb-$(CONFIG_ARCH_K3_AM6_SOC) += iot2050-basic.dtb iot2050-basic-oldfw.dtb \
+-	iot2050-advanced.dtb
++	iot2050-advanced.dtb iot2050-advanced-oldfw.dtb
+ 
+ $(obj)/%.dtbo: $(src)/%.dtso FORCE
+ 	$(call if_changed_dep,dtc)
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-advanced-oldfw.dts b/arch/arm64/boot/dts/siemens/iot2050-advanced-oldfw.dts
+new file mode 100644
+index 000000000000..946520f863cf
+--- /dev/null
++++ b/arch/arm64/boot/dts/siemens/iot2050-advanced-oldfw.dts
+@@ -0,0 +1,65 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * (C) Copyright 2019 Siemens AG
++ */
++
++/dts-v1/;
++
++#include "../ti/k3-am654.dtsi"
++#include "iot2050-common.dtsi"
++
++/ {
++	model = "SIMATIC IOT2050-ADVANCED";
++
++	aliases {
++		mmc0 = &sdhci1;
++		mmc1 = &sdhci0;
++	};
++
++	memory@80000000 {
++		device_type = "memory";
++		/* 2G RAM */
++		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
++	};
++};
++
++&main_uart0 {
++	status = "disabled";
++};
++
++&main_pmx0 {
++	main_mmc0_pins_default: main-mmc0-pins-default {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01a8, PIN_INPUT_PULLDOWN, 0)  /* (B25) MMC0_CLK */
++			AM65X_IOPAD(0x01ac, PIN_INPUT_PULLUP,   0)  /* (B27) MMC0_CMD */
++			AM65X_IOPAD(0x01a4, PIN_INPUT_PULLUP,   0)  /* (A26) MMC0_DAT0 */
++			AM65X_IOPAD(0x01a0, PIN_INPUT_PULLUP,   0)  /* (E25) MMC0_DAT1 */
++			AM65X_IOPAD(0x019c, PIN_INPUT_PULLUP,   0)  /* (C26) MMC0_DAT2 */
++			AM65X_IOPAD(0x0198, PIN_INPUT_PULLUP,   0)  /* (A25) MMC0_DAT3 */
++			AM65X_IOPAD(0x0194, PIN_INPUT_PULLUP,   0)  /* (E24) MMC0_DAT4 */
++			AM65X_IOPAD(0x0190, PIN_INPUT_PULLUP,   0)  /* (A24) MMC0_DAT5 */
++			AM65X_IOPAD(0x018c, PIN_INPUT_PULLUP,   0)  /* (B26) MMC0_DAT6 */
++			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP,   0)  /* (D25) MMC0_DAT7 */
++			AM65X_IOPAD(0x01B8, PIN_OUTPUT_PULLUP,  7)  /* (B23) MMC0_SDWP */
++			AM65X_IOPAD(0x01b4, PIN_INPUT_PULLUP,   0)  /* (A23) MMC0_SDCD */
++			AM65X_IOPAD(0x01b0, PIN_INPUT,          0)  /* (C25) MMC0_DS */
++		>;
++	};
++};
++
++&sdhci0 {
++	/*
++	 * Swap clock TISCI clock IDs between sdhci0 and sdhci1 to work
++	 * around an issue in System Firmware 2019.12a (and earlier) known
++	 * as SYSFW-3179.
++	 */
++	clocks = <&k3_clks 48 0>, <&k3_clks 48 1>;
++	assigned-clocks = <&k3_clks 48 1>;
++	assigned-clock-rates = <142860000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_mmc0_pins_default>;
++	bus-width = <8>;
++	non-removable;
++	ti,driver-strength-ohm = <50>;
++	disable-wp;
++};
+\ No newline at end of file
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+index 946520f863cf..4284e4c69dc6 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+@@ -5,61 +5,12 @@
+ 
+ /dts-v1/;
+ 
+-#include "../ti/k3-am654.dtsi"
+-#include "iot2050-common.dtsi"
++#include "iot2050-advanced-oldfw.dts"
++#include "../ti/k3-am65-main-abi3_x.dtsi"
++#include "../ti/k3-am65-mcu-abi3_x.dtsi"
++#include "../ti/k3-am65-wakeup-abi3_x.dtsi"
+ 
+ / {
+-	model = "SIMATIC IOT2050-ADVANCED";
+-
+-	aliases {
+-		mmc0 = &sdhci1;
+-		mmc1 = &sdhci0;
+-	};
+-
+-	memory@80000000 {
+-		device_type = "memory";
+-		/* 2G RAM */
+-		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
+-	};
+-};
+-
+-&main_uart0 {
+-	status = "disabled";
++    model = "SIMATIC IOT2050-ADVANCED";
++	compatible =  "siemens,am654-iot2050", "ti,am654";
+ };
+-
+-&main_pmx0 {
+-	main_mmc0_pins_default: main-mmc0-pins-default {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x01a8, PIN_INPUT_PULLDOWN, 0)  /* (B25) MMC0_CLK */
+-			AM65X_IOPAD(0x01ac, PIN_INPUT_PULLUP,   0)  /* (B27) MMC0_CMD */
+-			AM65X_IOPAD(0x01a4, PIN_INPUT_PULLUP,   0)  /* (A26) MMC0_DAT0 */
+-			AM65X_IOPAD(0x01a0, PIN_INPUT_PULLUP,   0)  /* (E25) MMC0_DAT1 */
+-			AM65X_IOPAD(0x019c, PIN_INPUT_PULLUP,   0)  /* (C26) MMC0_DAT2 */
+-			AM65X_IOPAD(0x0198, PIN_INPUT_PULLUP,   0)  /* (A25) MMC0_DAT3 */
+-			AM65X_IOPAD(0x0194, PIN_INPUT_PULLUP,   0)  /* (E24) MMC0_DAT4 */
+-			AM65X_IOPAD(0x0190, PIN_INPUT_PULLUP,   0)  /* (A24) MMC0_DAT5 */
+-			AM65X_IOPAD(0x018c, PIN_INPUT_PULLUP,   0)  /* (B26) MMC0_DAT6 */
+-			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP,   0)  /* (D25) MMC0_DAT7 */
+-			AM65X_IOPAD(0x01B8, PIN_OUTPUT_PULLUP,  7)  /* (B23) MMC0_SDWP */
+-			AM65X_IOPAD(0x01b4, PIN_INPUT_PULLUP,   0)  /* (A23) MMC0_SDCD */
+-			AM65X_IOPAD(0x01b0, PIN_INPUT,          0)  /* (C25) MMC0_DS */
+-		>;
+-	};
+-};
+-
+-&sdhci0 {
+-	/*
+-	 * Swap clock TISCI clock IDs between sdhci0 and sdhci1 to work
+-	 * around an issue in System Firmware 2019.12a (and earlier) known
+-	 * as SYSFW-3179.
+-	 */
+-	clocks = <&k3_clks 48 0>, <&k3_clks 48 1>;
+-	assigned-clocks = <&k3_clks 48 1>;
+-	assigned-clock-rates = <142860000>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&main_mmc0_pins_default>;
+-	bus-width = <8>;
+-	non-removable;
+-	ti,driver-strength-ohm = <50>;
+-	disable-wp;
+-};
+\ No newline at end of file
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts b/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+index 79f18002a464..fe5900219a19 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+@@ -4,7 +4,55 @@
+  */
+ 
+ /dts-v1/;
+-#include "iot2050-basic.dts"
++/* TBD: should include the Dual Core dtsi*/
++#include "../ti/k3-am654.dtsi"
++#include "iot2050-common.dtsi"
++
++/ {
++	model = "SIMATIC IOT2050-BASIC";
++
++	memory@80000000 {
++		device_type = "memory";
++		/* 1G RAM */
++		reg = <0x00000000 0x80000000 0x00000000 0x40000000>;
++	};
++
++	cpus {
++		cpu-map {
++			/delete-node/ cluster1;
++		};
++		/delete-node/ cpu@100;
++		/delete-node/ cpu@101;
++	};
++};
++
++&main_pmx0 {
++	main_uart0_pins_default: main-uart0-pins-default {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01e4, PIN_INPUT,  0)  /* (AF11) UART0_RXD */
++			AM65X_IOPAD(0x01e8, PIN_OUTPUT, 0)  /* (AE11) UART0_TXD */
++			AM65X_IOPAD(0x01ec, PIN_INPUT,  0)  /* (AG11) UART0_CTSn */
++			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)  /* (AD11) UART0_RTSn */
++			AM65X_IOPAD(0x0188, PIN_INPUT,  1)  /* (D25) UART0_DCDn */
++			AM65X_IOPAD(0x018c, PIN_INPUT,  1)  /* (B26) UART0_DSRn */
++			AM65X_IOPAD(0x0190, PIN_OUTPUT, 1)  /* (A24) UART0_DTRn */
++			AM65X_IOPAD(0x0194, PIN_INPUT,  1)  /* (E24) UART0_RIN */
++		>;
++	};
++};
++
++&main_uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_uart0_pins_default>;
++
++	/* workaround for uart issues (DMA warnings and RCU preempt) */
++	/delete-property/ dmas;
++	/delete-property/ dma-names;
++};
++
++&sdhci0 {
++	status = "disabled";
++};
+ 
+ /* Compat support for bootloader V01.00.00.1 */
+ 
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic.dts b/arch/arm64/boot/dts/siemens/iot2050-basic.dts
+index 471f9b131db0..1f670678312f 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-basic.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-basic.dts
+@@ -4,52 +4,13 @@
+  */
+ 
+ /dts-v1/;
+-/* TBD: should include the Dual Core dtsi*/
+-#include "../ti/k3-am654.dtsi"
+-#include "iot2050-common.dtsi"
+ 
+-/ {
+-	model = "SIMATIC IOT2050-BASIC";
+-
+-	memory@80000000 {
+-		device_type = "memory";
+-		/* 1G RAM */
+-		reg = <0x00000000 0x80000000 0x00000000 0x40000000>;
+-	};
+-
+-	cpus {
+-		cpu-map {
+-			/delete-node/ cluster1;
+-		};
+-		/delete-node/ cpu@100;
+-		/delete-node/ cpu@101;
+-	};
+-};
+-
+-&main_pmx0 {
+-	main_uart0_pins_default: main-uart0-pins-default {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x01e4, PIN_INPUT,  0)  /* (AF11) UART0_RXD */
+-			AM65X_IOPAD(0x01e8, PIN_OUTPUT, 0)  /* (AE11) UART0_TXD */
+-			AM65X_IOPAD(0x01ec, PIN_INPUT,  0)  /* (AG11) UART0_CTSn */
+-			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)  /* (AD11) UART0_RTSn */
+-			AM65X_IOPAD(0x0188, PIN_INPUT,  1)  /* (D25) UART0_DCDn */
+-			AM65X_IOPAD(0x018c, PIN_INPUT,  1)  /* (B26) UART0_DSRn */
+-			AM65X_IOPAD(0x0190, PIN_OUTPUT, 1)  /* (A24) UART0_DTRn */
+-			AM65X_IOPAD(0x0194, PIN_INPUT,  1)  /* (E24) UART0_RIN */
+-		>;
+-	};
+-};
+-
+-&main_uart0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&main_uart0_pins_default>;
++#include "iot2050-basic-oldfw.dts"
++#include "../ti/k3-am65-main-abi3_x.dtsi"
++#include "../ti/k3-am65-mcu-abi3_x.dtsi"
++#include "../ti/k3-am65-wakeup-abi3_x.dtsi"
+ 
+-	/* workaround for uart issues (DMA warnings and RCU preempt) */
+-	/delete-property/ dmas;
+-	/delete-property/ dma-names;
+-};
+-
+-&sdhci0 {
+-	status = "disabled";
++/ {
++    model = "SIMATIC IOT2050-BASIC";
++	compatible =  "siemens,am654-iot2050", "ti,am654";
+ };
+-- 
+2.17.1
+
