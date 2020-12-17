@@ -1,7 +1,7 @@
-From 3bfdadfd677280e904bfcc25ee9ff3c777e90c0b Mon Sep 17 00:00:00 2001
+From 3b6de4c2e3dbc059983ce5ede272590d6adce441 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 12/17] feat:extend led panic-indicator on and off
+Subject: [PATCH 11/17] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -13,7 +13,7 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  5 files changed, 30 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-index 0b5e05ea8ba0..89f354528830 100644
+index b1a2eac0dfd0..f9ea26b2569d 100644
 --- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 @@ -132,6 +132,7 @@
@@ -134,5 +134,5 @@ index 577dadc4990a..73090c752808 100644
  	int 		num_leds;
  	const struct gpio_led *leds;
 -- 
-2.17.1
+2.25.1
 

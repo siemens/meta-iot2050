@@ -1,7 +1,7 @@
-From 0e7853c7f26f3984f1d32690d4776b62ab6a1445 Mon Sep 17 00:00:00 2001
+From 6816fe28731fbd32287cdad41df30ad5d4520022 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 11 Dec 2020 16:39:34 +0800
-Subject: [PATCH 14/17] dts: Set sdhci0 clock frequency to 142.86MHz
+Subject: [PATCH 13/17] dts: Set sdhci0 clock frequency to 142.86MHz
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -34,7 +34,7 @@ index 88b04c974294..9a83edbbeae1 100644
  };
 \ No newline at end of file
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-index 89f354528830..c58ae32547a2 100644
+index f9ea26b2569d..75bb9f54b668 100644
 --- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
 @@ -585,9 +585,16 @@
@@ -55,5 +55,5 @@ index 89f354528830..c58ae32547a2 100644
  
  &gpu {
 -- 
-2.17.1
+2.25.1
 

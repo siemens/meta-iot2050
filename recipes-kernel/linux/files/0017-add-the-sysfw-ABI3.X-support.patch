@@ -1,7 +1,7 @@
-From e9214bf46bc8013dbe8d38d253815ab14233d64f Mon Sep 17 00:00:00 2001
+From 244021cdac202f55b92d93263fdbff7e780bb58a Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Tue, 15 Dec 2020 14:33:34 +0800
-Subject: [PATCH 18/18] add the sysfw ABI3.X support
+Subject: [PATCH 17/17] add the sysfw ABI3.X support
 
 Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
 ---
@@ -297,5 +297,5 @@ index 471f9b131db0..1f670678312f 100644
 +	compatible =  "siemens,am654-iot2050", "ti,am654";
  };
 -- 
-2.17.1
+2.25.1
 

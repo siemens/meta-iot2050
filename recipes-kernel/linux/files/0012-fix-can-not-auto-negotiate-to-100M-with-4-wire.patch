@@ -1,7 +1,7 @@
-From 248cf3ba535cf442932b366d7ba3df2e20fc45ae Mon Sep 17 00:00:00 2001
+From 825281853ea409918888fe1427a58556f8a84b35 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 4 Feb 2020 22:03:52 +0800
-Subject: [PATCH 13/17] fix:can not auto negotiate to 100M with 4-wire
+Subject: [PATCH 12/17] fix:can not auto negotiate to 100M with 4-wire
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  1 file changed, 48 insertions(+)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 0b23d3421860..af43cc9c9a18 100644
+index a35ccaf6bb1b..2d1d3a0d151d 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
 @@ -27,8 +27,10 @@
@@ -98,5 +98,5 @@ index 0b23d3421860..af43cc9c9a18 100644
  		.ack_interrupt	= dp83867_ack_interrupt,
  		.config_intr	= dp83867_config_intr,
 -- 
-2.17.1
+2.25.1
 
