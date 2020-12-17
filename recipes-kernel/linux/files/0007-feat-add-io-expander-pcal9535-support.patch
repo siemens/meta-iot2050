@@ -1,4 +1,4 @@
-From 622387dba3e4937d8b17c809fe371cddb087ae52 Mon Sep 17 00:00:00 2001
+From 4922201525a24636791ec052c60b108c8e7a7cfb Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Wed, 9 Oct 2019 17:08:43 +0800
 Subject: [PATCH 07/17] feat:add io expander pcal9535 support
@@ -359,5 +359,5 @@ index a4d5eb37744a..c3af8cf978f6 100644
  						unsigned offset);
  
 -- 
-2.17.1
+2.25.1
 

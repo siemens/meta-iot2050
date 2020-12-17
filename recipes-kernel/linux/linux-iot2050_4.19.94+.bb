@@ -19,17 +19,16 @@ SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0005-Fix-DP-maybe-not-display-problem.patch \
     file://0006-fix-fix-the-hardware-flow-function-of-cp2102n24.patch \
     file://0007-feat-add-io-expander-pcal9535-support.patch \
-    file://0008-feat-modify-kernel-to-load-fw-from-MTD-for-pru-rtu.patch \
-    file://0009-setting-the-RJ45-port-led-behavior.patch \
-    file://0010-fix-clear-the-cycle-buffer-of-serial.patch \
-    file://0011-refactor-move-ioexpander-node-to-mcu-i2c0-for-LM5.patch \
-    file://0012-feat-extend-led-panic-indicator-on-and-off.patch \
-    file://0013-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
-    file://0014-dts-Set-sdhci0-clock-frequency-to-142.86MHz.patch \
-    file://0015-feat-change-mmc-order-using-alias-in-dts.patch \
-    file://0016-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
-    file://0017-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch \
-    file://0018-add-the-sysfw-ABI3.X-support.patch"
+    file://0008-setting-the-RJ45-port-led-behavior.patch \
+    file://0009-fix-clear-the-cycle-buffer-of-serial.patch \
+    file://0010-refactor-move-ioexpander-node-to-mcu-i2c0-for-LM5.patch \
+    file://0011-feat-extend-led-panic-indicator-on-and-off.patch \
+    file://0012-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
+    file://0013-dts-Set-sdhci0-clock-frequency-to-142.86MHz.patch \
+    file://0014-feat-change-mmc-order-using-alias-in-dts.patch \
+    file://0015-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
+    file://0016-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch \
+    file://0017-add-the-sysfw-ABI3.X-support.patch"
 
 KERNEL_BRANCH = "am6-abi-ti-linux-4.19.y"
 KERNEL_REV = "c7a3b610edfb5a0ee0313e1432bf328362269d05"

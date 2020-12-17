@@ -1,4 +1,4 @@
-From 135882e348f2f2ac1ee90297145ac6aa4616205f Mon Sep 17 00:00:00 2001
+From 47ed2ac30e33619267fbd8574daf851e4b7d93b2 Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Tue, 23 Apr 2019 10:07:17 +0800
 Subject: [PATCH 02/17] Add support for U9300C TD-LTE module
@@ -32,5 +32,5 @@ index 2905274e3626..72d30e29c4d1 100644
  	{ USB_DEVICE_AND_INTERFACE_INFO(HAIER_VENDOR_ID, HAIER_PRODUCT_CE81B, 0xff, 0xff, 0xff) },
  	/* Pirelli  */
 -- 
-2.17.1
+2.25.1
 
