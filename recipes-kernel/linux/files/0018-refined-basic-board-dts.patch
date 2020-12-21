@@ -1,0 +1,159 @@
+From 146b238a12ece8df026c64a67f9dfcdab4deac02 Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Mon, 21 Dec 2020 11:33:52 +0800
+Subject: [PATCH 18/18] refined basic board dts
+
+Released basic board has ospi compat settings.
+Refined the basic dts to compat the released basic board and currently sysfw abi3.x
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ .../dts/siemens/iot2050-basic-common.dtsi     | 55 +++++++++++++++++++
+ .../boot/dts/siemens/iot2050-basic-oldfw.dts  | 50 ++---------------
+ arch/arm64/boot/dts/siemens/iot2050-basic.dts |  2 +-
+ 3 files changed, 60 insertions(+), 47 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi
+
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi
+new file mode 100644
+index 000000000000..806aa348b50d
+--- /dev/null
++++ b/arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi
+@@ -0,0 +1,55 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * (C) Copyright 2020 Siemens AG
++ */
++
++/dts-v1/;
++/* TBD: should include the Dual Core dtsi*/
++#include "../ti/k3-am654.dtsi"
++#include "iot2050-common.dtsi"
++
++/ {
++	model = "SIMATIC IOT2050-BASIC";
++
++	memory@80000000 {
++		device_type = "memory";
++		/* 1G RAM */
++		reg = <0x00000000 0x80000000 0x00000000 0x40000000>;
++	};
++
++	cpus {
++		cpu-map {
++			/delete-node/ cluster1;
++		};
++		/delete-node/ cpu@100;
++		/delete-node/ cpu@101;
++	};
++};
++
++&main_pmx0 {
++	main_uart0_pins_default: main-uart0-pins-default {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01e4, PIN_INPUT,  0)  /* (AF11) UART0_RXD */
++			AM65X_IOPAD(0x01e8, PIN_OUTPUT, 0)  /* (AE11) UART0_TXD */
++			AM65X_IOPAD(0x01ec, PIN_INPUT,  0)  /* (AG11) UART0_CTSn */
++			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)  /* (AD11) UART0_RTSn */
++			AM65X_IOPAD(0x0188, PIN_INPUT,  1)  /* (D25) UART0_DCDn */
++			AM65X_IOPAD(0x018c, PIN_INPUT,  1)  /* (B26) UART0_DSRn */
++			AM65X_IOPAD(0x0190, PIN_OUTPUT, 1)  /* (A24) UART0_DTRn */
++			AM65X_IOPAD(0x0194, PIN_INPUT,  1)  /* (E24) UART0_RIN */
++		>;
++	};
++};
++
++&main_uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_uart0_pins_default>;
++
++	/* workaround for uart issues (DMA warnings and RCU preempt) */
++	/delete-property/ dmas;
++	/delete-property/ dma-names;
++};
++
++&sdhci0 {
++	status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts b/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+index fe5900219a19..d99a6388b594 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-basic-oldfw.dts
+@@ -1,57 +1,15 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * (C) Copyright 2019 Siemens AG
++ * (C) Copyright 2020 Siemens AG
+  */
+ 
+ /dts-v1/;
+-/* TBD: should include the Dual Core dtsi*/
+-#include "../ti/k3-am654.dtsi"
+-#include "iot2050-common.dtsi"
++
++#include "iot2050-basic-common.dtsi"
+ 
+ / {
+ 	model = "SIMATIC IOT2050-BASIC";
+-
+-	memory@80000000 {
+-		device_type = "memory";
+-		/* 1G RAM */
+-		reg = <0x00000000 0x80000000 0x00000000 0x40000000>;
+-	};
+-
+-	cpus {
+-		cpu-map {
+-			/delete-node/ cluster1;
+-		};
+-		/delete-node/ cpu@100;
+-		/delete-node/ cpu@101;
+-	};
+-};
+-
+-&main_pmx0 {
+-	main_uart0_pins_default: main-uart0-pins-default {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x01e4, PIN_INPUT,  0)  /* (AF11) UART0_RXD */
+-			AM65X_IOPAD(0x01e8, PIN_OUTPUT, 0)  /* (AE11) UART0_TXD */
+-			AM65X_IOPAD(0x01ec, PIN_INPUT,  0)  /* (AG11) UART0_CTSn */
+-			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)  /* (AD11) UART0_RTSn */
+-			AM65X_IOPAD(0x0188, PIN_INPUT,  1)  /* (D25) UART0_DCDn */
+-			AM65X_IOPAD(0x018c, PIN_INPUT,  1)  /* (B26) UART0_DSRn */
+-			AM65X_IOPAD(0x0190, PIN_OUTPUT, 1)  /* (A24) UART0_DTRn */
+-			AM65X_IOPAD(0x0194, PIN_INPUT,  1)  /* (E24) UART0_RIN */
+-		>;
+-	};
+-};
+-
+-&main_uart0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&main_uart0_pins_default>;
+-
+-	/* workaround for uart issues (DMA warnings and RCU preempt) */
+-	/delete-property/ dmas;
+-	/delete-property/ dma-names;
+-};
+-
+-&sdhci0 {
+-	status = "disabled";
++	compatible =  "siemens,am654-iot2050", "ti,am654";
+ };
+ 
+ /* Compat support for bootloader V01.00.00.1 */
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic.dts b/arch/arm64/boot/dts/siemens/iot2050-basic.dts
+index 1f670678312f..ec514e09511b 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-basic.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-basic.dts
+@@ -5,7 +5,7 @@
+ 
+ /dts-v1/;
+ 
+-#include "iot2050-basic-oldfw.dts"
++#include "iot2050-basic-common.dtsi"
+ #include "../ti/k3-am65-main-abi3_x.dtsi"
+ #include "../ti/k3-am65-mcu-abi3_x.dtsi"
+ #include "../ti/k3-am65-wakeup-abi3_x.dtsi"
+-- 
+2.17.1
+
