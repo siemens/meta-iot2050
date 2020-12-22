@@ -1,7 +1,7 @@
-From 6494ab018e65022d1689559eed188e5ed43dd8ea Mon Sep 17 00:00:00 2001
+From 5a70fdd0c2aebad5447b7219a6803868e96a24b3 Mon Sep 17 00:00:00 2001
 From: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 Date: Tue, 13 Aug 2019 10:27:44 +0800
-Subject: [PATCH 05/22] Fix: DP maybe not display problem.
+Subject: [PATCH 05/17] Fix: DP maybe not display problem.
 
 Three reasons:
 	1. No entry link training phase
@@ -27,35 +27,23 @@ For 3.  max_tu_symbol was programmed to TU_SIZE_RECOMMENDED - 1,
 
 Signed-off-by: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 ---
- drivers/gpu/drm/bridge/tc358767.c  | 288 +++++++++++++++--------------
+ drivers/gpu/drm/bridge/tc358767.c  | 283 +++++++++++++++--------------
  drivers/gpu/drm/drm_probe_helper.c |   2 +-
- 2 files changed, 151 insertions(+), 139 deletions(-)
+ 2 files changed, 146 insertions(+), 139 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
-index 665bc3f38275..0327546ab4ef 100644
+index 1c2f0cc926c0..262a10b190cb 100644
 --- a/drivers/gpu/drm/bridge/tc358767.c
 +++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -686,6 +686,8 @@ static int tc_set_video_mode(struct tc_data *tc,
- 	int upper_margin = mode->vtotal - mode->vsync_end;
- 	int lower_margin = mode->vsync_start - mode->vdisplay;
- 	int vsync_len = mode->vsync_end - mode->vsync_start;
-+	u32 bits_per_pixel = 24;
-+	u32 in_bw, out_bw;
- 
- 	/*
- 	 * Recommended maximum number of symbols transferred in a transfer unit:
-@@ -693,7 +695,9 @@ static int tc_set_video_mode(struct tc_data *tc,
+@@ -695,7 +695,6 @@ static int tc_set_video_mode(struct tc_data *tc,
  	 *              (output active video bandwidth in bytes))
  	 * Must be less than tu_size.
  	 */
--	max_tu_symbol = TU_SIZE_RECOMMENDED - 1;
-+	in_bw = mode->clock * bits_per_pixel / 8;
-+	out_bw = tc->link.base.num_lanes * tc->link.base.rate;
-+	max_tu_symbol = DIV_ROUND_UP(in_bw * TU_SIZE_RECOMMENDED, out_bw);
- 
- 	dev_dbg(tc->dev, "set mode %dx%d\n",
- 		mode->hdisplay, mode->vdisplay);
-@@ -795,166 +799,174 @@ static int tc_main_link_enable(struct tc_data *tc)
+-
+ 	in_bw = mode->clock * bits_per_pixel / 8;
+ 	out_bw = tc->link.base.num_lanes * tc->link.base.rate;
+ 	max_tu_symbol = DIV_ROUND_UP(in_bw * TU_SIZE_RECOMMENDED, out_bw);
+@@ -800,166 +799,174 @@ static int tc_main_link_enable(struct tc_data *tc)
  	int ret;
  	u8 tmp[8];
  	u32 error;
@@ -368,7 +356,7 @@ index 665bc3f38275..0327546ab4ef 100644
  		goto err;
  	}
 diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
-index d18b7e27ef64..0afb91ab5eeb 100644
+index c0b26135dbd5..fc2eadda02f8 100644
 --- a/drivers/gpu/drm/drm_probe_helper.c
 +++ b/drivers/gpu/drm/drm_probe_helper.c
 @@ -203,7 +203,7 @@ enum drm_mode_status drm_connector_mode_valid(struct drm_connector *connector,
@@ -381,5 +369,5 @@ index d18b7e27ef64..0afb91ab5eeb 100644
   * drm_kms_helper_poll_enable - re-enable output polling.
   * @dev: drm_device
 -- 
-2.17.1
+2.25.1
 

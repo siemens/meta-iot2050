@@ -1,7 +1,7 @@
-From 55b5f9b868edd8e99b993052107d586315ad5e43 Mon Sep 17 00:00:00 2001
+From 825281853ea409918888fe1427a58556f8a84b35 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 4 Feb 2020 22:03:52 +0800
-Subject: [PATCH 17/22] fix:can not auto negotiate to 100M with 4-wire
+Subject: [PATCH 12/17] fix:can not auto negotiate to 100M with 4-wire
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  1 file changed, 48 insertions(+)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 68d7667f1297..3160c4335ecc 100644
+index a35ccaf6bb1b..2d1d3a0d151d 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
-@@ -26,8 +26,10 @@
+@@ -27,8 +27,10 @@
  #define DP83867_DEVADDR		0x1f
  
  #define MII_DP83867_PHYCTRL	0x10
@@ -23,7 +23,7 @@ index 68d7667f1297..3160c4335ecc 100644
  #define DP83867_CTRL		0x1f
  #define DP83867_CFG3		0x1e
  
-@@ -86,6 +88,15 @@
+@@ -107,6 +109,15 @@
  #define DP83867_IO_MUX_CFG_CLK_O_SEL_MASK	(0x1f << 8)
  #define DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT	8
  
@@ -36,10 +36,10 @@ index 68d7667f1297..3160c4335ecc 100644
 +/* CFG2 bits */
 +#define DP83867_SPEED_OPTOMIZED_EN		(BIT(8) | BIT(9))
 +
- /* CFG4 bits */
- #define DP83867_CFG4_PORT_MIRROR_EN              BIT(0)
- 
-@@ -139,6 +150,34 @@ static int dp83867_config_intr(struct phy_device *phydev)
+ /* CFG3 bits */
+ #define DP83867_CFG3_INT_OE			BIT(7)
+ #define DP83867_CFG3_ROBUST_AUTO_MDIX		BIT(9)
+@@ -167,6 +178,34 @@ static int dp83867_config_intr(struct phy_device *phydev)
  	return phy_write(phydev, MII_DP83867_MICR, micr_status);
  }
  
@@ -74,7 +74,7 @@ index 68d7667f1297..3160c4335ecc 100644
  static int dp83867_config_port_mirroring(struct phy_device *phydev)
  {
  	struct dp83867_private *dp83867 =
-@@ -223,6 +262,13 @@ static int dp83867_config_init(struct phy_device *phydev)
+@@ -313,6 +352,13 @@ static int dp83867_config_init(struct phy_device *phydev)
  	int ret, val, bs;
  	u16 delay;
  
@@ -85,10 +85,10 @@ index 68d7667f1297..3160c4335ecc 100644
 +	if (ret)
 +		return ret;
 +
- 	if (!phydev->priv) {
- 		dp83867 = devm_kzalloc(&phydev->mdio.dev, sizeof(*dp83867),
- 				       GFP_KERNEL);
-@@ -365,6 +411,8 @@ static struct phy_driver dp83867_driver[] = {
+ 	ret = dp83867_verify_rgmii_cfg(phydev);
+ 	if (ret)
+ 		return ret;
+@@ -494,6 +540,8 @@ static struct phy_driver dp83867_driver[] = {
  		.config_init	= dp83867_config_init,
  		.soft_reset	= dp83867_phy_reset,
  
@@ -98,5 +98,5 @@ index 68d7667f1297..3160c4335ecc 100644
  		.ack_interrupt	= dp83867_ack_interrupt,
  		.config_intr	= dp83867_config_intr,
 -- 
-2.17.1
+2.25.1
 

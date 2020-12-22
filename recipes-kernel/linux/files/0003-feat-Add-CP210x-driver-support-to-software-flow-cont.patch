@@ -1,7 +1,7 @@
-From 307404678bae5bf3d3eb2c39bd852def482ebaee Mon Sep 17 00:00:00 2001
+From 1b0f1dd67a1326c1d399e6f6b1bf27461761395f Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Mon, 15 Jul 2019 15:46:09 +0800
-Subject: [PATCH 03/22] feat: Add CP210x driver support to software flow
+Subject: [PATCH 03/17] feat: Add CP210x driver support to software flow
  control
 
 Signed-off-by: Wang Sheng Long <shenglong.wang.ext@siemens.com>
@@ -10,10 +10,10 @@ Signed-off-by: Wang Sheng Long <shenglong.wang.ext@siemens.com>
  1 file changed, 121 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index e732949f6567..638bae915453 100644
+index 7ae121567098..7815062ed980 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -380,6 +380,10 @@ static struct usb_serial_driver * const serial_drivers[] = {
+@@ -381,6 +381,10 @@ static struct usb_serial_driver * const serial_drivers[] = {
  #define CP210X_PARTNUM_CP2102N_QFN20	0x22
  #define CP210X_PARTNUM_UNKNOWN	0xFF
  
@@ -24,7 +24,7 @@ index e732949f6567..638bae915453 100644
  /* CP210X_GET_COMM_STATUS returns these 0x13 bytes */
  struct cp210x_comm_status {
  	__le32   ulErrors;
-@@ -391,6 +395,16 @@ struct cp210x_comm_status {
+@@ -392,6 +396,16 @@ struct cp210x_comm_status {
  	u8       bReserved;
  } __packed;
  
@@ -41,7 +41,7 @@ index e732949f6567..638bae915453 100644
  /*
   * CP210X_PURGE - 16 bits passed in wValue of USB request.
   * SiLabs app note AN571 gives a strange description of the 4 bits:
-@@ -624,6 +638,52 @@ static int cp210x_read_vendor_block(struct usb_serial *serial, u8 type, u16 val,
+@@ -625,6 +639,52 @@ static int cp210x_read_vendor_block(struct usb_serial *serial, u8 type, u16 val,
  	return result;
  }
  
@@ -94,7 +94,7 @@ index e732949f6567..638bae915453 100644
  /*
   * Writes any 16-bit CP210X_ register (req) whose value is passed
   * entirely in the wValue field of the USB request.
-@@ -1134,11 +1194,18 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1135,11 +1195,18 @@ static void cp210x_set_termios(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
  	struct device *dev = &port->dev;
@@ -114,7 +114,7 @@ index e732949f6567..638bae915453 100644
  
  	if (tty->termios.c_ospeed != old_termios->c_ospeed)
  		cp210x_change_speed(tty, port, old_termios);
-@@ -1212,10 +1279,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1213,10 +1280,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	}
  
  	if ((cflag & CRTSCTS) != (old_cflag & CRTSCTS)) {
@@ -125,7 +125,7 @@ index e732949f6567..638bae915453 100644
  		cp210x_read_reg_block(port, CP210X_GET_FLOW, &flow_ctl,
  				sizeof(flow_ctl));
  		ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
-@@ -1252,6 +1315,59 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1253,6 +1316,59 @@ static void cp210x_set_termios(struct tty_struct *tty,
  				sizeof(flow_ctl));
  	}
  
@@ -186,5 +186,5 @@ index e732949f6567..638bae915453 100644
  
  static int cp210x_tiocmset(struct tty_struct *tty,
 -- 
-2.17.1
+2.25.1
 
