@@ -1,4 +1,4 @@
-From 146b238a12ece8df026c64a67f9dfcdab4deac02 Mon Sep 17 00:00:00 2001
+From 26821d100a13d95f20592dcb2c0c91a0f9f5514b Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Mon, 21 Dec 2020 11:33:52 +0800
 Subject: [PATCH 18/18] refined basic board dts
@@ -8,12 +8,25 @@ Refined the basic dts to compat the released basic board and currently sysfw abi
 
 Signed-off-by: chao zeng <chao.zeng@siemens.com>
 ---
+ .../boot/dts/siemens/iot2050-advanced.dts     |  2 +-
  .../dts/siemens/iot2050-basic-common.dtsi     | 55 +++++++++++++++++++
  .../boot/dts/siemens/iot2050-basic-oldfw.dts  | 50 ++---------------
- arch/arm64/boot/dts/siemens/iot2050-basic.dts |  2 +-
- 3 files changed, 60 insertions(+), 47 deletions(-)
+ arch/arm64/boot/dts/siemens/iot2050-basic.dts |  4 +-
+ 4 files changed, 62 insertions(+), 49 deletions(-)
  create mode 100644 arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi
 
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+index 4284e4c69dc6..b931aa692b28 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+@@ -11,6 +11,6 @@
+ #include "../ti/k3-am65-wakeup-abi3_x.dtsi"
+ 
+ / {
+-    model = "SIMATIC IOT2050-ADVANCED";
++	model = "SIMATIC IOT2050-ADVANCED";
+ 	compatible =  "siemens,am654-iot2050", "ti,am654";
+ };
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-basic-common.dtsi
 new file mode 100644
 index 000000000000..806aa348b50d
@@ -142,10 +155,10 @@ index fe5900219a19..d99a6388b594 100644
  
  /* Compat support for bootloader V01.00.00.1 */
 diff --git a/arch/arm64/boot/dts/siemens/iot2050-basic.dts b/arch/arm64/boot/dts/siemens/iot2050-basic.dts
-index 1f670678312f..ec514e09511b 100644
+index 1f670678312f..889003a72379 100644
 --- a/arch/arm64/boot/dts/siemens/iot2050-basic.dts
 +++ b/arch/arm64/boot/dts/siemens/iot2050-basic.dts
-@@ -5,7 +5,7 @@
+@@ -5,12 +5,12 @@
  
  /dts-v1/;
  
@@ -154,6 +167,12 @@ index 1f670678312f..ec514e09511b 100644
  #include "../ti/k3-am65-main-abi3_x.dtsi"
  #include "../ti/k3-am65-mcu-abi3_x.dtsi"
  #include "../ti/k3-am65-wakeup-abi3_x.dtsi"
+ 
+ / {
+-    model = "SIMATIC IOT2050-BASIC";
++	model = "SIMATIC IOT2050-BASIC";
+ 	compatible =  "siemens,am654-iot2050", "ti,am654";
+ };
 -- 
-2.17.1
+2.25.1
 
