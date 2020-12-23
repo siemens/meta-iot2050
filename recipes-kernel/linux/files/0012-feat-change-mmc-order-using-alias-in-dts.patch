@@ -1,4 +1,4 @@
-From bcabda46d4dac66795e4ef8ca78b6bcc554ca8aa Mon Sep 17 00:00:00 2001
+From 9d2a8acfcbbe8d57e991bc7e0705cf5d999e90a2 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Tue, 22 Dec 2020 15:08:17 +0800
 Subject: [PATCH 12/14] feat:change mmc order using alias in dts
@@ -58,5 +58,5 @@ index f57f5de54206..5db720c6591b 100644
  
  	host->parent = dev;
 -- 
-2.27.0
+2.25.1
 
