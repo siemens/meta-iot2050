@@ -1,29 +1,16 @@
-From 3b6de4c2e3dbc059983ce5ede272590d6adce441 Mon Sep 17 00:00:00 2001
-From: Gao Nian <nian.gao@siemens.com>
-Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 11/17] feat:extend led panic-indicator on and off
+From e029fae42a5552f772b0918261397049ee19cf2a Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Tue, 22 Dec 2020 15:05:56 +0800
+Subject: [PATCH 10/14] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
- arch/arm64/boot/dts/siemens/iot2050-common.dtsi |  1 +
- drivers/leds/led-triggers.c                     | 10 ++++++++--
- drivers/leds/leds-gpio.c                        | 13 ++++++++++---
- drivers/leds/trigger/ledtrig-panic.c            |  5 ++++-
- include/linux/leds.h                            |  8 +++++++-
- 5 files changed, 30 insertions(+), 7 deletions(-)
+ drivers/leds/led-triggers.c          | 10 ++++++++--
+ drivers/leds/leds-gpio.c             | 13 ++++++++++---
+ drivers/leds/trigger/ledtrig-panic.c |  5 ++++-
+ include/linux/leds.h                 |  8 +++++++-
+ 4 files changed, 29 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-index b1a2eac0dfd0..f9ea26b2569d 100644
---- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-+++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-@@ -132,6 +132,7 @@
- 
- 		status-led-green {
- 			gpios = <&wkup_gpio0 24 GPIO_ACTIVE_HIGH>;
-+			panic-indicator-off;
- 			linux,default-trigger = "gpio";
- 		};
- 
 diff --git a/drivers/leds/led-triggers.c b/drivers/leds/led-triggers.c
 index e4cb3811e82a..1ddf9f33e2cb 100644
 --- a/drivers/leds/led-triggers.c
@@ -134,5 +121,5 @@ index 577dadc4990a..73090c752808 100644
  	int 		num_leds;
  	const struct gpio_led *leds;
 -- 
-2.25.1
+2.27.0
 

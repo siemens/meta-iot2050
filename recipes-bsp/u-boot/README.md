@@ -42,7 +42,7 @@ sf update $loadaddr 0x0 $filesize
 
 > :note:
 > When updating the boot loader of the BASIC variant, make sure to remove
-> 0022-iot2050-Roll-back-basic-dtb-to-V01.00.00.1-release.patch from the kernel
+> 0014-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch from the kernel
 > patch queue in recipes-kernel/linux/linux-iot2050_*.bb.
 
 ## Recovering a bricked device

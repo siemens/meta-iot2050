@@ -1,0 +1,38 @@
+From 2370ace0ef982ad80bd91323c7140ffe52e991da Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Tue, 22 Dec 2020 15:23:54 +0800
+Subject: [PATCH 14/14] iot2050: Provide dtb for devices using boot load
+ V01.00.00.1
+
+That release came with sysfw 19.7.1 which had some... variations.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts  | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts
+index e82c1e42a290..6c276b252433 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts
+@@ -11,3 +11,17 @@
+ 	model = "SIMATIC IOT2050-BASIC";
+ 	compatible = "siemens,am654-iot2050", "ti,am654";
+ };
++
++/* Compat support for bootloader V01.00.00.1 */
++
++&ospi0 {
++	clocks = <&k3_clks 55 5>;
++	assigned-clocks = <&k3_clks 55 5>;
++	assigned-clock-parents = <&k3_clks 55 7>;
++	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
++};
++
++&ospi1 {
++	clocks = <&k3_clks 55 16>;
++	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
++};
+-- 
+2.27.0
+
