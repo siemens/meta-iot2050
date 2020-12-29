@@ -1,0 +1,36 @@
+From 583cd8191deda61faa9e10828e6f49675fcf2564 Mon Sep 17 00:00:00 2001
+From: Keerthy <j-keerthy@ti.com>
+Date: Thu, 9 Jan 2020 10:49:00 +0530
+Subject: [PATCH 11/25] arm: dts: k3-am654-base-board-u-boot: Add icssg
+ specific msmc_ram carveout nodes
+
+Add icssg specific msmc_ram carveout nodes
+
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ arch/arm/dts/k3-am654-base-board-u-boot.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm/dts/k3-am654-base-board-u-boot.dtsi b/arch/arm/dts/k3-am654-base-board-u-boot.dtsi
+index d75d1b1c28..f2956651e6 100644
+--- a/arch/arm/dts/k3-am654-base-board-u-boot.dtsi
++++ b/arch/arm/dts/k3-am654-base-board-u-boot.dtsi
+@@ -277,3 +277,15 @@
+ &scm_conf {
+ 	u-boot,dm-spl;
+ };
++
++&msmc_ram {
++	icssg0_sram: icssg0-sram@40000 {
++		reg = <0x40000 0x10000>;
++	};
++	icssg1_sram: icssg1-sram@50000 {
++		reg = <0x50000 0x10000>;
++	};
++	icssg2_sram: icssg2-sram@60000 {
++		reg = <0x60000 0x10000>;
++	};
++};
+-- 
+2.17.1
+
