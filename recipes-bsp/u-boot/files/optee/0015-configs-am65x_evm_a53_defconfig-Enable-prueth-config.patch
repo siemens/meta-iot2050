@@ -1,0 +1,47 @@
+From cbc7153e6af9066c1c956b0d38fedb56f4b89bc6 Mon Sep 17 00:00:00 2001
+From: Keerthy <j-keerthy@ti.com>
+Date: Thu, 30 Apr 2020 12:17:50 +0530
+Subject: [PATCH 15/25] configs: am65x_evm_a53_defconfig: Enable prueth configs
+
+Enable prueth configs
+
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ configs/am65x_evm_a53_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/configs/am65x_evm_a53_defconfig b/configs/am65x_evm_a53_defconfig
+index 941073ce7f..a87c23f373 100644
+--- a/configs/am65x_evm_a53_defconfig
++++ b/configs/am65x_evm_a53_defconfig
+@@ -119,6 +119,7 @@ CONFIG_DM_ETH=y
+ CONFIG_E1000=y
+ CONFIG_CMD_E1000=y
+ CONFIG_TI_AM65_CPSW_NUSS=y
++CONFIG_TI_AM64_ICSSG_PRUETH=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_PCI_KEYSTONE=y
+@@ -134,12 +135,14 @@ CONFIG_PINCTRL_SINGLE=y
+ CONFIG_POWER_DOMAIN=y
+ CONFIG_TI_SCI_POWER_DOMAIN=y
+ CONFIG_REMOTEPROC_TI_K3_R5F=y
++CONFIG_REMOTEPROC_TI_PRU=y
+ CONFIG_DM_RESET=y
+ CONFIG_RESET_TI_SCI=y
+ CONFIG_DM_SERIAL=y
+ CONFIG_SOC_DEVICE=y
+ CONFIG_SOC_DEVICE_TI_K3=y
+ CONFIG_SOC_TI=y
++CONFIG_TI_PRUSS=y
+ CONFIG_SPI=y
+ CONFIG_DM_SPI=y
+ CONFIG_CADENCE_QSPI=y
+@@ -161,3 +164,4 @@ CONFIG_USB_GADGET_VENDOR_NUM=0x0451
+ CONFIG_USB_GADGET_PRODUCT_NUM=0x6162
+ CONFIG_USB_GADGET_DOWNLOAD=y
+ CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_SPL_SYSCON=y
+-- 
+2.17.1
+

@@ -11,10 +11,36 @@
 require u-boot-iot2050.inc
 
 SRC_URI += " \
-    git://github.com/siemens/u-boot.git;protocol=https;branch=${U_BOOT_BRANCH};rev=${U_BOOT_BRANCH} \
+    git://github.com/u-boot/u-boot.git;protocol=https;branch=${U_BOOT_BRANCH};rev=${U_BOOT_REV} \
+    file://upstream/0001-arm-dts-Add-IOT2050-device-tree-files.patch \
+    file://upstream/0002-board-siemens-Add-support-for-SIMATIC-IOT2050-device.patch \
+    file://upstream/0003-watchdog-rti_wdt-Add-support-for-loading-firmware.patch \
+    file://upstream/0004-net-eth-uclass-eth_get_dev-based-on-SEQ_ALIAS-instea.patch \
+    file://upstream/0005-net-eth-uclass-call-stop-only-for-active-devices.patch \
+    file://upstream/0006-misc-uclass-Introduce-misc_init_by_ofnode.patch \
+    file://upstream/0007-soc-ti-pruss-add-a-misc-driver-for-PRUSS-in-TI-SoCs.patch \
+    file://upstream/0008-remoteproc-pruss-add-PRU-remoteproc-driver.patch \
+    file://upstream/0009-net-ti-icssg-prueth-Add-ICSSG-ethernet-driver.patch \
+    file://upstream/0010-arm-dts-k3-am65-main-Add-msmc_ram-node.patch \
+    file://upstream/0011-arm-dts-k3-am654-base-board-u-boot-Add-icssg-specifi.patch \
+    file://upstream/0012-arm-dts-k3-am65-main-Add-scm_conf-node.patch \
+    file://upstream/0013-arm-dts-k3-am65-main-Add-pruss-nodes-for-ICSSG2.patch \
+    file://upstream/0014-arm64-dts-ti-am654-base-board-add-ICSSG2-Ethernet-su.patch \
+    file://upstream/0015-configs-am65x_evm_a53_defconfig-Enable-prueth-config.patch \
+    file://upstream/0016-net-ti-icssg-prueth-Drop-unsupported-modes-from-the-.patch \
+    file://upstream/0017-net-ti-icssg-prueth-use-constants-instead-of-hardcod.patch \
+    file://upstream/0018-net-ti-icssg-prueth-use-a-single-chn_name-variable-i.patch \
+    file://upstream/0019-net-ti-icssg-prueth-Add-port-speed-duplex-command.patch \
+    file://upstream/0020-net-ti-icssg-prueth-Add-shutdown-command.patch \
+    file://upstream/0021-net-ti-icssg-prueth-Auto-start-PRU-and-RTU-when-star.patch \
+    file://upstream/0022-config_distro_bootcmd-Add-platform-start-script-hook.patch \
+    file://upstream/0023-arm-dts-k3-am65-main-Add-ICSSG0-1-nodes.patch \
+    file://upstream/0024-iot2050-Add-ICSSG0-Ethernet-support.patch \
+    file://upstream/0025-iot2050-config-the-default-device-tree.patch \
     "
 
-U_BOOT_BRANCH = "jan/iot2050"
+U_BOOT_BRANCH = "master"
+U_BOOT_REV = "51f65b506f37252acb3cd4184ef5e1fc20da13a2"
 U_BOOT_CONFIG = "iot2050_defconfig"
 U_BOOT_BIN = "flash.bin"
 

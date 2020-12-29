@@ -1,0 +1,37 @@
+From a79560bad235cc60638b11e6a489a63f3041efad Mon Sep 17 00:00:00 2001
+From: Murali Karicheri <m-karicheri2@ti.com>
+Date: Wed, 4 Mar 2020 23:33:30 +0000
+Subject: [PATCH 16/25] net: ti: icssg-prueth: Drop unsupported modes from the
+ PHY
+
+Currently driver supports only 100M and 1G Full duplex modes and
+doesn't support flow control. So clear those features bits from
+supported and advertised flags of the PHY device.
+
+Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
+Acked-by: Roger Quadros <rogerq@ti.com>
+---
+ drivers/net/ti/icssg-prueth.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/net/ti/icssg-prueth.c b/drivers/net/ti/icssg-prueth.c
+index 03160b415a..e61dc51247 100644
+--- a/drivers/net/ti/icssg-prueth.c
++++ b/drivers/net/ti/icssg-prueth.c
+@@ -202,6 +202,13 @@ static int icssg_phy_init(struct udevice *dev)
+ 		return -ENODEV;
+ 	}
+ 
++	/* disable unsupported features */
++	supported &= ~(PHY_10BT_FEATURES |
++			SUPPORTED_100baseT_Half |
++			SUPPORTED_1000baseT_Half |
++			SUPPORTED_Pause |
++			SUPPORTED_Asym_Pause);
++
+ 	phydev->supported &= supported;
+ 	phydev->advertising = phydev->supported;
+ 
+-- 
+2.17.1
+
