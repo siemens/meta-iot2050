@@ -1,0 +1,79 @@
+From e074eabf752c4776056a67ab243190d07fa29227 Mon Sep 17 00:00:00 2001
+From: Gao Nian <nian.gao@siemens.com>
+Date: Tue, 10 Dec 2019 11:33:37 +0800
+Subject: [PATCH 6/8] refactor:move ioexpander node to mcu-i2c0 for LM5
+
+Signed-off-by: Gao Nian <nian.gao@siemens.com>
+---
+ .../boot/dts/siemens/iot2050-common.dtsi      | 48 +++++++++----------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+index 4b17da441a25..42e83c168c4a 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+@@ -494,6 +494,30 @@
+ 		/* ti,enable-force-pwm; */
+ 		ti,enable-vout-discharge;
+ 	};
++
++	/*D4200*/
++	pcal9535_1: gpio@20 {
++		compatible = "nxp,pcal9535";
++		reg = <0x20>;
++		#gpio-cells = <2>;
++		gpio-controller;
++	};
++
++	/*D4201*/
++	pcal9535_2: gpio@21 {
++		compatible = "nxp,pcal9535";
++		reg = <0x21>;
++		#gpio-cells = <2>;
++		gpio-controller;
++	};
++
++	/*D4202*/
++	pcal9535_3: gpio@25 {
++		compatible = "nxp,pcal9535";
++		reg = <0x25>;
++		#gpio-cells = <2>;
++		gpio-controller;
++	};
+ };
+ 
+ &main_i2c0 {
+@@ -523,30 +547,6 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&main_i2c2_pins_default>;
+ 	clock-frequency = <400000>;
+-
+-	/*D4200*/
+-	pcal9535_1: gpio@20 {
+-		compatible = "nxp,pcal9535";
+-		reg = <0x20>;
+-		#gpio-cells = <2>;
+-		gpio-controller;
+-	};
+-
+-	/*D4201*/
+-	pcal9535_2: gpio@21 {
+-		compatible = "nxp,pcal9535";
+-		reg = <0x21>;
+-		#gpio-cells = <2>;
+-		gpio-controller;
+-	};
+-
+-	/*D4202*/
+-	pcal9535_3: gpio@25 {
+-		compatible = "nxp,pcal9535";
+-		reg = <0x25>;
+-		#gpio-cells = <2>;
+-		gpio-controller;
+-	};
+ };
+ 
+ &main_i2c3 {
+-- 
+2.17.1
+

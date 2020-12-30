@@ -1,0 +1,79 @@
+From 166e6898f7275216e0494f2b790a58e4b51872c3 Mon Sep 17 00:00:00 2001
+From: "le.jin" <le.jin@siemens.com>
+Date: Wed, 9 Oct 2019 15:22:09 +0800
+Subject: [PATCH 8/8] feat:change mmc order using alias in dts
+
+1. modify kernel to support mmc alias in dts
+2. change SD to mmc0 and EMMC to mmc1 via alias in dts
+
+Signed-off-by: Gao Nian <nian.gao@siemens.com>
+---
+ .../boot/dts/siemens/iot2050-advanced.dts     |  5 ++++
+ drivers/mmc/core/host.c                       | 23 +++++++++++++++----
+ 2 files changed, 23 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+index 11b3c7636eb3..1785a9365923 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
++++ b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
+@@ -11,6 +11,11 @@
+ / {
+ 	model = "SIMATIC IOT2050-ADVANCED";
+ 
++	aliases {
++		mmc0 = &sdhci1;
++		mmc1 = &sdhci0;
++	};
++
+ 	memory@80000000 {
+ 		device_type = "memory";
+ 		/* 2G RAM */
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index b3484def0a8b..bd5dbf863c3a 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -395,8 +395,8 @@ EXPORT_SYMBOL(mmc_of_parse_voltage);
+  */
+ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+ {
+-	int err;
+ 	struct mmc_host *host;
++	int of_id = -1, id = -1;
+ 
+ 	host = kzalloc(sizeof(struct mmc_host) + extra, GFP_KERNEL);
+ 	if (!host)
+@@ -405,14 +405,27 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+ 	/* scanning will be enabled when we're ready */
+ 	host->rescan_disable = 1;
+ 
+-	err = ida_simple_get(&mmc_host_ida, 0, 0, GFP_KERNEL);
+-	if (err < 0) {
++	if (dev->of_node) {
++		of_id = of_alias_get_id(dev->of_node, "mmc");
++	}
++
++	if (of_id >= 0) {
++		id = ida_simple_get(&mmc_host_ida, of_id, of_id + 1, GFP_NOWAIT);
++		if (id < 0)
++			dev_warn(dev, "aliases ID %d not available\n", of_id);
++	}
++
++	if (id < 0)
++		id = ida_simple_get(&mmc_host_ida, 0, 0, GFP_NOWAIT);
++
++	if (id >= 0)
++		host->index = id;
++
++	if (id < 0) {
+ 		kfree(host);
+ 		return NULL;
+ 	}
+ 
+-	host->index = err;
+-
+ 	dev_set_name(&host->class_dev, "mmc%d", host->index);
+ 
+ 	host->parent = dev;
+-- 
+2.17.1
+

@@ -23,6 +23,12 @@ SRC_URI = " \
     file://ti-pruss/am65x-pru1-prueth-fw.elf \
     file://ti-pruss/am65x-rtu0-prueth-fw.elf \
     file://ti-pruss/am65x-rtu1-prueth-fw.elf \
+    file://ti-pruss/am65x-sr2-pru0-prueth-fw.elf \
+    file://ti-pruss/am65x-sr2-rtu0-prueth-fw.elf \
+    file://ti-pruss/am65x-sr2-txpru0-prueth-fw.elf \
+    file://ti-pruss/am65x-sr2-pru1-prueth-fw.elf \
+    file://ti-pruss/am65x-sr2-rtu1-prueth-fw.elf \
+    file://ti-pruss/am65x-sr2-txpru1-prueth-fw.elf \    
     file://rti_dwwdtest/iot2050/csl_rti_dwwd_test_app_mcu1_0_release.xer5f \
     file://hosts \
     file://fw_env.config"
