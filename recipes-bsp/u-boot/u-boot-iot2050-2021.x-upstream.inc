@@ -43,6 +43,7 @@ U_BOOT_REV = "51f65b506f37252acb3cd4184ef5e1fc20da13a2"
 U_BOOT_CONFIG = "iot2050_defconfig"
 U_BOOT_BIN = "flash.bin"
 SRC_URI[sha256sum] = "a92f0e88acaff78fa353f6e985165c72c2e6247bb2ca9c8e4356b5b3046d1857"
+S = "${WORKDIR}/u-boot-${U_BOOT_REV}"
 
 SPI_FLASH_IMG = "${U_BOOT_BIN}"
 SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
