@@ -1,4 +1,4 @@
-From 32a8dfa7210227236c2b69857e8fbffbca1c0bb0 Mon Sep 17 00:00:00 2001
+From 65ee83551b90cc3b9e323a2329fe362b48ec6a55 Mon Sep 17 00:00:00 2001
 From: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 Date: Tue, 13 Aug 2019 10:27:44 +0800
 Subject: [PATCH 05/14] Fix: DP maybe not display problem.
@@ -369,5 +369,5 @@ index c0b26135dbd5..fc2eadda02f8 100644
   * drm_kms_helper_poll_enable - re-enable output polling.
   * @dev: drm_device
 -- 
-2.27.0
+2.25.1
 

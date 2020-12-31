@@ -1,4 +1,4 @@
-From 886cae812336e699e8fa765c0aa2fccf452f52b4 Mon Sep 17 00:00:00 2001
+From 23b032085260f968ba42ca7bdbd09833e91228de Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Mon, 15 Jul 2019 15:46:09 +0800
 Subject: [PATCH 03/14] feat: Add CP210x driver support to software flow
@@ -186,5 +186,5 @@ index 7ae121567098..7815062ed980 100644
  
  static int cp210x_tiocmset(struct tty_struct *tty,
 -- 
-2.27.0
+2.25.1
 
