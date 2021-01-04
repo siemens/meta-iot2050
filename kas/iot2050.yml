@@ -30,6 +30,11 @@ repos:
     refspec: 76eac233f1b1d0d117b3f05b3dec8a6da1cdf4c7
     layers:
       meta:
+    patches:
+      verbose-u-boot-script:
+        path: isar-patches/0001-meta-u-boot-script-Print-which-files-are-loaded.patch
+      arm64-host:
+        path: isar-patches/0001-sdkchroot-Drop-bogus-restriction-to-x86-hosts.patch
 
 bblayers_conf_header:
   standard: |
