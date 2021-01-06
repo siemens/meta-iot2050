@@ -19,7 +19,8 @@ SRC_URI += " \
     file://ti-kernel/0005-setting-the-RJ45-port-led-behavior.patch \
     file://ti-kernel/0006-refactor-move-ioexpander-node-to-mcu-i2c0-for-LM5.patch \
     file://ti-kernel/0007-feat-extend-led-panic-indicator-on-and-off.patch \
-    file://ti-kernel/0008-feat-change-mmc-order-using-alias-in-dts.patch"
+    file://ti-kernel/0008-feat-change-mmc-order-using-alias-in-dts.patch \
+    file://ti-kernel/0009-Workaround-to-correct-DP-clock-to-154MHZ.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \

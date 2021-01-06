@@ -1,0 +1,35 @@
+From f0d473426da024e5e6821aaba0856a8f95b504ae Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Wed, 6 Jan 2021 15:51:18 +0800
+Subject: [PATCH 9/9] Workaround to correct DP clock to 154MHZ.
+
+BUG: as the default DPI source should be DPI_1_IN_CLK
+     but seems the DSS input clk swap the DPI0 and DPI1
+     so change the DPI clock to DPI0 to provide the clock
+     to DPI
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/siemens/iot2050-common.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+index 32a28c3a54d3..c372598d0966 100644
+--- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+@@ -701,9 +701,9 @@
+ 
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&dss_vout1_pins_default>;
+-
+-	assigned-clocks = <&k3_clks 67 2>;
+-	assigned-clock-parents = <&k3_clks 67 5>;
++	// Workaround to slove the DP clock,change the Clock to DPI_0
++	assigned-clocks = <&k3_clks 67 0>;
++	// assigned-clock-parents = <&k3_clks 67 5>;
+ };
+ 
+ &dss_ports {
+-- 
+2.17.1
+
