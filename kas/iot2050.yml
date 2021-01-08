@@ -47,3 +47,5 @@ local_conf_header:
     CONF_VERSION = "1"
   crossbuild: |
     ISAR_CROSS_COMPILE = "1"
+  soc-version: |
+    SOC_VERSION = "sr1"
