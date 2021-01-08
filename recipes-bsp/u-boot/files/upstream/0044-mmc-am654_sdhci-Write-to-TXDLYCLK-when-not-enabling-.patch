@@ -1,0 +1,42 @@
+From f48ecd7b7839a52665f87ae2c7f325473ee1a7f6 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Mon, 22 Jun 2020 19:38:14 +0000
+Subject: [PATCH 44/49] mmc: am654_sdhci: Write to TXDLYCLK when not enabling
+ DLL
+
+For speed modes where DLL is not enabled write to TXDLYCLK to enable
+transmitter delay chain mode.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index d620acaaf4..51052353ec 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -60,6 +60,8 @@
+ #define CALDONE_MASK		BIT(CALDONE_SHIFT)
+ #define RETRIM_SHIFT		17
+ #define RETRIM_MASK		BIT(RETRIM_SHIFT)
++#define SELDLYTXCLK_SHIFT	17
++#define SELDLYTXCLK_MASK	BIT(SELDLYTXCLK_SHIFT)
+ 
+ #define DRIVER_STRENGTH_50_OHM	0x0
+ #define DRIVER_STRENGTH_33_OHM	0x1
+@@ -304,7 +306,11 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
+ 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
+ 
+ 	if (speed > AM654_SDHCI_MIN_FREQ && mode > UHS_SDR25) {
++		regmap_update_bits(plat->base, PHY_CTRL5, SELDLYTXCLK_MASK, 0);
+ 		sdhci_am654_setup_dll(host, speed);
++	} else {
++		regmap_update_bits(plat->base, PHY_CTRL5, SELDLYTXCLK_MASK,
++				   1 << SELDLYTXCLK_SHIFT);
+ 	}
+ 
+ 	return 0;
+-- 
+2.17.1
+

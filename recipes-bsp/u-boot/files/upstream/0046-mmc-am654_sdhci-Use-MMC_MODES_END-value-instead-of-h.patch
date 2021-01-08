@@ -1,0 +1,31 @@
+From 6a5a7f98b9d4a1a05dbc2e8dc88c3587619c31e1 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Thu, 13 Aug 2020 21:04:25 +0000
+Subject: [PATCH 46/49] mmc: am654_sdhci: Use MMC_MODES_END value instead of
+ hardcoded value
+
+The hardcoded array size leads to array overflows with changes in
+speed modes enum in mmc core. Use MMC_MODES_END for otap_del_sel
+array declaration to fix this.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index c98b044a99..c36b8566b1 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -80,7 +80,7 @@ struct am654_sdhci_plat {
+ 	struct mmc mmc;
+ 	struct regmap *base;
+ 	bool non_removable;
+-	u32 otap_del_sel[11];
++	u32 otap_del_sel[MMC_MODES_END];
+ 	u32 trm_icp;
+ 	u32 drv_strength;
+ 	u32 strb_sel;
+-- 
+2.17.1
+

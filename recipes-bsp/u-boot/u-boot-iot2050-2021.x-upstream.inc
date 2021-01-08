@@ -2,7 +2,7 @@
 # Copyright (c) Siemens AG, 2020
 #
 # Authors:
-#  Jan Kiszka <jan.kiszka@siemens.com>
+#  Chao Zeng <chao.zeng@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -37,6 +37,32 @@ SRC_URI += " \
     file://upstream/0023-arm-dts-k3-am65-main-Add-ICSSG0-1-nodes.patch \
     file://upstream/0024-iot2050-Add-ICSSG0-Ethernet-support.patch \
     file://upstream/0025-iot2050-config-the-default-device-tree.patch \
+    file://upstream/0026-mmc-Add-init-API.patch \
+    file://upstream/0027-mmc-Add-a-saved_clock-member.patch \
+    file://upstream/0028-spl-mmc-Fix-spl_mmc_get_uboot_raw_sector-implementat.patch \
+    file://upstream/0029-mmc-sdhci-Add-helper-functions-for-UHS-modes.patch \
+    file://upstream/0030-mmc-sdhci-Expose-sdhci_init-as-non-static.patch \
+    file://upstream/0031-mmc-sdhci-Write-to-HOST_CONTROL2-register-for-HS400-.patch \
+    file://upstream/0032-mmc-am654_sdhci-Get-Xin-clock-by-name.patch \
+    file://upstream/0033-mmc-am654_sdhci-Create-driver_data-structure.patch \
+    file://upstream/0034-mmc-am654_sdhci-Don-t-clear-iomux-for-j721e-8-bit-in.patch \
+    file://upstream/0035-mmc-am654_sdhci-Add-Support-for-3-bit-frequency-sele.patch \
+    file://upstream/0036-mmc-am654_sdhci-Add-set_ios_post-callback-for-j7-4-b.patch \
+    file://upstream/0037-mmc-am654_sdhci-Add-Support-for-Strobe-Select.patch \
+    file://upstream/0038-mmc-am654_sdhci-Add-Support-for-tuning.patch \
+    file://upstream/0039-mmc-am654_sdhci-Update-output-tap-delay-writes.patch \
+    file://upstream/0040-mmc-am654_sdhci-Use-the-generic-sdhci_set_control_re.patch \
+    file://upstream/0041-mmc-am654_sdhci-Implement-workaround-for-card-detect.patch \
+    file://upstream/0042-mmc-Move-the-ops-init-to-before-any-mmc_getcd-calls.patch \
+    file://upstream/0043-mmc-am654_sdhci-Add-flag-for-PHY-calibration.patch \
+    file://upstream/0044-mmc-am654_sdhci-Add-support-for-AM65x-SR2.0.patch \
+    file://upstream/0045-mmc-am654_sdhci-Move-dll-related-configurations-to-i.patch \
+    file://upstream/0046-mmc-am654_sdhci-Write-to-TXDLYCLK-when-not-enabling-.patch \
+    file://upstream/0047-mmc-am654_sdhci-Add-support-for-writing-to-clkbuf_se.patch \
+    file://upstream/0048-mmc-am654_sdhci-Use-MMC_MODES_END-value-instead-of-h.patch \
+    file://upstream/0049-mmc-am654_sdhci-Unconditionally-switch-off-DLL-in-th.patch \
+    file://upstream/0050-dm-soc-Introduce-UCLASS_SOC-for-SOC-ID-and-attribute.patch \
+    file://upstream/0051-mmc-include-the-related-header.patch \
     "
 
 U_BOOT_REV = "51f65b506f37252acb3cd4184ef5e1fc20da13a2"

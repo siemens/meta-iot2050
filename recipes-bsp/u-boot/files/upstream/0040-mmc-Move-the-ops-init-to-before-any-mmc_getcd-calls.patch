@@ -1,0 +1,62 @@
+From 7c2402ad4706edb4d68c4e16c8ea7da52074af0f Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Wed, 26 Feb 2020 14:29:35 +0000
+Subject: [PATCH 40/49] mmc: Move the ops->init() to before any mmc_getcd()
+ calls
+
+mmc_start_init() calls mmc_getcd() and on getting a 0, assumes that
+there is no card in the slot. Move the ops->init() to before this call
+so that the controller can do initializations before this check is
+performed.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+[praneeth@ti.com: fix minor checkpatch warning]
+Signed-off-by: Praneeth Bajjuri <praneeth@ti.com>
+---
+ drivers/mmc/mmc.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index f2b60c7ef2..1e2fd1dc34 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -2797,14 +2797,7 @@ int mmc_get_op_cond(struct mmc *mmc)
+ 	}
+ 	if (err)
+ 		return err;
+-#if CONFIG_IS_ENABLED(DM_MMC)
+-	struct dm_mmc_ops *ops = mmc_get_ops(mmc->dev);
+-	if (ops->init) {
+-		err = ops->init(mmc->dev);
+-		if (err)
+-			return err;
+-	}
+-#endif
++
+ 	mmc->ddr_mode = 0;
+ 
+ retry:
+@@ -2855,10 +2848,18 @@ int mmc_start_init(struct mmc *mmc)
+ 	 * timings.
+ 	 */
+ 	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(MMC_LEGACY) |
+-			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
++			 MMC_MODE_1BIT;
++
+ #if CONFIG_IS_ENABLED(DM_MMC)
+-	mmc_deferred_probe(mmc);
++	struct dm_mmc_ops *ops = mmc_get_ops(mmc->dev);
++
++	if (ops->init) {
++		err = ops->init(mmc->dev);
++		if (err)
++			return err;
++	}
+ #endif
++
+ #if !defined(CONFIG_MMC_BROKEN_CD)
+ 	no_card = mmc_getcd(mmc) == 0;
+ #else
+-- 
+2.17.1
+

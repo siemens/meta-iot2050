@@ -1,0 +1,94 @@
+From d35337f27b695e5eb2e5e840b2a8a73d9955abba Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:37 +0530
+Subject: [PATCH 31/49] mmc: am654_sdhci: Create driver_data structure
+
+Use a common driver_data structure with an sdhci_ops and flags fields.
+This helps in cleanly assigining driver related flags in a scalable
+manner without resorting to if-else comparisons with compatibles.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 45 +++++++++++++++++++++++----------------
+ 1 file changed, 27 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index 82abf484e4..3a62e6258c 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -92,20 +92,6 @@ struct timing_data {
+ 	u32 capability;
+ };
+ 
+-static const struct timing_data td[] = {
+-	[MMC_LEGACY] = {"ti,otap-del-sel-legacy", 0},
+-	[MMC_HS] = {"ti,otap-del-sel-mmc-hs", MMC_CAP(MMC_HS)},
+-	[SD_HS]  = {"ti,otap-del-sel-sd-hs", MMC_CAP(SD_HS)},
+-	[UHS_SDR12] = {"ti,otap-del-sel-sdr12", MMC_CAP(UHS_SDR12)},
+-	[UHS_SDR25] = {"ti,otap-del-sel-sdr25", MMC_CAP(UHS_SDR25)},
+-	[UHS_SDR50] = {"ti,otap-del-sel-sdr50", MMC_CAP(UHS_SDR50)},
+-	[UHS_SDR104] = {"ti,otap-del-sel-sdr104", MMC_CAP(UHS_SDR104)},
+-	[UHS_DDR50] = {"ti,otap-del-sel-ddr50", MMC_CAP(UHS_DDR50)},
+-	[MMC_DDR_52] = {"ti,otap-del-sel-ddr52", MMC_CAP(MMC_DDR_52)},
+-	[MMC_HS_200] = {"ti,otap-del-sel-hs200", MMC_CAP(MMC_HS_200)},
+-	[MMC_HS_400] = {"ti,otap-del-sel-hs400", MMC_CAP(MMC_HS_400)},
+-};
+-
+ struct am654_driver_data {
+ 	const struct sdhci_ops *ops;
+ 	u32 flags;
+@@ -219,6 +205,29 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
+ 	return 0;
+ }
+ 
++const struct sdhci_ops am654_sdhci_ops = {
++	.set_ios_post		= &am654_sdhci_set_ios_post,
++	.set_control_reg	= &am654_sdhci_set_control_reg,
++};
++
++const struct am654_driver_data am654_drv_data = {
++	.ops = &am654_sdhci_ops,
++	.flags = DLL_PRESENT,
++};
++
++const struct am654_driver_data j721e_8bit_drv_data = {
++	.ops = &am654_sdhci_ops,
++	.flags = DLL_PRESENT,
++};
++
++const struct sdhci_ops j721e_4bit_sdhci_ops = {
++	.set_control_reg	= &am654_sdhci_set_control_reg,
++};
++
++const struct am654_driver_data j721e_4bit_drv_data = {
++	.ops = &j721e_4bit_sdhci_ops,
++};
++
+ int am654_sdhci_init(struct am654_sdhci_plat *plat)
+ {
+ 	u32 ctl_cfg_2 = 0;
+@@ -395,10 +404,6 @@ static int am654_sdhci_probe(struct udevice *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = sdhci_am654_get_otap_delay(dev, cfg);
+-	if (ret)
+-		return ret;
+-
+ 	host->ops = drv_data->ops;
+ 	host->mmc->priv = host;
+ 	upriv->mmc = host->mmc;
+@@ -420,6 +425,10 @@ static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
+ 	host->ioaddr = (void *)dev_read_addr(dev);
+ 	plat->non_removable = dev_read_bool(dev, "non-removable");
+ 
++	ret = dev_read_u32(dev, "ti,otap-del-sel", &plat->otap_del_sel);
++	if (ret)
++		return ret;
++
+ 	if (plat->flags & DLL_PRESENT) {
+ 		ret = dev_read_u32(dev, "ti,trm-icp", &plat->trm_icp);
+ 		if (ret)
+-- 
+2.17.1
+

@@ -1,0 +1,43 @@
+From b411f9507b3b6f49bee33c0848b9ce97194774cc Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:40 +0530
+Subject: [PATCH 34/49] mmc: am654_sdhci: Add set_ios_post callback for j7 4
+ bit device
+
+Add set_ios_post callback and set otap delay for the 4 bit IP.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index d7ae1ecf8d..bfb09eb36e 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -207,7 +207,22 @@ const struct am654_driver_data j721e_8bit_drv_data = {
+ 	.flags = DLL_PRESENT,
+ };
+ 
++static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
++{
++	struct udevice *dev = host->mmc->dev;
++	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
++	u32 mask, val;
++
++	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
++	val = (1 << OTAPDLYENA_SHIFT) |
++	      (plat->otap_del_sel << OTAPDLYSEL_SHIFT);
++	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
++
++	return 0;
++}
++
+ const struct sdhci_ops j721e_4bit_sdhci_ops = {
++	.set_ios_post		= &j721e_4bit_sdhci_set_ios_post,
+ 	.set_control_reg	= &am654_sdhci_set_control_reg,
+ };
+ 
+-- 
+2.17.1
+

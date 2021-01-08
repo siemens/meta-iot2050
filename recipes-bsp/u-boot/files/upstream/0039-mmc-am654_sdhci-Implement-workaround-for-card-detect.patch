@@ -1,0 +1,86 @@
+From 1ddddcf05ba40665fd12f8c9b039b0770f665f03 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:45 +0530
+Subject: [PATCH 39/49] mmc: am654_sdhci: Implement workaround for card detect
+
+The 4 bit MMC controllers have an internal debounce for the SDCD line
+with a debounce delay of 1 second. Therefore, after clocks to the IP are
+enabled, software has to wait for this time before it can power on the
+controller.
+
+Add an init() callback which polls on sdcd for a maximum of 2 seconds
+before switching on power to the controller or (in the case of no card)
+returning a ENOMEDIUM. This pushes the 1 second wait time to when the
+card is actually needed rather than at every probe() making sure that
+users who don't insert an SD card in the slot don't have to wait such a
+long time.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index 220271a239..e9b0cae3f0 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -329,7 +329,7 @@ const struct am654_driver_data j721e_4bit_drv_data = {
+ 	.flags = IOMUX_PRESENT,
+ };
+ 
+-int am654_sdhci_init(struct am654_sdhci_plat *plat)
++int am654_sdhci_init_phy(struct am654_sdhci_plat *plat)
+ {
+ 	u32 ctl_cfg_2 = 0;
+ 	u32 mask, val;
+@@ -406,8 +406,37 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
+ 	return 0;
+ }
+ 
++#define MAX_SDCD_DEBOUNCE_TIME 2000
++int am654_sdhci_init(struct udevice *dev)
++{
++	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
++	struct mmc *mmc = mmc_get_mmc_dev(dev);
++	struct sdhci_host *host = mmc->priv;
++	unsigned long start;
++	int val;
++
++	/*
++	 * The controller takes about 1 second to debounce the card detect line
++	 * and doesn't let us power on until that time is up. Instead of waiting
++	 * for 1 second at every stage, poll on the CARD_PRESENT bit upto a
++	 * maximum of 2 seconds to be safe..
++	 */
++	start = get_timer(0);
++	do {
++		if (get_timer(start) > MAX_SDCD_DEBOUNCE_TIME)
++			return -ENOMEDIUM;
++
++		val = mmc_getcd(host->mmc);
++	} while (!val);
++
++	am654_sdhci_init_phy(plat);
++
++	return sdhci_init(mmc);
++}
++
+ static int am654_sdhci_probe(struct udevice *dev)
+ {
++	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+ 	struct am654_driver_data *drv_data =
+ 			(struct am654_driver_data *)dev_get_driver_data(dev);
+ 	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+@@ -448,6 +477,8 @@ static int am654_sdhci_probe(struct udevice *dev)
+ 
+ 	regmap_init_mem_index(dev_ofnode(dev), &plat->base, 1);
+ 
++	ops->init = am654_sdhci_init;
++
+ 	return 0;
+ }
+ 
+-- 
+2.17.1
+

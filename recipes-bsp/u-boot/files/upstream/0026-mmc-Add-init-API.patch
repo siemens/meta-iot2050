@@ -1,0 +1,65 @@
+From 8cfc65ec4218c4428b21d9b4ca3f0579254c1fb5 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:30 +0530
+Subject: [PATCH 26/49] mmc: Add init() API
+
+Add an init() API for platform specific init() operations.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+---
+ drivers/mmc/mmc.c | 17 ++++++-----------
+ include/mmc.h     |  7 +++++++
+ 2 files changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index a6394bcf30..f2b60c7ef2 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -2797,19 +2797,14 @@ int mmc_get_op_cond(struct mmc *mmc)
+ 	}
+ 	if (err)
+ 		return err;
+-
+ #if CONFIG_IS_ENABLED(DM_MMC)
+-	/*
+-	 * Re-initialization is needed to clear old configuration for
+-	 * mmc rescan.
+-	 */
+-	err = mmc_reinit(mmc);
+-#else
+-	/* made sure it's not NULL earlier */
+-	err = mmc->cfg->ops->init(mmc);
++	struct dm_mmc_ops *ops = mmc_get_ops(mmc->dev);
++	if (ops->init) {
++		err = ops->init(mmc->dev);
++		if (err)
++			return err;
++	}
+ #endif
+-	if (err)
+-		return err;
+ 	mmc->ddr_mode = 0;
+ 
+ retry:
+diff --git a/include/mmc.h b/include/mmc.h
+index 1d377e0281..6732b6d3bd 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -426,6 +426,13 @@ struct mmc;
+ 
+ #if CONFIG_IS_ENABLED(DM_MMC)
+ struct dm_mmc_ops {
++	/**
++	 * init() - platform specific initialization for the host controller
++	 *
++	 * @dev:	Device to init
++	 * @return 0 if Ok, -ve if error
++	 */
++	int (*init)(struct udevice *dev);
+ 	/**
+ 	 * deferred_probe() - Some configurations that need to be deferred
+ 	 * to just before enumerating the device
+-- 
+2.17.1
+

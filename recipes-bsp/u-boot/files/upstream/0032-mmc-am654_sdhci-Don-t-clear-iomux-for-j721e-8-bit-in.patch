@@ -1,0 +1,49 @@
+From 5ff95e6d0cf25d7323a766b5392120c3ecd4ac38 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:38 +0530
+Subject: [PATCH 32/49] mmc: am654_sdhci: Don't clear iomux for j721e 8 bit
+ instance
+
+The 8 bit instance on j721e is not muxed with anything else and
+therefore doesn't include an IOMUX_ENABLE field exposed. Add a
+IOMUX_PRESENT flag and use it to only write to the field where it is
+present.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index 3a62e6258c..730326f498 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -82,8 +82,6 @@ struct am654_sdhci_plat {
+ 	u32 flags;
+ #define DLL_PRESENT	(1 << 0)
+ #define IOMUX_PRESENT	(1 << 1)
+-#define FREQSEL_2_BIT	(1 << 2)
+-#define STRBSEL_4_BIT	(1 << 3)
+ 	bool dll_on;
+ };
+ 
+@@ -212,7 +210,7 @@ const struct sdhci_ops am654_sdhci_ops = {
+ 
+ const struct am654_driver_data am654_drv_data = {
+ 	.ops = &am654_sdhci_ops,
+-	.flags = DLL_PRESENT,
++	.flags = DLL_PRESENT | IOMUX_PRESENT,
+ };
+ 
+ const struct am654_driver_data j721e_8bit_drv_data = {
+@@ -226,6 +224,7 @@ const struct sdhci_ops j721e_4bit_sdhci_ops = {
+ 
+ const struct am654_driver_data j721e_4bit_drv_data = {
+ 	.ops = &j721e_4bit_sdhci_ops,
++	.flags = IOMUX_PRESENT,
+ };
+ 
+ int am654_sdhci_init(struct am654_sdhci_plat *plat)
+-- 
+2.17.1
+

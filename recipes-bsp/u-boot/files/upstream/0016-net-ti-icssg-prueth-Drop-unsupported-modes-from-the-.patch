@@ -1,7 +1,7 @@
-From a79560bad235cc60638b11e6a489a63f3041efad Mon Sep 17 00:00:00 2001
+From 1f45d43fb0bca40e95bc209ac35e79b0da13c409 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:30 +0000
-Subject: [PATCH 16/25] net: ti: icssg-prueth: Drop unsupported modes from the
+Subject: [PATCH 16/49] net: ti: icssg-prueth: Drop unsupported modes from the
  PHY
 
 Currently driver supports only 100M and 1G Full duplex modes and

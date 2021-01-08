@@ -1,0 +1,40 @@
+From 811c0522cc9bcf6e234fa320e346fe9d44e6c5d6 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Thu, 7 Jan 2021 16:49:03 +0800
+Subject: [PATCH 49/49] mmc:include the related header
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ drivers/mmc/am654_sdhci.c | 1 +
+ drivers/mmc/sdhci.c       | 3 +++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index d70e92b959..591560afb5 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -14,6 +14,7 @@
+ #include <sdhci.h>
+ #include <soc.h>
+ #include "mmc_private.h"
++#include <dm/device_compat.h>
+ 
+ /* CTL_CFG Registers */
+ #define CTL_CFG_2		0x14
+diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+index c5151e0dcb..cd609c07ee 100644
+--- a/drivers/mmc/sdhci.c
++++ b/drivers/mmc/sdhci.c
+@@ -17,6 +17,9 @@
+ #include <sdhci.h>
+ #include <dm.h>
+ #include <power/regulator.h>
++#include <linux/delay.h>
++#include <linux/dma-mapping.h>
++#include <phys2bus.h>
+ 
+ #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
+ void *aligned_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
+-- 
+2.17.1
+

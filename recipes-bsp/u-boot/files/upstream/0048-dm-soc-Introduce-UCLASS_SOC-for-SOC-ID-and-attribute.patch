@@ -1,0 +1,206 @@
+From d9d733f974106b94341194434e8552bbd96812cd Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Thu, 23 Apr 2020 03:04:44 +0000
+Subject: [PATCH 48/49] dm: soc: Introduce UCLASS_SOC for SOC ID and attribute
+ matching
+
+Introduce UCLASS_SOC to be used for SOC identification and attribute
+matching based on the SoC ID info. This allows drivers to be provided
+for SoCs to retrice SoC identifying information and also for matching
+device attributes for selecting SoC specific data.
+
+This is useful for other device drivers that may need different
+parameters or quirks enabled depending on the specific device variant in
+use.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ drivers/phy/omap-usb2-phy.c |  2 +-
+ drivers/soc/Kconfig         |  7 -----
+ drivers/soc/Makefile        |  4 +--
+ drivers/soc/soc-uclass.c    |  4 +--
+ include/soc.h               | 53 +++++--------------------------------
+ test/dm/soc.c               |  8 +++---
+ 6 files changed, 14 insertions(+), 64 deletions(-)
+
+diff --git a/drivers/phy/omap-usb2-phy.c b/drivers/phy/omap-usb2-phy.c
+index a981cb2f8d..16b38f4f21 100644
+--- a/drivers/phy/omap-usb2-phy.c
++++ b/drivers/phy/omap-usb2-phy.c
+@@ -197,7 +197,7 @@ struct phy_ops omap_usb2_phy_ops = {
+ 	.exit = omap_usb2_phy_exit,
+ };
+ 
+-static const struct soc_attr am65x_sr10_soc_devices[] = {
++static const struct soc_device_attribute am65x_sr10_soc_devices[] = {
+ 	{ .family = "AM65X", .revision = "SR1.0" },
+ 	{ /* sentinel */ }
+ };
+diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
+index 864d00a885..e715dfd017 100644
+--- a/drivers/soc/Kconfig
++++ b/drivers/soc/Kconfig
+@@ -9,13 +9,6 @@ config SOC_DEVICE
+ 	  need different parameters or quirks enabled depending on the
+ 	  specific device variant in use.
+ 
+-config SOC_DEVICE_TI_K3
+-	depends on SOC_DEVICE
+-	bool "Enable SoC Device ID driver for TI K3 SoCs"
+-	help
+-	  This allows Texas Instruments Keystone 3 SoCs to identify
+-	  specifics about the SoC in use.
+-
+ source "drivers/soc/ti/Kconfig"
+ 
+ endmenu
+diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
+index 9ef20ca506..9a2f07f4d7 100644
+--- a/drivers/soc/Makefile
++++ b/drivers/soc/Makefile
+@@ -3,6 +3,4 @@
+ # Makefile for the U-Boot SOC specific device drivers.
+ 
+ obj-$(CONFIG_SOC_TI) += ti/
+-obj-$(CONFIG_SOC_DEVICE) += soc-uclass.o
+-obj-$(CONFIG_SOC_DEVICE_TI_K3) += soc_ti_k3.o
+-obj-$(CONFIG_SANDBOX) += soc_sandbox.o
++obj-y += soc-uclass.o
+diff --git a/drivers/soc/soc-uclass.c b/drivers/soc/soc-uclass.c
+index c32d647864..22f89514ed 100644
+--- a/drivers/soc/soc-uclass.c
++++ b/drivers/soc/soc-uclass.c
+@@ -46,8 +46,8 @@ int soc_get_revision(struct udevice *dev, char *buf, int size)
+ 	return ops->get_revision(dev, buf, size);
+ }
+ 
+-const struct soc_attr *
+-soc_device_match(const struct soc_attr *matches)
++const struct soc_device_attribute *
++soc_device_match(const struct soc_device_attribute *matches)
+ {
+ 	bool match;
+ 	struct udevice *soc;
+diff --git a/include/soc.h b/include/soc.h
+index a55eb1b572..c9cfba1203 100644
+--- a/include/soc.h
++++ b/include/soc.h
+@@ -9,22 +9,9 @@
+ 
+ #define SOC_MAX_STR_SIZE	128
+ 
+-/**
+- * struct soc_attr - Contains SoC identify information to be used in
+- *		     SoC matching. An array of these structs
+- *		     representing different SoCs can be passed to
+- *		     soc_device_match and the struct matching the SoC
+- *		     in use will be returned.
+- *
+- * @family   - Name of SoC family that can include multiple related SoC
+- *	       variants. Example: am33
+- * @machine  - Name of a specific SoC. Example: am3352
+- * @revision - Name of a specific SoC revision. Example: SR1.1
+- * @data     - A pointer to user data for the SoC variant
+- */
+-struct soc_attr {
+-	const char *family;
++struct soc_device_attribute {
+ 	const char *machine;
++	const char *family;
+ 	const char *revision;
+ 	const void *data;
+ };
+@@ -63,7 +50,6 @@ struct soc_ops {
+ 
+ #define soc_get_ops(dev)        ((struct soc_ops *)(dev)->driver->ops)
+ 
+-#ifdef CONFIG_SOC_DEVICE
+ /**
+  * soc_get() - Return the soc device for the soc in use.
+  * @devp: Pointer to structure to receive the soc device.
+@@ -106,40 +92,13 @@ int soc_get_revision(struct udevice *dev, char *buf, int size);
+ int soc_get_family(struct udevice *dev, char *buf, int size);
+ 
+ /**
+- * soc_device_match() - Return match from an array of soc_attr
++ * soc_device_match() - Return match from an array of soc_device_attribute
+  * @matches:	Array with any combination of family, revision or machine set
+  *
+  * Return: Pointer to struct from matches array with set attributes matching
+- *	   those provided by the soc device, or NULL if no match found.
++ *	   those provided by the soc device.
+  */
+-const struct soc_attr *
+-soc_device_match(const struct soc_attr *matches);
+-
+-#else
+-static inline int soc_get(struct udevice **devp)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int soc_get_machine(struct udevice *dev, char *buf, int size)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int soc_get_revision(struct udevice *dev, char *buf, int size)
+-{
+-	return -ENOSYS;
+-}
+-
+-static inline int soc_get_family(struct udevice *dev, char *buf, int size)
+-{
+-	return -ENOSYS;
+-}
++const struct soc_device_attribute *
++soc_device_match(const struct soc_device_attribute *matches);
+ 
+-static inline const struct soc_attr *
+-soc_device_match(const struct soc_attr *matches)
+-{
+-	return NULL;
+-}
+ #endif
+-#endif /* _SOC_H */
+diff --git a/test/dm/soc.c b/test/dm/soc.c
+index 17e1b5ba01..e07fd6d7d6 100644
+--- a/test/dm/soc.c
++++ b/test/dm/soc.c
+@@ -21,13 +21,13 @@ static int dm_test_soc(struct unit_test_state *uts)
+ {
+ 	struct udevice *dev;
+ 	char text[128];
+-	const struct soc_attr *soc_data;
++	const struct soc_device_attribute *soc_data;
+ 	const struct sb_soc_data *match_data;
+ 
+ 	static const struct sb_soc_data soc_sandbox1_sr10_data = { 0x91919191 };
+ 	static const struct sb_soc_data soc_sandbox123_data    = { 0x84848484 };
+ 
+-	static const struct soc_attr sb_soc_devices_full[] = {
++	static const struct soc_device_attribute sb_soc_devices_full[] = {
+ 		{
+ 			.family = "SANDBOX0xx",
+ 			.machine = "SANDBOX012",
+@@ -55,7 +55,7 @@ static int dm_test_soc(struct unit_test_state *uts)
+ 		{ /* sentinel */ }
+ 	};
+ 
+-	static const struct soc_attr sb_soc_devices_partial[] = {
++	static const struct soc_device_attribute sb_soc_devices_partial[] = {
+ 		{
+ 			.family = "SANDBOX0xx",
+ 			.revision = "1.0",
+@@ -74,7 +74,7 @@ static int dm_test_soc(struct unit_test_state *uts)
+ 		{ /* sentinel */ }
+ 	};
+ 
+-	static const struct soc_attr sb_soc_devices_nomatch[] = {
++	static const struct soc_device_attribute sb_soc_devices_nomatch[] = {
+ 		{
+ 			.family = "SANDBOX0xx",
+ 			.revision = "1.0",
+-- 
+2.17.1
+

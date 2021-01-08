@@ -1,0 +1,64 @@
+From 1057d6921b5659aa23521c7f23a46c34a031b9e4 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Mon, 22 Jun 2020 19:38:15 +0000
+Subject: [PATCH 45/49] mmc: am654_sdhci: Add support for writing to clkbuf_sel
+
+Add support for writing new clock buffer select property for both
+the am654x and j721e 4 bit IPs
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index 51052353ec..c98b044a99 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -46,6 +46,8 @@
+ #define SEL100_MASK		BIT(SEL100_SHIFT)
+ #define FREQSEL_SHIFT		8
+ #define FREQSEL_MASK		GENMASK(10, 8)
++#define CLKBUFSEL_SHIFT		0
++#define CLKBUFSEL_MASK		GENMASK(2, 0)
+ #define DLL_TRIM_ICP_SHIFT	4
+ #define DLL_TRIM_ICP_MASK	GENMASK(7, 4)
+ #define DR_TY_SHIFT		20
+@@ -82,6 +84,7 @@ struct am654_sdhci_plat {
+ 	u32 trm_icp;
+ 	u32 drv_strength;
+ 	u32 strb_sel;
++	u32 clkbuf_sel;
+ 	u32 flags;
+ #define DLL_PRESENT	(1 << 0)
+ #define IOMUX_PRESENT	(1 << 1)
+@@ -313,6 +316,9 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
+ 				   1 << SELDLYTXCLK_SHIFT);
+ 	}
+ 
++	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
++			   plat->clkbuf_sel);
++
+ 	return 0;
+ }
+ 
+@@ -348,6 +354,8 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
+ 	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
+ 	val = (1 << OTAPDLYENA_SHIFT) | (otap_del_sel << OTAPDLYSEL_SHIFT);
+ 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
++	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
++			   plat->clkbuf_sel);
+ 
+ 	return 0;
+ }
+@@ -567,6 +575,7 @@ static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
+ 	}
+ 
+ 	dev_read_u32(dev, "ti,strobe-sel", &plat->strb_sel);
++	dev_read_u32(dev, "ti,clkbuf-sel", &plat->clkbuf_sel);
+ 
+ 	ret = mmc_of_parse(dev, cfg);
+ 	if (ret)
+-- 
+2.17.1
+

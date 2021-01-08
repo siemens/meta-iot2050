@@ -1,0 +1,55 @@
+From d32ef9477d10b67ee492500b679ca1f88ebe1f71 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 8 Sep 2020 11:54:12 +0000
+Subject: [PATCH 47/49] mmc: am654_sdhci: Unconditionally switch off DLL in the
+ beginning of ios_post()
+
+There are some speed modes that work without switching the dll on.
+Unconditionally switch off the DLL before setting clock frequency to
+support this case. The software will automatically enable DLL for speed
+modes that require it. This also means the dll_on priv data member is no
+longer required.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index c36b8566b1..d70e92b959 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -91,7 +91,6 @@ struct am654_sdhci_plat {
+ #define FREQSEL_2_BIT	(1 << 2)
+ #define STRBSEL_4_BIT	(1 << 3)
+ #define DLL_CALIB	(1 << 4)
+-	bool dll_on;
+ };
+ 
+ struct timing_data {
+@@ -263,8 +262,6 @@ static void sdhci_am654_setup_dll(struct sdhci_host *host, unsigned int speed)
+ 		dev_err(dev, "DLL failed to relock\n");
+ 		return;
+ 	}
+-
+-	plat->dll_on = true;
+ }
+ 
+ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
+@@ -281,12 +278,7 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
+ 	val &= ~SDHCI_CLOCK_CARD_EN;
+ 	sdhci_writew(host, val, SDHCI_CLOCK_CONTROL);
+ 
+-	/* power off phy */
+-	if (plat->dll_on) {
+-		regmap_update_bits(plat->base, PHY_CTRL1, ENDLL_MASK, 0);
+-
+-		plat->dll_on = false;
+-	}
++	regmap_update_bits(plat->base, PHY_CTRL1, ENDLL_MASK, 0);
+ 
+ 	/* restart clock */
+ 	sdhci_set_clock(host->mmc, speed);
+-- 
+2.17.1
+

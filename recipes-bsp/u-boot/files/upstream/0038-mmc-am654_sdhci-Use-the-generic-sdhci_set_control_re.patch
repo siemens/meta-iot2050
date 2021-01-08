@@ -1,0 +1,30 @@
+From 7a5d809db5d74fe6d68445b543dd99ef13a472ac Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:44 +0530
+Subject: [PATCH 38/49] mmc: am654_sdhci: Use the generic sdhci_set_control_reg
+ function
+
+Use the generic sdhci_set_control_reg() function for switching to UHS
+modes.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/am654_sdhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
+index 95e9ca6368..220271a239 100644
+--- a/drivers/mmc/am654_sdhci.c
++++ b/drivers/mmc/am654_sdhci.c
+@@ -320,7 +320,7 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
+ 
+ const struct sdhci_ops j721e_4bit_sdhci_ops = {
+ 	.set_ios_post		= &j721e_4bit_sdhci_set_ios_post,
+-	.set_control_reg	= &am654_sdhci_set_control_reg,
++	.set_control_reg	= &sdhci_set_control_reg,
+ 	.platform_execute_tuning = &am654_sdhci_execute_tuning,
+ };
+ 
+-- 
+2.17.1
+

@@ -1,0 +1,30 @@
+From 35b005858092cc8358c30655b489fc1c6078fa1c Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:35 +0530
+Subject: [PATCH 29/49] mmc: sdhci: Write to HOST_CONTROL2 register for HS400
+ speed mode
+
+Enable HS400 speed mode by writing to HOST_CONTROL2 register.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+---
+ drivers/mmc/sdhci.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+index 718bd436fe..c5151e0dcb 100644
+--- a/drivers/mmc/sdhci.c
++++ b/drivers/mmc/sdhci.c
+@@ -505,6 +505,9 @@ void sdhci_set_uhs_timing(struct sdhci_host *host)
+ 	case MMC_HS_200:
+ 		reg |= SDHCI_CTRL_UHS_SDR104;
+ 		break;
++	case MMC_HS_400:
++		reg |= SDHCI_CTRL_HS400;
++		break;
+ 	default:
+ 		reg |= SDHCI_CTRL_UHS_SDR12;
+ 	}
+-- 
+2.17.1
+

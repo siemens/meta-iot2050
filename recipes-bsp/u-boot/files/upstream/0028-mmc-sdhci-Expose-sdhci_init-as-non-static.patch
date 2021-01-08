@@ -1,0 +1,42 @@
+From f44f35cd5be55a019b86eb47db147d6aa4eaced2 Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Tue, 28 Jan 2020 15:59:34 +0530
+Subject: [PATCH 28/49] mmc: sdhci: Expose sdhci_init() as non-static
+
+Expose sdhci_init() as non-static.
+
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+---
+ drivers/mmc/sdhci.c | 2 +-
+ include/sdhci.h     | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+index 763f50366f..718bd436fe 100644
+--- a/drivers/mmc/sdhci.c
++++ b/drivers/mmc/sdhci.c
+@@ -627,7 +627,7 @@ static int sdhci_set_ios(struct mmc *mmc)
+ 	return 0;
+ }
+ 
+-static int sdhci_init(struct mmc *mmc)
++int sdhci_init(struct mmc *mmc)
+ {
+ 	struct sdhci_host *host = mmc->priv;
+ #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_GPIO)
+diff --git a/include/sdhci.h b/include/sdhci.h
+index a26e27a6a4..c79493a389 100644
+--- a/include/sdhci.h
++++ b/include/sdhci.h
+@@ -490,6 +490,7 @@ void sdhci_set_uhs_timing(struct sdhci_host *host);
+ #ifdef CONFIG_DM_MMC
+ /* Export the operations to drivers */
+ int sdhci_probe(struct udevice *dev);
++int sdhci_init(struct mmc *mmc);
+ int sdhci_set_clock(struct mmc *mmc, unsigned int clock);
+ void sdhci_set_control_reg(struct sdhci_host *host);
+ extern const struct dm_mmc_ops sdhci_ops;
+-- 
+2.17.1
+
