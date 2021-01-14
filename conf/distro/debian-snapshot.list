@@ -1,21 +1,20 @@
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster main contrib non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ buster main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ buster main contrib non-free
 
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20200117T184524Z/ buster/updates main contrib non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20200117T184524Z/ buster/updates main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20210128T000000Z/ buster/updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20210128T000000Z/ buster/updates main contrib non-free
 
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster-updates main contrib non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20200117T150411Z/ buster-updates main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ buster-updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ buster-updates main contrib non-free
 
-# activate on next freeze
-#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX buster-backports main
-#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX buster-backports main
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ buster-backports main
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ buster-backports main
 
-#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye main contrib non-free
-#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ bullseye main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ bullseye main contrib non-free
 
-#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/XXX bullseye/updates main contrib non-free
-#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/XXX bullseye/updates main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20210128T000000Z/ bullseye-security/updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20210128T000000Z/ bullseye-security/updates main contrib non-free
 
-#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye-updates main contrib non-free
-#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye-updates main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ bullseye-updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210128T000000Z/ bullseye-updates main contrib non-free
