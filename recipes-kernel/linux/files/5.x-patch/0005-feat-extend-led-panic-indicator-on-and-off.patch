@@ -1,21 +1,21 @@
-From 153f4dc40e09103ef2dacbcbd67dddd204080d94 Mon Sep 17 00:00:00 2001
+From a248caa76a3c0602d6c6bd7861a8c59aedd66b4a Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 7/8] feat:extend led panic-indicator on and off
+Subject: [PATCH 5/9] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
- arch/arm64/boot/dts/siemens/iot2050-common.dtsi |  1 +
- drivers/leds/led-triggers.c                     | 10 ++++++++--
- drivers/leds/leds-gpio.c                        | 12 ++++++++++--
- drivers/leds/trigger/ledtrig-panic.c            |  5 ++++-
- include/linux/leds.h                            |  8 +++++++-
+ arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi |  1 +
+ drivers/leds/led-triggers.c                 | 10 ++++++++--
+ drivers/leds/leds-gpio.c                    | 12 ++++++++++--
+ drivers/leds/trigger/ledtrig-panic.c        |  5 ++++-
+ include/linux/leds.h                        |  8 +++++++-
  5 files changed, 30 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-index 42e83c168c4a..d72d53f18ba1 100644
---- a/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
-+++ b/arch/arm64/boot/dts/siemens/iot2050-common.dtsi
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+index b2d357eaa89e..3812803cd103 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 @@ -140,6 +140,7 @@
  
  		status-led-green {

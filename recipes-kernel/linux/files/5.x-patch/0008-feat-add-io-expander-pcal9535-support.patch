@@ -1,0 +1,410 @@
+From 2aed9505491edf4c97e70b1b6292069af62df052 Mon Sep 17 00:00:00 2001
+From: "le.jin" <le.jin@siemens.com>
+Date: Wed, 9 Oct 2019 17:08:43 +0800
+Subject: [PATCH 8/9] feat:add io expander pcal9535 support
+
+Signed-off-by: le.jin <le.jin@siemens.com>
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ drivers/gpio/gpio-pca953x.c   | 108 +++++++++++++++++++++++++++++++++-
+ drivers/gpio/gpiolib-sysfs.c  |  69 +++++++++++++++++++++-
+ drivers/gpio/gpiolib.c        |  18 ++++++
+ drivers/gpio/gpiolib.h        |   3 +-
+ include/asm-generic/gpio.h    |   5 ++
+ include/linux/gpio.h          |  10 ++++
+ include/linux/gpio/consumer.h |   8 +++
+ include/linux/gpio/driver.h   |   2 +
+ 8 files changed, 218 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 42dadf628b71..d0a6f6b06e40 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -21,7 +21,7 @@
+ #include <linux/regmap.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+-
++#include <linux/gpio.h>
+ #include <asm/unaligned.h>
+ 
+ #define PCA953X_INPUT		0x00
+@@ -221,7 +221,8 @@ struct pca953x_chip {
+ 	unsigned gpio_start;
+ 	struct mutex i2c_lock;
+ 	struct regmap *regmap;
+-
++	u8 reg_pull_en[MAX_BANK];
++	u8 reg_pull_sel[MAX_BANK];
+ #ifdef CONFIG_GPIO_PCA953X_IRQ
+ 	struct mutex irq_lock;
+ 	u8 irq_mask[MAX_BANK];
+@@ -414,6 +415,36 @@ static u8 pca953x_recalc_addr(struct pca953x_chip *chip, int reg, int off,
+ 	return regaddr;
+ }
+ 
++static int pca953x_read_single(struct pca953x_chip *chip, int reg, u32 *val,
++				int off)
++{
++	u8 regaddr = pca953x_recalc_addr(chip, reg, off, false, false);
++	int ret;
++
++	ret = regmap_read(chip->regmap, regaddr, val);
++	if (ret < 0) {
++		dev_err(&chip->client->dev, "failed reading register\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int pca953x_write_single(struct pca953x_chip *chip, int reg, u32 val,
++				int off)
++{
++	u8 regaddr = pca953x_recalc_addr(chip, reg, off, true, false);
++	int ret;
++
++	ret = regmap_write(chip->regmap, regaddr, val);
++	if (ret < 0) {
++		dev_err(&chip->client->dev, "failed writing register\n");
++		return ret;
++	}
++
++	return 0;
++}
++
+ static int pca953x_write_regs(struct pca953x_chip *chip, int reg, u8 *val)
+ {
+ 	u8 regaddr = pca953x_recalc_addr(chip, reg, 0, true, true);
+@@ -442,6 +473,60 @@ static int pca953x_read_regs(struct pca953x_chip *chip, int reg, u8 *val)
+ 	return 0;
+ }
+ 
++static int pca953x_gpio_set_drive(struct gpio_chip *gc,
++		unsigned off, unsigned mode)
++{
++	struct pca953x_chip *chip;
++	u8 pull_en_reg_val, pull_sel_reg_val;
++	int ret = 0;
++
++	chip = gpiochip_get_data(gc);
++
++	if (PCA_CHIP_TYPE(chip->driver_data) != PCA953X_TYPE)
++		return -EINVAL;
++
++	mutex_lock(&chip->i2c_lock);
++
++	switch (mode) {
++	case GPIOF_DRIVE_PULLUP:
++		pull_en_reg_val = chip->reg_pull_en[off / BANK_SZ]
++			| (1u << (off % BANK_SZ));
++		pull_sel_reg_val = chip->reg_pull_sel[off / BANK_SZ]
++			| (1u << (off % BANK_SZ));
++		break;
++	case GPIOF_DRIVE_PULLDOWN:
++		pull_en_reg_val = chip->reg_pull_en[off / BANK_SZ]
++			| (1u << (off % BANK_SZ));
++		pull_sel_reg_val = chip->reg_pull_sel[off / BANK_SZ]
++			& ~(1u << (off % BANK_SZ));
++		break;
++	case GPIOF_DRIVE_STRONG:
++	case GPIOF_DRIVE_HIZ:
++		pull_en_reg_val = chip->reg_pull_en[off / BANK_SZ]
++			& ~(1u << (off % BANK_SZ));
++		pull_sel_reg_val = chip->reg_pull_sel[off / BANK_SZ];
++		break;
++	default:
++		ret = -EINVAL;
++		goto exit;
++	}
++
++	ret = pca953x_write_single(chip, PCAL953X_PULL_EN,
++				pull_en_reg_val, off);
++	if (ret)
++		goto exit;
++	chip->reg_pull_en[off / BANK_SZ] = pull_en_reg_val;
++
++	ret = pca953x_write_single(chip, PCAL953X_PULL_SEL,
++				pull_sel_reg_val, off);
++	if (ret)
++		goto exit;
++	chip->reg_pull_sel[off / BANK_SZ] = pull_sel_reg_val;
++exit:
++	mutex_unlock(&chip->i2c_lock);
++	return ret;
++}
++
+ static int pca953x_gpio_direction_input(struct gpio_chip *gc, unsigned off)
+ {
+ 	struct pca953x_chip *chip = gpiochip_get_data(gc);
+@@ -639,6 +724,9 @@ static void pca953x_setup_gpio(struct pca953x_chip *chip, int gpios)
+ 	gc->parent = &chip->client->dev;
+ 	gc->owner = THIS_MODULE;
+ 	gc->names = chip->names;
++
++	if (PCA_CHIP_TYPE(chip->driver_data) == PCA953X_TYPE)
++		gc->set_drive = pca953x_gpio_set_drive;
+ }
+ 
+ #ifdef CONFIG_GPIO_PCA953X_IRQ
+@@ -928,8 +1016,9 @@ static int pca953x_irq_setup(struct pca953x_chip *chip,
+ 
+ static int device_pca95xx_init(struct pca953x_chip *chip, u32 invert)
+ {
+-	int ret;
++	int i, ret;
+ 	u8 val[MAX_BANK];
++	u32 pull_en_reg_val, pull_sel_reg_val;
+ 
+ 	ret = regcache_sync_region(chip->regmap, chip->regs->output,
+ 				   chip->regs->output + NBANK(chip));
+@@ -941,6 +1030,18 @@ static int device_pca95xx_init(struct pca953x_chip *chip, u32 invert)
+ 	if (ret)
+ 		goto out;
+ 
++	for (i = 0; i < NBANK(chip); i++) {
++		ret = pca953x_read_single(chip, PCAL953X_PULL_EN, &pull_en_reg_val, i*BANK_SZ);
++		chip->reg_pull_en[i] = (u8)pull_en_reg_val;
++		if (ret)
++			goto out;
++
++		ret = pca953x_read_single(chip, PCAL953X_PULL_SEL, &pull_sel_reg_val, i*BANK_SZ);
++		chip->reg_pull_sel[i] = (u8)pull_sel_reg_val;
++		if (ret)
++			goto out;
++	}
++
+ 	/* set platform specific polarity inversion */
+ 	if (invert)
+ 		memset(val, 0xFF, NBANK(chip));
+@@ -1240,6 +1341,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
+ 	{ .compatible = "nxp,pca9505", .data = OF_953X(40, PCA_INT), },
+ 	{ .compatible = "nxp,pca9534", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "nxp,pca9535", .data = OF_953X(16, PCA_INT), },
++	{ .compatible = "nxp,pcal9535", .data = OF_953X(16, PCA_INT | PCA_PCAL), },
+ 	{ .compatible = "nxp,pca9536", .data = OF_953X( 4, 0), },
+ 	{ .compatible = "nxp,pca9537", .data = OF_953X( 4, PCA_INT), },
+ 	{ .compatible = "nxp,pca9538", .data = OF_953X( 8, PCA_INT), },
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index fbf6b1a0a4fa..0048df8c2ba1 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -9,7 +9,7 @@
+ #include <linux/kdev_t.h>
+ #include <linux/slab.h>
+ #include <linux/ctype.h>
+-
++#include <linux/gpio.h>
+ #include "gpiolib.h"
+ 
+ #define GPIO_IRQF_TRIGGER_FALLING	BIT(0)
+@@ -362,6 +362,72 @@ static ssize_t active_low_store(struct device *dev,
+ }
+ static DEVICE_ATTR_RW(active_low);
+ 
++static ssize_t drive_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct gpiod_data *data = dev_get_drvdata(dev);
++	struct gpio_desc *desc = data->desc;
++	ssize_t			status;
++
++	mutex_lock(&data->mutex);
++
++	if (test_bit(FLAG_PULL_UP, &desc->flags))
++		status = sprintf(buf, "pullup\n");
++	else if (test_bit(FLAG_PULL_DOWN, &desc->flags))
++		status = sprintf(buf, "pulldown\n");
++	else if (test_bit(FLAG_STRONG, &desc->flags))
++		status = sprintf(buf, "strong\n");
++	else if (test_bit(FLAG_HIZ, &desc->flags))
++		status = sprintf(buf, "hiz\n");
++	else
++		status = -EINVAL;
++
++	mutex_unlock(&data->mutex);
++	return status;
++}
++
++static ssize_t drive_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t size)
++{
++	struct gpiod_data *data = dev_get_drvdata(dev);
++	struct gpio_desc *desc = data->desc;
++	ssize_t			status;
++
++	mutex_lock(&data->mutex);
++
++	clear_bit(FLAG_PULL_UP, &desc->flags);
++	clear_bit(FLAG_PULL_DOWN, &desc->flags);
++	clear_bit(FLAG_STRONG, &desc->flags);
++	clear_bit(FLAG_HIZ, &desc->flags);
++	if (sysfs_streq(buf, "pullup")) {
++		status = gpiod_set_drive(desc, GPIOF_DRIVE_PULLUP);
++		if (!status) {
++			set_bit(FLAG_PULL_UP, &desc->flags);
++		}
++	} else if (sysfs_streq(buf, "pulldown")) {
++		status = gpiod_set_drive(desc, GPIOF_DRIVE_PULLDOWN);
++		if (!status) {
++			set_bit(FLAG_PULL_DOWN, &desc->flags);
++		}
++	} else if (sysfs_streq(buf, "strong")) {
++		status = gpiod_set_drive(desc, GPIOF_DRIVE_STRONG);
++		if (!status) {
++			set_bit(FLAG_STRONG, &desc->flags);
++		}
++	} else if (sysfs_streq(buf, "hiz")) {
++		status = gpiod_set_drive(desc, GPIOF_DRIVE_HIZ);
++		if (!status) {
++			set_bit(FLAG_HIZ, &desc->flags);
++		}
++	} else {
++		status = -EINVAL;
++	}
++
++	mutex_unlock(&data->mutex);
++	return status ? : size;
++}
++static DEVICE_ATTR_RW(drive);
++
+ static umode_t gpio_is_visible(struct kobject *kobj, struct attribute *attr,
+ 			       int n)
+ {
+@@ -389,6 +455,7 @@ static struct attribute *gpio_attrs[] = {
+ 	&dev_attr_edge.attr,
+ 	&dev_attr_value.attr,
+ 	&dev_attr_active_low.attr,
++	&dev_attr_drive.attr,
+ 	NULL,
+ };
+ 
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index abdf448b11a3..001612b48c66 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -3228,6 +3228,24 @@ int gpiod_is_active_low(const struct gpio_desc *desc)
+ }
+ EXPORT_SYMBOL_GPL(gpiod_is_active_low);
+ 
++int gpiod_set_drive(struct gpio_desc *desc, unsigned mode)
++{
++	struct gpio_chip	*chip;
++
++	VALIDATE_DESC(desc);
++	chip = desc->gdev->chip;
++	if (!chip || !chip->set || !chip->set_drive)
++		goto fail;
++
++	might_sleep_if(chip->can_sleep);
++
++	return chip->set_drive(chip, gpio_chip_hwgpio(desc), mode);
++
++fail:
++	return -EINVAL;
++}
++EXPORT_SYMBOL_GPL(gpiod_set_drive);
++
+ /**
+  * gpiod_toggle_active_low - toggle whether a GPIO is active-low or not
+  * @desc: the gpio descriptor to change
+diff --git a/drivers/gpio/gpiolib.h b/drivers/gpio/gpiolib.h
+index b8b10a409c7b..3d88de5c2461 100644
+--- a/drivers/gpio/gpiolib.h
++++ b/drivers/gpio/gpiolib.h
+@@ -110,7 +110,8 @@ struct gpio_desc {
+ #define FLAG_TRANSITORY 12	/* GPIO may lose value in sleep or reset */
+ #define FLAG_PULL_UP    13	/* GPIO has pull up enabled */
+ #define FLAG_PULL_DOWN  14	/* GPIO has pull down enabled */
+-
++#define FLAG_STRONG	15	/* Gpio drive is strong (fast output) */
++#define FLAG_HIZ	16	/* Gpio drive is Hi-Z (input) */
+ 	/* Connection label */
+ 	const char		*label;
+ 	/* Name of the GPIO */
+diff --git a/include/asm-generic/gpio.h b/include/asm-generic/gpio.h
+index 19eadac415c4..4cbba8308161 100644
+--- a/include/asm-generic/gpio.h
++++ b/include/asm-generic/gpio.h
+@@ -81,6 +81,11 @@ static inline int gpio_set_debounce(unsigned gpio, unsigned debounce)
+ 	return gpiod_set_debounce(gpio_to_desc(gpio), debounce);
+ }
+ 
++static inline int gpio_set_drive(unsigned gpio, unsigned mode)
++{
++	return gpiod_set_drive(gpio_to_desc(gpio), mode);
++}
++
+ static inline int gpio_get_value_cansleep(unsigned gpio)
+ {
+ 	return gpiod_get_raw_value_cansleep(gpio_to_desc(gpio));
+diff --git a/include/linux/gpio.h b/include/linux/gpio.h
+index 2157717c2136..039006a7bde9 100644
+--- a/include/linux/gpio.h
++++ b/include/linux/gpio.h
+@@ -41,6 +41,11 @@
+ #define GPIOF_EXPORT_DIR_FIXED	(GPIOF_EXPORT)
+ #define GPIOF_EXPORT_DIR_CHANGEABLE (GPIOF_EXPORT | GPIOF_EXPORT_CHANGEABLE)
+ 
++#define GPIOF_DRIVE_PULLUP	(1 << 7)
++#define GPIOF_DRIVE_PULLDOWN	(1 << 8)
++#define GPIOF_DRIVE_STRONG	(1 << 9)
++#define GPIOF_DRIVE_HIZ		(1 << 10)
++
+ /**
+  * struct gpio - a structure describing a GPIO with configuration
+  * @gpio:	the GPIO number
+@@ -160,6 +165,11 @@ static inline int gpio_set_debounce(unsigned gpio, unsigned debounce)
+ 	return -ENOSYS;
+ }
+ 
++static inline int gpio_set_drive(unsigned gpio, unsigned mode)
++{
++	return -ENOSYS;
++}
++
+ static inline int gpio_get_value(unsigned gpio)
+ {
+ 	/* GPIO can never have been requested or set as {in,out}put */
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index 803bb63dd5ff..cd97ff2ebdac 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -159,6 +159,7 @@ int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
+ int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce);
+ int gpiod_set_transitory(struct gpio_desc *desc, bool transitory);
+ void gpiod_toggle_active_low(struct gpio_desc *desc);
++int gpiod_set_drive(struct gpio_desc *desc, unsigned mode);
+ 
+ int gpiod_is_active_low(const struct gpio_desc *desc);
+ int gpiod_cansleep(const struct gpio_desc *desc);
+@@ -486,6 +487,13 @@ static inline void gpiod_toggle_active_low(struct gpio_desc *desc)
+ 	WARN_ON(desc);
+ }
+ 
++static inline int gpiod_set_drive(unsigned gpio, unsigned mode)
++{
++	/* GPIO can never have been requested */
++	WARN_ON(1);
++	return -ENOSYS;
++}
+++
+ static inline int gpiod_is_active_low(const struct gpio_desc *desc)
+ {
+ 	/* GPIO can never have been requested */
+diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
+index 5dd9c982e2cb..dd9dbdad1cea 100644
+--- a/include/linux/gpio/driver.h
++++ b/include/linux/gpio/driver.h
+@@ -366,6 +366,8 @@ struct gpio_chip {
+ 	int			(*set_config)(struct gpio_chip *chip,
+ 					      unsigned offset,
+ 					      unsigned long config);
++	int			(*set_drive)(struct gpio_chip *chip,
++					unsigned offset, unsigned mode);
+ 	int			(*to_irq)(struct gpio_chip *chip,
+ 						unsigned offset);
+ 
+-- 
+2.17.1
+

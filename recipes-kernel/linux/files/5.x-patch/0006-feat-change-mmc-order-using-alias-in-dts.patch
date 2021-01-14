@@ -1,24 +1,24 @@
-From 166e6898f7275216e0494f2b790a58e4b51872c3 Mon Sep 17 00:00:00 2001
+From a07d196b93f09e381c6652f627832b8b692a5874 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Wed, 9 Oct 2019 15:22:09 +0800
-Subject: [PATCH 8/8] feat:change mmc order using alias in dts
+Subject: [PATCH 6/9] feat:change mmc order using alias in dts
 
 1. modify kernel to support mmc alias in dts
 2. change SD to mmc0 and EMMC to mmc1 via alias in dts
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
- .../boot/dts/siemens/iot2050-advanced.dts     |  5 ++++
+ .../dts/ti/k3-am6548-iot2050-advanced.dts     |  5 ++++
  drivers/mmc/core/host.c                       | 23 +++++++++++++++----
  2 files changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
-index 11b3c7636eb3..1785a9365923 100644
---- a/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
-+++ b/arch/arm64/boot/dts/siemens/iot2050-advanced.dts
-@@ -11,6 +11,11 @@
- / {
- 	model = "SIMATIC IOT2050-ADVANCED";
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
+index 00700dff77a8..99809263e10a 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
+@@ -12,6 +12,11 @@
+ 	compatible = "siemens,iot2050-advanced", "ti,am654";
+ 	model = "SIMATIC IOT2050 Advanced";
  
 +	aliases {
 +		mmc0 = &sdhci1;

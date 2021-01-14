@@ -10,4 +10,4 @@ header:
 
 local_conf_header:
   ti-kernel-versions: |
-    PREFERRED_VERSION_linux-iot2050 = "5.x-ti-kernel"
+    PREFERRED_VERSION_linux-iot2050 = "5.4.%"
