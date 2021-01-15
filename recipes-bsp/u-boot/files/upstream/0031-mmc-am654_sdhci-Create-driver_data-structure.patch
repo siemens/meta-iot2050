@@ -1,7 +1,7 @@
-From d35337f27b695e5eb2e5e840b2a8a73d9955abba Mon Sep 17 00:00:00 2001
+From 9b52d9ed649b54525855042060e2a1b6ac67c813 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:37 +0530
-Subject: [PATCH 31/49] mmc: am654_sdhci: Create driver_data structure
+Subject: [PATCH 31/50] mmc: am654_sdhci: Create driver_data structure
 
 Use a common driver_data structure with an sdhci_ops and flags fields.
 This helps in cleanly assigining driver related flags in a scalable

@@ -1,7 +1,7 @@
-From 1ddddcf05ba40665fd12f8c9b039b0770f665f03 Mon Sep 17 00:00:00 2001
+From 2e231a9a3909a8e408e4ab7488e3c467e0531e0b Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:45 +0530
-Subject: [PATCH 39/49] mmc: am654_sdhci: Implement workaround for card detect
+Subject: [PATCH 39/50] mmc: am654_sdhci: Implement workaround for card detect
 
 The 4 bit MMC controllers have an internal debounce for the SDCD line
 with a debounce delay of 1 second. Therefore, after clocks to the IP are

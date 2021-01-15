@@ -1,7 +1,7 @@
-From 4f77684f815b512022204a61e5b805cbbce0272f Mon Sep 17 00:00:00 2001
+From 50c4175175e5e26cb1fc95dcce20b5d80d4f825f Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:39 +0530
-Subject: [PATCH 33/49] mmc: am654_sdhci: Add Support for 3 bit frequency
+Subject: [PATCH 33/50] mmc: am654_sdhci: Add Support for 3 bit frequency
  select
 
 The j721e 8 bit instance phy has a 3 bit frequency selection field.

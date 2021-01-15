@@ -1,7 +1,7 @@
-From 8cfc65ec4218c4428b21d9b4ca3f0579254c1fb5 Mon Sep 17 00:00:00 2001
+From 3994f4a480c7bbbda8870e32584b5300c5115732 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:30 +0530
-Subject: [PATCH 26/49] mmc: Add init() API
+Subject: [PATCH 26/50] mmc: Add init() API
 
 Add an init() API for platform specific init() operations.
 

@@ -1,7 +1,7 @@
-From 4366f1e50d61de64d5292c127a20eccf09140a17 Mon Sep 17 00:00:00 2001
+From 39d25a5b4de01167211f13f058b1edb3f2bc36ea Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:41 +0530
-Subject: [PATCH 35/49] mmc: am654_sdhci: Add Support for Strobe Select
+Subject: [PATCH 35/50] mmc: am654_sdhci: Add Support for Strobe Select
 
 Add support for writing strobe select to support HS400 speed mode.
 

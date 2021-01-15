@@ -1,0 +1,27 @@
+From ee533a4c04bbf2c17c78382b46463e63b072d790 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Fri, 15 Jan 2021 15:11:39 +0800
+Subject: [PATCH 50/50] feat:add the SOC_DEVICE_TI_K3 support
+
+add the config items
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ configs/iot2050_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index f2f2496c11..8139a77761 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -121,6 +121,7 @@ CONFIG_DM_RESET=y
+ CONFIG_RESET_TI_SCI=y
+ CONFIG_DM_SERIAL=y
+ CONFIG_SOC_TI=y
++CONFIG_SOC_DEVICE_TI_K3=y
+ CONFIG_TI_PRUSS=y
+ CONFIG_SPI=y
+ CONFIG_DM_SPI=y
+-- 
+2.17.1
+

@@ -1,7 +1,7 @@
-From 836bcaacbb22a839f3887c62f54ec8542d8a1840 Mon Sep 17 00:00:00 2001
+From b10f6413a7a60112ce78e70f0c1de8a6ed0b560c Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:33 +0530
-Subject: [PATCH 27/49] mmc: sdhci: Add helper functions for UHS modes
+Subject: [PATCH 27/50] mmc: sdhci: Add helper functions for UHS modes
 
 Add a set_voltage() function which handles the switch from 3.3V to 1.8V
 for SD card UHS modes.

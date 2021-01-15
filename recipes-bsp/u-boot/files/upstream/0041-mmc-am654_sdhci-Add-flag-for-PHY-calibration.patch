@@ -1,7 +1,7 @@
-From ba3c0d6c66e1cd77cf7df0e3fde43723a86e4177 Mon Sep 17 00:00:00 2001
+From cdd7bbba4b48399f1d4aac1892dddedc4f38ad82 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Mon, 27 Apr 2020 09:49:30 +0000
-Subject: [PATCH 41/49] mmc: am654_sdhci: Add flag for PHY calibration
+Subject: [PATCH 41/50] mmc: am654_sdhci: Add flag for PHY calibration
 
 Not all controllers need calibration for the PHY DLL. Add a DLL_CALIB
 flag to indicate the same.

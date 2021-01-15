@@ -1,7 +1,7 @@
-From 54d77478f05f5f143bd13a00d87994e24725a07f Mon Sep 17 00:00:00 2001
+From 7530ac644f9357d8ab9100bd39e6583387209060 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:34 +0000
-Subject: [PATCH 20/49] net: ti: icssg-prueth: Add shutdown command
+Subject: [PATCH 20/50] net: ti: icssg-prueth: Add shutdown command
 
 As part of prueth_stop(), stop the firmware packet processing
 by issuing a shutdown command so that interface is taken down

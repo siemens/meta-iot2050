@@ -1,7 +1,7 @@
-From 6a5a7f98b9d4a1a05dbc2e8dc88c3587619c31e1 Mon Sep 17 00:00:00 2001
+From 9b2f6a3ef16af6bfd6cb7c15ce615022d94d37b0 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Thu, 13 Aug 2020 21:04:25 +0000
-Subject: [PATCH 46/49] mmc: am654_sdhci: Use MMC_MODES_END value instead of
+Subject: [PATCH 46/50] mmc: am654_sdhci: Use MMC_MODES_END value instead of
  hardcoded value
 
 The hardcoded array size leads to array overflows with changes in

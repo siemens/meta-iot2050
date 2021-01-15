@@ -1,7 +1,7 @@
-From 7a5d809db5d74fe6d68445b543dd99ef13a472ac Mon Sep 17 00:00:00 2001
+From 6951f0c5dfd01113b024dd0111d47418da32bf79 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:44 +0530
-Subject: [PATCH 38/49] mmc: am654_sdhci: Use the generic sdhci_set_control_reg
+Subject: [PATCH 38/50] mmc: am654_sdhci: Use the generic sdhci_set_control_reg
  function
 
 Use the generic sdhci_set_control_reg() function for switching to UHS

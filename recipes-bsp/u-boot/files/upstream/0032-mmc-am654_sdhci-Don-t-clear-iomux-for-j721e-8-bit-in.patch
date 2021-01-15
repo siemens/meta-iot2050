@@ -1,7 +1,7 @@
-From 5ff95e6d0cf25d7323a766b5392120c3ecd4ac38 Mon Sep 17 00:00:00 2001
+From 0f39e81e24de5073281b994286167354fa3b1bfc Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:38 +0530
-Subject: [PATCH 32/49] mmc: am654_sdhci: Don't clear iomux for j721e 8 bit
+Subject: [PATCH 32/50] mmc: am654_sdhci: Don't clear iomux for j721e 8 bit
  instance
 
 The 8 bit instance on j721e is not muxed with anything else and

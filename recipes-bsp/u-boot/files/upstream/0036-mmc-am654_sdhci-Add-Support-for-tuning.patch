@@ -1,7 +1,7 @@
-From aad000abc67ec915ae347ed507a0a6d4753d019b Mon Sep 17 00:00:00 2001
+From 9b7081f56b35d7f51627d5a8106f74e1be3f2aba Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:42 +0530
-Subject: [PATCH 36/49] mmc: am654_sdhci: Add Support for tuning
+Subject: [PATCH 36/50] mmc: am654_sdhci: Add Support for tuning
 
 Add support for tuning which facilitates data transfers at upto
 HS200 speed mode.

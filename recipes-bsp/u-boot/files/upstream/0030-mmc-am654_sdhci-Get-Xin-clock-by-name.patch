@@ -1,7 +1,7 @@
-From fb9ffd0c4028924dca4eca9587df8bcda5780a14 Mon Sep 17 00:00:00 2001
+From efa0f1dd449f12676298d2d68d05c52a03b107a9 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:36 +0530
-Subject: [PATCH 30/49] mmc: am654_sdhci: Get Xin clock by name
+Subject: [PATCH 30/50] mmc: am654_sdhci: Get Xin clock by name
 
 Get clk_xin by name instead of by index to avoid having to put clocks in
 the same order in all devices.

@@ -1,7 +1,7 @@
-From d32ef9477d10b67ee492500b679ca1f88ebe1f71 Mon Sep 17 00:00:00 2001
+From 750a49d3d3de8437b12e8e8acbe793d46567c89b Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 8 Sep 2020 11:54:12 +0000
-Subject: [PATCH 47/49] mmc: am654_sdhci: Unconditionally switch off DLL in the
+Subject: [PATCH 47/50] mmc: am654_sdhci: Unconditionally switch off DLL in the
  beginning of ios_post()
 
 There are some speed modes that work without switching the dll on.

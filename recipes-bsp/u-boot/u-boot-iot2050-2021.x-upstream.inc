@@ -62,6 +62,7 @@ SRC_URI += " \
     file://upstream/0047-mmc-am654_sdhci-Unconditionally-switch-off-DLL-in-th.patch \
     file://upstream/0048-dm-soc-Introduce-UCLASS_SOC-for-SOC-ID-and-attribute.patch \
     file://upstream/0049-mmc-include-the-related-header.patch \
+    file://upstream/0050-feat-add-the-SOC_DEVICE_TI_K3-support.patch \
     "
 
 U_BOOT_REV = "51f65b506f37252acb3cd4184ef5e1fc20da13a2"

@@ -1,7 +1,7 @@
-From 6417fb149f733c197541ca8e0f1636ccf09ff6e7 Mon Sep 17 00:00:00 2001
+From 77fbca5d7c455cd12031bcc01f98b79c625aec51 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:53 +0530
-Subject: [PATCH 04/49] net: eth-uclass: eth_get_dev based on SEQ_ALIAS instead
+Subject: [PATCH 04/50] net: eth-uclass: eth_get_dev based on SEQ_ALIAS instead
  of probe order
 
 In case of multiple eth interfaces currently eth_get_dev

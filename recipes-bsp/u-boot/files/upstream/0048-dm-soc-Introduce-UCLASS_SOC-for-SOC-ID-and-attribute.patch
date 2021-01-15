@@ -1,7 +1,7 @@
-From d9d733f974106b94341194434e8552bbd96812cd Mon Sep 17 00:00:00 2001
+From 82218bcade5c27796b52d888b798914f4a6d7787 Mon Sep 17 00:00:00 2001
 From: Dave Gerlach <d-gerlach@ti.com>
 Date: Thu, 23 Apr 2020 03:04:44 +0000
-Subject: [PATCH 48/49] dm: soc: Introduce UCLASS_SOC for SOC ID and attribute
+Subject: [PATCH 48/50] dm: soc: Introduce UCLASS_SOC for SOC ID and attribute
  matching
 
 Introduce UCLASS_SOC to be used for SOC identification and attribute
@@ -14,14 +14,25 @@ parameters or quirks enabled depending on the specific device variant in
 use.
 
 Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+
+dm: soc: Introduce soc_ti_k3 driver for TI K3 SoCs
+
+Introduce an soc_ti_k3_driver that allows identification and selection
+of SoC specific data based on the JTAG ID register for device
+identification, as described for AM65x[0] and J721E[1] devices.
+
+[0] http://www.ti.com/lit/ug/spruid7e/spruid7e.pdf
+[1] http://www.ti.com/lit/ug/spruil1a/spruil1a.pdf
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
 ---
  drivers/phy/omap-usb2-phy.c |  2 +-
- drivers/soc/Kconfig         |  7 -----
- drivers/soc/Makefile        |  4 +--
+ drivers/soc/Kconfig         |  1 -
+ drivers/soc/Makefile        |  2 +-
  drivers/soc/soc-uclass.c    |  4 +--
  include/soc.h               | 53 +++++--------------------------------
  test/dm/soc.c               |  8 +++---
- 6 files changed, 14 insertions(+), 64 deletions(-)
+ 6 files changed, 14 insertions(+), 56 deletions(-)
 
 diff --git a/drivers/phy/omap-usb2-phy.c b/drivers/phy/omap-usb2-phy.c
 index a981cb2f8d..16b38f4f21 100644
@@ -37,35 +48,29 @@ index a981cb2f8d..16b38f4f21 100644
  	{ /* sentinel */ }
  };
 diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
-index 864d00a885..e715dfd017 100644
+index 864d00a885..b99ecfa867 100644
 --- a/drivers/soc/Kconfig
 +++ b/drivers/soc/Kconfig
-@@ -9,13 +9,6 @@ config SOC_DEVICE
- 	  need different parameters or quirks enabled depending on the
+@@ -10,7 +10,6 @@ config SOC_DEVICE
  	  specific device variant in use.
  
--config SOC_DEVICE_TI_K3
+ config SOC_DEVICE_TI_K3
 -	depends on SOC_DEVICE
--	bool "Enable SoC Device ID driver for TI K3 SoCs"
--	help
--	  This allows Texas Instruments Keystone 3 SoCs to identify
--	  specifics about the SoC in use.
--
- source "drivers/soc/ti/Kconfig"
- 
- endmenu
+ 	bool "Enable SoC Device ID driver for TI K3 SoCs"
+ 	help
+ 	  This allows Texas Instruments Keystone 3 SoCs to identify
 diff --git a/drivers/soc/Makefile b/drivers/soc/Makefile
-index 9ef20ca506..9a2f07f4d7 100644
+index 9ef20ca506..6a6b48b811 100644
 --- a/drivers/soc/Makefile
 +++ b/drivers/soc/Makefile
-@@ -3,6 +3,4 @@
+@@ -3,6 +3,6 @@
  # Makefile for the U-Boot SOC specific device drivers.
  
  obj-$(CONFIG_SOC_TI) += ti/
 -obj-$(CONFIG_SOC_DEVICE) += soc-uclass.o
--obj-$(CONFIG_SOC_DEVICE_TI_K3) += soc_ti_k3.o
--obj-$(CONFIG_SANDBOX) += soc_sandbox.o
 +obj-y += soc-uclass.o
+ obj-$(CONFIG_SOC_DEVICE_TI_K3) += soc_ti_k3.o
+ obj-$(CONFIG_SANDBOX) += soc_sandbox.o
 diff --git a/drivers/soc/soc-uclass.c b/drivers/soc/soc-uclass.c
 index c32d647864..22f89514ed 100644
 --- a/drivers/soc/soc-uclass.c

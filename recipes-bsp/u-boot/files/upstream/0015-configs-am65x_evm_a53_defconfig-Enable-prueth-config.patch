@@ -1,7 +1,7 @@
-From a74dae149c39fc4091d115c536f121e2689af6cb Mon Sep 17 00:00:00 2001
+From df773127cba9d15e9d4a9ed66cdc0c6816685b93 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 30 Apr 2020 12:17:50 +0530
-Subject: [PATCH 15/49] configs: am65x_evm_a53_defconfig: Enable prueth configs
+Subject: [PATCH 15/50] configs: am65x_evm_a53_defconfig: Enable prueth configs
 
 Enable prueth configs
 

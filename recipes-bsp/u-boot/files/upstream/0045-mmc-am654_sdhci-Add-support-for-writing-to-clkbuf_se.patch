@@ -1,7 +1,7 @@
-From 1057d6921b5659aa23521c7f23a46c34a031b9e4 Mon Sep 17 00:00:00 2001
+From 307a56f65a7439e412ce83f65583f410c36ffc81 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Mon, 22 Jun 2020 19:38:15 +0000
-Subject: [PATCH 45/49] mmc: am654_sdhci: Add support for writing to clkbuf_sel
+Subject: [PATCH 45/50] mmc: am654_sdhci: Add support for writing to clkbuf_sel
 
 Add support for writing new clock buffer select property for both
 the am654x and j721e 4 bit IPs

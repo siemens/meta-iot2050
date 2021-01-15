@@ -1,7 +1,7 @@
-From 4d580345f877c7fd0542d974abbb6933dc9782f0 Mon Sep 17 00:00:00 2001
+From 0b65c6f2917f58b77583284533bf461dd6cbcdd1 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:49:01 +0530
-Subject: [PATCH 12/49] arm: dts: k3-am65-main: Add scm_conf node
+Subject: [PATCH 12/50] arm: dts: k3-am65-main: Add scm_conf node
 
 Add scm_conf node needed for prueth.
 

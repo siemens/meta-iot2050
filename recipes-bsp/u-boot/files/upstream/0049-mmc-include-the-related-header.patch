@@ -1,7 +1,7 @@
-From 811c0522cc9bcf6e234fa320e346fe9d44e6c5d6 Mon Sep 17 00:00:00 2001
+From be4057d55d1f642ec7024ef2130080ce02cfa94b Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 7 Jan 2021 16:49:03 +0800
-Subject: [PATCH 49/49] mmc:include the related header
+Subject: [PATCH 49/50] mmc:include the related header
 
 Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
 ---

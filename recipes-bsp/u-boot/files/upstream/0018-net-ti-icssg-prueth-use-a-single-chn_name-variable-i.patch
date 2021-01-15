@@ -1,7 +1,7 @@
-From c0d2bd73ee109bc20bf98337af5937b31878b4cb Mon Sep 17 00:00:00 2001
+From 82ac774fba078642f6773b5b01023a61f59a989d Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:32 +0000
-Subject: [PATCH 18/49] net: ti: icssg-prueth: use a single chn_name variable
+Subject: [PATCH 18/50] net: ti: icssg-prueth: use a single chn_name variable
  in prueth_start()
 
 Use a single array variable for chn_name in prueth_start() by re-arranging

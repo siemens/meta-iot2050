@@ -1,7 +1,7 @@
-From fa59862454da40e419676950a94ad8a7e530bca9 Mon Sep 17 00:00:00 2001
+From 5f6bc292e92b238d6cec9c6b4342859496bb8965 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Mon, 28 Dec 2020 15:32:49 +0800
-Subject: [PATCH 25/49] iot2050: config the default device tree
+Subject: [PATCH 25/50] iot2050: config the default device tree
 
 modify the default device tree according to the new dts naming
 

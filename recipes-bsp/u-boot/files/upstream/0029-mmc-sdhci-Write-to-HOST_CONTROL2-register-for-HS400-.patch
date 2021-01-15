@@ -1,7 +1,7 @@
-From 35b005858092cc8358c30655b489fc1c6078fa1c Mon Sep 17 00:00:00 2001
+From 781f031f08c7d0cf3a8b3f6da062ff5c6e07c233 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:35 +0530
-Subject: [PATCH 29/49] mmc: sdhci: Write to HOST_CONTROL2 register for HS400
+Subject: [PATCH 29/50] mmc: sdhci: Write to HOST_CONTROL2 register for HS400
  speed mode
 
 Enable HS400 speed mode by writing to HOST_CONTROL2 register.

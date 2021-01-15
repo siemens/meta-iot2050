@@ -1,7 +1,7 @@
-From 39c80e2adbb629df53486e788db7741a1e1ee543 Mon Sep 17 00:00:00 2001
+From 44c5f8bc6d803f9edf3a853418733d192bc1223f Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Mon, 27 Apr 2020 09:49:31 +0000
-Subject: [PATCH 42/49] mmc: am654_sdhci: Add support for AM65x SR2.0
+Subject: [PATCH 42/50] mmc: am654_sdhci: Add support for AM65x SR2.0
 
 Add Support for AM65x PG2.0. Use the SoC bus framework to fixup
 the platform data and do DLL calibration if the revision is 1.0

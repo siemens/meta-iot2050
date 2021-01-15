@@ -1,7 +1,7 @@
-From b411f9507b3b6f49bee33c0848b9ce97194774cc Mon Sep 17 00:00:00 2001
+From b925e52ba760493d88de5f163fe5654662eba863 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:40 +0530
-Subject: [PATCH 34/49] mmc: am654_sdhci: Add set_ios_post callback for j7 4
+Subject: [PATCH 34/50] mmc: am654_sdhci: Add set_ios_post callback for j7 4
  bit device
 
 Add set_ios_post callback and set otap delay for the 4 bit IP.

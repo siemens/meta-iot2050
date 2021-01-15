@@ -1,7 +1,7 @@
-From f44f35cd5be55a019b86eb47db147d6aa4eaced2 Mon Sep 17 00:00:00 2001
+From 6eeec11a1838c6f053f0d50899c644c794c24d19 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:34 +0530
-Subject: [PATCH 28/49] mmc: sdhci: Expose sdhci_init() as non-static
+Subject: [PATCH 28/50] mmc: sdhci: Expose sdhci_init() as non-static
 
 Expose sdhci_init() as non-static.
 

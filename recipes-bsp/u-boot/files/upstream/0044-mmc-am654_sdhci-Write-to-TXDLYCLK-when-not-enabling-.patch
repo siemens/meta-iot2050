@@ -1,7 +1,7 @@
-From f48ecd7b7839a52665f87ae2c7f325473ee1a7f6 Mon Sep 17 00:00:00 2001
+From 5e76118cc7afacf80e9554ae6ce8767edfd0f356 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Mon, 22 Jun 2020 19:38:14 +0000
-Subject: [PATCH 44/49] mmc: am654_sdhci: Write to TXDLYCLK when not enabling
+Subject: [PATCH 44/50] mmc: am654_sdhci: Write to TXDLYCLK when not enabling
  DLL
 
 For speed modes where DLL is not enabled write to TXDLYCLK to enable

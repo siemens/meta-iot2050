@@ -1,7 +1,7 @@
-From d0f10674cded5e382a5f44cc9aad9a1c6af02f66 Mon Sep 17 00:00:00 2001
+From 4455cfb153ebbcbfd826cbe2844eb6625e025778 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Mon, 22 Jun 2020 19:38:13 +0000
-Subject: [PATCH 43/49] mmc: am654_sdhci: Move dll related configurations to
+Subject: [PATCH 43/50] mmc: am654_sdhci: Move dll related configurations to
  its own function
 
 The clock > CLOCK_TOO_SLOW_HZ condition was added to prevent the DLL

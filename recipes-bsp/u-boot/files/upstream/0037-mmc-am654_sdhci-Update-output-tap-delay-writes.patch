@@ -1,7 +1,7 @@
-From c4764eb3736b2d2a5757098e5b4d5e59d0b235eb Mon Sep 17 00:00:00 2001
+From 0bd915c11078e309a38b6ab0fcf89e57feb164b6 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Tue, 28 Jan 2020 15:59:43 +0530
-Subject: [PATCH 37/49] mmc: am654_sdhci: Update output tap delay writes
+Subject: [PATCH 37/50] mmc: am654_sdhci: Update output tap delay writes
 
 With the latest RIOT, there is a different otap delay value for each
 speed mode. Add a new binding with every supported speed mode. Also

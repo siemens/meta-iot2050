@@ -1,7 +1,7 @@
-From 7c2402ad4706edb4d68c4e16c8ea7da52074af0f Mon Sep 17 00:00:00 2001
+From 90ffc11b50e0385440a8bcf99c36a94cb532f668 Mon Sep 17 00:00:00 2001
 From: Faiz Abbas <faiz_abbas@ti.com>
 Date: Wed, 26 Feb 2020 14:29:35 +0000
-Subject: [PATCH 40/49] mmc: Move the ops->init() to before any mmc_getcd()
+Subject: [PATCH 40/50] mmc: Move the ops->init() to before any mmc_getcd()
  calls
 
 mmc_start_init() calls mmc_getcd() and on getting a 0, assumes that
