@@ -1,7 +1,7 @@
-From 17729012fefe23e362e366e84d3529e75df487d5 Mon Sep 17 00:00:00 2001
+From ffd10b1bcdf2b4955443d9ce3e49352bb08129cb Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:31 +0000
-Subject: [PATCH 17/25] net: ti: icssg-prueth: use constants instead of
+Subject: [PATCH 17/26] net: ti: icssg-prueth: use constants instead of
  hardcoded values
 
 Use existing constants for speed and duplex values instead of
