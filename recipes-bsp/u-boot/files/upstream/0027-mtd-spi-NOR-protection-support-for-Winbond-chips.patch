@@ -1,0 +1,35 @@
+From 230fc2d0b02660d0fd7c847922611ccb3f2813e9 Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Wed, 20 Jan 2021 14:30:27 +0800
+Subject: [PATCH 27/27] mtd: spi: NOR protection support for Winbond chips
+
+Some Winbond chips have SPI_NOR_HAS_LOCK flag defined in spi_nor_ids,
+but this flag is never used for these chips.
+
+Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
+---
+ drivers/mtd/spi/spi-nor-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mtd/spi/spi-nor-core.c b/drivers/mtd/spi/spi-nor-core.c
+index e16b0e1462..273106cc3d 100644
+--- a/drivers/mtd/spi/spi-nor-core.c
++++ b/drivers/mtd/spi/spi-nor-core.c
+@@ -2540,11 +2540,12 @@ int spi_nor_scan(struct spi_nor *nor)
+ 	mtd->_read = spi_nor_read;
+ 	mtd->_write = spi_nor_write;
+ 
+-#if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
+-	/* NOR protection support for STmicro/Micron chips and similar */
++#if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST) || defined(CONFIG_SPI_FLASH_WINBOND)
++	/* NOR protection support for STmicro/Micron/Winbond chips and similar */
+ 	if (JEDEC_MFR(info) == SNOR_MFR_ST ||
+ 	    JEDEC_MFR(info) == SNOR_MFR_MICRON ||
+ 	    JEDEC_MFR(info) == SNOR_MFR_SST ||
++	    JEDEC_MFR(info) == CONFIG_SPI_FLASH_WINBOND ||
+ 			info->flags & SPI_NOR_HAS_LOCK) {
+ 		nor->flash_lock = stm_lock;
+ 		nor->flash_unlock = stm_unlock;
+-- 
+2.25.1
+
