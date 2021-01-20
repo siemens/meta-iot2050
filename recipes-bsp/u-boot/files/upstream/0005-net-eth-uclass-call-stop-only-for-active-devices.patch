@@ -1,7 +1,7 @@
-From 7ba870f6c061d373c8989b655892ac244faa1f10 Mon Sep 17 00:00:00 2001
+From 58e7288b13e4a9d4ef1480ecc987c0c24eb72f43 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:54 +0530
-Subject: [PATCH 05/26] net: eth-uclass: call stop only for active devices
+Subject: [PATCH 05/28] net: eth-uclass: call stop only for active devices
 
 Currently stop is being called unconditionally without even
 checking if start is called which will result in crash where
@@ -28,5 +28,5 @@ index e1b9fbd14a..bb4c362ede 100644
  	/* clear the MAC address */
  	memset(pdata->enetaddr, 0, ARP_HLEN);
 -- 
-2.17.1
+2.25.1
 

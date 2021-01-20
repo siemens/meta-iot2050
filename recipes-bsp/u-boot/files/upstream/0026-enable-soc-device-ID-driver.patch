@@ -1,7 +1,7 @@
-From e9dae53b9e0bab261e971020254a27f83a3a1f60 Mon Sep 17 00:00:00 2001
+From 2b66b40c9e4ee1952da3223971376f4fe9cfd036 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Fri, 15 Jan 2021 15:23:02 +0800
-Subject: [PATCH 26/26] enable soc device ID driver
+Subject: [PATCH 26/28] enable soc device ID driver
 
 This allows Texas Instruments Keystone 3 SoCs to identify
 specifics about the SoC in use
@@ -25,5 +25,5 @@ index f2f2496c11..38619f3f7b 100644
  CONFIG_SPI=y
  CONFIG_DM_SPI=y
 -- 
-2.17.1
+2.25.1
 

@@ -1,7 +1,7 @@
-From 52adaa20cb7f79ab75e9b337f8c24236b1b6dd74 Mon Sep 17 00:00:00 2001
+From 346832e87b640d11b22046c933a97d825834ba4d Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:32 +0000
-Subject: [PATCH 18/26] net: ti: icssg-prueth: use a single chn_name variable
+Subject: [PATCH 18/28] net: ti: icssg-prueth: use a single chn_name variable
  in prueth_start()
 
 Use a single array variable for chn_name in prueth_start() by re-arranging
@@ -46,5 +46,5 @@ index 971a4631f1..19511638c9 100644
  		dev_err(dev, "RX dma get failed %d\n", ret);
  
 -- 
-2.17.1
+2.25.1
 

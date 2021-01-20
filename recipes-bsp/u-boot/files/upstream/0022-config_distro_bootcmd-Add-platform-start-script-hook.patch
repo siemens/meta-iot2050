@@ -1,7 +1,7 @@
-From f040e079a49cd396a7b31fe39b432988a7bff3ab Mon Sep 17 00:00:00 2001
+From b13c2728387c749f6e9b50da531a9a4e965b62ea Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 19 May 2020 17:10:27 +0200
-Subject: [PATCH 22/26] config_distro_bootcmd: Add platform start script hook
+Subject: [PATCH 22/28] config_distro_bootcmd: Add platform start script hook
  for networking
 
 This can be used by boards to inject start commands needed for platform
@@ -44,5 +44,5 @@ index c9862260a3..6ee251680f 100644
  		"if pxe get; then " \
  			"pxe boot; " \
 -- 
-2.17.1
+2.25.1
 

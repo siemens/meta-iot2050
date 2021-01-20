@@ -1,7 +1,7 @@
-From 268ba60eae1912d71e95174b1c4687fd5ceb2414 Mon Sep 17 00:00:00 2001
+From 7894263cbceee9c905e96ba509d0c1d8c5b1fe99 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:56 +0530
-Subject: [PATCH 07/26] soc: ti: pruss: add a misc driver for PRUSS in TI SoCs
+Subject: [PATCH 07/28] soc: ti: pruss: add a misc driver for PRUSS in TI SoCs
 
 The Programmable Real-Time Unit - Industrial Communication
 Subsystem (PRU-ICSS) is present of various TI SoCs such as
@@ -239,5 +239,5 @@ index 0000000000..9eadeef172
 +int pruss_request_shrmem_region(struct udevice *dev, phys_addr_t *loc);
 +int pruss_request_tm_region(struct udevice *dev, phys_addr_t *loc);
 -- 
-2.17.1
+2.25.1
 

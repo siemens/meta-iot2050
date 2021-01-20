@@ -1,7 +1,7 @@
-From f4e85852b54df151a6020abd9b99bc91541d2687 Mon Sep 17 00:00:00 2001
+From 8137711e834e2c2cc64dc35075feb319649013fd Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:49:01 +0530
-Subject: [PATCH 12/26] arm: dts: k3-am65-main: Add scm_conf node
+Subject: [PATCH 12/28] arm: dts: k3-am65-main: Add scm_conf node
 
 Add scm_conf node needed for prueth.
 
@@ -30,5 +30,5 @@ index 9bfe147b5c..b85e999e2e 100644
  		compatible = "ti,am654-secure-proxy";
  		#mbox-cells = <1>;
 -- 
-2.17.1
+2.25.1
 

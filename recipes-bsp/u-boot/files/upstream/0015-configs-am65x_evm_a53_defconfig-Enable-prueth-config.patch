@@ -1,7 +1,7 @@
-From bfcaa784308b56a453473ec4b2511c2a6be9bced Mon Sep 17 00:00:00 2001
+From d4a71bf4a059149190b867284442a684f862031f Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 30 Apr 2020 12:17:50 +0530
-Subject: [PATCH 15/26] configs: am65x_evm_a53_defconfig: Enable prueth configs
+Subject: [PATCH 15/28] configs: am65x_evm_a53_defconfig: Enable prueth configs
 
 Enable prueth configs
 
@@ -43,5 +43,5 @@ index 941073ce7f..a87c23f373 100644
  CONFIG_OF_LIBFDT_OVERLAY=y
 +CONFIG_SPL_SYSCON=y
 -- 
-2.17.1
+2.25.1
 
