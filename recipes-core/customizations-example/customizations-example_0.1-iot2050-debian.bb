@@ -22,6 +22,7 @@ SRC_URI = " \
     file://board-configuration \
     file://board-configuration.service \
     file://board-configuration.json \
+    file://10-globally-managed-devices.conf \
     file://cellular-4g \
     file://eth0-default \
     file://20-swap-ethernet-port.rules"
@@ -37,6 +38,10 @@ do_install() {
     install -v -m 644 ${WORKDIR}/board-configuration.service ${D}/lib/systemd/system/
     install -v -d ${D}/etc
     install -v -m 644 ${WORKDIR}/board-configuration.json ${D}/etc/
+
+    # enable management via NetworkManager
+    install -v -d ${D}/etc/NetworkManager/conf.d/
+    install -v -m 600 ${WORKDIR}/10-globally-managed-devices.conf ${D}/etc/NetworkManager/conf.d/
 
     # add cellular support
     install -v -d ${D}/etc/NetworkManager/system-connections/

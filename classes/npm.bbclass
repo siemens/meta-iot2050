@@ -29,7 +29,8 @@ def npm_arch_map(target_arch, d):
 
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 
-DEBIAN_NPM_PACKAGE ?= "npm-buildchroot"
+NPM_CLASS_PACKAGE ?= "npm-buildchroot"
+OWN_NPM_CLASS_PACKAGE ?= "1"
 
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
@@ -96,14 +97,14 @@ do_install_npm() {
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
-    ${install_cmd} --download-only ${DEBIAN_NPM_PACKAGE}
+    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE}
     deb_dl_dir_export "${BUILDCHROOT_DIR}"
-    ${install_cmd} ${DEBIAN_NPM_PACKAGE}
+    ${install_cmd} ${NPM_CLASS_PACKAGE}
 
     dpkg_undo_mounts
 }
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
-do_install_npm[depends] += "${DEBIAN_NPM_PACKAGE}:do_deploy_deb"
+do_install_npm[depends] += "${@(d.getVar('NPM_CLASS_PACKAGE') + ':do_deploy_deb') if d.getVar('OWN_NPM_CLASS_PACKAGE') == '1' else ''}"
 do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
 
 addtask install_npm before do_fetch

@@ -34,7 +34,7 @@ Using 3rd-party mirrors, for example
 After build complete, the final image is under
 
 ```text
-build/tmp/deploy/images/iot2050/iot2050-image-example-isar-iot2050.wic.img
+build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
 ```
 
 ## Build user SDK
@@ -87,14 +87,14 @@ Under Linux, insert an unused SD card. Assuming the SD card takes device
 /dev/mmcblk0, use dd to copy the image to it. For example:
 
 ```shell
-$ sudo dd if=build/tmp/deploy/images/iot2050/iot2050-image-example-isar-iot2050.wic.img \
+$ sudo dd if=build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img \
           of=/dev/mmcblk0 bs=4M oflag=sync
 ```
 
 Alternatively, install the bmap-tools package and run the following command which is generally faster and safer:
 
 ```shell
-$ sudo bmaptool copy build/tmp/deploy/images/iot2050/iot2050-image-example-isar-iot2050.wic.img /dev/mmcblk0
+$ sudo bmaptool copy build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img /dev/mmcblk0
 ```
 
 The example image starts with the IP 192.168.200.1 preconfigured on the first

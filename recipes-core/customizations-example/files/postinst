@@ -21,11 +21,12 @@ ln -s /etc/systemd/system/tcf-agent.service  /etc/systemd/system/multi-user.targ
 
 # Networkmanager service
 systemctl disable systemd-networkd.service
-systemctl disable systemd-resolved.service
 systemctl enable NetworkManager.service
 chmod 600 /etc/NetworkManager/system-connections/cellular-4g
 chmod 600 /etc/NetworkManager/system-connections/eth0-default
-echo "\n\n[device]\nwifi.scan-rand-mac-address=no" >> /etc/NetworkManager/NetworkManager.conf
+if ! grep -q "wifi.scan-rand-mac-address=no" /etc/NetworkManager/NetworkManager.conf; then
+	echo "\n\n[device]\nwifi.scan-rand-mac-address=no" >> /etc/NetworkManager/NetworkManager.conf
+fi
 
 # Status LED service
 systemctl enable status-led.service

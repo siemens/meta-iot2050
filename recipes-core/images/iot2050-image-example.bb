@@ -22,7 +22,6 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     vim \
     psmisc \
     bsdmainutils \
-    haveged \
     nano \
     ifupdown \
     iputils-ping \
