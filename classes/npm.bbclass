@@ -29,8 +29,11 @@ def npm_arch_map(target_arch, d):
 
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 
-NPM_CLASS_PACKAGE ?= "npm-buildchroot"
-OWN_NPM_CLASS_PACKAGE ?= "1"
+NPM_CLASS_PACKAGE ?= "npm"
+OWN_NPM_CLASS_PACKAGE ?= "0"
+
+# needed as gyp from bullseye does not establish /usr/bin/python
+NPM_EXTRA_DEPS = "${@'python' if d.getVar('NPM_REBUILD') == '1' else ''}"
 
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
@@ -97,9 +100,9 @@ do_install_npm() {
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
-    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE}
+    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
     deb_dl_dir_export "${BUILDCHROOT_DIR}"
-    ${install_cmd} ${NPM_CLASS_PACKAGE}
+    ${install_cmd} ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
 
     dpkg_undo_mounts
 }
