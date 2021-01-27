@@ -224,7 +224,7 @@ do_install() {
     fi
 
     if [ -n "${NPM_REBUILD}" ]; then
-        INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source"
+        INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source --no-save"
     fi
 
     export CHDIR INSTALL_FLAGS
@@ -232,6 +232,11 @@ do_install() {
         cd $CHDIR
         npm install $INSTALL_FLAGS /downloads/${@get_npm_bundled_tgz(d)}
     '
+
+    # this is left behind by npm, despite --no-package-lock and --no-save
+    if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
+        rm -f ${D}/${NPM_LOCAL_INSTALL_DIR}/node_modules/.package-lock.json
+    fi
 
     dpkg_undo_mounts
 }
