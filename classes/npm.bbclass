@@ -220,6 +220,7 @@ do_install() {
         CHDIR=${PP}/image/${NPM_LOCAL_INSTALL_DIR}
     else
         CHDIR=/
+        mkdir -p ${D}/usr/lib
         INSTALL_FLAGS="$INSTALL_FLAGS --prefix ${PP}/image/usr -g"
     fi
 
