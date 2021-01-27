@@ -161,9 +161,8 @@ python fetch_npm() {
 
     runcmd(d, "npm ci --global-style --ignore-scripts --verbose", "fetch-tmp")
 
-    os.chdir("node_modules/" + npmpn)
-
-    with open("package.json") as infile:
+    package_filename = "node_modules/" + npmpn + "/package.json"
+    with open(package_filename) as infile:
         json_objs = json.load(infile)
 
     dependencies = json_objs.get('dependencies')
@@ -171,14 +170,14 @@ python fetch_npm() {
         json_objs.update({'bundledDependencies': [d for d in dependencies]})
 
     # update package.json so that all dependencies are bundled
-    with open("package.json", 'w') as outfile:
+    with open(package_filename, 'w') as outfile:
         json.dump(json_objs, outfile, indent=2)
 
-    runcmd(d, "npm pack --ignore-scripts --verbose",
-           "fetch-tmp/node_modules/" + npmpn)
+    os.rename("node_modules/" + npmpn, "package")
 
-    shutil.copyfile("%s-%s.tgz" % (d.getVar('NPM_MAPPED_NAME'), d.getVar('PV')),
-                    bundled_tgz)
+    runcmd(d, "tar czf package.tgz --exclude .bin package", "fetch-tmp")
+
+    shutil.copyfile("package.tgz", bundled_tgz)
     with open(bundled_tgz_hash, 'w') as hash_file:
         hash_file.write(fetch_hash)
 
