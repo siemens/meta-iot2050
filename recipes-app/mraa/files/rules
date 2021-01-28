@@ -12,6 +12,4 @@ override_dh_auto_test:
 	echo "skipping test"
 
 override_dh_auto_configure:
-	dh_auto_configure -- \
-	  -DBUILDSWIGJAVA=ON
-
+	dh_auto_configure -- -DBUILDSWIGJAVA=ON -DBUILDSWIGNODE=ON

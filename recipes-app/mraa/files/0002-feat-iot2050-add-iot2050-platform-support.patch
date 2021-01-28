@@ -1,7 +1,7 @@
-From 6385b47325d8266d032a963ff73eec86b59b5dee Mon Sep 17 00:00:00 2001
+From a1bee1d7bd044a7658e54d894b5ffbfb33f58360 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Fri, 24 May 2019 14:33:42 +0800
-Subject: [PATCH 2/4] feat:iot2050:add iot2050 platform support
+Subject: [PATCH 2/8] feat:iot2050:add iot2050 platform support
 
 Add new iot2050 platform support with some modifications
 due to lack of support with register level pin mux hooks.
@@ -18,17 +18,17 @@ Signed-off-by: le.jin <le.jin@siemens.com>
  include/mraa_internal_types.h          |   13 +
  src/CMakeLists.txt                     |    3 +
  src/aio/aio.c                          |    7 +-
- src/arm/arm.c                          |    6 +
+ src/arm/arm.c                          |    5 +
  src/arm/siemens/iot2050.c              | 1186 ++++++++++++++++++++++++
  src/arm/siemens/platform.c             |   41 +
  src/arm/siemens/platform_iot2050.c     |  367 ++++++++
  src/gpio/gpio.c                        |   14 +-
  src/i2c/i2c.c                          |   13 +-
- src/mraa.c                             |    2 +-
+ src/mraa.c                             |    1 +
  src/pwm/pwm.c                          |    7 +
  src/spi/spi.c                          |   28 +
  src/uart/uart.c                        |   34 +-
- 19 files changed, 1891 insertions(+), 5 deletions(-)
+ 19 files changed, 1890 insertions(+), 4 deletions(-)
  create mode 100644 include/arm/siemens/iot2050.h
  create mode 100644 include/arm/siemens/platform.h
  create mode 100644 include/arm/siemens/platform_iot2050.h
@@ -37,26 +37,26 @@ Signed-off-by: le.jin <le.jin@siemens.com>
  create mode 100644 src/arm/siemens/platform_iot2050.c
 
 diff --git a/api/mraa/types.h b/api/mraa/types.h
-index f28ba51..3230f1f 100644
+index c1fc288..d167e46 100644
 --- a/api/mraa/types.h
 +++ b/api/mraa/types.h
-@@ -60,6 +60,7 @@ typedef enum {
-     MRAA_MTK_LINKIT = 17,           /**< Mediatek MT7688 based Linkit boards */
-     MRAA_MTK_OMEGA2 = 18,           /**< MT7688 based Onion Omega2 board */
-     MRAA_IEI_TANK = 19,             /**< IEI Tank System*/
-+    MRAA_SIEMENS_IOT2050 = 21,     /**< Siemens IOT2050 board */
- 
+@@ -67,6 +67,7 @@ typedef enum {
+     MRAA_ADLINK_LEC_AL = 22,        /**< Adlink LEC-AL*/
+     MRAA_ADLINK_LEC_AL_AI = 23,        /**< Adlink LEC-AL*/
+     MRAA_UPXTREME = 24,             /**< The UPXTREME Board */
++    MRAA_SIEMENS_IOT2050 = 25,      /**< Siemens IOT2050 board */
      // USB platform extenders start at 256
      MRAA_FTDI_FT4222 = 256,         /**< FTDI FT4222 USB to i2c bridge */
+ 
 diff --git a/api/mraa/types.hpp b/api/mraa/types.hpp
-index 18844b4..8683e35 100644
+index 3429982..c3fa7eb 100644
 --- a/api/mraa/types.hpp
 +++ b/api/mraa/types.hpp
-@@ -58,6 +58,7 @@ typedef enum {
-     MTK_LINKIT = 17,           /**< Mediatek MT7688 based Linkit boards */
+@@ -61,6 +61,7 @@ typedef enum {
      MTK_OMEGA2 = 18,           /**< MT7688 based Onion Omega2 board */
      IEI_TANK = 19,             /**< IEI Tank System*/
-+    SIEMENS_IOT2050 = 21,     /**< Siemens IOT2050 board */
+     INTEL_UPXTREME = 24,        /**< The UPXTREME Board */
++    SIEMENS_IOT2050 = 25,      /**< Siemens IOT2050 board */
  
      FTDI_FT4222 = 256,         /**< FTDI FT4222 USB to i2c bridge */
  
@@ -250,10 +250,10 @@ index 0000000..504851b
 +#endif
 +#endif
 diff --git a/include/mraa_adv_func.h b/include/mraa_adv_func.h
-index 5cd9dc7..cd0f3b0 100644
+index 312a2d9..1ae202b 100644
 --- a/include/mraa_adv_func.h
 +++ b/include/mraa_adv_func.h
-@@ -123,4 +123,6 @@ typedef struct {
+@@ -106,4 +106,6 @@ typedef struct {
      int (*uart_read_replace) (mraa_uart_context dev, char* buf, size_t len);
      int (*uart_write_replace)(mraa_uart_context dev, const char* buf, size_t len);
      mraa_boolean_t (*uart_data_available_replace) (mraa_uart_context dev, unsigned int millis);
@@ -261,10 +261,10 @@ index 5cd9dc7..cd0f3b0 100644
 +    mraa_result_t (*setup_mux_register) (int phy_pin, int mode);
  } mraa_adv_func_t;
 diff --git a/include/mraa_internal_types.h b/include/mraa_internal_types.h
-index beee8ad..1718b9d 100644
+index 207666a..3a8eafe 100644
 --- a/include/mraa_internal_types.h
 +++ b/include/mraa_internal_types.h
-@@ -325,6 +325,19 @@ typedef enum {
+@@ -313,6 +313,19 @@ typedef enum {
  } pincmd_t;
  
  
@@ -285,13 +285,13 @@ index beee8ad..1718b9d 100644
   * A Structure representing a multiplexer and the required value
   */
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 35c5488..e802065 100644
+index 6cfb72e..aaad178 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -101,6 +101,9 @@ set (mraa_LIB_ARM_SRCS_NOAUTO
-   ${PROJECT_SOURCE_DIR}/src/arm/phyboard.c
-   ${PROJECT_SOURCE_DIR}/src/arm/banana.c
+@@ -107,6 +107,9 @@ set (mraa_LIB_ARM_SRCS_NOAUTO
    ${PROJECT_SOURCE_DIR}/src/arm/de_nano_soc.c
+   ${PROJECT_SOURCE_DIR}/src/arm/rockpi4.c
+   ${PROJECT_SOURCE_DIR}/src/arm/adlink_ipi.c
 +  ${PROJECT_SOURCE_DIR}/src/arm/siemens/iot2050.c
 +  ${PROJECT_SOURCE_DIR}/src/arm/siemens/platform.c
 +  ${PROJECT_SOURCE_DIR}/src/arm/siemens/platform_iot2050.c
@@ -299,10 +299,10 @@ index 35c5488..e802065 100644
  
  set (mraa_LIB_MIPS_SRCS_NOAUTO
 diff --git a/src/aio/aio.c b/src/aio/aio.c
-index b1e0478..80e097b 100644
+index 7a94ac1..352c893 100644
 --- a/src/aio/aio.c
 +++ b/src/aio/aio.c
-@@ -136,7 +136,12 @@ mraa_aio_init(unsigned int aio)
+@@ -119,7 +119,12 @@ mraa_aio_init(unsigned int aio)
              return NULL;
          }
      }
@@ -317,39 +317,38 @@ index b1e0478..80e097b 100644
      mraa_aio_context dev = mraa_aio_init_internal(board->adv_func, aio, board->pins[pin].aio.pinmap);
      if (dev == NULL) {
 diff --git a/src/arm/arm.c b/src/arm/arm.c
-index 62d6b2e..a464d96 100644
+index df88e7e..0a44d0f 100644
 --- a/src/arm/arm.c
 +++ b/src/arm/arm.c
-@@ -32,6 +32,7 @@
- #include "arm/beaglebone.h"
+@@ -17,6 +17,7 @@
  #include "arm/phyboard.h"
  #include "arm/raspberry_pi.h"
+ #include "arm/adlink_ipi.h"
 +#include "arm/siemens/iot2050.h"
  #include "mraa_internal.h"
  
  
-@@ -102,6 +103,8 @@ mraa_arm_platform()
-             platform_type = MRAA_96BOARDS;
-         else if (mraa_file_contains("/proc/device-tree/compatible", "raspberrypi,"))
+@@ -98,6 +99,8 @@ mraa_arm_platform()
              platform_type = MRAA_RASPBERRY_PI;
+         else if (mraa_file_contains("/proc/device-tree/model", "ADLINK ARM, LEC-PX30"))
+             platform_type = MRAA_ADLINK_IPI;
 +        else if (mraa_file_contains("/proc/device-tree/model", "SIMATIC IOT2050"))
 +            platform_type = MRAA_SIEMENS_IOT2050;
      }
  
      switch (platform_type) {
-@@ -123,6 +126,9 @@ mraa_arm_platform()
-         case MRAA_DE_NANO_SOC:
-             plat = mraa_de_nano_soc();
+@@ -124,6 +127,8 @@ mraa_arm_platform()
              break;
+         case MRAA_ADLINK_IPI:
+             plat = mraa_adlink_ipi();
 +        case MRAA_SIEMENS_IOT2050:
 +            plat = mraa_siemens_iot2050();
-+            break;
+             break;
          default:
              plat = NULL;
-             syslog(LOG_ERR, "Unknown Platform, currently not supported by MRAA");
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
 new file mode 100644
-index 0000000..de2f333
+index 0000000..0035404
 --- /dev/null
 +++ b/src/arm/siemens/iot2050.c
 @@ -0,0 +1,1186 @@
@@ -1529,10 +1528,10 @@ index 0000000..de2f333
 +    iot2050_setup_pwm(b, "PWM5");
 +    b->def_pwm_dev = 0;
 +    /* LED */
-+    iot2050_setup_led(b, "user-led0-green");
-+    iot2050_setup_led(b, "user-led0-red");
 +    iot2050_setup_led(b, "user-led1-green");
 +    iot2050_setup_led(b, "user-led1-red");
++    iot2050_setup_led(b, "user-led2-green");
++    iot2050_setup_led(b, "user-led2-red");
 +    return b;
 +error:
 +    syslog(LOG_CRIT, "iot2050: Platform failed to initialise");
@@ -1960,10 +1959,10 @@ index 0000000..89d12b9
 +    }
 +}
 diff --git a/src/gpio/gpio.c b/src/gpio/gpio.c
-index 2734609..493f528 100644
+index d1a41ad..ff97b4b 100644
 --- a/src/gpio/gpio.c
 +++ b/src/gpio/gpio.c
-@@ -212,7 +212,12 @@ mraa_gpio_init(int pin)
+@@ -309,7 +309,12 @@ mraa_gpio_init(int pin)
              return NULL;
          }
      }
@@ -1977,7 +1976,7 @@ index 2734609..493f528 100644
      mraa_gpio_context r = mraa_gpio_init_internal(board->adv_func, board->pins[pin].gpio.pinmap);
  
      if (r == NULL) {
-@@ -309,6 +314,13 @@ mraa_gpio_chardev_init(int pins[], int num_pins)
+@@ -408,6 +413,13 @@ mraa_gpio_chardev_init(int pins[], int num_pins)
              }
          }
  
@@ -1992,10 +1991,10 @@ index 2734609..493f528 100644
          line_offset = board->pins[pins[i]].gpio.gpio_line;
  
 diff --git a/src/i2c/i2c.c b/src/i2c/i2c.c
-index cb980e2..3f5ab9f 100644
+index 5301929..b2d7b20 100644
 --- a/src/i2c/i2c.c
 +++ b/src/i2c/i2c.c
-@@ -173,7 +173,12 @@ mraa_i2c_init(int bus)
+@@ -156,7 +156,12 @@ mraa_i2c_init(int bus)
                  return NULL;
              }
          }
@@ -2009,7 +2008,7 @@ index cb980e2..3f5ab9f 100644
          pos = board->i2c_bus[bus].scl;
          if (pos >=0 && board->pins[pos].i2c.mux_total > 0) {
              if (mraa_setup_mux_mapped(board->pins[pos].i2c) != MRAA_SUCCESS) {
-@@ -181,6 +186,12 @@ mraa_i2c_init(int bus)
+@@ -164,6 +169,12 @@ mraa_i2c_init(int bus)
                  return NULL;
              }
          }
@@ -2023,23 +2022,22 @@ index cb980e2..3f5ab9f 100644
  
      return mraa_i2c_init_internal(board->adv_func, (unsigned int) board->i2c_bus[bus].bus_id);
 diff --git a/src/mraa.c b/src/mraa.c
-index d568238..002046c 100644
+index 927d9ab..f31ffbc 100644
 --- a/src/mraa.c
 +++ b/src/mraa.c
-@@ -406,7 +406,7 @@ mraa_setup_mux_mapped(mraa_pin_t meta)
-     unsigned int last_pin = UINT_MAX;
+@@ -393,6 +393,7 @@ mraa_setup_mux_mapped(mraa_pin_t meta)
  
      for (mi = 0; mi < meta.mux_total; mi++) {
--
+ 
 +        syslog(LOG_DEBUG, "PINMUX[%d] cmd %d pin %d\n", mi, meta.mux[mi].pincmd, meta.mux[mi].pin);
-         switch(meta.mux[mi].pincmd) {
-             case PINCMD_UNDEFINED:              // used for backward compatibility
-                 if(meta.mux[mi].pin != last_pin) {
+         switch (meta.mux[mi].pincmd) {
+             case PINCMD_UNDEFINED: // used for backward compatibility
+                 if (meta.mux[mi].pin != last_pin) {
 diff --git a/src/pwm/pwm.c b/src/pwm/pwm.c
-index e3be80e..70b5f88 100644
+index 651d086..789931c 100644
 --- a/src/pwm/pwm.c
 +++ b/src/pwm/pwm.c
-@@ -257,6 +257,13 @@ mraa_pwm_init(int pin)
+@@ -240,6 +240,13 @@ mraa_pwm_init(int pin)
          }
      }
  
@@ -2054,10 +2052,10 @@ index e3be80e..70b5f88 100644
      int pinn = board->pins[pin].pwm.pinmap;
  
 diff --git a/src/spi/spi.c b/src/spi/spi.c
-index 62e1940..0b80452 100644
+index 274af67..07e0678 100644
 --- a/src/spi/spi.c
 +++ b/src/spi/spi.c
-@@ -98,6 +98,13 @@ mraa_spi_init(int bus)
+@@ -81,6 +81,13 @@ mraa_spi_init(int bus)
              }
          }
  
@@ -2071,7 +2069,7 @@ index 62e1940..0b80452 100644
          pos = plat->spi_bus[bus].mosi;
          if (pos >= 0 && plat->pins[pos].spi.mux_total > 0) {
              if (mraa_setup_mux_mapped(plat->pins[pos].spi) != MRAA_SUCCESS) {
-@@ -106,6 +113,13 @@ mraa_spi_init(int bus)
+@@ -89,6 +96,13 @@ mraa_spi_init(int bus)
              }
          }
  
@@ -2085,7 +2083,7 @@ index 62e1940..0b80452 100644
          pos = plat->spi_bus[bus].miso;
          if (pos >= 0 && plat->pins[pos].spi.mux_total > 0) {
              if (mraa_setup_mux_mapped(plat->pins[pos].spi) != MRAA_SUCCESS) {
-@@ -114,6 +128,13 @@ mraa_spi_init(int bus)
+@@ -97,6 +111,13 @@ mraa_spi_init(int bus)
              }
          }
  
@@ -2099,7 +2097,7 @@ index 62e1940..0b80452 100644
          pos = plat->spi_bus[bus].cs;
          if (pos >= 0 && plat->pins[pos].spi.mux_total > 0) {
              if (mraa_setup_mux_mapped(plat->pins[pos].spi) != MRAA_SUCCESS) {
-@@ -121,6 +142,13 @@ mraa_spi_init(int bus)
+@@ -104,6 +125,13 @@ mraa_spi_init(int bus)
                  return NULL;
              }
          }
@@ -2114,10 +2112,10 @@ index 62e1940..0b80452 100644
      mraa_spi_context dev = mraa_spi_init_raw(plat->spi_bus[bus].bus_id, plat->spi_bus[bus].slave_s);
  
 diff --git a/src/uart/uart.c b/src/uart/uart.c
-index da28c65..c4cd5fd 100644
+index f1a76d2..f1405f8 100644
 --- a/src/uart/uart.c
 +++ b/src/uart/uart.c
-@@ -131,6 +131,7 @@ static unsigned int speed_to_uint(speed_t speedt) {
+@@ -114,6 +114,7 @@ static unsigned int speed_to_uint(speed_t speedt) {
          { B1200, 1200 },
          { B1800, 1800 },
          { B2400, 2400 },
@@ -2125,7 +2123,7 @@ index da28c65..c4cd5fd 100644
          { B9600, 9600 },
          { B19200, 19200 },
          { B38400, 38400 },
-@@ -218,6 +219,12 @@ mraa_uart_init(int index)
+@@ -201,6 +202,12 @@ mraa_uart_init(int index)
                      return NULL;
                  }
              }
@@ -2138,7 +2136,7 @@ index da28c65..c4cd5fd 100644
          }
  
          pos = plat->uart_dev[index].tx;
-@@ -228,6 +235,12 @@ mraa_uart_init(int index)
+@@ -211,6 +218,12 @@ mraa_uart_init(int index)
                      return NULL;
                  }
              }
@@ -2151,7 +2149,7 @@ index da28c65..c4cd5fd 100644
          }
      }
  
-@@ -623,12 +636,24 @@ mraa_uart_set_flowcontrol(mraa_uart_context dev, mraa_boolean_t xonxoff, mraa_bo
+@@ -606,12 +619,24 @@ mraa_uart_set_flowcontrol(mraa_uart_context dev, mraa_boolean_t xonxoff, mraa_bo
                          return MRAA_ERROR_FEATURE_NOT_SUPPORTED;
                      }
                  }
@@ -2176,7 +2174,7 @@ index da28c65..c4cd5fd 100644
              }
          }
      }
-@@ -689,7 +714,14 @@ mraa_uart_set_timeout(mraa_uart_context dev, int read, int write, int interchar)
+@@ -672,7 +697,14 @@ mraa_uart_set_timeout(mraa_uart_context dev, int read, int write, int interchar)
              read = 1;
      }
      termio.c_lflag &= ~ICANON; /* Set non-canonical mode */
