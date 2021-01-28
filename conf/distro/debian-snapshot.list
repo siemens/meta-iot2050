@@ -10,3 +10,12 @@ deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/2020011
 # activate on next freeze
 #deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX buster-backports main
 #deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX buster-backports main
+
+#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye main contrib non-free
+#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye main contrib non-free
+
+#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/XXX bullseye/updates main contrib non-free
+#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/XXX bullseye/updates main contrib non-free
+
+#deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye-updates main contrib non-free
+#deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/XXX bullseye-updates main contrib non-free

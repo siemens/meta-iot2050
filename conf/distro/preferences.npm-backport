@@ -1,7 +1,11 @@
-Package: node-cacache node-copy-concurrently node-mkdirp node-uuid
+Package: node-typedarray-to-buffer
 Pin: release n=buster
 Pin-Priority: 802
 
-Package: npm node-*
-Pin: release n=buster-backports
+Package: npm gyp node-*
+Pin: release n=bullseye
 Pin-Priority: 801
+
+Package: *
+Pin: release n=bullseye
+Pin-Priority: -1

@@ -29,8 +29,11 @@ def npm_arch_map(target_arch, d):
 
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 
-NPM_CLASS_PACKAGE ?= "npm-buildchroot"
-OWN_NPM_CLASS_PACKAGE ?= "1"
+NPM_CLASS_PACKAGE ?= "npm"
+OWN_NPM_CLASS_PACKAGE ?= "0"
+
+# needed as gyp from bullseye does not establish /usr/bin/python
+NPM_EXTRA_DEPS = "${@'python' if d.getVar('NPM_REBUILD') == '1' else ''}"
 
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
@@ -97,9 +100,9 @@ do_install_npm() {
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
-    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE}
+    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
     deb_dl_dir_export "${BUILDCHROOT_DIR}"
-    ${install_cmd} ${NPM_CLASS_PACKAGE}
+    ${install_cmd} ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
 
     dpkg_undo_mounts
 }
@@ -161,9 +164,8 @@ python fetch_npm() {
 
     runcmd(d, "npm ci --global-style --ignore-scripts --verbose", "fetch-tmp")
 
-    os.chdir("node_modules/" + npmpn)
-
-    with open("package.json") as infile:
+    package_filename = "node_modules/" + npmpn + "/package.json"
+    with open(package_filename) as infile:
         json_objs = json.load(infile)
 
     dependencies = json_objs.get('dependencies')
@@ -171,14 +173,14 @@ python fetch_npm() {
         json_objs.update({'bundledDependencies': [d for d in dependencies]})
 
     # update package.json so that all dependencies are bundled
-    with open("package.json", 'w') as outfile:
+    with open(package_filename, 'w') as outfile:
         json.dump(json_objs, outfile, indent=2)
 
-    runcmd(d, "npm pack --ignore-scripts --verbose",
-           "fetch-tmp/node_modules/" + npmpn)
+    os.rename("node_modules/" + npmpn, "package")
 
-    shutil.copyfile("%s-%s.tgz" % (d.getVar('NPM_MAPPED_NAME'), d.getVar('PV')),
-                    bundled_tgz)
+    runcmd(d, "tar czf package.tgz --exclude .bin package", "fetch-tmp")
+
+    shutil.copyfile("package.tgz", bundled_tgz)
     with open(bundled_tgz_hash, 'w') as hash_file:
         hash_file.write(fetch_hash)
 
@@ -220,11 +222,12 @@ do_install() {
         CHDIR=${PP}/image/${NPM_LOCAL_INSTALL_DIR}
     else
         CHDIR=/
+        mkdir -p ${D}/usr/lib
         INSTALL_FLAGS="$INSTALL_FLAGS --prefix ${PP}/image/usr -g"
     fi
 
     if [ -n "${NPM_REBUILD}" ]; then
-        INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source"
+        INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source --no-save"
     fi
 
     export CHDIR INSTALL_FLAGS
@@ -232,6 +235,11 @@ do_install() {
         cd $CHDIR
         npm install $INSTALL_FLAGS /downloads/${@get_npm_bundled_tgz(d)}
     '
+
+    # this is left behind by npm, despite --no-package-lock and --no-save
+    if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
+        rm -f ${D}/${NPM_LOCAL_INSTALL_DIR}/node_modules/.package-lock.json
+    fi
 
     dpkg_undo_mounts
 }
