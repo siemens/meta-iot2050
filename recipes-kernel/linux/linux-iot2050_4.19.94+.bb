@@ -25,7 +25,8 @@ SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0011-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
     file://0012-feat-change-mmc-order-using-alias-in-dts.patch \
     file://0013-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
-    file://0014-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch"
+    file://0014-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch \
+    file://0015-iot2050-Adjust-DT-to-upstream.patch"
 
 KERNEL_BRANCH = "am6-abi-ti-linux-4.19.y"
 KERNEL_REV = "c7a3b610edfb5a0ee0313e1432bf328362269d05"

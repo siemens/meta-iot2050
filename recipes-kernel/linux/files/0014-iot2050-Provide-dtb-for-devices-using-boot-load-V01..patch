@@ -1,7 +1,7 @@
-From 98418ea201036b78c702ed8a6ebbaf1e57081249 Mon Sep 17 00:00:00 2001
+From 2fd4de8974637b728d66a540568e8b7cc8847242 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Tue, 29 Dec 2020 15:19:47 +0800
-Subject: [PATCH 14/14] iot2050: Provide dtb for devices using boot load
+Subject: [PATCH 14/15] iot2050: Provide dtb for devices using boot load
  V01.00.00.1
 
 That release came with sysfw 19.7.1 which had some... variations.
@@ -34,5 +34,5 @@ index 405ebc7fb444..28a2ec6ec4ca 100644
 +	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
 +};
 -- 
-2.25.1
+2.26.2
 
