@@ -3,22 +3,29 @@ name: CI
 on: [push]
 
 jobs:
-  images:
-    name: Images
+  debian-example-image:
+    name: Debian example image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Example image
+      - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
-      - name: Upload example image
+      - name: Upload image
         uses: actions/upload-artifact@v2
         with:
           name: iot2050-example-image
           path: build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img*
-      - name: RT example image
+
+  debian-rt-example-image:
+    name: Debian RT example image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build image
         run: ./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
-      - name: Upload RT example image
+      - name: Upload image
         uses: actions/upload-artifact@v2
         with:
           name: iot2050-example-image-rt
