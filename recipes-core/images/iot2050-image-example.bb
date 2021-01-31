@@ -41,6 +41,7 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     python3-newt \
     gdb \
     gdbserver \
+    gpiod \
     network-manager \
     modemmanager \
     ppp \

@@ -1,7 +1,7 @@
-From e4d20e589987ca57df4f8e1d9f1d728796075d7a Mon Sep 17 00:00:00 2001
+From 0a041464931b7d7d6ae8bfffd615a199e9625d0f Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Tue, 12 Nov 2019 09:37:47 +0800
-Subject: [PATCH 1/3] add the board info add the led control node
+Subject: [PATCH 1/4] add the board info add the led control node
 
 Upstreaming TODOs:
  - factor out generic changes
@@ -26,7 +26,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  create mode 100644 hardware/intel/mraa-gpio-led.js
 
 diff --git a/hardware/intel/mraa-gpio-ain.html b/hardware/intel/mraa-gpio-ain.html
-index 93d5a5a..377eae9 100644
+index 93d5a5a..138f91c 100644
 --- a/hardware/intel/mraa-gpio-ain.html
 +++ b/hardware/intel/mraa-gpio-ain.html
 @@ -1,7 +1,7 @@
@@ -42,7 +42,7 @@ index 93d5a5a..377eae9 100644
                  if (data === 5) { t = "Raspberry Pi"; }
                  if (data === 6) { t = "Beaglebone"; }
                  if (data === 7) { t = "Banana"; }
-+                if (data === 21) { t = "IOT2050"; }
++                if (data === 25) { t = "IOT2050"; }
                  $('#btype').text(t);
                  $('#node-input-pin').val(pinnow);
              });
@@ -68,7 +68,7 @@ index 4122551..65df93b 100644
              msg.payload = node.x.read();
              if (msg.payload !== old) {
 diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
-index fdbcfc4..0e79ee8 100644
+index fdbcfc4..a60a84c 100644
 --- a/hardware/intel/mraa-gpio-din.html
 +++ b/hardware/intel/mraa-gpio-din.html
 @@ -1,7 +1,7 @@
@@ -84,7 +84,7 @@ index fdbcfc4..0e79ee8 100644
                  if (data === 5) { t = "Raspberry Pi"; }
                  if (data === 6) { t = "Beaglebone"; }
                  if (data === 7) { t = "Banana"; }
-+                if (data === 21) { t = "IOT2050"; }
++                if (data === 25) { t = "IOT2050"; }
                  $('#type-tip').text(t);
                  $('#node-input-pin').val(pinnow);
              });
@@ -110,7 +110,7 @@ index 5966e44..4ac983f 100644
      }
      RED.nodes.registerType("mraa-gpio-din", gpioDin);
 diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
-index ed0289a..f3f7060 100644
+index ed0289a..2ed3619 100644
 --- a/hardware/intel/mraa-gpio-dout.html
 +++ b/hardware/intel/mraa-gpio-dout.html
 @@ -1,7 +1,7 @@
@@ -126,7 +126,7 @@ index ed0289a..f3f7060 100644
                  if (data === 5) { t = "Raspberry Pi"; }
                  if (data === 6) { t = "Beaglebone"; }
                  if (data === 7) { t = "Banana"; }
-+                if (data === 21) { t = "IOT2050"; }
++                if (data === 25) { t = "IOT2050"; }
                  $('#btype').text(t);
                  if (data === 0) {
                      $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
@@ -142,7 +142,7 @@ diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-led.ht
 similarity index 58%
 copy from hardware/intel/mraa-gpio-pwm.html
 copy to hardware/intel/mraa-gpio-led.html
-index 2dfb95e..826875f 100644
+index 2dfb95e..967b464 100644
 --- a/hardware/intel/mraa-gpio-pwm.html
 +++ b/hardware/intel/mraa-gpio-led.html
 @@ -1,24 +1,19 @@
@@ -179,7 +179,7 @@ index 2dfb95e..826875f 100644
                  if (data === 6) { t = "Beaglebone"; }
                  if (data === 7) { t = "Banana"; }
 -                $('#type-tip').text(t);
-+                if (data === 21) { t = "IOT2050"; }
++                if (data === 25) { t = "IOT2050"; }
 +                $('#btype').text(t);
                  $('#node-input-pin').val(pinnow);
              });
@@ -201,12 +201,12 @@ index 2dfb95e..826875f 100644
 -            <option value="9">D9</option>
 -            <option value="10">D10</option>
 -            <option value="11">D11</option>
-+            <option value="0">User0 Led Green</option>
-+            <option value="1">User0 Led Red</option>
-+            <option value="2">User0 Led Orange</option>
-+            <option value="3">User1 Led Green</option>
-+            <option value="4">User1 Led Red</option>
-+            <option value="5">User1 Led Orange</option>
++            <option value="0">User1 Led Green</option>
++            <option value="1">User1 Led Red</option>
++            <option value="2">User1 Led Orange</option>
++            <option value="3">User2 Led Green</option>
++            <option value="4">User2 Led Red</option>
++            <option value="5">User2 Led Orange</option>
          </select>
      </div>
 -    <div class="form-row">
@@ -233,7 +233,7 @@ index 2dfb95e..826875f 100644
  </script>
 diff --git a/hardware/intel/mraa-gpio-led.js b/hardware/intel/mraa-gpio-led.js
 new file mode 100644
-index 0000000..aa613e9
+index 0000000..c5e45c6
 --- /dev/null
 +++ b/hardware/intel/mraa-gpio-led.js
 @@ -0,0 +1,78 @@
@@ -242,10 +242,10 @@ index 0000000..aa613e9
 +    function LEDNode(n) {
 +        RED.nodes.createNode(this, n);
 +        this.pin = Number(n.pin);
-+        this.led0 = new m.Led(0); /*user-led0-green*/
-+        this.led1 = new m.Led(1); /*user-led0-red*/
-+        this.led2 = new m.Led(2); /*user-led1-green*/
-+        this.led3 = new m.Led(3); /*user-led1-red*/
++        this.led0 = new m.Led(0); /*user-led1-green*/
++        this.led1 = new m.Led(1); /*user-led1-red*/
++        this.led2 = new m.Led(2); /*user-led2-green*/
++        this.led3 = new m.Led(3); /*user-led2-red*/
 +        this.on("input", function(msg) {
 +            if (msg.payload == "1") {
 +                switch(this.pin)
@@ -277,23 +277,23 @@ index 0000000..aa613e9
 +            else {
 +                switch(this.pin)
 +                {
-+                    case 0: /*User0 Led Green*/
++                    case 0: /*User1 Led Green*/
 +                            this.led0.setBrightness(0);
 +                        break;
-+                    case 1: /*User0 Led Red*/
++                    case 1: /*User1 Led Red*/
 +                            this.led1.setBrightness(0);
 +                        break;
-+                    case 2: /*User0 Orange*/
++                    case 2: /*User1 Orange*/
 +                            this.led0.setBrightness(0);
 +                            this.led1.setBrightness(0);
 +                        break;
-+                    case 3: /*User1 Led Green*/
++                    case 3: /*User2 Led Green*/
 +                            this.led2.setBrightness(0);
 +                        break;
-+                    case 4: /*User1 Led Red*/
++                    case 4: /*User2 Led Red*/
 +                            this.led3.setBrightness(0);
 +                        break;
-+                    case 5: /*User1 Orange*/
++                    case 5: /*User2 Orange*/
 +                            this.led2.setBrightness(0);
 +                            this.led3.setBrightness(0);
 +                        break;
@@ -316,7 +316,7 @@ index 0000000..aa613e9
 +    });
 +}
 diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-pwm.html
-index 2dfb95e..8daace4 100644
+index 2dfb95e..bb4f8a6 100644
 --- a/hardware/intel/mraa-gpio-pwm.html
 +++ b/hardware/intel/mraa-gpio-pwm.html
 @@ -1,7 +1,7 @@
@@ -332,7 +332,7 @@ index 2dfb95e..8daace4 100644
                  if (data === 5) { t = "Raspberry Pi"; }
                  if (data === 6) { t = "Beaglebone"; }
                  if (data === 7) { t = "Banana"; }
-+                if (data === 21) { t = "IOT2050"; }
++                if (data === 25) { t = "IOT2050"; }
                  $('#type-tip').text(t);
                  $('#node-input-pin').val(pinnow);
              });

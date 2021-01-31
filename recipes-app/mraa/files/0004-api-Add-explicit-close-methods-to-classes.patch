@@ -1,7 +1,7 @@
-From 28b3c1966212b9497d99681c331ec0ae483c9814 Mon Sep 17 00:00:00 2001
+From f0d40c4eba4790751ef54fe3fd014b45e09cb9cd Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 Nov 2020 07:26:50 +0100
-Subject: [PATCH 4/4] api: Add explicit close methods to classes
+Subject: [PATCH 4/8] api: Add explicit close methods to classes
 
 This is needed for bindings to languages which perform implicit and lazy
 object cleanups. The explicit close methods allow to release resources
@@ -23,10 +23,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  9 files changed, 105 insertions(+), 1 deletion(-)
 
 diff --git a/api/mraa/aio.hpp b/api/mraa/aio.hpp
-index 75c45bf..4e0272e 100644
+index f880b64..2db385f 100644
 --- a/api/mraa/aio.hpp
 +++ b/api/mraa/aio.hpp
-@@ -73,8 +73,19 @@ class Aio
+@@ -75,8 +75,19 @@ class Aio
       * Aio destructor
       */
      ~Aio()
@@ -47,10 +47,10 @@ index 75c45bf..4e0272e 100644
      /**
       * Read a value from the AIO pin. By default mraa will shift
 diff --git a/api/mraa/gpio.hpp b/api/mraa/gpio.hpp
-index 909ca43..2b5d798 100644
+index 07ca03e..fad439e 100644
 --- a/api/mraa/gpio.hpp
 +++ b/api/mraa/gpio.hpp
-@@ -141,8 +141,19 @@ class Gpio
+@@ -143,8 +143,19 @@ class Gpio
       * the owner
       */
      ~Gpio()
@@ -71,10 +71,10 @@ index 909ca43..2b5d798 100644
      /**
       * Set the edge mode for ISR
 diff --git a/api/mraa/i2c.hpp b/api/mraa/i2c.hpp
-index e0ea945..c666d42 100644
+index cc26b15..cf52b77 100644
 --- a/api/mraa/i2c.hpp
 +++ b/api/mraa/i2c.hpp
-@@ -81,8 +81,20 @@ class I2c
+@@ -83,8 +83,20 @@ class I2c
       * slaves.
       */
      ~I2c()
@@ -96,10 +96,10 @@ index e0ea945..c666d42 100644
  
      /**
 diff --git a/api/mraa/iio.hpp b/api/mraa/iio.hpp
-index ec3090f..a0051fa 100644
+index f9d8ff4..c1f2c67 100644
 --- a/api/mraa/iio.hpp
 +++ b/api/mraa/iio.hpp
-@@ -129,9 +129,20 @@ class Iio
+@@ -131,9 +131,20 @@ class Iio
       */
      ~Iio()
      {
@@ -122,10 +122,10 @@ index ec3090f..a0051fa 100644
      /**
       * Get device name
 diff --git a/api/mraa/led.hpp b/api/mraa/led.hpp
-index dcbc37a..316198a 100644
+index 8adc789..903823f 100644
 --- a/api/mraa/led.hpp
 +++ b/api/mraa/led.hpp
-@@ -87,8 +87,20 @@ class Led
+@@ -89,8 +89,20 @@ class Led
       * LED object destructor
       */
      ~Led()
@@ -147,10 +147,10 @@ index dcbc37a..316198a 100644
  
      /**
 diff --git a/api/mraa/pwm.hpp b/api/mraa/pwm.hpp
-index 494541b..f25661d 100644
+index 4bdfa71..66da1f3 100644
 --- a/api/mraa/pwm.hpp
 +++ b/api/mraa/pwm.hpp
-@@ -84,8 +84,19 @@ class Pwm
+@@ -86,8 +86,19 @@ class Pwm
       * Pwm destructor
       */
      ~Pwm()
@@ -171,10 +171,10 @@ index 494541b..f25661d 100644
      /**
       * Set the output duty-cycle percentage, as a float
 diff --git a/api/mraa/spi.hpp b/api/mraa/spi.hpp
-index 855d389..339f4b0 100644
+index 26ead24..aa9d69d 100644
 --- a/api/mraa/spi.hpp
 +++ b/api/mraa/spi.hpp
-@@ -103,8 +103,20 @@ class Spi
+@@ -105,8 +105,20 @@ class Spi
       * Closes spi bus
       */
      ~Spi()
@@ -196,10 +196,10 @@ index 855d389..339f4b0 100644
  
      /**
 diff --git a/api/mraa/uart.hpp b/api/mraa/uart.hpp
-index c7b217e..4a1bad4 100644
+index e9624db..056b690 100644
 --- a/api/mraa/uart.hpp
 +++ b/api/mraa/uart.hpp
-@@ -93,8 +93,20 @@ class Uart
+@@ -95,8 +95,20 @@ class Uart
       * Uart destructor
       */
      ~Uart()
@@ -221,10 +221,10 @@ index c7b217e..4a1bad4 100644
  
      /**
 diff --git a/api/mraa/uart_ow.hpp b/api/mraa/uart_ow.hpp
-index 2d7b459..222f6fb 100644
+index db44e9d..e64a14a 100644
 --- a/api/mraa/uart_ow.hpp
 +++ b/api/mraa/uart_ow.hpp
-@@ -93,8 +93,20 @@ class UartOW
+@@ -95,8 +95,20 @@ class UartOW
       * Uart destructor
       */
      ~UartOW()

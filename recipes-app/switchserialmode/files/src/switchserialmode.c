@@ -26,6 +26,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <libusb-1.0/libusb.h>
+#include <gpiod.h>
 #include <stdarg.h>
 
 typedef unsigned char   BYTE;
@@ -184,69 +185,34 @@ static char *get_arg_string(int argc, char **argv, const char *name, const E_CAS
 
 #define   LEN(a)   (sizeof(a)/sizeof((a)[0]))
 
-int exe_shell(const char **lines, int lines_num, char *res, int res_size)
+void gpio_set(const char *line_name, int value)
 {
-    char buf[1024] = {0};
-    memset(buf, 0, sizeof(buf));
+    struct gpiod_line *line;
 
-    int i = 0;
-    for(i = 0; i < lines_num; i++)
-    {
-        if(0 == i)
-        {
-            strncpy(buf, lines[0], strlen(lines[0]));
-        }
-        else
-        {
-            strcat(buf, lines[i]);
-        }
+    line = gpiod_line_find(line_name);
+    if (!line) {
+        ERROR("Unable to find GPIO line %s", line_name);
+        return;
     }
 
-    FILE *fp = popen(buf, "r");
-
-    memset(buf, 0, sizeof(buf));
-    char *ptr = (NULL == res) ? buf : res;
-    int ptr_size = (NULL == res) ? sizeof(buf) : res_size;
-
-    fgets(ptr, ptr_size, fp);
-    pclose(fp);
-
-    if(NULL != strstr(ptr, "true")
-        || NULL != strstr(ptr, "TRUE")
-        || NULL != strstr(ptr, "True"))
-    {
-        return 1;
+    if (gpiod_line_request_output(line, "switchserialmode", value) < 0) {
+        perror("gpiod_line_request_output");
     }
 
-    return 0;
-}
-
-void gpio_set(const char *gpiodev, const char *offset, const char *value)
-{
-    const char* cmd_is_exist[] = {"if [ -e ", gpiodev, " ]; then echo true; else echo false; fi"};
-    const char* cmd_export_gpio[] = {"echo ", offset, " > /sys/class/gpio/export"};
-    const char* cmd_set_gpio_out[] = {"echo out > ", gpiodev, "/direction"};
-    const char* cmd_set_gpio_value[] = {"echo ", value, " > ",  gpiodev, "/value"};
-
-    if(!exe_shell(cmd_is_exist, LEN(cmd_is_exist), NULL, 0))
-    {
-        exe_shell(cmd_export_gpio, LEN(cmd_export_gpio), NULL, 0);
-    }
-
-    exe_shell(cmd_set_gpio_out, LEN(cmd_set_gpio_out), NULL, 0);
-    exe_shell(cmd_set_gpio_value, LEN(cmd_set_gpio_value), NULL, 0);
+    gpiod_line_release(line);
+    gpiod_line_close_chip(line);
 }
 
 static void gpio_set_mode(int va, int vb)
 {
-    gpio_set("/sys/class/gpio/gpio192", "192", "1");            /* uart_en gpio */
-    gpio_set("/sys/class/gpio/gpio190", "190", va ? "1" : "0"); /* uart_mode0 gpio */
-    gpio_set("/sys/class/gpio/gpio191", "191", vb ? "1" : "0"); /* uart_mode1 gpio */
+    gpio_set("UART0-enable", 1);
+    gpio_set("UART0-mode0", va);
+    gpio_set("UART0-mode1", vb);
 }
 
 static void gpio_set_terminate(int onoff)
 {
-    gpio_set("/sys/class/gpio/gpio193", "193", onoff ? "1" : "0"); /* uart_terminate gpio */
+    gpio_set("UART0-terminate", onoff);
 }
 
 static void gpio_switch_mode(const char *mode, int terminate)

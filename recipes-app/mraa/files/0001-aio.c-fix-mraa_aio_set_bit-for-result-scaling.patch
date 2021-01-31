@@ -1,7 +1,7 @@
-From 3de416751128a725c2d7e11a69dd6ae55e797291 Mon Sep 17 00:00:00 2001
+From 3b1222d0fc05107020e4f1e00e1d45b782c38c95 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Fri, 1 Nov 2019 18:02:54 +0800
-Subject: [PATCH 1/4] aio.c: fix mraa_aio_set_bit for result scaling
+Subject: [PATCH 1/8] aio.c: fix mraa_aio_set_bit for result scaling
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: le.jin <le.jin@siemens.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/src/aio/aio.c b/src/aio/aio.c
-index 48a390b..b1e0478 100644
+index 0cc631f..7a94ac1 100644
 --- a/src/aio/aio.c
 +++ b/src/aio/aio.c
-@@ -265,6 +265,14 @@ mraa_aio_set_bit(mraa_aio_context dev, int bits)
+@@ -248,6 +248,14 @@ mraa_aio_set_bit(mraa_aio_context dev, int bits)
          return MRAA_ERROR_INVALID_RESOURCE;
      }
      dev->value_bit = bits;

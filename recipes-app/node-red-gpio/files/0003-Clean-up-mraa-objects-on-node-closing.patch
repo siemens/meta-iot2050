@@ -1,7 +1,7 @@
-From 110eec7a5a7452e8df14b67de4188dc8ea8eefd0 Mon Sep 17 00:00:00 2001
+From 26aa598c0b5493c96c697d7e39a2416a107e3679 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 Nov 2020 08:14:14 +0100
-Subject: [PATCH 3/3] Clean up mraa objects on node closing
+Subject: [PATCH 3/4] Clean up mraa objects on node closing
 
 Required as nodejs will only lazily delete the node objects, and we may
 race with the next user requesting the resources.
@@ -52,7 +52,7 @@ index 37d1429..fb3dbd8 100644
      }
      RED.nodes.registerType("mraa-gpio-dout", gpioDout);
 diff --git a/hardware/intel/mraa-gpio-led.js b/hardware/intel/mraa-gpio-led.js
-index aa613e9..5803296 100644
+index c5e45c6..d809c64 100644
 --- a/hardware/intel/mraa-gpio-led.js
 +++ b/hardware/intel/mraa-gpio-led.js
 @@ -64,6 +64,10 @@ module.exports = function(RED) {

@@ -18,7 +18,8 @@ SRC_URI = "file://src"
 
 S = "${WORKDIR}/src"
 
-DEBIAN_BUILD_DEPENDS = "cmake, libusb-1.0-0-dev"
+DEBIAN_BUILD_DEPENDS = "cmake, libusb-1.0-0-dev, libgpiod-dev"
+DEBIAN_DEPENDS = "\${shlibs:Depends}"
 
 do_prepare_build[cleandirs] += "${S}/debian"
 

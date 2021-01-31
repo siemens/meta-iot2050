@@ -11,16 +11,18 @@ inherit dpkg
 
 DESCRIPTION = "Low Level Skeleton Library for Communication on GNU/Linux platforms"
 MAINTAINER = "le.jin@siemens.com"
-SRC_URI += "git://github.com/intel-iot-devkit/mraa.git;protocol=https;branch=${MRAA_BRANCH};rev=${MRAA_REV};name=mraa \
+SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https \
             file://${MRAA_BUILD_SWIG30_PATCH_FILE};apply=no \
             file://0001-aio.c-fix-mraa_aio_set_bit-for-result-scaling.patch \
             file://0002-feat-iot2050-add-iot2050-platform-support.patch \
             file://0003-feat-iot2050-add-some-example-code-for-testing.patch \
             file://0004-api-Add-explicit-close-methods-to-classes.patch \
+            file://0005-gpio-chardev-Add-helper-to-retrieve-gpiochip-and-lin.patch \
+            file://0006-gpio-chardev-Add-function-to-retrieve-sysfs-base-for.patch \
+            file://0007-iot2050-Switch-to-runtime-detection-of-gpiochip-numb.patch \
+            file://0008-iot2050-Add-USER-button.patch \
             file://rules"
-SRC_URI[sha256sum] = "15783b4c4431a36d44ba95daf134318a04ff44a8190ba3f19abbda89ede35a26"
-MRAA_BRANCH = "master"
-MRAA_REV = "967585c9ea0e1a8818d2172d2395d8502f6180a2"
+SRCREV = "7786c7ded5c9ce7773890d0e3dc27632898fc6b1"
 
 S = "${WORKDIR}/git"
 
@@ -36,7 +38,7 @@ DEBIAN_BUILD_DEPENDS = " \
     libjson-c-dev, \
     default-jdk:native"
 
-DEBIAN_DEPENDS = "python3, nodejs "
+DEBIAN_DEPENDS = "python3, nodejs"
 
 do_prepare_build[cleandirs] += "${S}/debian"
 
