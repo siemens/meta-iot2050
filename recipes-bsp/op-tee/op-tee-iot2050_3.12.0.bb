@@ -11,7 +11,7 @@
 require recipes-bsp/optee-os/optee-os-custom.inc
 
 SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz"
-SRC_URI[sha256sum] = "3c34eda1052fbb9ed36fcfdfaecfd2685023b9290670c1a5982f8a0457bfd2cb"
+SRC_URI[sha256sum] = "b13991099f25d00dac479db93b55034cb93d206e296f2c7aa9c42b92bca2c783"
 
 S = "${WORKDIR}/optee_os-${PV}"
 
