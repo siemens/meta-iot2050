@@ -1,7 +1,7 @@
-From ca78c8712bde267f8366b851416d7e2c79db9bbe Mon Sep 17 00:00:00 2001
+From 759e65ea6d7db140e1506eb00cc932a4fdd1d7a8 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 30 Apr 2020 12:10:17 +0530
-Subject: [PATCH 13/26] arm: dts: k3-am65-main: Add pruss nodes for ICSSG2
+Subject: [PATCH 13/28] arm: dts: k3-am65-main: Add pruss nodes for ICSSG2
 
 Add pruss nodes. This is based 4.19 DT with interrupt properties
 removed from pur/rtu nodes.
@@ -114,5 +114,5 @@ index b85e999e2e..4b5460ad24 100644
 +	};
  };
 -- 
-2.17.1
+2.25.1
 

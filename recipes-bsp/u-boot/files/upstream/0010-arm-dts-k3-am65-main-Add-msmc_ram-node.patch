@@ -1,7 +1,7 @@
-From 13c4c859cef7c4644ce5092caedfbddef240b5ee Mon Sep 17 00:00:00 2001
+From 471a3e648b1966e66755c9ef40d3ca84868a25c5 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:59 +0530
-Subject: [PATCH 10/26] arm: dts: k3-am65-main: Add msmc_ram node
+Subject: [PATCH 10/28] arm: dts: k3-am65-main: Add msmc_ram node
 
 Add msmc_ram node needed for prueth
 
@@ -45,5 +45,5 @@ index 028f57379b..9bfe147b5c 100644
  		compatible = "arm,gic-v3";
  		#address-cells = <2>;
 -- 
-2.17.1
+2.25.1
 

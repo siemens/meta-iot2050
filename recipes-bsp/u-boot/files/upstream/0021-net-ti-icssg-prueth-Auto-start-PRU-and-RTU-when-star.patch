@@ -1,7 +1,7 @@
-From f1665e2264fa4f1bb1b00c49f7c12206d7f3338e Mon Sep 17 00:00:00 2001
+From 47b1183df6a95361ea788ec98caa5742440e8ecb Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 19 May 2020 17:07:44 +0200
-Subject: [PATCH 21/26] net: ti: icssg-prueth: Auto-start PRU and RTU when
+Subject: [PATCH 21/28] net: ti: icssg-prueth: Auto-start PRU and RTU when
  starting the interface
 
 This avoids having to do that explicitly on every usage, allowing to
@@ -71,5 +71,5 @@ index 5abb221601..4cb1fa079f 100644
  				 (u8 *)pdata->enetaddr);
  	icssg_class_default(priv->miig_rt, priv->slice);
 -- 
-2.17.1
+2.25.1
 

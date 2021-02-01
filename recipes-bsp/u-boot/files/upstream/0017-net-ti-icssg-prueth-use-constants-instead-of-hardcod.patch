@@ -1,7 +1,7 @@
-From ffd10b1bcdf2b4955443d9ce3e49352bb08129cb Mon Sep 17 00:00:00 2001
+From ee290e35c3237a43b96b12aa4eeb18dec388becc Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:31 +0000
-Subject: [PATCH 17/26] net: ti: icssg-prueth: use constants instead of
+Subject: [PATCH 17/28] net: ti: icssg-prueth: use constants instead of
  hardcoded values
 
 Use existing constants for speed and duplex values instead of
@@ -34,5 +34,5 @@ index e61dc51247..971a4631f1 100644
  		icssg_update_rgmii_cfg(priv->miig_rt, gig_en, full_duplex,
  				       priv->slice);
 -- 
-2.17.1
+2.25.1
 

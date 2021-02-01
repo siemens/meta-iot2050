@@ -1,0 +1,59 @@
+From c6cd732e6a7376e29ca167564dba77cbbc744f9c Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Wed, 20 Jan 2021 19:05:47 +0800
+Subject: [PATCH 28/28] mtd: spi: Add support of flash protection to w25q128
+
+The NOR flash w25q128 denoted by JEDEC ID 0xef4018 actually represents
+various models. From Winbond's website, I could only find 3 types of
+them:
+
+    W25Q128JV-IQ/JQ
+    datasheet:https://www.winbond.com/resource-files/
+w25q128jv%20revg%2004082019%20plus.pdf
+
+    W25Q128FV (SPI Mode)
+    datasheet: https://www.winbond.com/resource-files/
+w25q128fv%20rev.m%2005132016%20kms.pdf
+
+    W25Q128BV
+    datesheet: https://www.winbond.com/resource-files/
+w25q128bv_revh_100313_wo_automotive.pdf
+
+According to the datasheets, all of these 3 types support BP(0,1,2) and
+TB bits in the status register (SR), so it could reuse the flash
+protection logic for ST Micro.
+
+So it should be safe to add the SPI_NOR_HAS_LOCK and SPI_NOR_HAS_TB
+flags to the w25q128 entry of spi_nor_ids table.
+
+Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
+---
+ drivers/mtd/spi/spi-nor-ids.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/spi/spi-nor-ids.c b/drivers/mtd/spi/spi-nor-ids.c
+index 09e8196048..0486d42829 100644
+--- a/drivers/mtd/spi/spi-nor-ids.c
++++ b/drivers/mtd/spi/spi-nor-ids.c
+@@ -318,7 +318,17 @@ const struct flash_info spi_nor_ids[] = {
+ 	{ INFO("w25q80bl", 0xef4014, 0, 64 * 1024,  16, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ INFO("w25q16cl", 0xef4015, 0, 64 * 1024,  32, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ INFO("w25q64cv", 0xef4017, 0, 64 * 1024,  128, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+-	{ INFO("w25q128", 0xef4018, 0, 64 * 1024, 256, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
++	/* There are 3 types of w25q128 with JEDEC ID 0xef4018:
++	 *     W25Q128JV-IQ/JQ
++	 *     W25Q128FV (SPI Mode)
++	 *     W25Q128BV
++	 *  According to the datasheets, All of these 3 types support
++	 *  protection through BP{0,1,2}, TB in the status register (SR).
++	 */
++	{ INFO("w25q128", 0xef4018, 0, 64 * 1024, 256,
++			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
++			SPI_NOR_HAS_LOCK | SPI_NOR_HAS_TB)
++	},
+ 	{ INFO("w25q256", 0xef4019, 0, 64 * 1024, 512, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ #endif
+ #ifdef CONFIG_SPI_FLASH_XMC
+-- 
+2.25.1
+
