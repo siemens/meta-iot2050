@@ -21,6 +21,7 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https \
             file://0006-gpio-chardev-Add-function-to-retrieve-sysfs-base-for.patch \
             file://0007-iot2050-Switch-to-runtime-detection-of-gpiochip-numb.patch \
             file://0008-iot2050-Add-USER-button.patch \
+            file://0009-led-Fix-and-cleanup-initialization.patch \
             file://rules"
 SRCREV = "7786c7ded5c9ce7773890d0e3dc27632898fc6b1"
 
