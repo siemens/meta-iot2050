@@ -1,7 +1,7 @@
-From 12bec904843d08313e32895b0394bbd46830e2b9 Mon Sep 17 00:00:00 2001
+From cfbcd5a9b19b925d33cc02aef4aae20e7cb2f5db Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 07:05:19 +0100
-Subject: [PATCH 6/8] gpio: chardev: Add function to retrieve sysfs base for a
+Subject: [PATCH 6/9] gpio: chardev: Add function to retrieve sysfs base for a
  gpiochip
 
 This allows to full mux structures which still need the sysfs GPIO
@@ -11,8 +11,8 @@ for platform setup that is independent of the gpiochip probing order.
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  include/gpio/gpio_chardev.h |  1 +
- src/gpio/gpio_chardev.c     | 33 +++++++++++++++++++++++++++++++++
- 2 files changed, 34 insertions(+)
+ src/gpio/gpio_chardev.c     | 37 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 38 insertions(+)
 
 diff --git a/include/gpio/gpio_chardev.h b/include/gpio/gpio_chardev.h
 index dc3d02f..5f018ae 100644
@@ -27,16 +27,19 @@ index dc3d02f..5f018ae 100644
  mraa_gpiod_line_info* mraa_get_line_info_from_descriptor(int chip_fd, unsigned line_number);
  mraa_gpiod_line_info* mraa_get_line_info_by_chip_number(unsigned chip_number, unsigned line_number);
 diff --git a/src/gpio/gpio_chardev.c b/src/gpio/gpio_chardev.c
-index 9bea44b..9f302bd 100644
+index 9bea44b..d83a40c 100644
 --- a/src/gpio/gpio_chardev.c
 +++ b/src/gpio/gpio_chardev.c
-@@ -244,6 +244,39 @@ mraa_get_chip_info_by_number(unsigned number)
+@@ -244,6 +244,43 @@ mraa_get_chip_info_by_number(unsigned number)
      return cinfo;
  }
  
 +int
 +mraa_get_chip_base_by_number(unsigned number)
 +{
++#if defined(PERIPHERALMAN)
++    return -1;
++#else
 +    char* glob;
 +    char* path;
 +    FILE* fh;
@@ -65,6 +68,7 @@ index 9bea44b..9f302bd 100644
 +
 +    free(path);
 +    return res;
++#endif
 +}
 +
  mraa_gpiod_line_info*
