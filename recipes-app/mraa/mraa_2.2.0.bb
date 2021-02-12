@@ -45,6 +45,8 @@ do_prepare_build[cleandirs] += "${S}/debian"
 
 do_prepare_build() {
     deb_debianize
+
+    echo "usr/share/java/mraa.jar usr/share/java/mraa-${PV}.jar" > ${S}/debian/mraa.links
 }
 
 # patch swig before build, see https://github.com/intel-iot-devkit/mraa/blob/master/docs/building.md#javascript-bindings-for-nodejs-700
