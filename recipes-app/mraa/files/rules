@@ -2,9 +2,6 @@
 
 export JAVA_HOME=/usr/lib/jvm/default-java
 
-override_dh_fixperms:
-	dh_fixperms 
-
 %:
 	dh $@
 
