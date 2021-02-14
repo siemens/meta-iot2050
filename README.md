@@ -81,7 +81,7 @@ First checkout the desired tag. Then build the image or sdk by appending the `ka
 ./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml:kas/opt/package-lock.yml
 ```
 
-## Booting the Image from SD card
+## Booting the image from SD card
 
 Under Linux, insert an unused SD card. Assuming the SD card takes device
 /dev/mmcblk0, use dd to copy the image to it. For example:
@@ -106,6 +106,23 @@ use that to ssh in.
 
 NOTE: To login, the default username and password is `root`.
 And you are required to change the default password when first login.
+
+## Installing the image on the eMMC (IOT2050 Advanced only)
+
+During the very first boot of the image from an SD card or USB stick, you can
+request the installation to the eMMC. For that, press the USER button while
+the status LED is blinking orange during that first boot. Hold the button for
+at least 5 seconds to start the installation.
+
+NOTE: All content of the eMMC will be overwritten by this procedure!
+
+The ongoing installation is signaled by a fast blinking status LED. Wait for
+several minutes until the LED stops blinking and the device reboots to the
+eMMC. You can safely remove the SD card or USB stick at that point.
+
+The installation can also be triggered automatically by creating the file
+`/etc/install-on-emmc` on the vanilla image by mounting it under Linux and
+executing, e.g., `touch <mountpoint>/etc/install-on-emmc`.
 
 ## Selecting a boot device
 
