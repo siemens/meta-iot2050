@@ -96,6 +96,7 @@ IMAGE_INSTALL += " \
     expand-on-first-boot \
     sshd-regen-keys \
     regen-rootfs-uuid \
+    install-on-emmc \
     customizations-example \
     switchserialmode \
     iot2050setup \

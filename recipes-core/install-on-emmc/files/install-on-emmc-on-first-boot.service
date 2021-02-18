@@ -1,0 +1,23 @@
+#
+# Copyright (c) Siemens AG, 2021
+#
+# Authors:
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=Optional installation on eMMC
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=systemd-remount-fs.service shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/share/install-on-emmc/install-on-emmc.sh
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+[Install]
+WantedBy=systemd-remount-fs.service
