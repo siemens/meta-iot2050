@@ -203,11 +203,11 @@ void gpio_set(const char *line_name, int value)
     gpiod_line_close_chip(line);
 }
 
-static void gpio_set_mode(int va, int vb)
+static void gpio_set_mode(int mode0, int mode1)
 {
     gpio_set("UART0-enable", 1);
-    gpio_set("UART0-mode0", va);
-    gpio_set("UART0-mode1", vb);
+    gpio_set("UART0-mode0", mode0);
+    gpio_set("UART0-mode1", mode1);
 }
 
 static void gpio_set_terminate(int onoff)
@@ -219,12 +219,12 @@ static void gpio_switch_mode(const char *mode, int terminate)
 {
     if(compare_string(mode, "rs232", e_case_insensitive))
     {
-        gpio_set_mode(0, 1);
+        gpio_set_mode(1, 0);
         gpio_set_terminate(0);
     }
     else if(compare_string(mode, "rs485", e_case_insensitive))
     {
-        gpio_set_mode(1, 0);
+        gpio_set_mode(0, 1);
         gpio_set_terminate(terminate);
     }
     else if(compare_string(mode, "rs422", e_case_insensitive))
