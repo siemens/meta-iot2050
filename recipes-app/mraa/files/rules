@@ -2,9 +2,6 @@
 
 export JAVA_HOME=/usr/lib/jvm/default-java
 
-override_dh_fixperms:
-	dh_fixperms 
-
 %:
 	dh $@
 
@@ -13,3 +10,8 @@ override_dh_auto_test:
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DBUILDSWIGJAVA=ON -DBUILDSWIGNODE=ON
+
+override_dh_install:
+	dh_install
+	mv debian/mraa/usr/lib/lib/java debian/mraa/usr/share/
+	rmdir debian/mraa/usr/lib/lib

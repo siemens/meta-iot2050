@@ -1,15 +1,16 @@
-From 59c8fd94dcc105394c3d899a073f9a094ac49149 Mon Sep 17 00:00:00 2001
+From 51983e8cc21f6979be942078b1f8490bfdda1af0 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 09:14:35 +0100
-Subject: [PATCH 8/8] iot2050: Add USER button
+Subject: [PATCH 8/9] iot2050: Add USER button
 
-A simple GPIO no, muxing needed.
+A simple GPIO, no muxing needed, no pulling supported. Therefore, reject
+any mode changes that request pull up/down, ignore the others.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  include/arm/siemens/iot2050.h |  2 +-
- src/arm/siemens/iot2050.c     | 19 +++++++++++++++++++
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ src/arm/siemens/iot2050.c     | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
 diff --git a/include/arm/siemens/iot2050.h b/include/arm/siemens/iot2050.h
 index 0acf0a0..76df024 100644
@@ -25,10 +26,22 @@ index 0acf0a0..76df024 100644
  mraa_board_t *
          mraa_siemens_iot2050();
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index a042bf3..c28ae98 100644
+index a042bf3..52ab646 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
-@@ -1207,6 +1207,25 @@ mraa_siemens_iot2050()
+@@ -154,6 +154,11 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+         ret = MRAA_ERROR_INVALID_RESOURCE;
+         goto failed;
+     }
++    /* Handle mode changes for interface pins without pull pin */
++    if (pull_en_pins[dev->phy_pin] == -1) {
++        return (mode == MRAA_GPIO_STRONG || mode == MRAA_GPIO_HIZ) ?
++            MRAA_SUCCESS : MRAA_ERROR_FEATURE_NOT_IMPLEMENTED;
++    }
+     info = iot2050_get_regmux_by_pinmap(dev->pin);
+     pull_en_pin = mraa_gpio_init_raw(pull_en_pins[dev->phy_pin]);
+     if(pull_en_pin == NULL) {
+@@ -1207,6 +1212,25 @@ mraa_siemens_iot2050()
      iot2050_pin_add_aio(b, pin_index, 5, mux_info, 5);
      pin_index++;
  
