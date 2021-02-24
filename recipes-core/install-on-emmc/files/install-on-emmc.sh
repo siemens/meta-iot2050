@@ -125,6 +125,7 @@ SECTORS="$(($(sfdisk -d ${BOOT_DEV} 2>/dev/null | tail -1 | sed 's/.*start=[[:sp
 
 echo "Writing ${SECTORS} sectors to eMMC ${EMMC_DEV}..."
 dd if=${BOOT_DEV} of=${EMMC_DEV} count=${SECTORS}
+sync
 
 echo "Updating partition UUID of eMMC rootfs"
 partx -u ${EMMC_DEV}
