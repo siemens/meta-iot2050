@@ -12,7 +12,8 @@ SRC_URI += "https://git.ti.com/cgit/ti-linux-kernel/ti-linux-kernel/snapshot/ti-
 SRC_URI += "file://${KERNEL_DEFCONFIG}"
 SRC_URI += "file://${KERNEL_DEFCONFIG_EXTRA}"
 
-SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
+SRC_URI += " \
+    file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0002-Add-support-for-U9300C-TD-LTE-module.patch \
     file://0003-feat-Add-CP210x-driver-support-to-software-flow-cont.patch \
     file://0004-fix-disable-usb-lpm-to-fix-usb-device-reset.patch \
@@ -24,9 +25,7 @@ SRC_URI += "file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0010-feat-extend-led-panic-indicator-on-and-off.patch \
     file://0011-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
     file://0012-feat-change-mmc-order-using-alias-in-dts.patch \
-    file://0013-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
-    file://0014-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch \
-    file://0015-iot2050-Adjust-DT-to-upstream.patch"
+    file://0013-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch"
 
 KERNEL_BRANCH = "am6-abi-ti-linux-4.19.y"
 KERNEL_REV = "c7a3b610edfb5a0ee0313e1432bf328362269d05"

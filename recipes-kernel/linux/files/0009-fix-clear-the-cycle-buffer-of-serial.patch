@@ -1,7 +1,7 @@
-From 9a188b9885f37c6449f9f88a0f1850c9f8f1e5d0 Mon Sep 17 00:00:00 2001
+From 8cc25bd59ac7f3b2149145d3029fdb8710314a7c Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 26 Nov 2019 09:05:56 +0800
-Subject: [PATCH 09/15] fix:clear the cycle buffer of serial
+Subject: [PATCH 09/13] fix:clear the cycle buffer of serial
 
 1.the last residual data will be sent next time
 

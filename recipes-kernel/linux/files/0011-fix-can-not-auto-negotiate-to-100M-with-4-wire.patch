@@ -1,7 +1,7 @@
-From da9d91ffa40bb4970932d7d75dbd6206315747d6 Mon Sep 17 00:00:00 2001
+From 4045af3c7f8673216e44909943494ae93a83e28e Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 4 Feb 2020 22:03:52 +0800
-Subject: [PATCH 11/15] fix:can not auto negotiate to 100M with 4-wire
+Subject: [PATCH 11/13] fix:can not auto negotiate to 100M with 4-wire
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
