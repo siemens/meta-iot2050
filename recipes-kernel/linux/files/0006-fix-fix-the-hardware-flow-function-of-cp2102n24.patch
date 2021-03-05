@@ -1,7 +1,7 @@
-From 47a0ca978fea1ee1e6239074f6baaefa6e5056cb Mon Sep 17 00:00:00 2001
+From 744554e3d2dc3b94b1572e76b81e33fa23bda4bb Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Wed, 21 Aug 2019 16:22:30 +0800
-Subject: [PATCH 06/15] fix:fix the hardware flow function of cp2102n24
+Subject: [PATCH 06/13] fix:fix the hardware flow function of cp2102n24
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---

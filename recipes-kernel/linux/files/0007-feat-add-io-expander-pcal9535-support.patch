@@ -1,7 +1,7 @@
-From 241dcf1f9c4eaed13a6c6ce038d380bc7db3b3c4 Mon Sep 17 00:00:00 2001
+From fe7178d923f72ed6ac4df970b635ca9c2570e5ba Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Wed, 9 Oct 2019 17:08:43 +0800
-Subject: [PATCH 07/15] feat:add io expander pcal9535 support
+Subject: [PATCH 07/13] feat:add io expander pcal9535 support
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---
