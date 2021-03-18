@@ -12,7 +12,8 @@ require recipes-kernel/linux/linux-custom.inc
 
 SRC_URI += " \
     https://git.ti.com/cgit/ti-linux-kernel/ti-linux-kernel/snapshot/ti-linux-kernel-${KERNEL_REV}.tar.xz;protocol=https; \
-    file://5.x-kernel/0001-iot2050-add-iot2050-platform-support.patch"
+    file://5.x-kernel/0001-iot2050-add-iot2050-platform-support.patch \
+    file://5.x-kernel/0002-Workaround-to-correct-DP-clock-to-154MHZ.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \
