@@ -18,7 +18,8 @@ SRC_URI += " \
     file://5.x-kernel/0004-feat-Add-CP210x-driver-support-to-software-flow-cont.patch \
     file://5.x-kernel/0005-feat-add-io-expander-pcal9535-support.patch \
     file://5.x-kernel/0006-feat-extend-led-panic-indicator-on-and-off.patch \
-    file://5.x-kernel/0007-Add-support-for-U9300C-TD-LTE-module.patch"
+    file://5.x-kernel/0007-Add-support-for-U9300C-TD-LTE-module.patch \
+    file://5.x-kernel/0008-feat-change-mmc-order-using-alias-in-dts.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \
