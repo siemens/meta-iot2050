@@ -481,6 +481,8 @@ class PeripheralsMenu:
             return
         terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
         subprocess.call('switchserialmode -m ' + switchMode + terminateOpt, shell=True)
+        if self.topmenu.boardType == 'IOT2050 Advanced':
+            subprocess.call('switchserialmode -r ', shell=True)
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
