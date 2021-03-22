@@ -1193,6 +1193,13 @@ static void cp210x_command_handle(int argc, char **argv)
     libusb_exit(g_LibusbContext);
 }
 
+static void cp210x_hardware_reset(void)
+{
+    gpio_set("CP2102N-RESET", 0);
+    sleep(1);
+    gpio_set("CP2102N-RESET", 1);
+}
+
 static void print_usage(const char *name)
 {
     printf("\
@@ -1234,6 +1241,10 @@ int main(int argc, char **argv)
         {
             gpio_switch_mode(mode, terminate);
         }
+    }
+    else if(compare_string(argv[1], "-r,--reset", e_case_insensitive))
+    {
+        cp210x_hardware_reset();
     }
     else
     {

@@ -20,7 +20,8 @@ SRC_URI += " \
     file://5.x-kernel/0006-feat-extend-led-panic-indicator-on-and-off.patch \
     file://5.x-kernel/0007-Add-support-for-U9300C-TD-LTE-module.patch \
     file://5.x-kernel/0008-feat-change-mmc-order-using-alias-in-dts.patch \
-    file://5.x-kernel/0009-dts-add-the-usb3.0-support.patch"
+    file://5.x-kernel/0009-dts-add-the-usb3.0-support.patch \
+    file://5.x-kernel/0010-dts-add-the-cp2102n-reset-pin-defination.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \

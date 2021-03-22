@@ -1,7 +1,7 @@
-From f4f92dd304cc1ef24c94c575f7aca6ad2a28b26d Mon Sep 17 00:00:00 2001
+From 91cf92289785c05e8400cc30ac506aababa7202a Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Wed, 6 Nov 2019 11:21:49 +0800
-Subject: [PATCH 3/8] setting the RJ45 port led behavior
+Subject: [PATCH 03/10] setting the RJ45 port led behavior
 
 Signed-off-by: zengchao <chao.zeng@siemens.com>
 ---
