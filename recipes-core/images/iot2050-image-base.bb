@@ -11,6 +11,7 @@
 inherit image
 
 DESCRIPTION = "IOT2050 Debian Base Image"
+IMAGE_INSTALL += "iot2050-firmware"
 IMAGE_INSTALL += "customizations-base"
 
 python aggregate_mainline_apt_sources () {
