@@ -8,4 +8,7 @@
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
+DEPENDS += "patch-u-boot-env"
+DEBIAN_DEPENDS += "patch-u-boot-env"
+
 SRC_URI += "file://swupdate.handler.u-boot.ini"
