@@ -1,4 +1,4 @@
 build/
-isar/
+/isar
 /cip-core
 recipes-core/customizations-base/local.inc

@@ -32,6 +32,10 @@ repos:
     refspec: f5a6fdfd9aad49202093aab2158f625429eaf7c5
     layers:
       meta:
+    patches:
+      01-wic-root-param:
+        path: patches/isar/0001-wic-rootfs-u-boot-Set-root-with-source_params.patch
+        repo: meta-iot2050
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
