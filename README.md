@@ -31,6 +31,12 @@ Using 3rd-party mirrors, for example
 ./kas-container build kas-iot2050-example.yml:kas/opt/mirror-example.yml
 ```
 
+Using swupdate with a A/B rootfs configuration, for example
+
+```shell
+./kas-container build kas-iot2050-example.yml:kas/opt/swupdate-example.yml
+```
+
 After build complete, the final image is under
 
 ```text
@@ -142,3 +148,51 @@ device.
 
 NOTE: This selection is not persistent. The boot loader will fall back to its
 default boot order after reset.
+
+## Building with SWUpdate support
+
+The option `kas/opt/swupdate-example.yml` will create an image  with a
+[double copy root file system](https://sbabic.github.io/swupdate/overview.html#double-copy-with-fall-back)
+You can find the image under
+`build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img`
+
+It also will create an binary for updating the system at
+This call will write the image to the unused root partition`build/tmp/deploy/images/iot2050/iot2050-image-swu-examp
+le-iot2050-debian-iot2050.swu`
+
+The binary can be applied on the booted target with:
+
+```shell
+$ swupdate -i iot2050-image-swu-example-iot2050-debian-iot2050.swu
+```
+SWUpdate will write the image to the unused root partition and
+sets the necessary u-boot variables.
+
+After a reboot, the target boots into the new root file system.  If boot is
+successful the update process needs
+to be complete by calling:
+
+```
+$ acknowledge_update.sh success
+```
+
+If the update was not successful an reboot will return to the previous root file system.
+
+
+### U-boot environment
+
+The bootloader environment needs to be adapted to select the correct
+root file system during boot. This adaption occurs during the first
+boot by executing the `patch-u-boot-env.service`. This systemd-service writes the necessary variables to the
+u-boot environment. After writing the u-boot environment, an update with SWUpdate is possible.
+
+#### Revert to the default environment
+
+If it is necessary to revert to the default u-boot environment, reset the device and
+interrupt the boot when it counts down ("Hit any key to stop autoboot").
+Then type
+
+```shell
+=> env default -a -f
+=> saveenv
+```
