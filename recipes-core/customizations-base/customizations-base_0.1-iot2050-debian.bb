@@ -17,9 +17,9 @@ DESCRIPTION = "IOT2050 reference image customizations"
 
 SRC_URI = " \
     file://postinst.tmpl \
-    file://hosts"
+    file://hosts.tmpl"
 
-TEMPLATE_FILES = "postinst.tmpl"
+TEMPLATE_FILES = "postinst.tmpl hosts.tmpl"
 TEMPLATE_VARS = "HOSTNAME"
 
 do_install() {
