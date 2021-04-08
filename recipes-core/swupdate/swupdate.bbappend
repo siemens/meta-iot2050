@@ -9,7 +9,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI += "file://swupdate.install \
-            file://swupdate.handler.uboot.ini"
+            file://swupdate.handler.uboot.ini \
+            file://acknowledge_update.sh"
 
 do_prepare_build_append() {
 
@@ -19,4 +20,5 @@ do_prepare_build_append() {
 
     cp ${WORKDIR}/swupdate.install ${S}/debian/swupdate.install
     cp ${WORKDIR}/swupdate.handler.uboot.ini ${S}/swupdate.handler.ini
+    cp ${WORKDIR}/acknowledge_update.sh ${S}/acknowledge_update.sh
 }
