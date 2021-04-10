@@ -1,4 +1,4 @@
-From 5b519c2caac683e350590902c77eeda3d8749adb Mon Sep 17 00:00:00 2001
+From 5df72a0aa9663094988a20fb731c07680b931a97 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Tue, 22 Dec 2020 15:08:17 +0800
 Subject: [PATCH 12/13] feat:change mmc order using alias in dts
