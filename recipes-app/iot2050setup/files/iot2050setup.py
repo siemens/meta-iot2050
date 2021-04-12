@@ -587,12 +587,15 @@ class PeripheralsMenu:
 
 
 def main():
+    default_console_level = subprocess.check_output('cat /proc/sys/kernel/printk',shell=True).decode('utf-8')[0]
+    subprocess.call('dmesg -n 6', shell=True) #Shield KERN_INFO and KERN_DEBUG
     try:
         mainwindow = TopMenu()
         mainwindow.show()
     except:
         pass
     finally:
+        subprocess.call('dmesg -n {}'.format(default_console_level), shell=True) # Restore default console level
         mainwindow.close()
         return ''
 
