@@ -1,4 +1,4 @@
-From 489cbda8aebb79187c21a6d5a400b9270c33327f Mon Sep 17 00:00:00 2001
+From 3d82ab21200c49d730a1db49aea551061dda4751 Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
 Subject: [PATCH 01/13] iot2050: add iot2050 platform support
@@ -73,7 +73,7 @@ index 000000000000..93b53d63ef60
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 new file mode 100644
-index 000000000000..54abaac9de45
+index 000000000000..deed46d71aad
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 @@ -0,0 +1,793 @@
@@ -102,7 +102,7 @@ index 000000000000..54abaac9de45
 +		bootargs = "earlycon=ns16550a,mmio32,0x02800000";
 +	};
 +
-+	reserved_memory {
++	reserved-memory {
 +		#address-cells = <2>;
 +		#size-cells = <2>;
 +		ranges;
@@ -838,7 +838,7 @@ index 000000000000..54abaac9de45
 +
 +	phys = <&serdes1 PHY_TYPE_PCIE 0>;
 +	phy-names = "pcie-phy0";
-+	reset-gpios = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
++	reset-gpio = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
 +	status = "okay";
 +};
 +

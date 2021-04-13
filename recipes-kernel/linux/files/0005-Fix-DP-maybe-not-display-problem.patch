@@ -1,4 +1,4 @@
-From 51369b01ab127a00906d54e5f0cf425695364ede Mon Sep 17 00:00:00 2001
+From d38df3c4cb87e306307b3d1b91a981581c704b73 Mon Sep 17 00:00:00 2001
 From: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 Date: Tue, 13 Aug 2019 10:27:44 +0800
 Subject: [PATCH 05/13] Fix: DP maybe not display problem.
