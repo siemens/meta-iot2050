@@ -481,6 +481,8 @@ class PeripheralsMenu:
             return
         terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
         subprocess.call('switchserialmode -m ' + switchMode + terminateOpt, shell=True)
+        if PeripheralsMenu.is_sr2_soc() and self.topmenu.boardType == 'IOT2050 Advanced':
+            subprocess.call('switchserialmode -r ', shell=True)
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
@@ -494,6 +496,16 @@ class PeripheralsMenu:
         elif mode == 'RS422':
             return 2
         return 0
+
+    @staticmethod
+    def is_sr2_soc():   # TBD: using device-tree/model to distinguish sr1 and sr2
+        CTRLMMR_WKUP_JTAGID = 0x43000014
+        JTAG_ID_VARIANT_MASK = (0xf << 28)
+        JTAG_ID_VARIANT_SHIFT = 28
+        idReg = subprocess.check_output('busybox devmem {}'.format(hex(CTRLMMR_WKUP_JTAGID)), shell=True).decode('utf-8')
+        idReg = int(idReg, 16)
+        rev = (idReg & JTAG_ID_VARIANT_MASK) >> JTAG_ID_VARIANT_SHIFT
+        return rev
 
     def setAdvancedBoard(self, mode):
         command = ''
@@ -510,10 +522,11 @@ class PeripheralsMenu:
         self.saveConfig(self.config)
         if mode == 'RS485':
             self.setRS485SetupHoldTime()
-        ButtonChoiceWindow(screen=self.topmenu.gscreen,
-                           title='Note',
-                           text='You need to power cycle the device for the changes to take effect',
-                           buttons=['Ok'])
+        if not PeripheralsMenu.is_sr2_soc():
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                            title='Note',
+                            text='You need to power cycle the device for the changes to take effect',
+                            buttons=['Ok'])
 
     def setRS485SetupHoldTime(self):
         command = 'switchserialmode cp210x -D CP2102N24 -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
@@ -585,12 +598,15 @@ class PeripheralsMenu:
 
 
 def main():
+    default_console_level = subprocess.check_output('cat /proc/sys/kernel/printk',shell=True).decode('utf-8')[0]
+    subprocess.call('dmesg -n 6', shell=True) #Shield KERN_INFO and KERN_DEBUG
     try:
         mainwindow = TopMenu()
         mainwindow.show()
     except:
         pass
     finally:
+        subprocess.call('dmesg -n {}'.format(default_console_level), shell=True) # Restore default console level
         mainwindow.close()
         return ''
 

@@ -1,0 +1,54 @@
+From 4be77f522174487c35a3ff5810e1d92c2db9b233 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Mon, 22 Mar 2021 13:34:18 +0800
+Subject: [PATCH 10/10] dts : add the cp2102n reset pin defination
+
+configure the cp2102n reset pin and named lines to control cp2102n reset function
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+index efe9ef73bc0d..112bc9bc8722 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+@@ -407,6 +407,12 @@
+ 			AM65X_IOPAD(0x0070, PIN_INPUT, 5) /* (R25) I2C2_SDA */
+ 		>;
+ 	};
++
++	cp2102n_reset_pin_default: cp2102n_reset_pin_default {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01e0, PIN_OUTPUT, 7) /* AF12 GPIO1_24,used as cp2102 reset*/
++		>;
++	};
+ };
+ 
+ &main_pmx1 {
+@@ -466,6 +472,21 @@
+ 		"", "", "", "", "", "";
+ };
+ 
++&main_gpio1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp2102n_reset_pin_default>;
++	gpio-line-names =
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "CP2102N-RESET", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "";
++};
++
+ &wkup_gpio0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&arduino_io_d2_to_d3_pins_default
+-- 
+2.30.0
+
