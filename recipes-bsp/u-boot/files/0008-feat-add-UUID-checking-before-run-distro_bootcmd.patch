@@ -107,7 +107,7 @@ index 8f7b344cb3..bd8bcb415b 100644
 +
 +#ifdef CONFIG_BOOTCOMMAND
 +#undef CONFIG_BOOTCOMMAND
-+#define CONFIG_BOOTCOMMAND   "run uuid_conflict_check; if test $uuid_conflict = no; then run distro_bootcmd; fi"
++#define CONFIG_BOOTCOMMAND   "run distro_bootcmd"
 +#endif
 +
  /* Incorporate settings into the U-Boot environment */
