@@ -1,7 +1,7 @@
 From a3ecd89a1aa5b697270142366e7eaa9ad6a731c0 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Fri, 19 Mar 2021 14:40:24 +0800
-Subject: [PATCH 09/10] dts: add the usb3.0 support
+Subject: [PATCH 09/11] dts: add the usb3.0 support
 
 enable serdes0 and add the clock configuration
 
@@ -44,5 +44,5 @@ index 4ceac8f55cd8..efe9ef73bc0d 100644
  
  &dwc3_1 {
 -- 
-2.30.0
+2.31.1
 
