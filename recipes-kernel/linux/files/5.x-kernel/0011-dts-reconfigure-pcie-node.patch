@@ -1,0 +1,47 @@
+From 92320a70bee4a2a116e13db24192f5e964cbe43b Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Mon, 19 Apr 2021 10:34:08 +0800
+Subject: [PATCH 11/11] dts: reconfigure pcie node
+
+as lack of property:num-lanes,there is no any phy link,the board can not
+detect pcie devices.
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+index 112bc9bc8722..b846fe38b902 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+@@ -808,13 +808,25 @@
+ &pcie1_rc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&minipcie_pins_default>;
+-
++	num-lanes = <1>;
+ 	phys = <&serdes1 PHY_TYPE_PCIE 0>;
+ 	phy-names = "pcie-phy0";
+ 	reset-gpios = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ };
+ 
++&pcie1_ep {
++	status = "disabled";
++};
++
++&pcie0_rc {
++	status = "disabled";
++};
++
++&pcie0_ep {
++	status = "disabled";
++};
++
+ /* Disable crypto and eip76d_trng temporarily, because the HS system firmware has taken them up */
+ &crypto {
+       status = "disabled";
+-- 
+2.31.1
+
