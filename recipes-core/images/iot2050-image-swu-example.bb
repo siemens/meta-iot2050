@@ -15,6 +15,8 @@ WKS_FILE = "iot2050-swu.wks"
 IMAGE_INSTALL += "patch-u-boot-env"
 IMAGE_INSTALL += "swupdate"
 
+IMAGE_INSTALL += "data-partition"
+
 FILESPATH_prepend := "${THISDIR}/files:"
 
 EXTRACT_PARTITIONS = "img1"

@@ -1,0 +1,40 @@
+#!/bin/sh
+PREREQ=""
+
+prereqs()
+{
+     echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+     prereqs
+     exit 0
+     ;;
+esac
+
+. /usr/share/initramfs-tools/scripts/functions
+. /usr/share/initramfs-tools/hook-functions
+
+if [ ! -x /sbin/fsck ]; then
+	echo "Warning: couldn't find /sbin/fsck!"
+	exit 0
+fi
+
+fsck_types="ext4"
+
+copy_exec /sbin/fsck
+copy_exec /sbin/logsave
+
+for type in $fsck_types; do
+	if [ "$type" = "unknown" ] ; then
+		echo "Warning: couldn't identify filesystem type for fsck hook, ignoring."
+		continue
+	fi
+
+	if prog="$(command -v fsck.${type})"; then
+		copy_exec "$prog"
+	else
+		echo "Warning: /sbin/fsck.${type} doesn't exist, can't install to initramfs, ignoring."
+	fi
+done

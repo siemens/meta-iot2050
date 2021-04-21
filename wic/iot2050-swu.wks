@@ -15,3 +15,7 @@ part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=if test
 
 # rootf B
 part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=if test \\\"\${board_name}\\\" = \\\"IOT2050-ADVANCED\\\"; then set fdtfile ti/k3-am6548-iot2050-advanced-oldfw.dtb; else setenv fdtfile ti/k3-am6528-iot2050-basic-oldfw.dtb; fi;env exists partnum || setenv partnum 0;env exists sysselect || setenv sysselect 1,root=/dev/mmcblk\${partnum}p\${sysselect}" --extra-space 128M --fstype ext4 --label rootfsb --align 1024
+
+# data partition
+
+part --size 512M --fstype ext4 --label data --align 1024
