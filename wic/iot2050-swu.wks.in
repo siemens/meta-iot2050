@@ -16,3 +16,5 @@ part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=env exi
 # rootfs 2
 part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=env exists sysselect || setenv sysselect 1,root=PARTLABEL=rootfs\"\$\{sysselect\}\"" --fixed-size 4G --fstype ext4 --label rootfs2 --align 1024
 
+# data partition
+part --size 512M --fstype ext4 --label data --align 1024

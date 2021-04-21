@@ -16,6 +16,8 @@ IMAGE_INSTALL += "swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
 
+IMAGE_INSTALL += "data-partition"
+
 FILESPATH_prepend := "${THISDIR}/files:"
 
 EXTRACT_PARTITIONS = "img1"
