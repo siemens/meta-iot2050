@@ -49,7 +49,8 @@ class OsSettingsMenu:
                                                 title='OS Settings',
                                                 text='',
                                                 items=[('Change Hostname', self.changeHostname),
-                                                       ('Change Password', self.changePassword)],
+                                                       ('Change Password', self.changePassword),
+                                                       ('Change Time Zone', self.changeTimeZone)],
                                                 buttons=[('Back', 'back', 'ESC')])
 
         if action == 'back':
@@ -76,6 +77,11 @@ class OsSettingsMenu:
         print(ansicolors.clear)   # Clear console
         subprocess.call('passwd', shell=True)
         exit()
+
+    def changeTimeZone(self):
+        self.topmenu.gscreen.suspend()
+        subprocess.call('dpkg-reconfigure tzdata', shell=True)
+        self.topmenu.gscreen.resume()
 
 
 class NetworkingMenu:
