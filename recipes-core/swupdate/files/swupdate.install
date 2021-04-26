@@ -1,0 +1,5 @@
+swupdate usr/bin
+swupdate.cfg /etc
+swupdate.handler.ini /etc
+swupdate_handlers.lua /usr/share/lua/5.3
+acknowledge_update.sh usr/bin

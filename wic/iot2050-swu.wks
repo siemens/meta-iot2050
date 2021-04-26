@@ -1,0 +1,21 @@
+#
+# Copyright (c) Siemens AG, 2021
+#
+# Authors:
+#  Quirin Gylstorff <quirin.gylstorff@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+bootloader --ptable gpt --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 mtdparts=47040000.spi.0:512k(ospi.tiboot3),2m(ospi.tispl),4m(ospi.u-boot),128k(ospi.env),128k(ospi.env.backup),1m(ospi.sysfw),64k(pru0-fw),64k(pru1-fw),64k(rtu0-fw),64k(rtu1-fw),-@8m(ospi.rootfs) rw rootwait"
+
+# rootfs A
+part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=if test \\\"\${board_name}\\\" = \\\"IOT2050-ADVANCED\\\"; then set fdtfile ti/k3-am6548-iot2050-advanced-oldfw.dtb; else setenv fdtfile ti/k3-am6528-iot2050-basic-oldfw.dtb; fi;env exists partnum || setenv partnum 0;env exists sysselect || setenv sysselect 1,root=/dev/mmcblk\${partnum}p\${sysselect}" --extra-space 128M --fstype ext4 --label rootfsa --align 1024
+
+# rootf B
+part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=if test \\\"\${board_name}\\\" = \\\"IOT2050-ADVANCED\\\"; then set fdtfile ti/k3-am6548-iot2050-advanced-oldfw.dtb; else setenv fdtfile ti/k3-am6528-iot2050-basic-oldfw.dtb; fi;env exists partnum || setenv partnum 0;env exists sysselect || setenv sysselect 1,root=/dev/mmcblk\${partnum}p\${sysselect}" --extra-space 128M --fstype ext4 --label rootfsb --align 1024
+
+# data partition
+
+part --size 512M --fstype ext4 --label data --align 1024

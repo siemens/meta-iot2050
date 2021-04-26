@@ -1,0 +1,15 @@
+[Unit]
+Description=Mount /data partition
+Before=local-fs.target
+After=expand-on-first-boot.service
+Requires=systemd-fsck@dev-disk-by\x2dpartlabel-data.service
+After=expand-on-first-boot.service systemd-fsck@dev-disk-by\x2dpartlabel-data.service
+
+[Mount]
+What=/dev/disk/by-partlabel/data
+Where=/data
+Type=ext4
+Options=data=journal,commit=20,noatime,nodiratime,nodelalloc
+
+[Install]
+WantedBy=local-fs.target

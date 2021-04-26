@@ -1,0 +1,15 @@
+#
+# Copyright (c) Siemens AG, 2019
+#
+# Authors:
+#  Le Jin <le.jin@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+# set the u-boot tool's config
+sed -i '\/dev\/mtd1/c\/dev\/mtd3\t\t0x0000\t\t0x20000\t\t0x10000' /etc/fw_env.config
+sed -i '\/dev\/mtd2/c\/dev\/mtd4\t\t0x0000\t\t0x20000\t\t0x10000' /etc/fw_env.config
+
+ln -sf /lib/firmware/rti_dwwdtest/iot2050/csl_rti_dwwd_test_app_mcu1_0_release.xer5f /lib/firmware/am65x-mcu-r5f0_0-fw

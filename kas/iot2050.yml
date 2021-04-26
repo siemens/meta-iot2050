@@ -10,7 +10,9 @@
 
 header:
   version: 10
-
+  includes:
+    - file: kas-cip.yml
+      repo: cip-core
 build_system: isar
 
 distro: iot2050-debian
@@ -30,6 +32,14 @@ repos:
     refspec: f5a6fdfd9aad49202093aab2158f625429eaf7c5
     layers:
       meta:
+    patches:
+      01-wic-root-param:
+        path: patches/isar/0001-wic-rootfs-u-boot-Set-root-with-source_params.patch
+        repo: meta-iot2050
+
+  cip-core:
+    url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
+    refspec: c7b1646d8060f75546c7d77ea92e600a350eec83
 
 bblayers_conf_header:
   standard: |

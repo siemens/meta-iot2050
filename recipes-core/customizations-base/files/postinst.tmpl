@@ -12,9 +12,3 @@ echo "${HOSTNAME}" > /etc/hostname
 
 # set nodejs environment for module searching
 echo "NODE_PATH=\"/usr/lib/node_modules/:/usr/local/lib/node_modules/\"" >> /etc/environment
-
-# set the u-boot tool's config
-sed -i '\/dev\/mtd1/c\/dev\/mtd3\t\t0x0000\t\t0x20000\t\t0x10000' /etc/fw_env.config
-sed -i '\/dev\/mtd2/c\/dev\/mtd4\t\t0x0000\t\t0x20000\t\t0x10000' /etc/fw_env.config
-
-ln -sf /lib/firmware/rti_dwwdtest/iot2050/csl_rti_dwwd_test_app_mcu1_0_release.xer5f /lib/firmware/am65x-mcu-r5f0_0-fw
