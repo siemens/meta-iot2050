@@ -1,0 +1,294 @@
+From 7e9a3f2f5b66e08007d9fb1dcd7bee808702306f Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Wed, 31 Mar 2021 14:40:23 +0800
+Subject: [PATCH 4/6] Remove Binman,Use its to generate u-boot
+
+As TI SDK has not well support binman,so fallbak to use its to generate u-boot
+
+TBD:should change to BINMAN to assemb the file
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ Kconfig                          |   2 +-
+ Makefile                         |   2 +-
+ arch/arm/mach-k3/make_fit.py     | 173 +++++++++++++++++++++++++++++++
+ board/siemens/iot2050/Kconfig    |   2 +-
+ board/siemens/iot2050/u-boot.its |   4 +-
+ configs/iot2050_defconfig        |  16 +++
+ 6 files changed, 194 insertions(+), 5 deletions(-)
+ create mode 100755 arch/arm/mach-k3/make_fit.py
+
+diff --git a/Kconfig b/Kconfig
+index 0e10bca0bd..b7a45f0291 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -254,7 +254,7 @@ config BUILD_TARGET
+ 	default "u-boot-spl.kwb" if ARCH_MVEBU && SPL
+ 	default "u-boot-elf.srec" if RCAR_GEN3
+ 	default "u-boot.itb" if SPL_LOAD_FIT && (ARCH_ROCKCHIP || \
+-				ARCH_SUNXI || RISCV)
++				ARCH_SUNXI || RISCV || ARCH_K3)
+ 	default "u-boot.kwb" if KIRKWOOD
+ 	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
+ 	default "u-boot-with-spl.imx" if ARCH_MX6 && SPL
+diff --git a/Makefile b/Makefile
+index 3721b458f0..12815fa55e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -844,7 +844,7 @@ DO_STATIC_RELA =
+ endif
+ 
+ # Always append ALL so that arch config.mk's can add custom ones
+-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
++ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check u-boot.itb
+ 
+ ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
+ ifeq ($(CONFIG_SPL_FSL_PBL),y)
+diff --git a/arch/arm/mach-k3/make_fit.py b/arch/arm/mach-k3/make_fit.py
+new file mode 100755
+index 0000000000..625c4a1bd3
+--- /dev/null
++++ b/arch/arm/mach-k3/make_fit.py
+@@ -0,0 +1,173 @@
++#!/usr/bin/env python
++# SPDX-License-Identifier: GPL-2.0+
++"""
++A script to generate FIT image source for K3 boards
++
++usage: $0 <board> <dt_name> [<dt_name> [<dt_name] ...]
++"""
++
++import os
++import sys
++import string
++import re
++import subprocess
++
++core_template = string.Template("""
++/dts-v1/;
++
++/ {
++	description = "Firmware image with one or more FDT blobs and overlays";
++	#address-cells = <0x1>;
++
++	images {
++
++		u-boot {
++			description = "U-Boot for $board board";
++			type = "firmware";
++			arch = "arm";
++			os = "u-boot";
++			compression = "none";
++			load = <$loadaddr>;
++			entry = <0x0>;
++			data = /incbin/("u-boot-nodtb.bin$hs");
++			hash-1 {
++				algo = "sha256";
++			};
++		};
++
++		$dtbs
++		$overlays
++	};
++
++	configurations {
++		$confs
++	};
++};
++""")
++
++conf_template = string.Template("""
++		conf-$dtb {
++			description = "$dtb";
++			firmware = "u-boot";
++			fdt = "$dtb.dtb";
++			signature {
++				algo = "sha256,rsa4096";
++				key-name-hint = "custMpk";
++				sign-images = "fdt", "firmware";
++			};
++		};
++	""")
++
++fdt_template = string.Template("""
++		$basename {
++			description = "$basename";
++			data = /incbin/("$dtbdir/$basename$hs");
++			type = "flat_dt";
++			arch = "arm";
++			compression = "none";
++			hash-1 {
++				algo = "sha256";
++			};
++		};
++""")
++
++
++def get_overlays(board):
++    """
++    Use strings to get the list of dtbos from the built-in.o file located
++    in the board directory
++    """
++    overlays = []
++    boarddir = os.getenv('BOARDDIR')
++    r = re.compile('(.*\.dtbo)$')
++    cmdline = "strings board/{}/built-in.o".format(boarddir).split()
++    p = subprocess.Popen(cmdline,
++                         stdout=subprocess.PIPE,
++                         stderr=subprocess.STDOUT)
++    for l in p.stdout.readlines():
++        m = r.match(l)
++        if m:
++            fname = m.group(1).strip()
++            if os.path.isfile("arch/arm/dts/" + fname):
++                overlays.append(fname)
++            else:
++                sys.stderr.write("cannot find %s. removing from its!\n" % fname)
++
++    return overlays
++
++
++def generate_confs(dtbs):
++    first = True
++    confs = []
++    for dtb in dtbs:
++        basename = dtb.split('/')[-1][:-4]
++        if first:
++            confs.append('default = "conf-{}";'.format(basename))
++            first = False
++        confs.append(conf_template.substitute(dtb=basename))
++    return "\n".join(confs)
++
++
++def generate_fdts(hs, dtbos, dtbdir):
++    fdts = []
++    for dtbo in dtbos:
++        fdts.append(fdt_template.substitute(hs=hs, basename=dtbo, dtbdir=dtbdir))
++    return "\n".join(fdts)
++
++
++def get_u_boot_test_base():
++    """
++    Get the text base of u-boot from the .config file
++    """
++    r = re.compile('CONFIG_SYS_TEXT_BASE=(.*)')
++    with open('.config', 'r') as f:
++        for l in f.readlines():
++            m = r.search(l)
++            if m:
++                return m.group(1)
++
++
++def generate_its(board, hs, dtbs):
++    sys_text_base = get_u_boot_test_base()
++    dtbdir = '/'.join(dtbs[0].split('/')[:-1])
++    dtbs = [dtb.split('/')[-1] for dtb in dtbs]
++    if (hs == "1") or (hs == "Y"):
++        hs = "_HS"
++    else:
++        hs = ""
++    print(core_template.substitute(
++        loadaddr=sys_text_base,
++        board=board,
++        hs=hs,
++        confs=generate_confs(dtbs),
++        dtbs=generate_fdts(hs, dtbs, dtbdir),
++        overlays=generate_fdts(hs, get_overlays(board), dtbdir))
++    )
++
++
++def usage():
++    print(
++        "{} <BOARD> <dt_name> [<dt_name> [<dt_name] ...] ".format(
++            sys.argv[0]))
++    sys.exit(-1)
++
++def show_deps_and_exit():
++	print("u-boot-nodtb.bin")
++	print("dtbs")
++	sys.exit(0)
++
++def main():
++    if len(sys.argv) < 2:
++        usage()
++
++    if sys.argv[1] == "--deps":
++        show_deps_and_exit()
++
++    board = sys.argv[1]
++    dtbs = sys.argv[2:]
++    hs = os.getenv('IS_HS', "")
++    generate_its(board, hs, dtbs)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
+index 28ba746936..78f856428e 100644
+--- a/board/siemens/iot2050/Kconfig
++++ b/board/siemens/iot2050/Kconfig
+@@ -12,7 +12,7 @@ config TARGET_IOT2050_A53
+ 	select SOC_K3_AM6
+ 	select BOARD_LATE_INIT
+ 	select SYS_DISABLE_DCACHE_OPS
+-	select BINMAN
++	# select BINMAN
+ 
+ if TARGET_IOT2050_A53
+ 
+diff --git a/board/siemens/iot2050/u-boot.its b/board/siemens/iot2050/u-boot.its
+index 1bc89c0f99..2b899bc0e0 100644
+--- a/board/siemens/iot2050/u-boot.its
++++ b/board/siemens/iot2050/u-boot.its
+@@ -28,7 +28,7 @@
+ 			type = "flat_dt";
+ 			arch = "arm64";
+ 			compression = "none";
+-			data = /incbin/("arch/arm/dts/iot2050-basic.dtb");
++			data = /incbin/("arch/arm/dts/k3-am6528-iot2050-basic.dtb");
+ 		};
+ 
+ 		fdt-iot2050-advanced {
+@@ -36,7 +36,7 @@
+ 			type = "flat_dt";
+ 			arch = "arm64";
+ 			compression = "none";
+-			data = /incbin/("arch/arm/dts/iot2050-advanced.dtb");
++			data = /incbin/("arch/arm/dts/k3-am6548-iot2050-advanced.dtb");
+ 		};
+ 	};
+ 
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index 5bc4cfca6c..f0ae4bc900 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -24,6 +24,7 @@ CONFIG_DISTRO_DEFAULTS=y
+ # CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
+ CONFIG_SPL_LOAD_FIT=y
+ # CONFIG_USE_SPL_FIT_GENERATOR is not set
++CONFIG_USE_SPL_FIT_GENERATOR=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_CONSOLE_MUX=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+@@ -135,3 +136,18 @@ CONFIG_USB_DWC3_GENERIC=y
+ CONFIG_USB_KEYBOARD=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_PHY_TI=y
++CONFIG_TI_AM64_ICSSG_PRUETH=y
++CONFIG_REMOTEPROC_TI_PRU=y
++CONFIG_TI_PRUSS=y
++CONFIG_SPL_SYSCON=y
++CONFIG_SPL_FIT_GENERATOR="arch/arm/mach-k3/make_fit.py"
++CONFIG_SPL_FIT_SIGNATURE=y
++CONFIG_SPL_CRYPTO_SUPPORT=y
++CONFIG_SPL_HASH_SUPPORT=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_LEGACY_IMAGE_FORMAT=y
++CONFIG_CMD_NET=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_DHCP=y
++CONFIG_NET=y
+-- 
+2.31.1
+

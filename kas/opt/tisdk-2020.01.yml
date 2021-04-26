@@ -14,3 +14,5 @@ header:
 local_conf_header:
   ti-kernel-versions: |
     PREFERRED_VERSION_linux-iot2050 = "5.4.%"
+    PREFERRED_VERSION_u-boot-iot2050-basic = "2020.01-ti-sdk"
+    PREFERRED_VERSION_u-boot-iot2050-advanced = "2020.01-ti-sdk"

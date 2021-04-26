@@ -1,0 +1,49 @@
+From 31c7b4c970b86928ed53cebc334ef90846e593ac Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Thu, 25 Mar 2021 15:35:57 +0800
+Subject: [PATCH 3/6] Add the function,convert string to upper
+
+convert the string to upper
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ include/vsprintf.h | 8 ++++++++
+ lib/strto.c        | 8 ++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/include/vsprintf.h b/include/vsprintf.h
+index 56844dd2de..9f51272722 100644
+--- a/include/vsprintf.h
++++ b/include/vsprintf.h
+@@ -222,4 +222,12 @@ bool str2long(const char *p, ulong *num);
+  * @hz: Value to convert
+  */
+ char *strmhz(char *buf, unsigned long hz);
++
++/**
++ * str_to_upper() - Convert a string to upper case
++ * @out: Buffer to put converted string
++ * @len: Number of bytes available in @out (SIZE_MAX for all)
++ */
++void str_to_upper(const char *in, char *out, size_t len);
++
+ #endif
+diff --git a/lib/strto.c b/lib/strto.c
+index 55ff9f7437..c00bb5895d 100644
+--- a/lib/strto.c
++++ b/lib/strto.c
+@@ -163,3 +163,11 @@ long trailing_strtol(const char *str)
+ {
+ 	return trailing_strtoln(str, NULL);
+ }
++
++void str_to_upper(const char *in, char *out, size_t len)
++{
++	for (; len > 0 && *in; len--)
++		*out++ = toupper(*in++);
++	if (len)
++		*out = '\0';
++}
+-- 
+2.31.1
+
