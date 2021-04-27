@@ -1,4 +1,4 @@
-From d3d472450266bdf1310651fafd14ea961cbf1730 Mon Sep 17 00:00:00 2001
+From 820884dcab40f14bd1d5f79970f8fe7d3d74dbab Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
 Subject: [PATCH 06/11] feat:extend led panic-indicator on and off
@@ -13,7 +13,7 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  5 files changed, 30 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
-index 0dba4e95ca90..4ceac8f55cd8 100644
+index 594070b19fc4..a6490d0d784e 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 @@ -137,6 +137,7 @@
