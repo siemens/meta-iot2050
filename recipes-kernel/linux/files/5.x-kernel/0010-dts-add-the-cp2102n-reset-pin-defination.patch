@@ -1,4 +1,4 @@
-From 4be77f522174487c35a3ff5810e1d92c2db9b233 Mon Sep 17 00:00:00 2001
+From 668de021cead4cc5622df2decca78b4107577216 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Mon, 22 Mar 2021 13:34:18 +0800
 Subject: [PATCH 10/11] dts : add the cp2102n reset pin defination
@@ -11,7 +11,7 @@ Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
  1 file changed, 21 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
-index efe9ef73bc0d..112bc9bc8722 100644
+index f17b36b1d814..ee00cec6ec23 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 @@ -407,6 +407,12 @@
