@@ -9,7 +9,6 @@ import json
 import mraa
 from collections import OrderedDict
 
-
 class ansicolors:
     clear = '\033[2J'
 
@@ -481,11 +480,11 @@ class PeripheralsMenu:
             return
         terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
         subprocess.call('switchserialmode -m ' + switchMode + terminateOpt, shell=True)
-        if PeripheralsMenu.is_sr2_soc() and self.topmenu.boardType == 'IOT2050 Advanced':
-            subprocess.call('switchserialmode -r ', shell=True)
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
+        if PeripheralsMenu.is_sr2_soc() and self.topmenu.boardType == 'IOT2050 Advanced':
+            subprocess.call('switchserialmode -r ', shell=True)
 
     def currentMode(self):
         mode = self.config['User_configuration']['External_Serial_Current_Mode']
