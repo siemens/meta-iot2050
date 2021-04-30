@@ -1,7 +1,7 @@
 From 00df1594d0ec4021025449d7c41b2924ce1f7888 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 4 Feb 2021 18:12:42 +0100
-Subject: [PATCH 9/9] led: Fix and cleanup initialization
+Subject: [PATCH 09/11] led: Fix and cleanup initialization
 
 The structure returned by readdir is may be statically allocated.
 Keeping a pointer to it is broken.
