@@ -1,29 +1,31 @@
-From 8d6cc2b7b67eb175ecde1c9d2ab7e46a3f9eb720 Mon Sep 17 00:00:00 2001
+From 9b6834f6fcd46f07c70f82f81efa7cf148c75116 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 21 Jun 2020 09:04:30 +0200
-Subject: [PATCH 03/28] watchdog: rti_wdt: Add support for loading firmware
+Subject: [PATCH 03/24] watchdog: rti_wdt: Add support for loading firmware
 
 To avoid the need of extra boot scripting on AM65x for loading a
 watchdog firmware, add the required rproc init and loading logic for the
-first R5F core to the watchdog start handler. The firmware itself is
-embedded into U-Boot binary.
+first R5F core to the watchdog start handler. In case the R5F cluster is
+in lock-step mode, also initialize the second core. The firmware itself
+is embedded into U-Boot binary to ease access to it and ensure it is
+properly hashed in case of secure boot.
 
 One possible firmware source is https://github.com/siemens/k3-rti-wdt.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- drivers/watchdog/Kconfig      | 20 ++++++++++++++++++
- drivers/watchdog/Makefile     |  5 +++++
- drivers/watchdog/rti_wdt.c    | 39 ++++++++++++++++++++++++++++++++++-
- drivers/watchdog/rti_wdt_fw.S | 20 ++++++++++++++++++
- 4 files changed, 83 insertions(+), 1 deletion(-)
+ drivers/watchdog/Kconfig      | 20 ++++++++++++
+ drivers/watchdog/Makefile     |  5 +++
+ drivers/watchdog/rti_wdt.c    | 58 ++++++++++++++++++++++++++++++++++-
+ drivers/watchdog/rti_wdt_fw.S | 20 ++++++++++++
+ 4 files changed, 102 insertions(+), 1 deletion(-)
  create mode 100644 drivers/watchdog/rti_wdt_fw.S
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4532a40e45..1548af43a7 100644
+index 602ccbe41c..280da3252f 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -173,6 +173,26 @@ config WDT_K3_RTI
+@@ -189,6 +189,26 @@ config WDT_K3_RTI
  	  Say Y here if you want to include support for the K3 watchdog
  	  timer (RTI module) available in the K3 generation of processors.
  
@@ -51,10 +53,10 @@ index 4532a40e45..1548af43a7 100644
  	bool "Enable Watchdog Timer support for Sandbox"
  	depends on SANDBOX && WDT
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 01b8231f2b..fb7b8ec302 100644
+index 6e70c7ae19..28a978c5a1 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -30,7 +30,12 @@ obj-$(CONFIG_WDT_OCTEONTX) += octeontx_wdt.o
+@@ -32,7 +32,12 @@ obj-$(CONFIG_WDT_OCTEONTX) += octeontx_wdt.o
  obj-$(CONFIG_WDT_OMAP3) += omap_wdt.o
  obj-$(CONFIG_WDT_SBSA) += sbsa_gwdt.o
  obj-$(CONFIG_WDT_K3_RTI) += rti_wdt.o
@@ -68,7 +70,7 @@ index 01b8231f2b..fb7b8ec302 100644
 +$(obj)/rti_wdt_fw.o: $(shell readlink -f $(CONFIG_WDT_K3_RTI_FW_FILE)) FORCE
 +endif
 diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index ebe29c7409..9a6151dec9 100644
+index 8335b20ae8..97daf40145 100644
 --- a/drivers/watchdog/rti_wdt.c
 +++ b/drivers/watchdog/rti_wdt.c
 @@ -11,9 +11,11 @@
@@ -83,7 +85,7 @@ index ebe29c7409..9a6151dec9 100644
  
  /* Timer register set definition */
  #define RTIDWDCTRL		0x90
-@@ -42,15 +44,50 @@ struct rti_wdt_priv {
+@@ -42,15 +44,69 @@ struct rti_wdt_priv {
  	unsigned int clk_khz;
  };
  
@@ -94,8 +96,9 @@ index ebe29c7409..9a6151dec9 100644
  {
 +#ifdef CONFIG_WDT_K3_RTI_LOAD_FW
 +	struct udevice *rproc_dev;
++	int primary_core, ret;
++	u32 cluster_mode;
 +	ofnode node;
-+	int ret;
 +#endif
  	struct rti_wdt_priv *priv = dev_get_priv(dev);
  	u32 timer_margin;
@@ -105,29 +108,47 @@ index ebe29c7409..9a6151dec9 100644
  		return -EBUSY;
  
 +#ifdef CONFIG_WDT_K3_RTI_LOAD_FW
-+	node = ofnode_by_compatible(ofnode_null(), "ti,am654-r5f");
++	node = ofnode_by_compatible(ofnode_null(), "ti,am654-r5fss");
 +	if (!ofnode_valid(node)) {
++	    dt_error:
 +		dev_err(dev, "No compatible firmware target processor found\n");
 +		return -ENODEV;
 +	}
++
++	ret = ofnode_read_u32(node, "ti,cluster-mode", &cluster_mode);
++	if (ret)
++		cluster_mode = 1;
++
++	node = ofnode_by_compatible(node, "ti,am654-r5f");
++	if (!ofnode_valid(node))
++		goto dt_error;
 +
 +	ret = uclass_get_device_by_ofnode(UCLASS_REMOTEPROC, node, &rproc_dev);
 +	if (ret)
 +		return ret;
 +
-+	ret = rproc_dev_init(rproc_dev->seq);
++	primary_core = dev_seq(rproc_dev);
++
++	ret = rproc_dev_init(primary_core);
 +	if (ret) {
 +	    fw_error:
 +		dev_err(dev, "Failed to load watchdog firmware into remote processor %d\n",
-+			rproc_dev->seq);
++			primary_core);
 +		return ret;
 +	}
 +
-+	ret = rproc_load(rproc_dev->seq, (ulong)rti_wdt_fw, rti_wdt_fw_size);
++	if (cluster_mode == 1) {
++		ret = rproc_dev_init(primary_core + 1);
++		if (ret)
++			goto fw_error;
++	}
++
++	ret = rproc_load(primary_core, (ulong)rti_wdt_fw,
++			 rti_wdt_fw_size);
 +	if (ret)
 +		goto fw_error;
 +
-+	ret = rproc_start(rproc_dev->seq);
++	ret = rproc_start(primary_core);
 +	if (ret)
 +		goto fw_error;
 +#endif
@@ -162,5 +183,5 @@ index 0000000000..78d99ff9f2
 +rti_wdt_fw_size:
 +.int rti_wdt_fw_end - rti_wdt_fw
 -- 
-2.25.1
+2.26.2
 

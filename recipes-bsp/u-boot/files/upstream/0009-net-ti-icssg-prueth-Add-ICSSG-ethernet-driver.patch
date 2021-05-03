@@ -1,7 +1,7 @@
-From 5802c857ed6c202211abeaaab7cab8d7ec591f0a Mon Sep 17 00:00:00 2001
+From 9f099dff79966052b9f08d38a87f89f931701f80 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:58 +0530
-Subject: [PATCH 09/28] net: ti: icssg-prueth: Add ICSSG ethernet driver
+Subject: [PATCH 09/24] net: ti: icssg-prueth: Add ICSSG ethernet driver
 
 This is the Ethernet driver for TI SoCs with the
 ICSSG PRU Sub-system running EMAC firmware.
@@ -20,7 +20,8 @@ as the u-boot ethernet supports probing one interface
 at a time.
 
 Signed-off-by: Keerthy <j-keerthy@ti.com>
-[Jan: add device_compat.h, adjust dev_err calls]
+[Jan: add device_compat.h, adjust dev_err calls, adjust priv/plat_auto,
+      use dev_get_uclass_plat]
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  drivers/net/ti/Kconfig            |   8 +
@@ -60,7 +61,7 @@ index 8d3808bb4b..b486498909 100644
 +obj-$(CONFIG_TI_AM64_ICSSG_PRUETH) += icssg-prueth.o cpsw_mdio.o icssg_classifier.o
 diff --git a/drivers/net/ti/icssg-prueth.c b/drivers/net/ti/icssg-prueth.c
 new file mode 100644
-index 0000000000..03160b415a
+index 0000000000..87a85b29ca
 --- /dev/null
 +++ b/drivers/net/ti/icssg-prueth.c
 @@ -0,0 +1,648 @@
@@ -338,7 +339,7 @@ index 0000000000..03160b415a
 +static int prueth_start(struct udevice *dev)
 +{
 +	struct prueth *priv = dev_get_priv(dev);
-+	struct eth_pdata *pdata = dev->platdata;
++	struct eth_pdata *pdata = dev_get_uclass_plat(dev);
 +	int ret, i;
 +	char tx_chn_name[16];
 +	char rx_chn_name[16];
@@ -708,8 +709,8 @@ index 0000000000..03160b415a
 +	.of_match = prueth_ids,
 +	.probe	= prueth_probe,
 +	.ops	= &prueth_ops,
-+	.priv_auto_alloc_size = sizeof(struct prueth),
-+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
++	.priv_auto = sizeof(struct prueth),
++	.plat_auto = sizeof(struct eth_pdata),
 +	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 +};
 diff --git a/drivers/net/ti/icssg.h b/drivers/net/ti/icssg.h
@@ -1153,5 +1154,5 @@ index 0000000000..2af14ed5b2
 +	regmap_write(miig_rt, offs[slice].mac1, mac1);
 +}
 -- 
-2.25.1
+2.26.2
 

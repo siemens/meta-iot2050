@@ -1,7 +1,7 @@
-From 6d17c97d3cd9b8dcbbe9ba559a42c550c9b3574f Mon Sep 17 00:00:00 2001
+From 3fa26aff717d4db4c4fc4adb003a75acfae9fe19 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:30 +0000
-Subject: [PATCH 16/28] net: ti: icssg-prueth: Drop unsupported modes from the
+Subject: [PATCH 15/24] net: ti: icssg-prueth: Drop unsupported modes from the
  PHY
 
 Currently driver supports only 100M and 1G Full duplex modes and
@@ -15,7 +15,7 @@ Acked-by: Roger Quadros <rogerq@ti.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/net/ti/icssg-prueth.c b/drivers/net/ti/icssg-prueth.c
-index 03160b415a..e61dc51247 100644
+index 87a85b29ca..5ad598045c 100644
 --- a/drivers/net/ti/icssg-prueth.c
 +++ b/drivers/net/ti/icssg-prueth.c
 @@ -202,6 +202,13 @@ static int icssg_phy_init(struct udevice *dev)
@@ -33,5 +33,5 @@ index 03160b415a..e61dc51247 100644
  	phydev->advertising = phydev->supported;
  
 -- 
-2.25.1
+2.26.2
 

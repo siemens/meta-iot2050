@@ -1,7 +1,7 @@
-From 4479ca81e585b3e24ce18c3cdbc1ab402d7d9348 Mon Sep 17 00:00:00 2001
+From 975430e2bda2b69909375d1b307527ed4619526e Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 11 May 2020 20:10:16 +0200
-Subject: [PATCH 02/28] board: siemens: Add support for SIMATIC IOT2050 devices
+Subject: [PATCH 02/24] board: siemens: Add support for SIMATIC IOT2050 devices
 
 This adds support for the IOT2050 Basic and Advanced devices. The Basic
 used the dual-core AM6528 GP processor, the Advanced one the AM6548 HS
@@ -19,15 +19,15 @@ Based on original board support by Le Jin, Gao Nian and Chao Zeng.
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  arch/arm/mach-k3/Kconfig          |   1 +
- board/siemens/iot2050/Kconfig     |  28 ++++
- board/siemens/iot2050/MAINTAINERS |   8 ++
+ board/siemens/iot2050/Kconfig     |  32 ++++
+ board/siemens/iot2050/MAINTAINERS |   8 +
  board/siemens/iot2050/Makefile    |  10 ++
- board/siemens/iot2050/README      |  65 +++++++++
- board/siemens/iot2050/board.c     | 229 ++++++++++++++++++++++++++++++
- board/siemens/iot2050/config.mk   |   8 ++
- configs/iot2050_defconfig         | 136 ++++++++++++++++++
- include/configs/iot2050.h         |  60 ++++++++
- 9 files changed, 545 insertions(+)
+ board/siemens/iot2050/README      |  65 +++++++
+ board/siemens/iot2050/board.c     | 278 ++++++++++++++++++++++++++++++
+ board/siemens/iot2050/config.mk   |   8 +
+ configs/iot2050_defconfig         | 140 +++++++++++++++
+ include/configs/iot2050.h         |  60 +++++++
+ 9 files changed, 602 insertions(+)
  create mode 100644 board/siemens/iot2050/Kconfig
  create mode 100644 board/siemens/iot2050/MAINTAINERS
  create mode 100644 board/siemens/iot2050/Makefile
@@ -49,10 +49,10 @@ index c7d186149b..b191e88b13 100644
  endif
 diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
 new file mode 100644
-index 0000000000..28ba746936
+index 0000000000..06c5f14761
 --- /dev/null
 +++ b/board/siemens/iot2050/Kconfig
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,32 @@
 +# SPDX-License-Identifier: GPL-2.0+
 +#
 +# Copyright (c) Siemens AG, 2018-2020
@@ -72,13 +72,17 @@ index 0000000000..28ba746936
 +if TARGET_IOT2050_A53
 +
 +config SYS_BOARD
-+       default "iot2050"
++	default "iot2050"
 +
 +config SYS_VENDOR
-+       default "siemens"
++	default "siemens"
 +
 +config SYS_CONFIG_NAME
-+       default "iot2050"
++	default "iot2050"
++
++config IOT2050_BOOT_SWITCH
++	bool "Disable eMMC boot via USER button (Advanced version only)"
++	default y
 +
 +endif
 diff --git a/board/siemens/iot2050/MAINTAINERS b/board/siemens/iot2050/MAINTAINERS
@@ -184,10 +188,10 @@ index 0000000000..b63f05b5cf
 +    dpcmd --vcc 2 -v -u flash.bin
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
 new file mode 100644
-index 0000000000..25541d50e5
+index 0000000000..936d66467a
 --- /dev/null
 +++ b/board/siemens/iot2050/board.c
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,278 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Board specific initialization for IOT2050
@@ -207,6 +211,7 @@ index 0000000000..25541d50e5
 +#include <phy.h>
 +#include <spl.h>
 +#include <version.h>
++#include <linux/delay.h>
 +#include <asm/arch/sys_proto.h>
 +#include <asm/arch/hardware.h>
 +#include <asm/gpio.h>
@@ -241,6 +246,14 @@ index 0000000000..25541d50e5
 +
 +	return info->magic == IOT2050_INFO_MAGIC &&
 +		!strcmp((char *)info->name, "IOT2050-ADVANCED");
++}
++
++static void remove_mmc1_target(void)
++{
++	const char *boot_targets = env_get("boot_targets");
++
++	if (strncmp(boot_targets, "mmc1 ", 5) == 0)
++		env_set("boot_targets", boot_targets + 5);
 +}
 +
 +void set_board_info_env(void)
@@ -284,7 +297,7 @@ index 0000000000..25541d50e5
 +	} else {
 +		env_set("fdtfile", "ti/k3-am6528-iot2050-basic.dtb");
 +		/* remove the unavailable eMMC (mmc1) from the list */
-+		env_set("boot_targets", "mmc0 usb0 usb1 usb2");
++		remove_mmc1_target();
 +	}
 +
 +	env_save();
@@ -343,6 +356,40 @@ index 0000000000..25541d50e5
 +	return 0;
 +}
 +
++#ifdef CONFIG_IOT2050_BOOT_SWITCH
++static bool user_button_pressed(void)
++{
++	struct udevice *red_led = NULL;
++	unsigned long count = 0;
++	struct gpio_desc gpio;
++
++	memset(&gpio, 0, sizeof(gpio));
++
++	if (dm_gpio_lookup_name("25", &gpio) < 0 ||
++	    dm_gpio_request(&gpio, "USER button") < 0 ||
++	    dm_gpio_set_dir_flags(&gpio, GPIOD_IS_IN) < 0)
++		return false;
++
++	if (dm_gpio_get_value(&gpio) == 1)
++		return false;
++
++	printf("USER button pressed - booting from external media only\n");
++
++	led_get_by_label("status-led-red", &red_led);
++
++	if (red_led)
++		led_set_state(red_led, LEDST_ON);
++
++	while (dm_gpio_get_value(&gpio) == 0 && count++ < 10000)
++		mdelay(1);
++
++	if (red_led)
++		led_set_state(red_led, LEDST_OFF);
++
++	return true;
++}
++#endif
++
 +#define SERDES0_LANE_SELECT	0x00104080
 +
 +int board_late_init(void)
@@ -351,6 +398,12 @@ index 0000000000..25541d50e5
 +	writel(0x3, SERDES0_LANE_SELECT);
 +
 +	set_board_info_env();
++
++#ifdef CONFIG_IOT2050_BOOT_SWITCH
++	/* remove the eMMC if requested via button */
++	if (board_is_advanced() && user_button_pressed())
++		remove_mmc1_target();
++#endif
 +
 +	return 0;
 +}
@@ -365,7 +418,7 @@ index 0000000000..25541d50e5
 +		ret = fdt_fixup_msmc_ram(blob, "/interconnect@100000",
 +					 "sram@70000000");
 +	if (ret)
-+		printf("%s: fixing up msmc ram failed %d\n", __func__, ret);
++		pr_err("%s: fixing up msmc ram failed %d\n", __func__, ret);
 +
 +	return ret;
 +}
@@ -433,10 +486,10 @@ index 0000000000..951f72ba16
 +flash.bin: all
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
 new file mode 100644
-index 0000000000..6c5e5e80de
+index 0000000000..2ea13f3a39
 --- /dev/null
 +++ b/configs/iot2050_defconfig
-@@ -0,0 +1,136 @@
+@@ -0,0 +1,140 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_K3=y
 +CONFIG_SPL_GPIO_SUPPORT=y
@@ -445,6 +498,7 @@ index 0000000000..6c5e5e80de
 +CONFIG_SYS_MALLOC_F_LEN=0x8000
 +CONFIG_SOC_K3_AM6=y
 +CONFIG_TARGET_IOT2050_A53=y
++CONFIG_IOT2050_BOOT_SWITCH=y
 +CONFIG_ENV_SIZE=0x20000
 +CONFIG_ENV_OFFSET=0x680000
 +CONFIG_ENV_SECT_SIZE=0x20000
@@ -495,10 +549,10 @@ index 0000000000..6c5e5e80de
 +# CONFIG_ISO_PARTITION is not set
 +CONFIG_OF_CONTROL=y
 +CONFIG_SPL_OF_CONTROL=y
-+CONFIG_DEFAULT_DEVICE_TREE="iot2050-basic"
-+CONFIG_OF_LIST="iot2050-basic iot2050-advanced"
++CONFIG_DEFAULT_DEVICE_TREE="k3-am6528-iot2050-basic"
++CONFIG_OF_LIST="k3-am6528-iot2050-basic k3-am6548-iot2050-advanced"
 +CONFIG_SPL_MULTI_DTB_FIT=y
-+CONFIG_SPL_OF_LIST="iot2050-spl"
++CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
 +CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 +CONFIG_ENV_IS_IN_SPI_FLASH=y
 +CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
@@ -536,6 +590,7 @@ index 0000000000..6c5e5e80de
 +CONFIG_MMC_SDHCI_AM654=y
 +CONFIG_DM_SPI_FLASH=y
 +CONFIG_SPI_FLASH_SFDP_SUPPORT=y
++CONFIG_SPI_FLASH_STMICRO=y
 +CONFIG_SPI_FLASH_WINBOND=y
 +# CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
 +CONFIG_DM_ETH=y
@@ -557,6 +612,8 @@ index 0000000000..6c5e5e80de
 +CONFIG_DM_RESET=y
 +CONFIG_RESET_TI_SCI=y
 +CONFIG_DM_SERIAL=y
++CONFIG_SOC_DEVICE=y
++CONFIG_SOC_DEVICE_TI_K3=y
 +CONFIG_SOC_TI=y
 +CONFIG_SPI=y
 +CONFIG_DM_SPI=y
@@ -640,5 +697,5 @@ index 0000000000..2d1b1b1150
 +
 +#endif /* __CONFIG_IOT2050_H */
 -- 
-2.25.1
+2.26.2
 

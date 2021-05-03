@@ -1,20 +1,20 @@
-From d4a71bf4a059149190b867284442a684f862031f Mon Sep 17 00:00:00 2001
+From c20d52025bbe74e55f8767fc7d95c11fd57ac784 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 30 Apr 2020 12:17:50 +0530
-Subject: [PATCH 15/28] configs: am65x_evm_a53_defconfig: Enable prueth configs
+Subject: [PATCH 14/24] configs: am65x_evm_a53_defconfig: Enable prueth configs
 
 Enable prueth configs
 
 Signed-off-by: Keerthy <j-keerthy@ti.com>
 ---
- configs/am65x_evm_a53_defconfig | 4 ++++
- 1 file changed, 4 insertions(+)
+ configs/am65x_evm_a53_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/configs/am65x_evm_a53_defconfig b/configs/am65x_evm_a53_defconfig
-index 941073ce7f..a87c23f373 100644
+index 1f2d78d1ac..2310bad31c 100644
 --- a/configs/am65x_evm_a53_defconfig
 +++ b/configs/am65x_evm_a53_defconfig
-@@ -119,6 +119,7 @@ CONFIG_DM_ETH=y
+@@ -123,6 +123,7 @@ CONFIG_DM_ETH=y
  CONFIG_E1000=y
  CONFIG_CMD_E1000=y
  CONFIG_TI_AM65_CPSW_NUSS=y
@@ -22,9 +22,9 @@ index 941073ce7f..a87c23f373 100644
  CONFIG_PCI=y
  CONFIG_DM_PCI=y
  CONFIG_PCI_KEYSTONE=y
-@@ -134,12 +135,14 @@ CONFIG_PINCTRL_SINGLE=y
- CONFIG_POWER_DOMAIN=y
- CONFIG_TI_SCI_POWER_DOMAIN=y
+@@ -141,12 +142,14 @@ CONFIG_DM_REGULATOR=y
+ CONFIG_DM_REGULATOR_FIXED=y
+ CONFIG_DM_REGULATOR_GPIO=y
  CONFIG_REMOTEPROC_TI_K3_R5F=y
 +CONFIG_REMOTEPROC_TI_PRU=y
  CONFIG_DM_RESET=y
@@ -37,11 +37,6 @@ index 941073ce7f..a87c23f373 100644
  CONFIG_SPI=y
  CONFIG_DM_SPI=y
  CONFIG_CADENCE_QSPI=y
-@@ -161,3 +164,4 @@ CONFIG_USB_GADGET_VENDOR_NUM=0x0451
- CONFIG_USB_GADGET_PRODUCT_NUM=0x6162
- CONFIG_USB_GADGET_DOWNLOAD=y
- CONFIG_OF_LIBFDT_OVERLAY=y
-+CONFIG_SPL_SYSCON=y
 -- 
-2.25.1
+2.26.2
 

@@ -43,6 +43,8 @@ U_BOOT_REV = "029e4c009aaeaee2d06aa8271dbd3a9e73a28aa7"
 ATF_REV   = "996d37930996c2fa39eb091508b5ad4e0d69ad35"
 OPTEE_REV = "e260ea8dde9669308336d194abec8dcc18784216"
 
+S = "${WORKDIR}/git"
+
 DEBIAN_BUILD_DEPENDS =. "python-crypto:native, python3-pyelftools,"
 
 U_BOOT_BIN = "u-boot.itb"

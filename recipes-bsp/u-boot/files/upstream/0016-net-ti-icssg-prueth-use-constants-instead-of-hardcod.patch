@@ -1,7 +1,7 @@
-From ee290e35c3237a43b96b12aa4eeb18dec388becc Mon Sep 17 00:00:00 2001
+From c0b637c05a0fdc2d76d88febe836f86deddc0a3f Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:31 +0000
-Subject: [PATCH 17/28] net: ti: icssg-prueth: use constants instead of
+Subject: [PATCH 16/24] net: ti: icssg-prueth: use constants instead of
  hardcoded values
 
 Use existing constants for speed and duplex values instead of
@@ -15,7 +15,7 @@ Acked-by: Roger Quadros <rogerq@ti.com>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ti/icssg-prueth.c b/drivers/net/ti/icssg-prueth.c
-index e61dc51247..971a4631f1 100644
+index 5ad598045c..8e25ddd3ec 100644
 --- a/drivers/net/ti/icssg-prueth.c
 +++ b/drivers/net/ti/icssg-prueth.c
 @@ -254,12 +254,10 @@ static int icssg_update_link(struct prueth *priv)
@@ -34,5 +34,5 @@ index e61dc51247..971a4631f1 100644
  		icssg_update_rgmii_cfg(priv->miig_rt, gig_en, full_duplex,
  				       priv->slice);
 -- 
-2.25.1
+2.26.2
 

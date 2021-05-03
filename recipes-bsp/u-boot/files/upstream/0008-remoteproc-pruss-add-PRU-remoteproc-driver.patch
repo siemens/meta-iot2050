@@ -1,7 +1,7 @@
-From 6f73f79c1978f8a4d35f8f44c52a2061259588fb Mon Sep 17 00:00:00 2001
+From a38213bedbef2df271248b0724bb03123d8c3e2d Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:57 +0530
-Subject: [PATCH 08/28] remoteproc: pruss: add PRU remoteproc driver
+Subject: [PATCH 08/24] remoteproc: pruss: add PRU remoteproc driver
 
 The Programmable Real-Time Unit Subsystem (PRUSS) consists of
 dual 32-bit RISC cores (Programmable Real-Time Units, or PRUs)
@@ -11,7 +11,7 @@ driver for managing the individual PRU RISC cores life cycle.
 The driver currently supports the AM65xx SoC
 
 Signed-off-by: Keerthy <j-keerthy@ti.com>
-[Jan: add device_compat.h]
+[Jan: add device_compat.h, adjust .priv_auto]
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  drivers/remoteproc/Kconfig     |  11 +
@@ -51,7 +51,7 @@ index 69ae7bd1e8..f0e83451d6 100644
 +obj-$(CONFIG_REMOTEPROC_TI_PRU) += pru_rproc.o
 diff --git a/drivers/remoteproc/pru_rproc.c b/drivers/remoteproc/pru_rproc.c
 new file mode 100644
-index 0000000000..2d01550431
+index 0000000000..ae596135bf
 --- /dev/null
 +++ b/drivers/remoteproc/pru_rproc.c
 @@ -0,0 +1,405 @@
@@ -458,8 +458,8 @@ index 0000000000..2d01550431
 +	.id = UCLASS_REMOTEPROC,
 +	.ops = &pru_ops,
 +	.probe = pru_probe,
-+	.priv_auto_alloc_size = sizeof(struct pru_privdata),
++	.priv_auto = sizeof(struct pru_privdata),
 +};
 -- 
-2.25.1
+2.26.2
 
