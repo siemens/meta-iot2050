@@ -1,7 +1,7 @@
 From f0d40c4eba4790751ef54fe3fd014b45e09cb9cd Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 Nov 2020 07:26:50 +0100
-Subject: [PATCH 4/9] api: Add explicit close methods to classes
+Subject: [PATCH 04/11] api: Add explicit close methods to classes
 
 This is needed for bindings to languages which perform implicit and lazy
 object cleanups. The explicit close methods allow to release resources

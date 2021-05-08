@@ -1,7 +1,7 @@
 From 068659aab4ac171901aef3d8687d86f92029538d Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Tue, 18 Jun 2019 16:16:02 +0800
-Subject: [PATCH 3/9] feat:iot2050:add some example code for testing
+Subject: [PATCH 03/11] feat:iot2050:add some example code for testing
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---

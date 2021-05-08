@@ -1,7 +1,7 @@
 From eb2790bb670d5c2ff5452f489c23abad5543501c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 07:11:20 +0100
-Subject: [PATCH 5/9] gpio: chardev: Add helper to retrieve gpiochip and line
+Subject: [PATCH 05/11] gpio: chardev: Add helper to retrieve gpiochip and line
  offset by line name
 
 This makes the retrieval robust against chips being reordered during

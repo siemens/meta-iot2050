@@ -1,7 +1,7 @@
 From 51983e8cc21f6979be942078b1f8490bfdda1af0 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 09:14:35 +0100
-Subject: [PATCH 8/9] iot2050: Add USER button
+Subject: [PATCH 08/11] iot2050: Add USER button
 
 A simple GPIO, no muxing needed, no pulling supported. Therefore, reject
 any mode changes that request pull up/down, ignore the others.

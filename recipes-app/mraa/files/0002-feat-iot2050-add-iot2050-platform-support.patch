@@ -1,7 +1,7 @@
 From a1bee1d7bd044a7658e54d894b5ffbfb33f58360 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Fri, 24 May 2019 14:33:42 +0800
-Subject: [PATCH 2/9] feat:iot2050:add iot2050 platform support
+Subject: [PATCH 02/11] feat:iot2050:add iot2050 platform support
 
 Add new iot2050 platform support with some modifications
 due to lack of support with register level pin mux hooks.
