@@ -1,7 +1,7 @@
-From 88f1cd7fcb49f95623ee0a6dd6120f3b0421d668 Mon Sep 17 00:00:00 2001
+From 0d4e9ecbf42d1b165573de91e9ee9962855debc3 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 17 May 2020 20:10:30 +0200
-Subject: [PATCH 24/28] iot2050: Add ICSSG0 Ethernet support
+Subject: [PATCH 23/24] iot2050: Add ICSSG0 Ethernet support
 
 Analogously to the am654-base-board, this adds support for the dual
 Gigabit Ethernet on IOT2050. Here it is connected to ICSSG0. Either mii0
@@ -49,7 +49,7 @@ index dad567d0dc..7fb9bb616f 100644
  	};
  };
 diff --git a/arch/arm/dts/k3-am65-iot2050-common.dtsi b/arch/arm/dts/k3-am65-iot2050-common.dtsi
-index fcb45d1525..3ed81bf8fc 100644
+index 2f8c458bf9..3e473f2bbb 100644
 --- a/arch/arm/dts/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-common.dtsi
 @@ -10,12 +10,14 @@
@@ -130,8 +130,8 @@ index fcb45d1525..3ed81bf8fc 100644
 +	};
  };
  
- &cbass_main {
-@@ -331,6 +390,45 @@
+ &sdhci1 {
+@@ -305,6 +364,45 @@
  			AM65X_IOPAD(0x0070, PIN_INPUT,  5)  /* (R25) I2C2_SDA */
  		>;
  	};
@@ -177,7 +177,7 @@ index fcb45d1525..3ed81bf8fc 100644
  };
  
  &main_pmx1 {
-@@ -541,6 +639,18 @@
+@@ -517,6 +615,18 @@
  	};
  };
  
@@ -196,7 +196,7 @@ index fcb45d1525..3ed81bf8fc 100644
  &k3_pds {
  	u-boot,dm-spl;
  };
-@@ -556,3 +666,21 @@
+@@ -532,3 +642,21 @@
  &fss {
  	u-boot,dm-spl;
  };
@@ -234,10 +234,10 @@ index b63f05b5cf..35ebb3c8a5 100644
  
  Building
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
-index 6c5e5e80de..31931e7a5a 100644
+index 2ea13f3a39..ea34f2e6ca 100644
 --- a/configs/iot2050_defconfig
 +++ b/configs/iot2050_defconfig
-@@ -47,7 +47,6 @@ CONFIG_CMD_DFU=y
+@@ -48,7 +48,6 @@ CONFIG_CMD_DFU=y
  CONFIG_CMD_GPT=y
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
@@ -245,7 +245,7 @@ index 6c5e5e80de..31931e7a5a 100644
  CONFIG_CMD_PCI=y
  CONFIG_CMD_REMOTEPROC=y
  CONFIG_CMD_USB=y
-@@ -63,11 +62,11 @@ CONFIG_SPL_OF_LIST="iot2050-spl"
+@@ -64,11 +63,11 @@ CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
  CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
  CONFIG_ENV_IS_IN_SPI_FLASH=y
  CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
@@ -258,8 +258,8 @@ index 6c5e5e80de..31931e7a5a 100644
  CONFIG_SPL_OF_TRANSLATE=y
  CONFIG_CLK=y
  CONFIG_SPL_CLK=y
-@@ -99,8 +98,10 @@ CONFIG_DM_SPI_FLASH=y
- CONFIG_SPI_FLASH_SFDP_SUPPORT=y
+@@ -101,8 +100,10 @@ CONFIG_SPI_FLASH_SFDP_SUPPORT=y
+ CONFIG_SPI_FLASH_STMICRO=y
  CONFIG_SPI_FLASH_WINBOND=y
  # CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
 +CONFIG_PHY_TI=y
@@ -269,7 +269,7 @@ index 6c5e5e80de..31931e7a5a 100644
  CONFIG_PCI=y
  CONFIG_DM_PCI=y
  CONFIG_PCI_KEYSTONE=y
-@@ -115,10 +116,12 @@ CONFIG_PINCTRL_SINGLE=y
+@@ -117,12 +118,14 @@ CONFIG_PINCTRL_SINGLE=y
  CONFIG_POWER_DOMAIN=y
  CONFIG_TI_SCI_POWER_DOMAIN=y
  CONFIG_REMOTEPROC_TI_K3_R5F=y
@@ -277,6 +277,8 @@ index 6c5e5e80de..31931e7a5a 100644
  CONFIG_DM_RESET=y
  CONFIG_RESET_TI_SCI=y
  CONFIG_DM_SERIAL=y
+ CONFIG_SOC_DEVICE=y
+ CONFIG_SOC_DEVICE_TI_K3=y
  CONFIG_SOC_TI=y
 +CONFIG_TI_PRUSS=y
  CONFIG_SPI=y
@@ -320,5 +322,5 @@ index 2d1b1b1150..7c0d340f6b 100644
  #include <config_distro_bootcmd.h>
  
 -- 
-2.25.1
+2.26.2
 

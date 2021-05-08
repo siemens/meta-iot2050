@@ -1,7 +1,7 @@
-From 8ac4cf0545bf24fc144d6316736dc2da4bb65d69 Mon Sep 17 00:00:00 2001
+From cabf57f41676898e1ef3d707933422f37108028e Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Mon, 10 Feb 2020 16:59:29 +0530
-Subject: [PATCH 23/28] arm: dts: k3-am65-main: Add ICSSG0/1 nodes
+Subject: [PATCH 22/24] arm: dts: k3-am65-main: Add ICSSG0/1 nodes
 
 Add the ICCSG0/1 and child nodes.
 
@@ -13,11 +13,11 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 204 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-main.dtsi b/arch/arm/dts/k3-am65-main.dtsi
-index 4b5460ad24..cb28c411ef 100644
+index c52068bed0..48051f9304 100644
 --- a/arch/arm/dts/k3-am65-main.dtsi
 +++ b/arch/arm/dts/k3-am65-main.dtsi
-@@ -369,6 +369,210 @@
- 		ti,dis-chg-det-quirk;
+@@ -928,6 +928,210 @@
+ 		clock-names = "tbclk", "fck";
  	};
  
 +	icssg0: icssg@b000000 {
@@ -228,5 +228,5 @@ index 4b5460ad24..cb28c411ef 100644
  		compatible = "ti,am654-icssg";
  		power-domains = <&k3_pds 64 TI_SCI_PD_EXCLUSIVE>;
 -- 
-2.25.1
+2.26.2
 

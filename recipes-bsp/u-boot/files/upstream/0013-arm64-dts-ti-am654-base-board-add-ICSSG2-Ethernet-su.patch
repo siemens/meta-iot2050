@@ -1,7 +1,7 @@
-From 9d5aa6a437b5d6832eb50fd5fbb9bec3c44bd6a3 Mon Sep 17 00:00:00 2001
+From 7fcf067a62b3a27b697c3acb7cb86fef7d1a6e25 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:49:03 +0530
-Subject: [PATCH 14/28] arm64: dts: ti: am654-base-board: add ICSSG2 Ethernet
+Subject: [PATCH 13/24] arm64: dts: ti: am654-base-board: add ICSSG2 Ethernet
  support
 
 ICSSG2 provide dual Gigabit Ethernet support.
@@ -20,12 +20,12 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 118 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am654-base-board-u-boot.dtsi b/arch/arm/dts/k3-am654-base-board-u-boot.dtsi
-index f2956651e6..a522ad71d7 100644
+index ded2321209..682ec47a13 100644
 --- a/arch/arm/dts/k3-am654-base-board-u-boot.dtsi
 +++ b/arch/arm/dts/k3-am654-base-board-u-boot.dtsi
-@@ -15,6 +15,64 @@
- 		serial2 = &main_uart0;
- 		ethernet0 = &cpsw_port1;
+@@ -19,6 +19,64 @@
+ 		spi0 = &ospi0;
+ 		spi1 = &ospi1;
  	};
 +
 +	/* Dual Ethernet application node on PRU-ICSSG2 */
@@ -88,7 +88,7 @@ index f2956651e6..a522ad71d7 100644
  };
  
  &cbass_main{
-@@ -145,6 +203,48 @@
+@@ -93,6 +151,48 @@
  		>;
  		u-boot,dm-spl;
  	};
@@ -136,8 +136,8 @@ index f2956651e6..a522ad71d7 100644
 +	};
  };
  
- &main_pmx1 {
-@@ -289,3 +389,21 @@
+ &main_uart0_pins_default {
+@@ -203,3 +303,21 @@
  		reg = <0x60000 0x10000>;
  	};
  };
@@ -160,5 +160,5 @@ index f2956651e6..a522ad71d7 100644
 +	};
 +};
 -- 
-2.25.1
+2.26.2
 

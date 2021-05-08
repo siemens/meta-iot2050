@@ -1,7 +1,7 @@
-From 4b1b7e00d25b66ea2f283d797112b1524aee9481 Mon Sep 17 00:00:00 2001
+From 53fa3deb803904351708214faea6bcb9481b06af Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:55 +0530
-Subject: [PATCH 06/28] misc: uclass: Introduce misc_init_by_ofnode
+Subject: [PATCH 06/24] misc: uclass: Introduce misc_init_by_ofnode
 
 Introduce misc_init_by_ofnode to probe a misc device
 using its ofnode.
@@ -60,10 +60,10 @@ index 55381edc98..3b10d6d9ce 100644
  	.id		= UCLASS_MISC,
  	.name		= "misc",
 diff --git a/include/misc.h b/include/misc.h
-index 12d1325ee2..79263ed480 100644
+index 82ec2ce793..173a5f1278 100644
 --- a/include/misc.h
 +++ b/include/misc.h
-@@ -76,6 +76,15 @@ int misc_call(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
+@@ -78,6 +78,15 @@ int misc_call(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
   */
  int misc_set_enabled(struct udevice *dev, bool val);
  
@@ -80,5 +80,5 @@ index 12d1325ee2..79263ed480 100644
   * struct misc_ops - Driver model Misc operations
   *
 -- 
-2.25.1
+2.26.2
 

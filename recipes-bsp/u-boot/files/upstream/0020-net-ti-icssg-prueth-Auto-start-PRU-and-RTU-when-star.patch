@@ -1,7 +1,7 @@
-From 47b1183df6a95361ea788ec98caa5742440e8ecb Mon Sep 17 00:00:00 2001
+From 24bfa559d233dbd2b5a95fec0d2a5c52938d8405 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 19 May 2020 17:07:44 +0200
-Subject: [PATCH 21/28] net: ti: icssg-prueth: Auto-start PRU and RTU when
+Subject: [PATCH 20/24] net: ti: icssg-prueth: Auto-start PRU and RTU when
  starting the interface
 
 This avoids having to do that explicitly on every usage, allowing to
@@ -14,7 +14,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 38 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ti/icssg-prueth.c b/drivers/net/ti/icssg-prueth.c
-index 5abb221601..4cb1fa079f 100644
+index ab9138ebd5..18c8d7a4ce 100644
 --- a/drivers/net/ti/icssg-prueth.c
 +++ b/drivers/net/ti/icssg-prueth.c
 @@ -390,14 +390,51 @@ static int icssg_update_link(struct prueth *priv)
@@ -40,7 +40,7 @@ index 5abb221601..4cb1fa079f 100644
 +	if (err)
 +		return err;
 +
-+	*pru_id = rproc_dev->seq;
++	*pru_id = dev_seq(rproc_dev);
 +
 +	return 0;
 +}
@@ -49,7 +49,7 @@ index 5abb221601..4cb1fa079f 100644
  {
  	struct ti_udma_drv_chan_cfg_data *dma_rx_cfg_data;
  	struct prueth *priv = dev_get_priv(dev);
- 	struct eth_pdata *pdata = dev->platdata;
+ 	struct eth_pdata *pdata = dev_get_uclass_plat(dev);
 -	int ret, i;
 +	int ret, i, id;
  	char chn_name[16];
@@ -71,5 +71,5 @@ index 5abb221601..4cb1fa079f 100644
  				 (u8 *)pdata->enetaddr);
  	icssg_class_default(priv->miig_rt, priv->slice);
 -- 
-2.25.1
+2.26.2
 

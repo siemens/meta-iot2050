@@ -1,7 +1,7 @@
-From 51e33f54827794b44662453f9345b73a4ff738b4 Mon Sep 17 00:00:00 2001
+From c461b61c04675f52614901c3ce422a966dab02ed Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:53 +0530
-Subject: [PATCH 04/28] net: eth-uclass: eth_get_dev based on SEQ_ALIAS instead
+Subject: [PATCH 04/24] net: eth-uclass: eth_get_dev based on SEQ_ALIAS instead
  of probe order
 
 In case of multiple eth interfaces currently eth_get_dev
@@ -14,10 +14,10 @@ Signed-off-by: Keerthy <j-keerthy@ti.com>
  1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/net/eth-uclass.c b/net/eth-uclass.c
-index e14695c0f1..e1b9fbd14a 100644
+index 34ca731d1e..ea97c3f0e2 100644
 --- a/net/eth-uclass.c
 +++ b/net/eth-uclass.c
-@@ -78,9 +78,14 @@ struct udevice *eth_get_dev(void)
+@@ -80,9 +80,14 @@ struct udevice *eth_get_dev(void)
  	if (!uc_priv)
  		return NULL;
  
@@ -36,5 +36,5 @@ index e14695c0f1..e1b9fbd14a 100644
  }
  
 -- 
-2.25.1
+2.26.2
 

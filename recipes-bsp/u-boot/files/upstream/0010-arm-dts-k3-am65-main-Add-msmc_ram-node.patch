@@ -1,7 +1,7 @@
-From 471a3e648b1966e66755c9ef40d3ca84868a25c5 Mon Sep 17 00:00:00 2001
+From f1b76e78e736ef0d57e61577e47d12310563e471 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:59 +0530
-Subject: [PATCH 10/28] arm: dts: k3-am65-main: Add msmc_ram node
+Subject: [PATCH 10/24] arm: dts: k3-am65-main: Add msmc_ram node
 
 Add msmc_ram node needed for prueth
 
@@ -9,41 +9,21 @@ Signed-off-by: Keerthy <j-keerthy@ti.com>
 [Jan: ported to mainline]
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- arch/arm/dts/k3-am65-main.dtsi | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm/dts/k3-am65-main.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/arm/dts/k3-am65-main.dtsi b/arch/arm/dts/k3-am65-main.dtsi
-index 028f57379b..9bfe147b5c 100644
+index cabdba85e0..1b19ec5ea7 100644
 --- a/arch/arm/dts/k3-am65-main.dtsi
 +++ b/arch/arm/dts/k3-am65-main.dtsi
-@@ -9,6 +9,27 @@
- #include <dt-bindings/phy/phy.h>
- 
- &cbass_main {
-+	msmc_ram: sram@70000000 {
-+		compatible = "mmio-sram";
-+		reg = <0x0 0x70000000 0x0 0x200000>;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x0 0x70000000 0x200000>;
+@@ -13,6 +13,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		ranges = <0x0 0x0 0x70000000 0x200000>;
 +		u-boot,dm-spl;
-+
-+		atf-sram@0 {
-+			reg = <0x0 0x20000>;
-+		};
-+
-+		sysfw-sram@f0000 {
-+			reg = <0xf0000 0x10000>;
-+		};
-+
-+		l3cache-sram@100000 {
-+			reg = <0x100000 0x100000>;
-+		};
-+	};
-+
- 	gic500: interrupt-controller@1800000 {
- 		compatible = "arm,gic-v3";
- 		#address-cells = <2>;
+ 
+ 		atf-sram@0 {
+ 			reg = <0x0 0x20000>;
 -- 
-2.25.1
+2.26.2
 

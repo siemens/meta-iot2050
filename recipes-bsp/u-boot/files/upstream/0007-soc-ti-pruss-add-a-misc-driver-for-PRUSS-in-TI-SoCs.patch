@@ -1,7 +1,7 @@
-From 7894263cbceee9c905e96ba509d0c1d8c5b1fe99 Mon Sep 17 00:00:00 2001
+From 6a443aeab747d09a73be5c070b41b85428b2f738 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:56 +0530
-Subject: [PATCH 07/28] soc: ti: pruss: add a misc driver for PRUSS in TI SoCs
+Subject: [PATCH 07/24] soc: ti: pruss: add a misc driver for PRUSS in TI SoCs
 
 The Programmable Real-Time Unit - Industrial Communication
 Subsystem (PRU-ICSS) is present of various TI SoCs such as
@@ -19,7 +19,8 @@ Add support for pruss driver. Currently am654x family
 is supported.
 
 Signed-off-by: Keerthy <j-keerthy@ti.com>
-[Jan: fold in fix for duplicate registration of sub-devices, add include]
+[Jan: fold in fix for duplicate registration of sub-devices, add
+      include, adjusted .priv_auto]
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  drivers/soc/ti/Kconfig  |  13 ++++
@@ -63,7 +64,7 @@ index 4ec04ee125..34f80aad29 100644
 +obj-$(CONFIG_TI_PRUSS)	+= pruss.o
 diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
 new file mode 100644
-index 0000000000..c564da5357
+index 0000000000..325e5423a8
 --- /dev/null
 +++ b/drivers/soc/ti/pruss.c
 @@ -0,0 +1,152 @@
@@ -217,7 +218,7 @@ index 0000000000..c564da5357
 +	.of_match = pruss_ids,
 +	.id = UCLASS_MISC,
 +	.probe = pruss_probe,
-+	.priv_auto_alloc_size = sizeof(struct pruss),
++	.priv_auto = sizeof(struct pruss),
 +};
 diff --git a/include/ti-pruss.h b/include/ti-pruss.h
 new file mode 100644
@@ -239,5 +240,5 @@ index 0000000000..9eadeef172
 +int pruss_request_shrmem_region(struct udevice *dev, phys_addr_t *loc);
 +int pruss_request_tm_region(struct udevice *dev, phys_addr_t *loc);
 -- 
-2.25.1
+2.26.2
 

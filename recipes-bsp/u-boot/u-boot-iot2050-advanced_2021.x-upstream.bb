@@ -1,1 +1,0 @@
-u-boot-iot2050-advanced_2019.01-ti-sdk.bb

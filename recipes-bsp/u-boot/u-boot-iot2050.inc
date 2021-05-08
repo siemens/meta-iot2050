@@ -16,8 +16,6 @@ SRC_URI += " \
     file://prebuild \
     "
 
-S = "${WORKDIR}/git"
-
 # Build environment
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64,"
 
