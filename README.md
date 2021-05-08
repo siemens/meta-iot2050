@@ -52,7 +52,13 @@ After build complete, the SDK tarball is located at
 build/tmp/deploy/images/iot2050/sdk-isar-arm64.tar.xz
 ```
 
-Please follow the further instruction file `README.sdk` under the SDK tarball
+Please follow the further instruction file `README.sdk` in the SDK tarball.
+
+The SDK is also available as docker image. To import it into a docker host, run
+
+```shell
+docker load -i build/tmp/deploy/images/iot2050/sdk-iot2050-debian-arm64-docker-archive.tar.xz
+```
 
 ## Clean build result
 
