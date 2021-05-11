@@ -1,7 +1,7 @@
 From 85c049cb1a9f5408f81543919d7c452e9c43d6f0 Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Mon, 15 Jul 2019 15:46:09 +0800
-Subject: [PATCH 03/13] feat: Add CP210x driver support to software flow
+Subject: [PATCH 03/14] feat: Add CP210x driver support to software flow
  control
 
 Signed-off-by: Wang Sheng Long <shenglong.wang.ext@siemens.com>
