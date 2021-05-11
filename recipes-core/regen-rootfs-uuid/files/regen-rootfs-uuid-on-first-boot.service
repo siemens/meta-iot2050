@@ -10,7 +10,7 @@
 Description=Generate new UUID for rootfs partition
 DefaultDependencies=no
 Conflicts=shutdown.target
-After=systemd-remount-fs.service
+After=systemd-remount-fs.service expand-on-first-boot.service
 Before=sysinit.target shutdown.target
 ConditionPathIsReadWrite=/etc
 
