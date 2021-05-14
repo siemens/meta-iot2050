@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2018
+# Copyright (c) Siemens AG, 2018-2021
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -25,7 +25,9 @@ SRC_URI += " \
     file://0010-feat-extend-led-panic-indicator-on-and-off.patch \
     file://0011-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
     file://0012-feat-change-mmc-order-using-alias-in-dts.patch \
-    file://0013-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch"
+    file://0013-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
+    file://0014-serial-8250-8250_omap-Fix-possible-interrupt-storm.patch \
+    "
 
 KERNEL_BRANCH = "am6-abi-ti-linux-4.19.y"
 KERNEL_REV = "c7a3b610edfb5a0ee0313e1432bf328362269d05"
