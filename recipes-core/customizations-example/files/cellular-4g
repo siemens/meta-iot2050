@@ -3,7 +3,8 @@ id=cellular-4g
 uuid=ce204ddd-8e3e-4a15-8435-e4b7f399e353
 type=gsm
 permissions=
-autoconnect=false
+autoconnect=true
+autoconnect-retries=0
 
 [gsm]
 apn=ctnet
