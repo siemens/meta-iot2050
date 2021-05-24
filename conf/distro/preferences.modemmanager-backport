@@ -1,0 +1,3 @@
+Package: modemmanager libmbim-glib4  libmm-glib0 libqmi-glib5 libmbim-proxy  libqmi-proxy
+Pin: release n=buster-backports
+Pin-Priority: 802
