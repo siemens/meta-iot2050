@@ -1,7 +1,7 @@
-From 9b6834f6fcd46f07c70f82f81efa7cf148c75116 Mon Sep 17 00:00:00 2001
+From a9d5ca365dc36812bfa185c245af5d730dcc4f61 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 21 Jun 2020 09:04:30 +0200
-Subject: [PATCH 03/24] watchdog: rti_wdt: Add support for loading firmware
+Subject: [PATCH 03/25] watchdog: rti_wdt: Add support for loading firmware
 
 To avoid the need of extra boot scripting on AM65x for loading a
 watchdog firmware, add the required rproc init and loading logic for the
@@ -183,5 +183,5 @@ index 0000000000..78d99ff9f2
 +rti_wdt_fw_size:
 +.int rti_wdt_fw_end - rti_wdt_fw
 -- 
-2.26.2
+2.31.1
 

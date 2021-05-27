@@ -36,6 +36,7 @@ SRC_URI += " \
     file://upstream/0022-arm-dts-k3-am65-main-Add-ICSSG0-1-nodes.patch \
     file://upstream/0023-iot2050-Add-ICSSG0-Ethernet-support.patch \
     file://upstream/0024-arm64-dts-ti-k3-am65-mcu-Add-RTI-watchdog-entry.patch \
+    file://upstream/0025-sf-query-the-write-protect-status-before-operating-t.patch \
     "
 
 U_BOOT_CONFIG = "iot2050_defconfig"

@@ -1,7 +1,7 @@
-From 7fcf067a62b3a27b697c3acb7cb86fef7d1a6e25 Mon Sep 17 00:00:00 2001
+From 8ee259f45696c751ed28ee076554e3814770fbf6 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:49:03 +0530
-Subject: [PATCH 13/24] arm64: dts: ti: am654-base-board: add ICSSG2 Ethernet
+Subject: [PATCH 13/25] arm64: dts: ti: am654-base-board: add ICSSG2 Ethernet
  support
 
 ICSSG2 provide dual Gigabit Ethernet support.
@@ -160,5 +160,5 @@ index ded2321209..682ec47a13 100644
 +	};
 +};
 -- 
-2.26.2
+2.31.1
 
