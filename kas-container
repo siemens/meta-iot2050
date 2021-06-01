@@ -29,7 +29,8 @@ set -e
 
 usage()
 {
-	printf "%b" "Usage: $0 [OPTIONS] { build | shell } [KASOPTIONS] KASFILE\n"
+	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] KASFILE\n"
+	printf "%b" "       $0 [OPTIONS] for-all-repos KASFILE COMMAND\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
@@ -46,12 +47,19 @@ usage()
 	printf "%b" "--docker-args\t\tSame as --runtime-args (deprecated).\n"
 	printf "%b" "-d\t\t\tPrint debug output.\n"
 	printf "%b" "-v\t\t\tSame as -d (deprecated).\n"
+	printf "%b" "--version\t\tprint program version.\n"
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
+	printf "%b" "--git-credential-store\tFile path to the git credential " \
+		    "store\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
 		    "environment.\n"
+	printf "%b" "--repo-ro\t\tMount current repository read-only\n" \
+		    "\t\t\t(default for build command)\n"
+	printf "%b" "--repo-rw\t\tMount current repository writeable\n" \
+		    "\t\t\t(default for shell command)\n"
 	printf "%b" "\n"
 	printf "%b" "You can force the use of podman over docker using " \
 		    "KAS_CONTAINER_ENGINE=podman.\n"
@@ -75,7 +83,7 @@ enable_isar_mode() {
 	fi
 }
 
-KAS_IMAGE_VERSION_DEFAULT="2.4"
+KAS_IMAGE_VERSION_DEFAULT="2.5"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
 
@@ -83,14 +91,12 @@ set_container_image_var() {
 	KAS_IMAGE_VERSION="${KAS_IMAGE_VERSION:-${KAS_IMAGE_VERSION_DEFAULT}}"
 	KAS_CONTAINER_IMAGE_NAME="${KAS_CONTAINER_IMAGE_NAME:-${KAS_CONTAINER_IMAGE_NAME_DEFAULT}}"
 	KAS_CONTAINER_IMAGE_PATH="${KAS_CONTAINER_IMAGE_PATH:-${KAS_CONTAINER_IMAGE_PATH_DEFAULT}}"
-	KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE_PATH}/${KAS_CONTAINER_IMAGE_NAME}:${KAS_IMAGE_VERSION}"
+	KAS_CONTAINER_IMAGE_DEFAULT="${KAS_CONTAINER_IMAGE_PATH}/${KAS_CONTAINER_IMAGE_NAME}:${KAS_IMAGE_VERSION}"
+	KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE:-${KAS_CONTAINER_IMAGE_DEFAULT}}"
 }
 
-if [ -n "${KAS_WORK_DIR}" ]; then
-	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
-else
-	KAS_WORK_DIR="$(pwd)"
-fi
+KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR:-$(pwd)}")
+KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
 
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
@@ -164,8 +170,21 @@ while [ $# -gt 0 ]; do
 		KAS_AWS_DIR="$2"
 		shift 2
 		;;
+	--git-credential-store)
+		[ $# -gt 2 ] || usage
+		KAS_GIT_CREDENTIAL_STORE="$2"
+		shift 2
+		;;
 	--no-proxy-from-env)
 		KAS_NO_PROXY_FROM_ENV=1
+		shift 1
+		;;
+    --repo-ro)
+        KAS_REPO_MOUNT_OPT="ro"
+		shift 1
+		;;
+    --repo-rw)
+        KAS_REPO_MOUNT_OPT="rw"
 		shift 1
 		;;
 	-v | -d)
@@ -173,26 +192,36 @@ while [ $# -gt 0 ]; do
 		KAS_OPTIONS_DIRECT="${KAS_OPTIONS_DIRECT} -d"
 		shift 1
 		;;
+	--version)
+		echo "$(basename "$0") $KAS_IMAGE_VERSION_DEFAULT"
+		exit 0
+		;;
 	--*)
 		usage
 		;;
 	clean)
 		[ $# -eq 1 ] || usage
-		KAS_CLEAN_DIR=build/tmp
 		if [ -n "${KAS_ISAR_ARGS}" ]; then
 			set_container_image_var
 			# SC2086: Double quote to prevent globbing and word splitting.
 			# shellcheck disable=2086
-			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
-					 --workdir=/work --rm ${KAS_ISAR_ARGS} \
+			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
+					 --workdir=/build --rm ${KAS_ISAR_ARGS} \
 					 ${KAS_CONTAINER_IMAGE} \
-					 sudo rm -rf ${KAS_CLEAN_DIR}
+					 sudo rm -rf tmp
 		else
-			trace rm -rf "${KAS_WORK_DIR}/${KAS_CLEAN_DIR}"
+			trace rm -rf "${KAS_BUILD_DIR}/tmp"
 		fi
 		exit 0
 		;;
-	build|shell)
+	shell)
+		KAS_REPO_MOUNT_OPT_DEFAULT="rw"
+		KAS_CMD=$1
+		shift 1
+		break
+		;;
+	build|checkout|for-all-repos)
+		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
 		break
@@ -249,6 +278,10 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 			fi
 		done
 		shift 1
+		if [ "$KAS_CMD" = "for-all-repos" ]; then
+			KAS_REPO_CMD="$1"
+			shift 1
+		fi
 		;;
 	esac
 done
@@ -268,9 +301,12 @@ KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
 	|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
 	|| KAS_REPO_DIR=${KAS_FILE_DIR}
 
+KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
+
 KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/||g;s|:|:/repo/|g')"
 
 trace mkdir -p "${KAS_WORK_DIR}"
+trace mkdir -p "${KAS_BUILD_DIR}"
 
 if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	echo "Error: Running as root - may break certain recipes."
@@ -279,8 +315,10 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	exit 1
 fi
 
-set -- "$@" -v "${KAS_REPO_DIR}":/repo:ro \
+set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
+	-v "${KAS_BUILD_DIR}":/build:rw \
+	-e KAS_BUILD_DIR=/build \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
 if [ -n "${KAS_SSH_DIR}" ] ; then
@@ -299,6 +337,23 @@ if [ -n "${KAS_AWS_DIR}" ] ; then
 	set -- "$@" -v "$(readlink -f "${KAS_AWS_DIR}")":/etc/skel/.aws:ro \
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/etc/skel/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/etc/skel/.aws/credentials}"
+fi
+
+KAS_GIT_CREDENTIAL_HELPER_DEFAULT=""
+
+if [ -n "${KAS_GIT_CREDENTIAL_STORE}" ] ; then
+	if [ ! -f "${KAS_GIT_CREDENTIAL_STORE}" ]; then
+		echo "Passed KAS_GIT_CREDENTIAL_STORE '${KAS_AWS_DIR}' is not a file"
+		exit 1
+	fi
+	KAS_GIT_CREDENTIAL_HELPER_DEFAULT="store --file=/etc/skel/.git-credentials"
+	set -- "$@" -v "$(readlink -f "${KAS_GIT_CREDENTIAL_STORE}")":/etc/skel/.git-credentials:ro
+fi
+
+GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER:-${KAS_GIT_CREDENTIAL_HELPER_DEFAULT}}"
+
+if [ -n "${GIT_CREDENTIAL_HELPER}" ] ; then
+	set -- "$@" -e GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER}"
 fi
 
 if [ -t 1 ]; then
@@ -322,7 +377,7 @@ fi
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
 	set -- "$@" \
 		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:ro \
-		-e KAS_REPO_REF_DIR="${KAS_REPO_REF_DIR}"
+		-e KAS_REPO_REF_DIR=/repo-ref
 fi
 
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
@@ -360,6 +415,9 @@ fi
 # SC2086: Double quote to prevent globbing and word splitting.
 # shellcheck disable=2086
 set -- "$@" ${KAS_FILES}
+if [ "$KAS_CMD" = "for-all-repos" ]; then
+	set -- "$@" "${KAS_REPO_CMD}"
+fi
 
 # rotate any extra bitbake args from the front to the end of the argument list
 while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do

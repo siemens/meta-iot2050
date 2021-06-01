@@ -15,7 +15,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: iot2050-example-image
-          path: build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img*
+          path: |
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img.bmap
 
   debian-rt-example-image:
     name: Debian RT example image
@@ -29,7 +31,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: iot2050-example-image-rt
-          path: build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img*
+          path: |
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img.bmap
 
   bootloaders:
     name: Bootloaders
