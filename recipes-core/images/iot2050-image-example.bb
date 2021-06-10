@@ -105,11 +105,5 @@ IMAGE_INSTALL += " \
     mraa \
     node-red \
     node-red-gpio \
-    node-red-dashboard \
-    node-red-contrib-opcua \
-    node-red-contrib-modbus \
-    node-red-contrib-s7 \
-    mindconnect-node-red-contrib-mindconnect \
-    node-red-node-serialport \
-    node-red-node-sqlite \
+    node-red-preinstalled-nodes \
     "
