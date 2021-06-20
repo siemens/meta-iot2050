@@ -16,14 +16,30 @@ SRC_URI += " \
     file://prebuild \
     "
 
+U_BOOT_CONFIG = "iot2050_defconfig"
+U_BOOT_BIN = "flash.bin"
+
+SPI_FLASH_IMG = "${U_BOOT_BIN}"
+SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
+
 # Build environment
-DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64,"
+DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050"
+DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
+    trusted-firmware-a-iot2050, optee-os-iot2050, \
+    swig:native, python3-dev:native, python3-pkg-resources,"
 
 do_prepare_build_append() {
+    cd ${S}
+    ln -sf ../prebuild/* ${S}
     ln -sf ../keys ${S}
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     echo -$(${ISAR_RELEASE_CMD}) > ${S}/.scmversion
+}
+
+dpkg_runbuild_prepend() {
+    export ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin
+    export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
 }
 
 do_build[dirs] += "${DEPLOY_DIR_IMAGE}"

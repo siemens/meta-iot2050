@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2021
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -24,5 +24,4 @@ all:
     - kas build kas-iot2050-example.yml
     - kas build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
     - sudo rm -rf build/tmp
-    - kas build kas-iot2050-boot-basic.yml
-    - kas build kas-iot2050-boot-advanced.yml
+    - kas build kas-iot2050-boot.yml

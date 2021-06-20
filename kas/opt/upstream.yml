@@ -10,6 +10,4 @@ header:
 
 local_conf_header:
   upstream-versions: |
-    PREFERRED_VERSION_u-boot-iot2050-basic = "2021.04"
-    PREFERRED_VERSION_u-boot-iot2050-advanced = "2021.04"
     PREFERRED_VERSION_linux-iot2050 = "5.x-upstream"
