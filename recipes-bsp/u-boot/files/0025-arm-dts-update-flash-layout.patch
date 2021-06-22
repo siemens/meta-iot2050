@@ -1,0 +1,112 @@
+From 5c3b2724e48b381fb6e13b03daa37370a6caa92b Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Thu, 3 Jun 2021 11:45:01 +0800
+Subject: [PATCH 25/25] arm:dts:update flash layout
+
+extend flash layout,keep the pg1 and pg2 sysfw on the flash
+to unify uboot and retain 64k * 6 for pg2 prufw in the future
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 54 ++++++++++++++++----
+ 1 file changed, 44 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 7fb9bb616f..c0eac0c393 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -4,6 +4,7 @@
+  *
+  * Authors:
+  *   Jan Kiszka <jan.kiszk@siemens.com>
++ *   Chao Zeng <chao.zeng@siemens.com>
+  */
+ 
+ #include <config.h>
+@@ -12,7 +13,7 @@
+ 	binman {
+ 		filename = "flash.bin";
+ 		pad-byte = <0xff>;
+-		size = <0x800000>;
++		size = <0x960000>;
+ 
+ 		blob-ext@0x000000 {
+ 			offset = <0x000000>;
+@@ -91,32 +92,65 @@
+ 			fill-byte = [00];
+ 		};
+ 
+-		/* Sysfw Basic */
++		/* PG1 Sysfw Basic */
+ 		blob-ext@0x6c0000 {
+ 			offset = <0x6c0000>;
+ 			filename = "sysfw.itb";
+ 		};
+-		/* Sysfw Advanced */
++		/* PG1 Sysfw Advanced */
+ 		blob-ext@0x740000 {
+ 			offset = <0x740000>;
+ 			filename = "sysfw.itb_HS";
+ 		};
+-
++		/* PG2 Sysfw Basic */
+ 		blob-ext@0x7c0000 {
+ 			offset = <0x7c0000>;
++			filename = "sysfw_sr2.itb";
++		};
++		/* PG2 Sysfw Advanced */
++		blob-ext@0x840000 {
++			offset = <0x840000>;
++			filename = "sysfw_sr2.itb_HS";
++		};
++		blob-ext@0x8c0000 {
++			offset = <0x8c0000>;
+ 			filename = "am65x-pru0-prueth-fw.elf";
+ 		};
+-		blob-ext@0x7d0000 {
+-			offset = <0x7d0000>;
++		blob-ext@0x8d0000 {
++			offset = <0x8d0000>;
+ 			filename = "am65x-pru1-prueth-fw.elf";
+ 		};
+-		blob-ext@0x7e0000 {
+-			offset = <0x7e0000>;
++		blob-ext@0x8e0000 {
++			offset = <0x8e0000>;
+ 			filename = "am65x-rtu0-prueth-fw.elf";
+ 		};
+-		blob-ext@0x7f0000 {
+-			offset = <0x7f0000>;
++		blob-ext@0x8f0000 {
++			offset = <0x8f0000>;
++			filename = "am65x-rtu1-prueth-fw.elf";
++		};
++		blob-ext@0x900000 {
++			offset = <0x900000>;
+ 			filename = "am65x-rtu1-prueth-fw.elf";
+ 		};
++		blob-ext@0x910000 {
++			offset = <0x910000>;
++			filename = "am65x-sr2-pru0-prueth-fw.elf";
++		};
++		blob-ext@0x920000 {
++			offset = <0x920000>;
++			filename = "am65x-sr2-pru1-prueth-fw.elf";
++		};
++		blob-ext@0x930000 {
++			offset = <0x930000>;
++			filename = "am65x-sr2-rtu1-prueth-fw.elf";
++		};
++		blob-ext@0x940000 {
++			offset = <0x940000>;
++			filename = "am65x-sr2-txpru0-prueth-fw.elf";
++		};
++		blob-ext@0x950000 {
++			offset = <0x950000>;
++			filename = "am65x-sr2-txpru1-prueth-fw.elf";
++		};										
+ 	};
+ };
+-- 
+2.32.0
+
