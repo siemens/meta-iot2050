@@ -37,6 +37,7 @@ SRC_URI += " \
     file://0023-iot2050-Add-ICSSG0-Ethernet-support.patch \
     file://0024-arm64-dts-ti-k3-am65-mcu-Add-RTI-watchdog-entry.patch \
     file://0025-arm-dts-update-flash-layout.patch \
+    file://0026-Modify-the-icssg0-pru1-and-rtu1-loadaddress.patch \
     "
 
 SRC_URI[sha256sum] = "0d438b1bb5cceb57a18ea2de4a0d51f7be5b05b98717df05938636e0aadfe11a"

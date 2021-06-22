@@ -1,0 +1,31 @@
+From f3af6adb61e19883083782924587f34968006a70 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Tue, 8 Jun 2021 10:40:33 +0800
+Subject: [PATCH 26/26] Modify the icssg0 pru1 and rtu1 loadaddress
+
+As flash layout has changed,so needed to adjust pru and rtu loadaddr
+according to the latest flash layout
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ include/configs/iot2050.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
+index 7c0d340f6b..6e9463c692 100644
+--- a/include/configs/iot2050.h
++++ b/include/configs/iot2050.h
+@@ -32,8 +32,8 @@
+ 	"ramdisk_addr_r=0x81000000\0"					\
+ 	"fdt_addr_r=0x82000000\0"					\
+ 	"overlay_addr_r=0x83000000\0"					\
+-	"load_icssg0_pru1_fw=sf read $loadaddr 0x7d0000 0x8000; rproc load 4 $loadaddr 0x8000\0" \
+-	"load_icssg0_rtu1_fw=sf read $loadaddr 0x7f0000 0x8000; rproc load 5 $loadaddr 0x8000\0" \
++	"load_icssg0_pru1_fw=sf read $loadaddr 0x8d0000 0x8000; rproc load 4 $loadaddr 0x8000\0" \
++	"load_icssg0_rtu1_fw=sf read $loadaddr 0x8f0000 0x8000; rproc load 5 $loadaddr 0x8000\0" \
+ 	"init_icssg0=rproc init; sf probe; run load_icssg0_pru1_fw; run load_icssg0_rtu1_fw\0" \
+ 	"usb_pgood_delay=900\0"
+ 
+-- 
+2.32.0
+
