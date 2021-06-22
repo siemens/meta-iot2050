@@ -1,7 +1,7 @@
 From eb5e7adaea5b42296925c5a5e4bba76f28c2c977 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Wed, 4 Mar 2020 23:33:33 +0000
-Subject: [PATCH 18/26] net: ti: icssg-prueth: Add port speed/duplex command
+Subject: [PATCH 18/27] net: ti: icssg-prueth: Add port speed/duplex command
 
 This patch adds port speed/duplex command to firmware once
 the link is up. ICSSG firmware uses default of 10M Half duplex
