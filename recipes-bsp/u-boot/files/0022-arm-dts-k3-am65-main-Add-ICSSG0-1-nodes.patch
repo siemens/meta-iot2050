@@ -1,7 +1,7 @@
-From cabf57f41676898e1ef3d707933422f37108028e Mon Sep 17 00:00:00 2001
+From 1b4d75dbe69b6a880d13d1c139c320e0559dcfdd Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Mon, 10 Feb 2020 16:59:29 +0530
-Subject: [PATCH 22/24] arm: dts: k3-am65-main: Add ICSSG0/1 nodes
+Subject: [PATCH 22/25] arm: dts: k3-am65-main: Add ICSSG0/1 nodes
 
 Add the ICCSG0/1 and child nodes.
 
@@ -228,5 +228,5 @@ index c52068bed0..48051f9304 100644
  		compatible = "ti,am654-icssg";
  		power-domains = <&k3_pds 64 TI_SCI_PD_EXCLUSIVE>;
 -- 
-2.26.2
+2.32.0
 

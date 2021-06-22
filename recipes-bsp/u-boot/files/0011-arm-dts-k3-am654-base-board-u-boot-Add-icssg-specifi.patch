@@ -1,7 +1,7 @@
-From 640b7807dae59f168fdc82190597a48a109d484c Mon Sep 17 00:00:00 2001
+From 418c6fbc6ac427c243c89ca399a32b00e2553b6c Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:49:00 +0530
-Subject: [PATCH 11/24] arm: dts: k3-am654-base-board-u-boot: Add icssg
+Subject: [PATCH 11/25] arm: dts: k3-am654-base-board-u-boot: Add icssg
  specific msmc_ram carveout nodes
 
 Add icssg specific msmc_ram carveout nodes
@@ -32,5 +32,5 @@ index b0602d1dad..ded2321209 100644
 +	};
 +};
 -- 
-2.26.2
+2.32.0
 

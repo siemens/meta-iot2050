@@ -1,7 +1,7 @@
-From c20d52025bbe74e55f8767fc7d95c11fd57ac784 Mon Sep 17 00:00:00 2001
+From 7e23fd63c9ef6db6e36966aeab9bd226262490dd Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 30 Apr 2020 12:17:50 +0530
-Subject: [PATCH 14/24] configs: am65x_evm_a53_defconfig: Enable prueth configs
+Subject: [PATCH 14/25] configs: am65x_evm_a53_defconfig: Enable prueth configs
 
 Enable prueth configs
 
@@ -38,5 +38,5 @@ index 1f2d78d1ac..2310bad31c 100644
  CONFIG_DM_SPI=y
  CONFIG_CADENCE_QSPI=y
 -- 
-2.26.2
+2.32.0
 
