@@ -1,0 +1,77 @@
+From dc633f401b9584e0a058037487c66da2f35a8c23 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Wed, 9 Jun 2021 15:09:18 +0800
+Subject: [PATCH 27/27] board:siemens:Add support to select pg1 and pg2 board
+ corresponding dtb
+
+There are different dts for pg1 and pg2 board,so need to judge the board type
+to select the right dtb when booting the board
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ board/siemens/iot2050/board.c | 34 +++++++++++++++++++++++++++++++---
+ 1 file changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 936d66467a..c0eebf7f34 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -22,7 +22,8 @@
+ #include <asm/arch/hardware.h>
+ #include <asm/gpio.h>
+ #include <asm/io.h>
+-
++#include <soc.h>
++ 
+ #define IOT2050_INFO_MAGIC		0x20502050
+ 
+ struct iot2050_info {
+@@ -54,6 +55,27 @@ static bool board_is_advanced(void)
+ 		!strcmp((char *)info->name, "IOT2050-ADVANCED");
+ }
+ 
++static int board_is_pg1(void)
++{
++	struct udevice *soc;
++	char str[SOC_MAX_STR_SIZE];
++
++	if (soc_get(&soc)) {
++		pr_err("iot2050:get soc failed!\n");
++		return -EPERM;
++	}
++
++	if (soc_get_revision(soc, str, sizeof(str))){
++		pr_err("iot2050:get soc revision failed!\n");
++		return -EPERM;
++	}
++
++	if (!strncmp(str, "SR1.0", 5))
++		return 1;
++
++	return 0;
++}
++
+ static void remove_mmc1_target(void)
+ {
+ 	const char *boot_targets = env_get("boot_targets");
+@@ -99,9 +121,15 @@ void set_board_info_env(void)
+ #endif
+ 
+ 	if (board_is_advanced()) {
+-		env_set("fdtfile", "ti/k3-am6548-iot2050-advanced.dtb");
++		if (board_is_pg1())
++			env_set("fdtfile", "ti/k3-am6548-iot2050-advanced.dtb");
++		else
++			env_set("fdtfile", "ti/k3-am6548-iot2050-advanced-pg2.dtb");
+ 	} else {
+-		env_set("fdtfile", "ti/k3-am6528-iot2050-basic.dtb");
++		if (board_is_pg1())
++			env_set("fdtfile", "ti/k3-am6528-iot2050-basic.dtb");
++		else
++			env_set("fdtfile", "ti/k3-am6528-iot2050-basic-pg2.dtb");
+ 		/* remove the unavailable eMMC (mmc1) from the list */
+ 		remove_mmc1_target();
+ 	}
+-- 
+2.32.0
+
