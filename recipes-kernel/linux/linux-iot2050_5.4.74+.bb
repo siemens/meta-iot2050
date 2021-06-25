@@ -15,7 +15,8 @@ SRC_URI += " \
     file://0001-iot2050-add-iot2050-platform-support.patch \
     file://0002-setting-the-RJ45-port-led-behavior.patch \
     file://0003-feat-extend-led-panic-indicator-on-and-off.patch \
-    file://0004-feat-change-mmc-order-using-alias-in-dts.patch"
+    file://0004-feat-change-mmc-order-using-alias-in-dts.patch \
+    file://0005-Workaround-to-correct-DP-clock-to-154MHZ.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \
