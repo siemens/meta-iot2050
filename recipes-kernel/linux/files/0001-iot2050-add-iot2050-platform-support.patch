@@ -1,99 +1,66 @@
-From 81db1f21530d256a248a0bc51a71ab5bdf819fdf Mon Sep 17 00:00:00 2001
+From f8d59478c2a6dc9a1f3013859a0c06fd771acc9d Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH 08/26] iot2050: add iot2050 platform support
+Subject: [PATCH] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
-Also add support for fixed gpio number naming.
 
 Signed-off-by: le.jin <le.jin@siemens.com>
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
 ---
- arch/arm64/boot/dts/ti/Makefile               |   5 +
- .../boot/dts/ti/k3-am65-iot2050-oldfw.dtsi    |  20 +
- arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi   | 795 ++++++++++++++++++
- .../dts/ti/k3-am6528-iot2050-basic-oldfw.dts  |  24 +
- .../boot/dts/ti/k3-am6528-iot2050-basic.dts   |  12 +
- .../boot/dts/ti/k3-am6528-iot2050-basic.dtsi  |  47 ++
- .../ti/k3-am6548-iot2050-advanced-oldfw.dts   |  10 +
- .../dts/ti/k3-am6548-iot2050-advanced.dts     |  12 +
- .../dts/ti/k3-am6548-iot2050-advanced.dtsi    |  53 ++
- drivers/gpio/gpio-davinci.c                   |  10 +
- drivers/tty/serial/8250/8250_port.c           |   5 +-
- 11 files changed, 991 insertions(+), 2 deletions(-)
- create mode 100644 arch/arm64/boot/dts/ti/k3-am65-iot2050-oldfw.dtsi
+ arch/arm64/boot/dts/ti/Makefile               |   6 +
+ .../boot/dts/ti/k3-am65-iot2050-pg2.dtsi      | 847 ++++++++++++++++++
+ arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi   |  49 +
+ .../dts/ti/k3-am6528-iot2050-basic-pg2.dts    |  52 ++
+ .../boot/dts/ti/k3-am6528-iot2050-basic.dts   |  14 +
+ .../dts/ti/k3-am6548-iot2050-advanced-pg2.dts |  58 ++
+ .../dts/ti/k3-am6548-iot2050-advanced.dts     |  14 +
+ 7 files changed, 1040 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
  create mode 100644 arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts
+ create mode 100644 arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
  create mode 100644 arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dtsi
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-oldfw.dts
+ create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
  create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dtsi
 
 diff --git a/arch/arm64/boot/dts/ti/Makefile b/arch/arm64/boot/dts/ti/Makefile
-index b952d3e730d6..3f6fc2f8445c 100644
+index 12d72851f94d..425e7e614fb9 100644
 --- a/arch/arm64/boot/dts/ti/Makefile
 +++ b/arch/arm64/boot/dts/ti/Makefile
-@@ -22,6 +22,11 @@ dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am654-base-board.dtb \
- 	k3-am654-base-board-jailhouse.dtbo \
- 	k3-am654-evm-prupwm.dtbo
+@@ -21,6 +21,12 @@ dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am654-base-board.dtb  \
+ 				 k3-am654-evm-prupwm.dtbo \
+ 				 k3-am654-idk-sr1.dtbo
  
-+dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am6528-iot2050-basic-oldfw.dtb
-+dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am6528-iot2050-basic.dtb
-+dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am6548-iot2050-advanced-oldfw.dtb
-+dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am6548-iot2050-advanced.dtb
++dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am6528-iot2050-basic.dtb \
++								 k3-am6548-iot2050-advanced.dtb	\
++								 k3-am6528-iot2050-basic-pg2.dtb \
++								 k3-am6548-iot2050-advanced-pg2.dtb
++
 +
  dtb-$(CONFIG_ARCH_K3_J721E_SOC) += k3-j721e-common-proc-board.dtb \
  				   k3-j721e-proc-board-tps65917.dtb \
- 				   k3-j721e-common-proc-board-infotainment.dtbo \
-diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-oldfw.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-oldfw.dtsi
+ 				   k3-j7200-common-proc-board.dtb \
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
 new file mode 100644
-index 000000000000..93b53d63ef60
+index 000000000000..da54e1e42ac2
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-oldfw.dtsi
-@@ -0,0 +1,20 @@
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
+@@ -0,0 +1,847 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * (C) Copyright 2018-2020 Siemens AG
++ * (C) Copyright 2019 Siemens AG
 + */
-+
-+/*
-+ * Swap clock TISCI clock IDs between sdhci0 and sdhci1 to work
-+ * around an issue in System Firmware 2019.12a (and earlier) known
-+ * as SYSFW-3179.
-+ */
-+
-+&sdhci0 {
-+	clocks = <&k3_clks 48 0>, <&k3_clks 48 1>;
-+	assigned-clocks = <&k3_clks 48 1>;
-+	assigned-clock-rates = <142860000>;
-+};
-+
-+&sdhci1 {
-+	clocks = <&k3_clks 47 0>, <&k3_clks 47 1>;
-+};
-diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
-new file mode 100644
-index 000000000000..c32c75e80e85
---- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
-@@ -0,0 +1,795 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * (C) Copyright 2018-2020 Siemens AG
-+ */
-+
 +#include <dt-bindings/input/input.h>
 +#include <dt-bindings/net/ti-dp83867.h>
 +#include <dt-bindings/phy/phy.h>
-+#include "k3-am654.dtsi"
 +
 +/ {
++	compatible =  "siemens,iot2050-common", "ti,am654";
++	model = "SIMATIC IOT2050 Common";
++
 +	aliases {
 +		ethernet1 = &pruss0_emac0;
 +		ethernet2 = &pruss0_emac1;
-+		gpio0 = &main_gpio0;
-+		gpio96 = &main_gpio1;
-+		gpio186 = &wkup_gpio0;
 +		spi0 = &mcu_spi0;
 +	};
 +
@@ -102,7 +69,7 @@ index 000000000000..c32c75e80e85
 +		bootargs = "earlycon=ns16550a,mmio32,0x02800000";
 +	};
 +
-+	reserved-memory {
++	reserved_memory: reserved-memory {
 +		#address-cells = <2>;
 +		#size-cells = <2>;
 +		ranges;
@@ -144,6 +111,67 @@ index 000000000000..c32c75e80e85
 +		};
 +	};
 +
++	/* Dual Ethernet application node on PRU-ICSSG0 */
++	pruss0_eth: pruss0_eth {
++		compatible = "ti,am654-icssg-prueth";
++		pinctrl-names = "default";
++		pinctrl-0 = <&icssg0_rgmii_pins_default>;
++		sram = <&msmc_ram>;
++		prus = <&pru0_0>, <&rtu0_0>, <&tx_pru0_0>, <&pru0_1>, <&rtu0_1>, <&tx_pru0_1>;
++		firmware-name = "ti-pruss/am65x-sr2-pru0-prueth-fw.elf",
++				"ti-pruss/am65x-sr2-rtu0-prueth-fw.elf",
++				"ti-pruss/am65x-sr2-txpru0-prueth-fw.elf",
++				"ti-pruss/am65x-sr2-pru1-prueth-fw.elf",
++				"ti-pruss/am65x-sr2-rtu1-prueth-fw.elf",
++				"ti-pruss/am65x-sr2-txpru1-prueth-fw.elf";
++
++		ti,pruss-gp-mux-sel = <2>,	/* MII mode */
++						<2>,
++						<2>,
++						<2>,	/* MII mode */
++						<2>,
++						<2>;
++		mii-g-rt = <&icssg0_mii_g_rt>;
++		mii-rt = <&icssg0_mii_rt>;
++		dma-coherent;
++		dmas = <&main_udmap 0xc100>, /* egress slice 0 */
++				<&main_udmap 0xc101>, /* egress slice 0 */
++				<&main_udmap 0xc102>, /* egress slice 0 */
++				<&main_udmap 0xc103>, /* egress slice 0 */
++				<&main_udmap 0xc104>, /* egress slice 1 */
++				<&main_udmap 0xc105>, /* egress slice 1 */
++				<&main_udmap 0xc106>, /* egress slice 1 */
++				<&main_udmap 0xc107>, /* egress slice 1 */
++
++				<&main_udmap 0x4100>, /* ingress slice 0 */
++				<&main_udmap 0x4101>, /* ingress slice 1 */
++				<&main_udmap 0x4102>, /* mgmnt rsp slice 0 */
++				<&main_udmap 0x4103>; /* mgmnt rsp slice 1 */
++		dma-names = "tx0-0", "tx0-1", "tx0-2", "tx0-3",
++				"tx1-0", "tx1-1", "tx1-2", "tx1-3",
++				"rx0", "rx1",
++				"rxmgm0", "rxmgm1";
++
++		pruss0_emac0: ethernet-mii0 {
++			phy-handle = <&pruss0_eth0_phy>;
++			phy-mode = "rgmii-rxid";
++			interrupts-extended = <&icssg0_intc 24>;
++			syscon-rgmii-delay = <&scm_conf 0x4100>;
++			iep = <&icssg0_iep0>;
++			/* Filled in by bootloader */
++			local-mac-address = [00 00 00 00 00 00];
++		};
++
++		pruss0_emac1: ethernet-mii1 {
++			phy-handle = <&pruss0_eth1_phy>;
++			phy-mode = "rgmii-rxid";
++			interrupts-extended = <&icssg0_intc 25>;
++			syscon-rgmii-delay = <&scm_conf 0x4104>;
++			/* Filled in by bootloader */
++			local-mac-address = [00 00 00 00 00 00];
++		};
++	};
++
 +	gpio_leds {
 +		compatible = "gpio-leds";
 +		pinctrl-names = "default";
@@ -182,65 +210,19 @@ index 000000000000..c32c75e80e85
 +		};
 +	};
 +
-+	dp_refclk: clock {
++	dp_refclk: fixed-clock-tc358767 {
 +		compatible = "fixed-clock";
 +		#clock-cells = <0>;
 +		clock-frequency = <19200000>;
 +	};
 +
-+	/* Dual Ethernet application node on PRU-ICSSG0 */
-+	pruss0_eth {
-+		compatible = "ti,am654-icssg-prueth";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&icssg0_rgmii_pins_default>;
-+		sram = <&msmc_ram>;
-+		interrupt-parent = <&main_udmass_inta>;
-+
-+		prus = <&pru0_0>, <&rtu0_0>, <&pru0_1>, <&rtu0_1>;
-+		firmware-name = "ti-pruss/am65x-pru0-prueth-fw.elf",
-+				"ti-pruss/am65x-rtu0-prueth-fw.elf",
-+				"ti-pruss/am65x-pru1-prueth-fw.elf",
-+				"ti-pruss/am65x-rtu1-prueth-fw.elf";
-+		mii-g-rt = <&icssg0_mii_g_rt>;
-+		mii-rt = <&icssg0_mii_rt>;
-+		dma-coherent;
-+		dmas = <&main_udmap &icssg0 0 UDMA_DIR_TX>, /* egress slice 0 */
-+			<&main_udmap &icssg0 1 UDMA_DIR_TX>, /* egress slice 0 */
-+			<&main_udmap &icssg0 2 UDMA_DIR_TX>, /* egress slice 0 */
-+			<&main_udmap &icssg0 3 UDMA_DIR_TX>, /* egress slice 0 */
-+			<&main_udmap &icssg0 4 UDMA_DIR_TX>, /* egress slice 1 */
-+			<&main_udmap &icssg0 5 UDMA_DIR_TX>, /* egress slice 1 */
-+			<&main_udmap &icssg0 6 UDMA_DIR_TX>, /* egress slice 1 */
-+			<&main_udmap &icssg0 7 UDMA_DIR_TX>, /* egress slice 1 */
-+
-+			<&main_udmap &icssg0 0 UDMA_DIR_RX>, /* ingress slice 0 */
-+			<&main_udmap &icssg0 1 UDMA_DIR_RX>, /* ingress slice 1 */
-+			<&main_udmap &icssg0 2 UDMA_DIR_RX>, /* mgmnt rsp slice 0 */
-+			<&main_udmap &icssg0 3 UDMA_DIR_RX>; /* mgmnt rsp slice 1 */
-+		dma-names = "tx0-0", "tx0-1", "tx0-2", "tx0-3",
-+				"tx1-0", "tx1-1", "tx1-2", "tx1-3",
-+				"rx0", "rx1",
-+				"rxmgm0", "rxmgm1";
-+
-+		pruss0_emac0: ethernet-mii0 {
-+			phy-handle = <&pruss0_eth0_phy>;
-+			phy-mode = "rgmii-rxid";
-+			syscon-rgmii-delay = <&scm_conf 0x4100>;
-+			iep = <&icssg0_iep0>;
-+			/* Filled in by bootloader */
-+			local-mac-address = [00 00 00 00 00 00];
-+			enable-half-duplex;
-+		};
-+
-+		pruss0_emac1: ethernet-mii1 {
-+			phy-handle = <&pruss0_eth1_phy>;
-+			phy-mode = "rgmii-rxid";
-+			syscon-rgmii-delay = <&scm_conf 0x4104>;
-+			iep = <&icssg0_iep1>;
-+			/* Filled in by bootloader */
-+			local-mac-address = [00 00 00 00 00 00];
-+			enable-half-duplex;
-+		};
++	vdd_mmc1_sd: fixedregulator-sd {
++		compatible = "regulator-fixed";
++		regulator-name = "vdd_mmc1_sd";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		enable-active-high;
 +	};
 +};
 +
@@ -428,6 +410,12 @@ index 000000000000..c32c75e80e85
 +		>;
 +	};
 +
++	icssg0_iep0_pins_default: icssg0_iep0_pins_default {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x0240, PIN_INPUT, 2) /* (U24) PRG0_PRU0_GPO19.PRG0_IEP0_EDC_SYNC_OUT0 */
++		>;
++	};
++
 +	dss_vout1_pins_default: dss_vout1_pins_default {
 +		pinctrl-single,pins = <
 +			AM65X_IOPAD(0x0000, PIN_OUTPUT, 1)	/* VOUT1_DATA0 */
@@ -471,6 +459,12 @@ index 000000000000..c32c75e80e85
 +		pinctrl-single,pins = <
 +			AM65X_IOPAD(0x0074, PIN_INPUT, 5) /* (T27) I2C2_SCL */
 +			AM65X_IOPAD(0x0070, PIN_INPUT, 5) /* (R25) I2C2_SDA */
++		>;
++	};
++
++	cp2102n_reset_pin_default: cp2102n_reset_pin_default {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01e0, PIN_OUTPUT, 7) /* AF12 GPIO1_24,used as cp2102 reset*/
 +		>;
 +	};
 +};
@@ -530,6 +524,21 @@ index 000000000000..c32c75e80e85
 +		"", "", "", "", "", "", "", "", "", "",
 +		"", "", "", "", "", "", "", "", "", "",
 +		"", "", "", "", "", "";
++};
++
++&main_gpio1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp2102n_reset_pin_default>;
++	gpio-line-names =
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "CP2102N-RESET", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "",
++		"", "", "", "", "", "", "", "", "", "";
 +};
 +
 +&wkup_gpio0 {
@@ -689,12 +698,14 @@ index 000000000000..c32c75e80e85
 +	status = "disabled";
 +};
 +
++
 +&ecap0 {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&ecap0_pins_default>;
 +};
 +
 +&sdhci1 {
++	vmmc-supply = <&vdd_mmc1_sd>;
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&main_mmc1_pins_default>;
 +	ti,driver-strength-ohm = <50>;
@@ -705,8 +716,18 @@ index 000000000000..c32c75e80e85
 +	status = "okay";
 +};
 +
++&serdes0 {
++	status = "okay";
++	assigned-clocks = <&k3_clks 153 4>, <&serdes0 AM654_SERDES_CMU_REFCLK>;
++	assigned-clock-parents = <&k3_clks 153 7>, <&k3_clks 153 4>;
++};
++
 +&dwc3_0 {
 +	status = "okay";
++	assigned-clock-parents = <&k3_clks 151 4>,      /* set REF_CLK to 20MHz i.e. PER0_PLL/48 */
++				 <&k3_clks 151 8>;      /* set PIPE3_TXB_CLK to WIZ8B2M4VSB */
++	phys = <&serdes0 PHY_TYPE_USB3 0>;
++	phy-names = "usb3-phy";
 +};
 +
 +&usb0_phy {
@@ -717,6 +738,9 @@ index 000000000000..c32c75e80e85
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&usb0_pins_default>;
 +	dr_mode = "host";
++	maximum-speed = "super-speed";
++	snps,dis-u1-entry-quirk;
++	snps,dis-u2-entry-quirk;
 +};
 +
 +&dwc3_1 {
@@ -830,6 +854,11 @@ index 000000000000..c32c75e80e85
 +	};
 +};
 +
++&icssg0_iep0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&icssg0_iep0_pins_default>;
++};
++
 +&serdes1 {
 +	status = "okay";
 +};
@@ -837,103 +866,107 @@ index 000000000000..c32c75e80e85
 +&pcie1_rc {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&minipcie_pins_default>;
-+
++	num-lanes = <1>;
 +	phys = <&serdes1 PHY_TYPE_PCIE 0>;
 +	phy-names = "pcie-phy0";
-+	reset-gpio = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
++	reset-gpios = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
 +	status = "okay";
++};
++
++&pcie1_ep {
++	status = "disabled";
++};
++
++&pcie0_rc {
++	status = "disabled";
++};
++
++&pcie0_ep {
++	status = "disabled";
 +};
 +
 +/* Disable crypto and eip76d_trng temporarily, because the HS system firmware has taken them up */
 +&crypto {
-+	status = "disabled";
++      status = "disabled";
 +};
 +
 +&eip76d_trng {
++      status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+new file mode 100644
+index 000000000000..dae196642ce5
+--- /dev/null
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+@@ -0,0 +1,49 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * (C) Copyright 2021 Siemens AG
++*/
++
++&tx_pru0_0 {
 +	status = "disabled";
 +};
 +
-+/*
-+ * Workaround for UART issues:
-+ * DMA for UARTs does not work with TI kernel but is enabled already in the
-+ * downstream DTS.
-+ */
-+&main_uart0 {
-+	/delete-property/ dmas;
-+	/delete-property/ dma-names;
++&tx_pru0_1 {
++	status = "disabled";
 +};
 +
-+&main_uart1 {
-+	/delete-property/ dmas;
-+	/delete-property/ dma-names;
++&tx_pru1_0 {
++	status = "disabled";
 +};
 +
-+&mcu_uart0 {
-+	/delete-property/ dmas;
-+	/delete-property/ dma-names;
++&tx_pru1_1 {
++	status = "disabled";
 +};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts
++
++&tx_pru2_0 {
++	status = "disabled";
++};
++
++&tx_pru2_1 {
++	status = "disabled";
++};
++
++&pruss0_eth {
++	compatible = "ti,am654-icssg-prueth-sr1";
++	prus = <&pru0_0>, <&rtu0_0>, <&pru0_1>, <&rtu0_1>;
++	firmware-name = "ti-pruss/am65x-pru0-prueth-fw.elf",
++			"ti-pruss/am65x-rtu0-prueth-fw.elf",
++			"ti-pruss/am65x-pru1-prueth-fw.elf",
++			"ti-pruss/am65x-rtu1-prueth-fw.elf";
++	ti,pruss-gp-mux-sel = <2>,      /* MII mode */
++			      <2>,
++			      <2>,      /* MII mode */
++			      <2>;
++};
++
++&pruss0_emac1 {
++	iep = <&icssg0_iep1>;
++};
++
++&sdhci1 {
++	no-1-8-v;
++};
+diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
 new file mode 100644
-index 000000000000..28a2ec6ec4ca
+index 000000000000..94315cfb0aa1
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-oldfw.dts
-@@ -0,0 +1,24 @@
++++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
+@@ -0,0 +1,52 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * (C) Copyright 2018-2020 Siemens AG
++ * (C) Copyright 2021 Siemens AG
 + */
 +
 +/dts-v1/;
-+
-+#include "k3-am65-iot2050.dtsi"
-+#include "k3-am6528-iot2050-basic.dtsi"
-+#include "k3-am65-iot2050-oldfw.dtsi"
-+
-+/* Compat support for bootloader V01.00.00.1 */
-+
-+&ospi0 {
-+	clocks = <&k3_clks 55 5>;
-+	assigned-clocks = <&k3_clks 55 5>;
-+	assigned-clock-parents = <&k3_clks 55 7>;
-+	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
-+};
-+
-+&ospi1 {
-+	clocks = <&k3_clks 55 16>;
-+	power-domains = <&k3_pds 55 TI_SCI_PD_EXCLUSIVE>;
-+};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
-new file mode 100644
-index 000000000000..835bd694feb0
---- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
-@@ -0,0 +1,12 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * (C) Copyright 2018-2020 Siemens AG
-+ */
-+
-+/dts-v1/;
-+
-+#include "k3-am65-iot2050.dtsi"
-+#include "k3-am6528-iot2050-basic.dtsi"
-+#include "k3-am65-main-abi3_x.dtsi"
-+#include "k3-am65-mcu-abi3_x.dtsi"
-+#include "k3-am65-wakeup-abi3_x.dtsi"
-diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dtsi b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dtsi
-new file mode 100644
-index 000000000000..14d0fa84dd2b
---- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dtsi
-@@ -0,0 +1,47 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * (C) Copyright 2018-2020 Siemens AG
-+ */
++/* TBD: should include the Dual Core dtsi*/
++#include "k3-am654.dtsi"
++#include "k3-am65-iot2050-pg2.dtsi"
 +
 +/ {
 +	compatible = "siemens,iot2050-basic", "ti,am654";
-+	model = "SIMATIC IOT2050 Basic";
++	model = "SIMATIC IOT2050 Basic Pg2";
 +
 +	memory@80000000 {
 +		device_type = "memory";
@@ -973,54 +1006,45 @@ index 000000000000..14d0fa84dd2b
 +&sdhci0 {
 +	status = "disabled";
 +};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-oldfw.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-oldfw.dts
+diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
 new file mode 100644
-index 000000000000..f17cc47e0560
+index 000000000000..19a8eb8a8bb0
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-oldfw.dts
-@@ -0,0 +1,10 @@
++++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
+@@ -0,0 +1,14 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * (C) Copyright 2018-2020 Siemens AG
++ * (C) Copyright 2021 Siemens AG
++ */
++
++/dts-v1/;
++/* TBD: should include the Dual Core dtsi*/
++#include "k3-am6528-iot2050-basic-pg2.dts"
++#include "k3-am65-iot2050.dtsi"
++
++/ {
++	compatible = "siemens,iot2050-basic", "ti,am654";
++	model = "SIMATIC IOT2050 Basic";
++};
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
+new file mode 100644
+index 000000000000..144a535e236a
+--- /dev/null
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
+@@ -0,0 +1,58 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * (C) Copyright 2021 Siemens AG
 + */
 +
 +/dts-v1/;
 +
-+#include "k3-am65-iot2050.dtsi"
-+#include "k3-am6548-iot2050-advanced.dtsi"
-+#include "k3-am65-iot2050-oldfw.dtsi"
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
-new file mode 100644
-index 000000000000..a98c00af983b
---- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
-@@ -0,0 +1,12 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * (C) Copyright 2018-2020 Siemens AG
-+ */
-+
-+/dts-v1/;
-+
-+#include "k3-am65-iot2050.dtsi"
-+#include "k3-am6548-iot2050-advanced.dtsi"
-+#include "k3-am65-main-abi3_x.dtsi"
-+#include "k3-am65-mcu-abi3_x.dtsi"
-+#include "k3-am65-wakeup-abi3_x.dtsi"
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dtsi b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dtsi
-new file mode 100644
-index 000000000000..498e6cc7fa87
---- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dtsi
-@@ -0,0 +1,53 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * (C) Copyright 2018-2020 Siemens AG
-+ */
++#include "k3-am654.dtsi"
++#include "k3-am65-iot2050-pg2.dtsi"
 +
 +/ {
 +	compatible = "siemens,iot2050-advanced", "ti,am654";
-+	model = "SIMATIC IOT2050 Advanced";
++	model = "SIMATIC IOT2050 Advanced Pg2";
 +
 +	aliases {
 +		mmc0 = &sdhci1;
@@ -1066,50 +1090,26 @@ index 000000000000..498e6cc7fa87
 +	ti,driver-strength-ohm = <50>;
 +	disable-wp;
 +};
-diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
-index 994ecd597abe..5030a14e86b5 100644
---- a/drivers/gpio/gpio-davinci.c
-+++ b/drivers/gpio/gpio-davinci.c
-@@ -174,6 +174,7 @@ static int davinci_gpio_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct resource *res;
- 	char label[MAX_LABEL_SIZE];
-+	int gpio_alias_id;
- 
- 	pdata = davinci_gpio_get_pdata(pdev);
- 	if (!pdata) {
-@@ -251,6 +252,15 @@ static int davinci_gpio_probe(struct platform_device *pdev)
- 		chips->chip.request = gpiochip_generic_request;
- 		chips->chip.free = gpiochip_generic_free;
- 	}
-+	/*
-+	 * Traditionally the base is given out in first-come-first-serve order.
-+	 * This might shuffle the numbering of gpios if the probe order changes.
-+	 * So make the base deterministical if the device tree specifies alias
-+	 * ids.
-+	 */
-+	gpio_alias_id = of_alias_get_id(dev->of_node, "gpio");
-+	if (gpio_alias_id >= 0)
-+		chips->chip.base = gpio_alias_id;
- #endif
- 	spin_lock_init(&chips->lock);
- 	bank_base += ngpio;
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index aa4de6907f77..7019cc4e675d 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1868,8 +1868,9 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
- 	spin_lock_irqsave(&port->lock, flags);
- 
- 	status = serial_port_in(port, UART_LSR);
--
--	if (status & (UART_LSR_DR | UART_LSR_BI)) {
-+	/* '&& iir & UART_IIR_RDI UART_IIR_RDI' will affect hardware flow control */
-+	if (status & (UART_LSR_DR | UART_LSR_BI) &&
-+		iir & UART_IIR_RDI) {
- 		if (!up->dma || handle_rx_dma(up, iir))
- 			status = serial8250_rx_chars(up, status);
- 	}
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
+new file mode 100644
+index 000000000000..666a0742dcb5
+--- /dev/null
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
+@@ -0,0 +1,14 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * (C) Copyright 2021 Siemens AG
++ */
++
++/dts-v1/;
++
++#include "k3-am6548-iot2050-advanced-pg2.dts"
++#include "k3-am65-iot2050.dtsi"
++
++/ {
++	compatible = "siemens,iot2050-advanced", "ti,am654";
++	model = "SIMATIC IOT2050 Advanced";
++};
 -- 
-2.31.1
+2.32.0
 

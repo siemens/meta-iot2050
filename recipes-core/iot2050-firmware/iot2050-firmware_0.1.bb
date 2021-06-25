@@ -14,10 +14,7 @@ DEBIAN_DEPENDS = "u-boot-tools, k3-rti-wdt"
 DEPENDS = "k3-rti-wdt"
 
 SRC_URI = " \
-    file://ti-pruss/am65x-pru0-prueth-fw.elf \
-    file://ti-pruss/am65x-pru1-prueth-fw.elf \
-    file://ti-pruss/am65x-rtu0-prueth-fw.elf \
-    file://ti-pruss/am65x-rtu1-prueth-fw.elf \
+    file://ti-pruss \
     file://fw_env.config"
 
 do_install() {
