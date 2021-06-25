@@ -17,7 +17,19 @@ SRC_URI += " \
     file://0003-feat-extend-led-panic-indicator-on-and-off.patch \
     file://0004-feat-change-mmc-order-using-alias-in-dts.patch \
     file://0005-Workaround-to-correct-DP-clock-to-154MHZ.patch \
-    file://0006-gpio-pca953x-Add-support-for-the-PCAL9535.patch"
+    file://0006-gpio-pca953x-Add-support-for-the-PCAL9535.patch \
+    file://0007-USB-serial-cp210x-disable-interface-on-errors-in-ope.patch \
+    file://0008-USB-serial-cp210x-add-support-for-line-status-events.patch \
+    file://0009-USB-serial-cp210x-add-support-for-TIOCGICOUNT.patch \
+    file://0010-USB-serial-cp210x-drop-unnecessary-packed-attributes.patch \
+    file://0011-USB-serial-cp210x-use-in-kernel-types-in-port-data.patch \
+    file://0012-USB-serial-cp210x-return-early-on-unchanged-termios.patch \
+    file://0013-USB-serial-cp210x-clean-up-line-control-handling.patch \
+    file://0014-USB-serial-cp210x-set-terminal-settings-on-open.patch \
+    file://0015-USB-serial-cp210x-drop-flow-control-debugging.patch \
+    file://0016-USB-serial-cp210x-refactor-flow-control-handling.patch \
+    file://0017-USB-serial-cp210x-clean-up-dtr_rts.patch \
+    file://0018-USB-serial-cp210x-add-support-for-software-flow-cont.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \
