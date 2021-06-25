@@ -1,7 +1,7 @@
 From f8d59478c2a6dc9a1f3013859a0c06fd771acc9d Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH] iot2050: add iot2050 platform support
+Subject: [PATCH 1/2] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
 
