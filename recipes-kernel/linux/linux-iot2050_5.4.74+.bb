@@ -16,7 +16,8 @@ SRC_URI += " \
     file://0002-setting-the-RJ45-port-led-behavior.patch \
     file://0003-feat-extend-led-panic-indicator-on-and-off.patch \
     file://0004-feat-change-mmc-order-using-alias-in-dts.patch \
-    file://0005-Workaround-to-correct-DP-clock-to-154MHZ.patch"
+    file://0005-Workaround-to-correct-DP-clock-to-154MHZ.patch \
+    file://0006-gpio-pca953x-Add-support-for-the-PCAL9535.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \
