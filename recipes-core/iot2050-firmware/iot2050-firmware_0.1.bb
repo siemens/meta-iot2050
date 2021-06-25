@@ -14,10 +14,7 @@ DEBIAN_DEPENDS = "u-boot-tools"
 
 SRC_URI = " \
     file://postinst \
-    file://ti-pruss/am65x-pru0-prueth-fw.elf \
-    file://ti-pruss/am65x-pru1-prueth-fw.elf \
-    file://ti-pruss/am65x-rtu0-prueth-fw.elf \
-    file://ti-pruss/am65x-rtu1-prueth-fw.elf \
+    file://ti-pruss \
     file://rti_dwwdtest/iot2050/csl_rti_dwwd_test_app_mcu1_0_release.xer5f \
     file://fw_env.config"
 
