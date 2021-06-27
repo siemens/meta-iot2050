@@ -39,6 +39,7 @@ SRC_URI += " \
     file://0024-watchdog-Respect-handle_boot_enabled-when-setting-la.patch \
     file://0025-watchdog-rti_wdt-Backport-mainline-driver.patch \
     file://0026-arm64-dts-ti-k3-am65-mcu-Switch-to-upstream-watchdog.patch \
+    file://0027-scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch \
     "
 
 KERNEL_BRANCH = "ti-sdk/processor-sdk-linux-4.19.y"

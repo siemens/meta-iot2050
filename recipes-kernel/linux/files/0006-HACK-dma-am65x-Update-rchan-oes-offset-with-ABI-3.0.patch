@@ -1,7 +1,7 @@
 From d8c85abd7826d201a1483d11e6c45e39406c8ea8 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Wed, 21 Oct 2020 01:19:58 +0530
-Subject: [PATCH 06/26] HACK: dma: am65x: Update rchan oes offset with ABI 3.0
+Subject: [PATCH 06/27] HACK: dma: am65x: Update rchan oes offset with ABI 3.0
 
 Update the rchan oes offset when using ABI 3.0 sysfw.
 
