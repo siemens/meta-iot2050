@@ -1,7 +1,7 @@
 From 9ec5a0a776b539deb44f34fc6973969c4b7dbda4 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Apr 2021 07:57:59 +0200
-Subject: [PATCH 10/11] uart: Fix software flow control management
+Subject: [PATCH 10/13] uart: Fix software flow control management
 
 Rather than updating IXON/IXOFF in termios, mraa_uart_set_flowcontrol
 was incorrectly issuing a stop or start character on mode changes. This
