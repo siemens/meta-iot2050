@@ -1,7 +1,7 @@
 From cfbcd5a9b19b925d33cc02aef4aae20e7cb2f5db Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 07:05:19 +0100
-Subject: [PATCH 06/11] gpio: chardev: Add function to retrieve sysfs base for
+Subject: [PATCH 06/13] gpio: chardev: Add function to retrieve sysfs base for
  a gpiochip
 
 This allows to full mux structures which still need the sysfs GPIO
