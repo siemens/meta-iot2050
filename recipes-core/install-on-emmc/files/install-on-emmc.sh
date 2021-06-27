@@ -128,7 +128,15 @@ dd if=${BOOT_DEV} of=${EMMC_DEV} count=${SECTORS}
 sync
 
 echo "Updating partition UUID of eMMC rootfs"
-partx -u ${EMMC_DEV}
+partx -a ${EMMC_DEV}
+udevadm settle
+if ! test -b ${EMMC_DEV}p1; then
+	echo "Waiting for ${EMMC_DEV}p1 to appear"
+	while ! test -b ${EMMC_DEV}p1; do
+		echo -n "."
+		sleep 1
+	done
+fi
 mount ${EMMC_DEV}p1 /mnt
 mount -o bind /dev /mnt/dev
 mount -t proc proc /mnt/proc
