@@ -1,0 +1,50 @@
+mainmenu "IOT2050 Image Configuration"
+
+choice
+	prompt "Image type"
+	default IMAGE_EXAMPLE
+
+config IMAGE_EXAMPLE
+	bool "Example image"
+
+config IMAGE_LXDE
+	bool "LXDE Example image"
+
+config IMAGE_BOOT
+	bool "Firmware image"
+
+endchoice
+
+config KAS_MAIN
+	string
+	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
+	default "kas-iot2050-lxde.yml" if IMAGE_LXDE
+	default "kas-iot2050-boot.yml" if IMAGE_BOOT
+
+if IMAGE_EXAMPLE || IMAGE_LXDE
+
+config PREEMPT_RT
+	bool "PREEMPT-RT kernel"
+
+config KAS_INCLUDE_RT
+	string
+	default ":kas/opt/preempt-rt.yml"
+	depends on PREEMPT_RT
+
+config SDK
+	bool "Build SDK"
+
+config KAS_INCLUDE_SDK
+	string
+	default ":kas/opt/sdk.yml"
+	depends on SDK
+
+config HOSTNAME
+	string "Host name"
+	default "iot2050-debian"
+
+config KAS_VAR_HOSTNAME
+	string
+	default "IOT2050_HOSTNAME"
+
+endif
