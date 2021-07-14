@@ -145,9 +145,11 @@ class FirmwareUpdate(object):
                 print("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
                 sys.exit(1)
 
-            while mtd_pos < mtd_size:
+            while mtd_pos < mtd_size and firmware_size > 0:
                 mtd_content = os.read(mtd_dev, mtd_erasesize)
                 firmware_content = self.firmware.read(mtd_erasesize)
+                padsize = mtd_erasesize - len(firmware_content)
+                firmware_content += bytearray([0xff] * padsize)
 
                 if not mtd_content == firmware_content:
                     print("U", end="")
