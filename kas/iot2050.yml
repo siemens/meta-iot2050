@@ -46,6 +46,3 @@ local_conf_header:
     CONF_VERSION = "1"
   crossbuild: |
     ISAR_CROSS_COMPILE = "1"
-
-env:
-  IOT2050_HOSTNAME: "iot2050-debian"
