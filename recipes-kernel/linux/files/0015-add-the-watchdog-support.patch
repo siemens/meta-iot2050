@@ -1,0 +1,39 @@
+From ee1e091746556a8741479ce61ca5f04565498541 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Tue, 27 Jul 2021 13:17:55 +0800
+Subject: [PATCH 15/15] add the watchdog support
+
+currently,as lack of watchdog support,so adding the function back
+
+the device node refer to ti-sdk 06_03_00  k3-am65-mcu.dtsi
+
+TI has removed the device node,we need to add it back
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+index deed46d71aad..275144a66975 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
+@@ -791,3 +791,15 @@
+ 	/delete-property/ dmas;
+ 	/delete-property/ dma-names;
+ };
++
++
++&cbass_mcu {
++	mcu_rti1: rti@40610000 {
++		compatible = "ti,rti-wdt";
++		reg = <0x0 0x40610000 0x0 0x100>;
++		clocks = <&k3_clks 135 0>;
++		power-domains = <&k3_pds 135 TI_SCI_PD_EXCLUSIVE>;
++		assigned-clocks = <&k3_clks 135 0>;
++		assigned-clock-parents = <&k3_clks 135 4>;
++	};
++};
+-- 
+2.32.0
+
