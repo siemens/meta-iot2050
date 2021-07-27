@@ -27,6 +27,7 @@ SRC_URI += " \
     file://0012-feat-change-mmc-order-using-alias-in-dts.patch \
     file://0013-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
     file://0014-serial-8250-8250_omap-Fix-possible-interrupt-storm.patch \
+    file://0015-net-ethernet-icssg-prueth-Restore-100M-half-duplex-s.patch \
     "
 
 KERNEL_BRANCH = "am6-abi-ti-linux-4.19.y"
