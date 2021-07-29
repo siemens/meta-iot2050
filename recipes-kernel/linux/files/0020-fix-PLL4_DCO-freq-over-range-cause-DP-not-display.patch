@@ -1,7 +1,7 @@
-From 1a555ebfb54b4241be9df6a46a4c2110c171959f Mon Sep 17 00:00:00 2001
+From 1c9d8953f936f6e1beee71af59aa5e2533be0ef1 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 11 Dec 2020 17:20:12 +0800
-Subject: [PATCH 13/14] fix:PLL4_DCO freq over range cause DP not display
+Subject: [PATCH 20/26] fix:PLL4_DCO freq over range cause DP not display
 
   1.some DP may be can not display.
   2.reason: TI sysfw can not correct set PLL4 some frequency
@@ -246,5 +246,5 @@ index 32f7535a0f83..b43cd213b6d9 100644
  }
  
 -- 
-2.26.2
+2.31.1
 
