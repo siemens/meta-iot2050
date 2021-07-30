@@ -14,7 +14,6 @@ DEBIAN_DEPENDS = "u-boot-tools, k3-rti-wdt"
 DEPENDS = "k3-rti-wdt"
 
 SRC_URI = " \
-    file://postinst \
     file://ti-pruss \
     file://fw_env.config"
 
