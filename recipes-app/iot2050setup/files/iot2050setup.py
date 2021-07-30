@@ -591,14 +591,14 @@ class PeripheralsMenu:
 
 
 def main():
+    mainwindow = TopMenu()
     try:
-        mainwindow = TopMenu()
         mainwindow.show()
-    except:
-        pass
-    finally:
+    except Exception as e:
         mainwindow.close()
-        return ''
+        raise e
+
+    mainwindow.close()
 
 
 if __name__ == '__main__':
