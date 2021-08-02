@@ -1,7 +1,7 @@
 From a2cdc4fc9f1a9fd54679eca83897db2003c53cc7 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 13 Jul 2020 12:55:13 +0200
-Subject: [PATCH 07/18] USB: serial: cp210x: disable interface on errors in
+Subject: [PATCH 07/23] USB: serial: cp210x: disable interface on errors in
  open
 
 Try to disable the serial interface in the unlikely event that generic
@@ -15,7 +15,7 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index a90801ef0055..c01c7863dd1a 100644
+index a90801ef00554..c01c7863dd1a2 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -824,7 +824,16 @@ static int cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)

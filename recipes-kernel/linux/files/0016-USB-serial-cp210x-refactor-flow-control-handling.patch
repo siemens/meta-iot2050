@@ -1,7 +1,7 @@
 From f9760d25101e09645c7a3b0af05e2af147612d8d Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
-Subject: [PATCH 16/18] USB: serial: cp210x: refactor flow-control handling
+Subject: [PATCH 16/23] USB: serial: cp210x: refactor flow-control handling
 
 Add a helper function to be used to configure flow control.
 
@@ -18,7 +18,7 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 47 insertions(+), 50 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 04d2b15ceded..c77fd09b91ce 100644
+index 04d2b15ceded6..c77fd09b91ce5 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -555,14 +555,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,

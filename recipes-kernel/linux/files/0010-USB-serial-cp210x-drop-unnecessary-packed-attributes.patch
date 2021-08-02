@@ -1,7 +1,7 @@
 From 42989e25749ae7c5fcfc7749722a181012645eaa Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 13 Jul 2020 12:55:16 +0200
-Subject: [PATCH 10/18] USB: serial: cp210x: drop unnecessary packed attributes
+Subject: [PATCH 10/23] USB: serial: cp210x: drop unnecessary packed attributes
 
 Drop unnecessary packed attributes from structs without padding.
 
@@ -13,7 +13,7 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 3a65be4a0ec0..09445b7a8f64 100644
+index 3a65be4a0ec0b..09445b7a8f649 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -435,7 +435,7 @@ struct cp210x_flow_ctl {
