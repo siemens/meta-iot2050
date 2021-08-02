@@ -1,7 +1,7 @@
 From 2a08e93e5f7be398ad1caa2a35860afa8adbf14c Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:26 +0100
-Subject: [PATCH 17/18] USB: serial: cp210x: clean up dtr_rts()
+Subject: [PATCH 17/23] USB: serial: cp210x: clean up dtr_rts()
 
 Clean up dtr_rts() by renaming the port parameter and adding missing
 whitespace.
@@ -12,7 +12,7 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index c77fd09b91ce..fbb10dfc56e3 100644
+index c77fd09b91ce5..fbb10dfc56e31 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -46,7 +46,7 @@ static void cp210x_disconnect(struct usb_serial *);

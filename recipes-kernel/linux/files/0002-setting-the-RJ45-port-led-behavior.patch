@@ -1,7 +1,7 @@
 From 2a2eae3ce99f78f1d65ae4720d95a3569e11eb74 Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Wed, 6 Nov 2019 11:21:49 +0800
-Subject: [PATCH 02/18] setting the RJ45 port led behavior
+Subject: [PATCH 02/23] setting the RJ45 port led behavior
 
 Signed-off-by: zengchao <chao.zeng@siemens.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: zengchao <chao.zeng@siemens.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 1b65c8a94e8c..3bdb3862a310 100644
+index 1b65c8a94e8c3..3bdb3862a3104 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
 @@ -44,6 +44,10 @@

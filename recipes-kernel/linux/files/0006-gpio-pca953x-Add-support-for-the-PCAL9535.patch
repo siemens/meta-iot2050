@@ -1,7 +1,7 @@
 From 296366b212926f73055b5a97d12b349941656d63 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 15 Jun 2020 15:22:29 +0200
-Subject: [PATCH 06/18] gpio: pca953x: Add support for the PCAL9535
+Subject: [PATCH 06/23] gpio: pca953x: Add support for the PCAL9535
 
 The PCAL9535 is compatible to the PCA9535. Additionally, it comes with
 interrupt support and input latching. Other features are not supported
@@ -16,7 +16,7 @@ Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 42dadf628b71..5585a9fc2fa1 100644
+index 42dadf628b710..5585a9fc2fa11 100644
 --- a/drivers/gpio/gpio-pca953x.c
 +++ b/drivers/gpio/gpio-pca953x.c
 @@ -89,6 +89,7 @@ static const struct i2c_device_id pca953x_id[] = {

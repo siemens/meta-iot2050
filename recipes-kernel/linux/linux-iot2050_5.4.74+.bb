@@ -29,7 +29,12 @@ SRC_URI += " \
     file://0015-USB-serial-cp210x-drop-flow-control-debugging.patch \
     file://0016-USB-serial-cp210x-refactor-flow-control-handling.patch \
     file://0017-USB-serial-cp210x-clean-up-dtr_rts.patch \
-    file://0018-USB-serial-cp210x-add-support-for-software-flow-cont.patch"
+    file://0018-USB-serial-cp210x-add-support-for-software-flow-cont.patch \
+    file://0019-watchdog-rti-wdt-attach-to-running-watchdog-during-p.patch \
+    file://0020-watchdog-use-__watchdog_ping-in-startup.patch \
+    file://0021-watchdog-add-support-for-adjusting-last-known-HW-kee.patch \
+    file://0022-watchdog-Respect-handle_boot_enabled-when-setting-la.patch \
+    file://0023-Bind-to-the-backported-rti_wdt-rather-than-the-legac.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \

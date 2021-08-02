@@ -1,7 +1,7 @@
 From a8fde0351bbf21c90d276c87d75b2d0ce7e4a7ef Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Fri, 3 Jan 2020 14:50:16 +0800
-Subject: [PATCH 03/18] feat:extend led panic-indicator on and off
+Subject: [PATCH 03/23] feat:extend led panic-indicator on and off
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -12,7 +12,7 @@ Signed-off-by: Gao Nian <nian.gao@siemens.com>
  4 files changed, 29 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/leds/led-triggers.c b/drivers/leds/led-triggers.c
-index 23963e5cb5d6..05a92b3127e2 100644
+index 23963e5cb5d6a..05a92b3127e26 100644
 --- a/drivers/leds/led-triggers.c
 +++ b/drivers/leds/led-triggers.c
 @@ -323,8 +323,14 @@ void led_trigger_event(struct led_trigger *trig,
@@ -33,7 +33,7 @@ index 23963e5cb5d6..05a92b3127e2 100644
  }
  EXPORT_SYMBOL_GPL(led_trigger_event);
 diff --git a/drivers/leds/leds-gpio.c b/drivers/leds/leds-gpio.c
-index 2bf74595610f..d7ea2dbdbf1e 100644
+index 2bf74595610f5..d7ea2dbdbf1e4 100644
 --- a/drivers/leds/leds-gpio.c
 +++ b/drivers/leds/leds-gpio.c
 @@ -99,8 +99,12 @@ static int create_gpio_led(const struct gpio_led *template,
@@ -64,7 +64,7 @@ index 2bf74595610f..d7ea2dbdbf1e 100644
  		ret = create_gpio_led(&led, led_dat, dev, child, NULL);
  		if (ret < 0) {
 diff --git a/drivers/leds/trigger/ledtrig-panic.c b/drivers/leds/trigger/ledtrig-panic.c
-index 5751cd032f9d..2b9b20a0e7c0 100644
+index 5751cd032f9db..2b9b20a0e7c0f 100644
 --- a/drivers/leds/trigger/ledtrig-panic.c
 +++ b/drivers/leds/trigger/ledtrig-panic.c
 @@ -32,6 +32,7 @@ static void led_trigger_set_panic(struct led_classdev *led_cdev)
@@ -87,7 +87,7 @@ index 5751cd032f9d..2b9b20a0e7c0 100644
  	return NOTIFY_DONE;
  }
 diff --git a/include/linux/leds.h b/include/linux/leds.h
-index 52889b50eb44..b5cc5dcdd67c 100644
+index 52889b50eb446..b5cc5dcdd67cd 100644
 --- a/include/linux/leds.h
 +++ b/include/linux/leds.h
 @@ -74,6 +74,8 @@ struct led_classdev {
