@@ -1,7 +1,7 @@
-From d38df3c4cb87e306307b3d1b91a981581c704b73 Mon Sep 17 00:00:00 2001
+From b56e9ca0e2c1adcd339f63e5c77d08bee2eaf3e2 Mon Sep 17 00:00:00 2001
 From: Sheng Long Wang <shenglong.wang.ext@siemens.com>
 Date: Tue, 13 Aug 2019 10:27:44 +0800
-Subject: [PATCH 05/14] Fix: DP maybe not display problem.
+Subject: [PATCH 12/26] Fix: DP maybe not display problem.
 
 Three reasons:
 	1. No entry link training phase
@@ -369,5 +369,5 @@ index c0b26135dbd5..fc2eadda02f8 100644
   * drm_kms_helper_poll_enable - re-enable output polling.
   * @dev: drm_device
 -- 
-2.26.2
+2.31.1
 

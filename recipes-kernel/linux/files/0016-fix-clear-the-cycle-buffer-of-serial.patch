@@ -1,7 +1,7 @@
-From 1ab25d6688f4299e1e527705f6673c6bce4c8215 Mon Sep 17 00:00:00 2001
+From 9e55cdfbcc1dc9bf32e69b3e896d23d0795179c7 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Tue, 26 Nov 2019 09:05:56 +0800
-Subject: [PATCH 09/14] fix:clear the cycle buffer of serial
+Subject: [PATCH 16/26] fix:clear the cycle buffer of serial
 
 1.the last residual data will be sent next time
 
@@ -25,5 +25,5 @@ index 979e4c861a6b..47d90ed7e96e 100644
  	pm_runtime_put_autosuspend(port->dev);
  	free_irq(port->irq, port);
 -- 
-2.26.2
+2.31.1
 

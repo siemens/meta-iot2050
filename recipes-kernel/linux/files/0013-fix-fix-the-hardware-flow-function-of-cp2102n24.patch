@@ -1,7 +1,7 @@
-From 0a0750ce140190017241f235b07e519a38a29fa7 Mon Sep 17 00:00:00 2001
+From 262683aad85419c9b13f1ea59f4c26b36d26d393 Mon Sep 17 00:00:00 2001
 From: Gao Nian <nian.gao@siemens.com>
 Date: Wed, 21 Aug 2019 16:22:30 +0800
-Subject: [PATCH 06/14] fix:fix the hardware flow function of cp2102n24
+Subject: [PATCH 13/26] fix:fix the hardware flow function of cp2102n24
 
 Signed-off-by: Gao Nian <nian.gao@siemens.com>
 ---
@@ -49,5 +49,5 @@ index 7815062ed980..5d50eb092975 100644
  	} else {
  		dev_dbg(dev, "%s - flow control = NONE\n", __func__);
 -- 
-2.26.2
+2.31.1
 
