@@ -10,12 +10,24 @@ choice
 
 config IMAGE_EXAMPLE
 	bool "Example image"
+	help
+	  This is the official example image with several tools as well as
+	  Node-RED preinstalled. It comes without a graphical user interface.
 
 config IMAGE_LXDE
 	bool "LXDE example image"
+	help
+	  Based on the example image, this adds an LXDE-based graphical user
+	  interface.
 
 config IMAGE_BOOT
 	bool "Firmware image"
+	help
+	  Build the firmware image that is responsible for booting the device.
+
+	  WARNING: Do not flash this image onto your device unless you know
+	  that it fits AND you have an external flash programmer at hand that
+	  allows to recover. Otherwise you risk to BRICK THE IOT2050!
 
 endchoice
 
@@ -31,6 +43,10 @@ comment "Image features"
 
 config PREEMPT_RT
 	bool "Preempt-RT kernel"
+	help
+	  Build the image with a Preempt-RT kernel, rather than the default
+	  non-preemptive one. This can help achieving better real-time
+	  latencies with the device.
 
 config KAS_INCLUDE_RT
 	string
@@ -39,6 +55,11 @@ config KAS_INCLUDE_RT
 
 config SDK
 	bool "Build SDK"
+	help
+	  Generate an SDK consistent of a cross-compiler and library headers
+	  needed to build applications for the device.
+
+	  Note: This will not generate the image for the device itself.
 
 config KAS_INCLUDE_SDK
 	string
