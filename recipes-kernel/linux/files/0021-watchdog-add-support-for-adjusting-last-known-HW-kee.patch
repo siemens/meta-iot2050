@@ -1,7 +1,7 @@
-From ae7c21a663da11d8fcfb93007fd2142fd2253ff3 Mon Sep 17 00:00:00 2001
+From f892a5850b5f1e564e9c8937745195a2f4622b32 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 17 Jul 2020 16:29:56 +0300
-Subject: [PATCH 21/23] watchdog: add support for adjusting last known HW
+Subject: [PATCH 21/24] watchdog: add support for adjusting last known HW
  keepalive time
 
 Certain watchdogs require the watchdog only to be pinged within a

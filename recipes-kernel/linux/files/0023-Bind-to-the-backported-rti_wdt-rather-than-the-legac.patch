@@ -1,7 +1,7 @@
-From b993b42feb47f40d53fdd241f0b4ff7b405ed1d4 Mon Sep 17 00:00:00 2001
+From 8a250bede410a5eeb1088696e3f3e499fbd78840 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Mon, 2 Aug 2021 15:30:55 +0800
-Subject: [PATCH 23/23] Bind to the backported rti_wdt, rather than the legacy
+Subject: [PATCH 23/24] Bind to the backported rti_wdt, rather than the legacy
  SDK version. Also enable shared power control.  This is needed when
  k3-rti-wdt is used as firmware and locked the power control for this IP
  block.

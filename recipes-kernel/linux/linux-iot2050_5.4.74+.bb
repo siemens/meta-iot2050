@@ -34,7 +34,8 @@ SRC_URI += " \
     file://0020-watchdog-use-__watchdog_ping-in-startup.patch \
     file://0021-watchdog-add-support-for-adjusting-last-known-HW-kee.patch \
     file://0022-watchdog-Respect-handle_boot_enabled-when-setting-la.patch \
-    file://0023-Bind-to-the-backported-rti_wdt-rather-than-the-legac.patch"
+    file://0023-Bind-to-the-backported-rti_wdt-rather-than-the-legac.patch \
+    file://0024-linux-dts-add-the-mboxes-properity-for-R5F-watchdog.patch"
 
 SRC_URI += " \
     file://${KERNEL_DEFCONFIG} \

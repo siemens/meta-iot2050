@@ -1,7 +1,7 @@
 From 4bd6762f2e0c63810e9da09d4c5b295cb049be76 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 13 Jul 2020 12:55:14 +0200
-Subject: [PATCH 08/23] USB: serial: cp210x: add support for line-status events
+Subject: [PATCH 08/24] USB: serial: cp210x: add support for line-status events
 
 Add support for line-status events that specifically can be used to
 detect and report parity errors.
