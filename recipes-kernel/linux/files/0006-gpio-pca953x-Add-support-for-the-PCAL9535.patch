@@ -1,7 +1,7 @@
 From 296366b212926f73055b5a97d12b349941656d63 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 15 Jun 2020 15:22:29 +0200
-Subject: [PATCH 06/23] gpio: pca953x: Add support for the PCAL9535
+Subject: [PATCH 06/24] gpio: pca953x: Add support for the PCAL9535
 
 The PCAL9535 is compatible to the PCA9535. Additionally, it comes with
 interrupt support and input latching. Other features are not supported

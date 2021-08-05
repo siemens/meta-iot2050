@@ -1,7 +1,7 @@
-From 52d8d103cbda4cecd35b10287c8c0ced6334e019 Mon Sep 17 00:00:00 2001
+From ebc9a9f2aa858f1ab357974f4b7c48958ddd2385 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 17 Jul 2020 16:29:55 +0300
-Subject: [PATCH 20/23] watchdog: use __watchdog_ping in startup
+Subject: [PATCH 20/24] watchdog: use __watchdog_ping in startup
 
 Current watchdog startup functionality does not respect the minimum hw
 heartbeat setup and the last watchdog ping timeframe when watchdog is

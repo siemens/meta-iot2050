@@ -1,7 +1,7 @@
 From a2cdc4fc9f1a9fd54679eca83897db2003c53cc7 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 13 Jul 2020 12:55:13 +0200
-Subject: [PATCH 07/23] USB: serial: cp210x: disable interface on errors in
+Subject: [PATCH 07/24] USB: serial: cp210x: disable interface on errors in
  open
 
 Try to disable the serial interface in the unlikely event that generic
