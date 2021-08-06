@@ -1,7 +1,7 @@
-From f1c80d33c5ee6e4f79e8146fd3fbe2a882faac5c Mon Sep 17 00:00:00 2001
+From 4d8e0c2b77c4a523c8fa7bf2b33fd0c4008f5393 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 5 Aug 2021 11:12:49 +0800
-Subject: [PATCH 24/24] linux:dts:add the mboxes properity for R5F watchdog
+Subject: [PATCH 23/26] linux:dts:add the mboxes properity for R5F watchdog
 
 as lack of mboxes support under r5fss,it can not start the R5F watchdog firmware
 using remotepproc

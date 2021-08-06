@@ -1,7 +1,7 @@
-From 54d6cc8c4c357db2d2de0f55de3904d663ce5d2a Mon Sep 17 00:00:00 2001
+From 2ce6de50423ac5ec5bbf2d43c703a623a662e807 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Jul 2021 21:19:38 +0200
-Subject: [PATCH 22/24] watchdog: Respect handle_boot_enabled when setting last
+Subject: [PATCH 21/26] watchdog: Respect handle_boot_enabled when setting last
  last_hw_keepalive
 
 We must not pet a running watchdog when handle_boot_enabled is off

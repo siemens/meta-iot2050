@@ -1,0 +1,66 @@
+From 6b3c714413f06cef4035cb7f2e0fb639bf33a3d6 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Fri, 6 Aug 2021 14:17:23 +0800
+Subject: [PATCH 24/26] dt-bindings:dp83867:Add binding for the status led
+ configuration option
+
+The phy status led of each of board maybe different.
+Provide a method to custom phy status led behavior.
+
+Datasheet:
+http://www.ti.com/product/DP83867IR/datasheet
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ .../devicetree/bindings/net/ti,dp83867.txt     |  5 +++++
+ include/dt-bindings/net/ti-dp83867.h           | 18 ++++++++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/net/ti,dp83867.txt b/Documentation/devicetree/bindings/net/ti,dp83867.txt
+index 388ff48f53aee..0ded2d97759d6 100644
+--- a/Documentation/devicetree/bindings/net/ti,dp83867.txt
++++ b/Documentation/devicetree/bindings/net/ti,dp83867.txt
+@@ -42,6 +42,11 @@ Optional property:
+ 				    Some MACs work with differential SGMII clock.
+ 				    See data manual for details.
+ 
++	- ti,led-sel    - This configure the status led. See dt-bindings/net/ti-dp83867.h
++					  for different status led settings,select different configurations
++
++	- ti,led-name   - Correspond name of led source.
++
+ Note: ti,min-output-impedance and ti,max-output-impedance are mutually
+       exclusive. When both properties are present ti,max-output-impedance
+       takes precedence.
+diff --git a/include/dt-bindings/net/ti-dp83867.h b/include/dt-bindings/net/ti-dp83867.h
+index 6fc4b445d3a14..61732076c5fc9 100644
+--- a/include/dt-bindings/net/ti-dp83867.h
++++ b/include/dt-bindings/net/ti-dp83867.h
+@@ -48,6 +48,24 @@
+ #define DP83867_CLK_O_SEL_CHN_C_TCLK		0xA
+ #define DP83867_CLK_O_SEL_CHN_D_TCLK		0xB
+ #define DP83867_CLK_O_SEL_REF_CLK		0xC
++
++/*LED Configuration Flag*/
++#define DP83867_LINK_ESTABLISHED				0x0
++#define DP83867_RECEIVE_TRANSMIT_ACTIVITY		0x1
++#define DP83867_TRANSMIT_ACTIVITY				0x2
++#define DP83867_RECEIVE_ACTIVITY				0x3
++#define DP83867_COLLISION_DETECTED				0x4
++#define DP83867_LINK_ESTABLISHED_1000BT			0x5
++#define DP83867_LINK_ESTABLISHED_100BTX			0x6
++#define DP83867_LINK_ESTABLISHED_10BT			0x7
++#define DP83867_LINK_ESTABLISHED_10_100_BT		0x8
++#define DP83867_LINK_ESTABLISHED_100_1000_BT	0x9
++#define DP83867_FULL_DUPLEX						0xA
++#define DP83867_LINK_ESTABLISHED_BLINK_TRANSMIT_RECEIVE 0xB
++#define DP83867_RESERVED						0xC
++#define DP83867_RECEIVE_TRANSMIT_ERROR			0xD
++#define DP83867_RECEIVE_ERROR					0xE
++
+ /* Special flag to indicate clock should be off */
+ #define DP83867_CLK_O_SEL_OFF			0xFFFFFFFF
+ #endif
+-- 
+2.32.0
+
