@@ -1,7 +1,7 @@
-From 4f89c9620b804d8bd9f54476d6c8c6f7bdd78276 Mon Sep 17 00:00:00 2001
+From 6eacec9122ddeb6784c2d0a8956899eb9946dbde Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 24 Jun 2021 16:47:35 +0800
-Subject: [PATCH 05/24] Workaround to correct DP clock to 154MHZ
+Subject: [PATCH 04/26] Workaround to correct DP clock to 154MHZ
 
 BUG: as the default DPI source should be DPI_1_IN_CLK
      but seems the DSS input clk swap the DPI0 and DPI1

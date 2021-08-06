@@ -1,7 +1,7 @@
-From c2da67acdc8979ab12fc7eaead0aecf2afe9428c Mon Sep 17 00:00:00 2001
+From 3b5531eaeab377f0544adecc0377ba9d761b6851 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:23 +0100
-Subject: [PATCH 14/24] USB: serial: cp210x: set terminal settings on open
+Subject: [PATCH 13/26] USB: serial: cp210x: set terminal settings on open
 
 Unlike other drivers cp210x have been retrieving the current terminal
 settings from the device on open and reflecting those in termios.

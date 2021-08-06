@@ -1,7 +1,7 @@
-From 0b51a7dc33a024271c13c312a0ba256ee437b8bf Mon Sep 17 00:00:00 2001
+From 30371a55e607c821d0c6f3065a0943dd0fda5f50 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 17 Jul 2020 16:29:57 +0300
-Subject: [PATCH 19/24] watchdog: rti-wdt: attach to running watchdog during
+Subject: [PATCH 18/26] watchdog: rti-wdt: attach to running watchdog during
  probe
 
 If the RTI watchdog is running already during probe, the driver must

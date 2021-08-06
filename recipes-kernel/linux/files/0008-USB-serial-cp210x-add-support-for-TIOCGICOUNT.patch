@@ -1,7 +1,7 @@
-From 6a23dc264e0b73a0a537fe6ed9c46e67a8d0c8c8 Mon Sep 17 00:00:00 2001
+From d671446c09c5588d5342e21aff3f1e1bacdd14fd Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 13 Jul 2020 12:55:15 +0200
-Subject: [PATCH 09/24] USB: serial: cp210x: add support for TIOCGICOUNT
+Subject: [PATCH 08/26] USB: serial: cp210x: add support for TIOCGICOUNT
 
 Enable TIOCGICOUNT to allow reading out the (unused) interrupt counters
 and error statistics.

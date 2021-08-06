@@ -1,0 +1,79 @@
+From 3b3e8e95c4b7dc1e0fab4fdef5d1201e321021ff Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Fri, 6 Aug 2021 14:18:35 +0800
+Subject: [PATCH 25/26] net:phy:dp83867:implement the binding for status led
+ configuration
+
+the DP83867 has different function option for the status led.
+It is possible to set the status led for different function
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ drivers/net/phy/dp83867.c | 30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index 1b65c8a94e8c3..a46e9fa1be55a 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -4,7 +4,6 @@
+  *
+  * Copyright (C) 2015 Texas Instruments Inc.
+  */
+-
+ #include <linux/ethtool.h>
+ #include <linux/kernel.h>
+ #include <linux/mii.h>
+@@ -44,6 +43,10 @@
+ #define DP83867_10M_SGMII_CFG   0x016F
+ #define DP83867_10M_SGMII_RATE_ADAPT_MASK BIT(7)
+ 
++/* Led Configuration */
++#define DP83867_LEDCR_1      0x0018
++#define LED_GPIO_NUM_SEL	 0x4
++
+ #define DP83867_SW_RESET	BIT(15)
+ #define DP83867_SW_RESTART	BIT(14)
+ 
+@@ -183,6 +186,10 @@ static int dp83867_of_init(struct phy_device *phydev)
+ 	struct device *dev = &phydev->mdio.dev;
+ 	struct device_node *of_node = dev->of_node;
+ 	int ret;
++	u32 led_conf;
++	const char *led_name = NULL;
++	u32 led_select_value;
++	int index;
+ 
+ 	if (!of_node)
+ 		return -ENODEV;
+@@ -287,6 +294,27 @@ static int dp83867_of_init(struct phy_device *phydev)
+ 			   dp83867->fifo_depth);
+ 		return -EINVAL;
+ 	}
++
++	/* Optional LED configuration */
++	for (index = 0; index < LED_GPIO_NUM_SEL; index++) {
++		ret = of_property_read_u32_index(of_node, "ti,led-sel",
++				   index, &led_select_value);
++		if (ret < 0) {
++			phydev_info(phydev, "keep default value for led configuration\n");
++			return -EINVAL;
++		}
++		led_conf = led_conf << 4 | led_select_value;
++		ret = of_property_read_string_index(of_node, "ti,led-name",
++				   index, &led_name);
++		if (ret < 0)
++			phydev_info(phydev, "Have not set the optional led name\n");
++
++		phydev_info(phydev, "Configuration LED %s 0x%x\n",
++				   led_name, led_select_value);
++	}
++
++	phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_LEDCR_1, led_conf);
++
+ 	return 0;
+ }
+ #else
+-- 
+2.32.0
+

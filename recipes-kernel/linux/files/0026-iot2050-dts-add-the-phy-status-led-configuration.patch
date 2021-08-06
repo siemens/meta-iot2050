@@ -1,0 +1,43 @@
+From 457de18654fc545d214800ae1832c139975dfb44 Mon Sep 17 00:00:00 2001
+From: Chao Zeng <chao.zeng@siemens.com>
+Date: Fri, 6 Aug 2021 14:20:25 +0800
+Subject: [PATCH 26/26] iot2050:dts:add the phy status led configuration
+
+add the configuration for the phy status led to custom our board
+rj45 led behavior
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
+index 7972953a41022..0f42e4ee4874a 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
+@@ -797,12 +797,22 @@
+ 		reg = <0>;
+ 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+ 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
++		ti,led-sel = <DP83867_LINK_ESTABLISHED_100BTX>,
++				<DP83867_LINK_ESTABLISHED_100BTX>,
++				<DP83867_LINK_ESTABLISHED_1000BT>,
++				<DP83867_LINK_ESTABLISHED_BLINK_TRANSMIT_RECEIVE>;
++		ti,led-name = "led_3","led_2","led_1","led_0";
+ 	};
+ 
+ 	pruss0_eth1_phy: ethernet-phy@1 {
+ 		reg = <1>;
+ 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+ 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
++		ti,led-sel = <DP83867_LINK_ESTABLISHED_100BTX>,
++				<DP83867_LINK_ESTABLISHED_100BTX>,
++				<DP83867_LINK_ESTABLISHED_1000BT>,
++				<DP83867_LINK_ESTABLISHED_BLINK_TRANSMIT_RECEIVE>;
++		ti,led-name = "led_3","led_2","led_1","led_0";
+ 	};
+ };
+ 
+-- 
+2.32.0
+
