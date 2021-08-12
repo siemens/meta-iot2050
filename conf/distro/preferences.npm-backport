@@ -3,9 +3,9 @@ Pin: release n=buster
 Pin-Priority: 802
 
 Package: npm gyp node-*
-Pin: release n=bullseye
+Pin: release n=bullseye*
 Pin-Priority: 801
 
 Package: *
-Pin: release n=bullseye
+Pin: release n=bullseye*
 Pin-Priority: -1
