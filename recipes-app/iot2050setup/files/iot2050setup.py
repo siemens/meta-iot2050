@@ -591,12 +591,29 @@ class PeripheralsMenu:
 
 
 def main():
+    default_console_login = True
+    # get the ssh releated env
+    ssh_client = os.getenv('SSH_CLIENT')
+    ssh_tty = os.getenv('SSH_TTY')
+
+    if ssh_client is not None or ssh_tty is not None:
+        default_console_login = False
+
+    if default_console_login:
+        default_console_level = subprocess.check_output('cat /proc/sys/kernel/printk',shell=True).decode('utf-8')[0]
+        # Shield KERN_DEBUG KERN_INFO KERN_NOTICE
+        subprocess.call('dmesg -n 5', shell=True)
+
     mainwindow = TopMenu()
     try:
         mainwindow.show()
     except Exception as e:
         mainwindow.close()
         raise e
+
+    # Restore default console level
+    if default_console_login:
+        subprocess.call('dmesg -n {}'.format(default_console_level), shell=True)
 
     mainwindow.close()
 
