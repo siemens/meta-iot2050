@@ -1,7 +1,7 @@
-From 3b3e8e95c4b7dc1e0fab4fdef5d1201e321021ff Mon Sep 17 00:00:00 2001
+From 62b81d7a630fd71ac277a512d5d3cd85e0c4de3a Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Fri, 6 Aug 2021 14:18:35 +0800
-Subject: [PATCH 25/26] net:phy:dp83867:implement the binding for status led
+Subject: [PATCH 15/17] net:phy:dp83867:implement the binding for status led
  configuration
 
 the DP83867 has different function option for the status led.
@@ -9,14 +9,14 @@ It is possible to set the status led for different function
 
 Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
 ---
- drivers/net/phy/dp83867.c | 30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ drivers/net/phy/dp83867.c | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 1b65c8a94e8c3..a46e9fa1be55a 100644
+index 178c21535e88..05c700660f3e 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
-@@ -4,7 +4,6 @@
+@@ -3,7 +3,6 @@
   *
   * Copyright (C) 2015 Texas Instruments Inc.
   */
@@ -24,7 +24,7 @@ index 1b65c8a94e8c3..a46e9fa1be55a 100644
  #include <linux/ethtool.h>
  #include <linux/kernel.h>
  #include <linux/mii.h>
-@@ -44,6 +43,10 @@
+@@ -54,6 +53,10 @@
  #define DP83867_10M_SGMII_CFG   0x016F
  #define DP83867_10M_SGMII_RATE_ADAPT_MASK BIT(7)
  
@@ -35,7 +35,7 @@ index 1b65c8a94e8c3..a46e9fa1be55a 100644
  #define DP83867_SW_RESET	BIT(15)
  #define DP83867_SW_RESTART	BIT(14)
  
-@@ -183,6 +186,10 @@ static int dp83867_of_init(struct phy_device *phydev)
+@@ -494,6 +497,10 @@ static int dp83867_of_init(struct phy_device *phydev)
  	struct device *dev = &phydev->mdio.dev;
  	struct device_node *of_node = dev->of_node;
  	int ret;
@@ -46,27 +46,30 @@ index 1b65c8a94e8c3..a46e9fa1be55a 100644
  
  	if (!of_node)
  		return -ENODEV;
-@@ -287,6 +294,27 @@ static int dp83867_of_init(struct phy_device *phydev)
- 			   dp83867->fifo_depth);
+@@ -581,6 +588,30 @@ static int dp83867_of_init(struct phy_device *phydev)
  		return -EINVAL;
  	}
-+
+ 
 +	/* Optional LED configuration */
 +	for (index = 0; index < LED_GPIO_NUM_SEL; index++) {
 +		ret = of_property_read_u32_index(of_node, "ti,led-sel",
 +				   index, &led_select_value);
++
 +		if (ret < 0) {
-+			phydev_info(phydev, "keep default value for led configuration\n");
++			phydev_info(phydev,
++				    "keep default value for led configuration\n");
 +			return -EINVAL;
 +		}
++
 +		led_conf = led_conf << 4 | led_select_value;
 +		ret = of_property_read_string_index(of_node, "ti,led-name",
-+				   index, &led_name);
++				   		    index, &led_name);
++
 +		if (ret < 0)
 +			phydev_info(phydev, "Have not set the optional led name\n");
 +
 +		phydev_info(phydev, "Configuration LED %s 0x%x\n",
-+				   led_name, led_select_value);
++			    led_name, led_select_value);
 +	}
 +
 +	phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_LEDCR_1, led_conf);
@@ -75,5 +78,5 @@ index 1b65c8a94e8c3..a46e9fa1be55a 100644
  }
  #else
 -- 
-2.32.0
+2.25.1
 

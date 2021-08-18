@@ -1,10 +1,9 @@
-From dcc93c4eb03ebe1a53a38811b8abaf176bf79529 Mon Sep 17 00:00:00 2001
+From ae117d3e94aa5db2a7b4c69fb41a9054ed0ad0a5 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Mon, 2 Aug 2021 15:30:55 +0800
-Subject: [PATCH 22/26] Bind to the backported rti_wdt, rather than the legacy
- SDK version. Also enable shared power control.  This is needed when
- k3-rti-wdt is used as firmware and locked the power control for this IP
- block.
+Subject: [PATCH 12/17] Bind to the backported rti_wdt, rather than the legacy
+ SDK version. Also enable shared power control. This is needed when k3-rti-wdt
+ is used as firmware and locked the power control for this IP block.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
@@ -13,11 +12,11 @@ Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
  1 file changed, 9 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi b/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
-index b3a89f84b60f9..b9e5fd1c07641 100644
+index 93bb1e44bbe3..9e3a2e2a2582 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
-@@ -339,4 +339,13 @@
- 			#size-cells = <0>;
+@@ -343,4 +343,13 @@ mcu_r5fss0_core1: r5f@41400000 {
+ 			ti,loczrama = <1>;
  		};
  	};
 +
@@ -31,5 +30,5 @@ index b3a89f84b60f9..b9e5fd1c07641 100644
 +	};
  };
 -- 
-2.32.0
+2.25.1
 

@@ -1,7 +1,7 @@
-From 1aa382555e4261456df2eea6a1ad75f29f80e152 Mon Sep 17 00:00:00 2001
+From c2377a7ebaeedbb54eff4f55b5100d73ce628759 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
-Subject: [PATCH 15/26] USB: serial: cp210x: refactor flow-control handling
+Subject: [PATCH 08/17] USB: serial: cp210x: refactor flow-control handling
 
 Add a helper function to be used to configure flow control.
 
@@ -18,10 +18,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 47 insertions(+), 50 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 04d2b15ceded6..c77fd09b91ce5 100644
+index c38a02c9df2d..6808f4cf5555 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -555,14 +555,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -560,14 +560,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  	int result;
  
  	dmabuf = kmalloc(bufsize, GFP_KERNEL);
@@ -37,7 +37,7 @@ index 04d2b15ceded6..c77fd09b91ce5 100644
  
  	result = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
  			req, REQTYPE_INTERFACE_TO_HOST, 0,
-@@ -576,12 +570,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -581,12 +575,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  				req, bufsize, result);
  		if (result >= 0)
  			result = -EIO;
@@ -50,7 +50,7 @@ index 04d2b15ceded6..c77fd09b91ce5 100644
  	}
  
  	kfree(dmabuf);
-@@ -1095,11 +1083,55 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1100,11 +1088,55 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  	return tty_termios_hw_change(a, b) || iflag_change;
  }
  
@@ -107,7 +107,7 @@ index 04d2b15ceded6..c77fd09b91ce5 100644
  	u16 bits;
  	int ret;
  
-@@ -1156,42 +1188,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1161,42 +1193,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	if (ret)
  		dev_err(&port->dev, "failed to set line control: %d\n", ret);
  
@@ -152,5 +152,5 @@ index 04d2b15ceded6..c77fd09b91ce5 100644
  	/*
  	 * Enable event-insertion mode only if input parity checking is
 -- 
-2.32.0
+2.25.1
 

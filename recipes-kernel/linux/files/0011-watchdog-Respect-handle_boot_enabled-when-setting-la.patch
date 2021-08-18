@@ -1,7 +1,7 @@
-From 2ce6de50423ac5ec5bbf2d43c703a623a662e807 Mon Sep 17 00:00:00 2001
+From e1759b096896e8ebeff580f469307cc889961a92 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Jul 2021 21:19:38 +0200
-Subject: [PATCH 21/26] watchdog: Respect handle_boot_enabled when setting last
+Subject: [PATCH 11/17] watchdog: Respect handle_boot_enabled when setting last
  last_hw_keepalive
 
 We must not pet a running watchdog when handle_boot_enabled is off
@@ -14,10 +14,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index f04e9acbd21bb..b5f7a8c7ac9b9 100644
+index 2946f3a63110..29bfb4a5469e 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -1146,7 +1146,10 @@ int watchdog_set_last_hw_keepalive(struct watchdog_device *wdd,
+@@ -1164,7 +1164,10 @@ int watchdog_set_last_hw_keepalive(struct watchdog_device *wdd,
  
  	wd_data->last_hw_keepalive = ktime_sub(now, ms_to_ktime(last_ping_ms));
  
@@ -30,5 +30,5 @@ index f04e9acbd21bb..b5f7a8c7ac9b9 100644
  EXPORT_SYMBOL_GPL(watchdog_set_last_hw_keepalive);
  
 -- 
-2.32.0
+2.25.1
 

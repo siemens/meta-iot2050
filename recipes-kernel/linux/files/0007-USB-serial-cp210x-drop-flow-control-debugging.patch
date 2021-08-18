@@ -1,7 +1,7 @@
-From c236e35dd9c94374dd5b8150e3262579d7b5f261 Mon Sep 17 00:00:00 2001
+From f8a8a66d43e1b2cefe121239e96edde9defccc0a Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:24 +0100
-Subject: [PATCH 14/26] USB: serial: cp210x: drop flow-control debugging
+Subject: [PATCH 07/17] USB: serial: cp210x: drop flow-control debugging
 
 Drop some unnecessary flow-control debugging.
 
@@ -11,10 +11,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index bb9c3d7ccaee2..04d2b15ceded6 100644
+index 98b5740b9c62..c38a02c9df2d 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1165,8 +1165,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1170,8 +1170,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
  				sizeof(flow_ctl));
  		ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
  		flow_repl = le32_to_cpu(flow_ctl.ulFlowReplace);
@@ -23,7 +23,7 @@ index bb9c3d7ccaee2..04d2b15ceded6 100644
  
  		ctl_hs &= ~CP210X_SERIAL_DSR_HANDSHAKE;
  		ctl_hs &= ~CP210X_SERIAL_DCD_HANDSHAKE;
-@@ -1179,17 +1177,15 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1184,17 +1182,15 @@ static void cp210x_set_termios(struct tty_struct *tty,
  			flow_repl &= ~CP210X_SERIAL_RTS_MASK;
  			flow_repl |= CP210X_SERIAL_RTS_SHIFT(
  					CP210X_SERIAL_RTS_FLOW_CTL);
@@ -43,5 +43,5 @@ index bb9c3d7ccaee2..04d2b15ceded6 100644
  		flow_ctl.ulControlHandshake = cpu_to_le32(ctl_hs);
  		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
 -- 
-2.32.0
+2.25.1
 

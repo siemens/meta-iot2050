@@ -1,7 +1,7 @@
-From 3b5531eaeab377f0544adecc0377ba9d761b6851 Mon Sep 17 00:00:00 2001
+From d304e587da8cde313746dbf6a35715eb3a0b69c8 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:23 +0100
-Subject: [PATCH 13/26] USB: serial: cp210x: set terminal settings on open
+Subject: [PATCH 06/17] USB: serial: cp210x: set terminal settings on open
 
 Unlike other drivers cp210x have been retrieving the current terminal
 settings from the device on open and reflecting those in termios.
@@ -23,7 +23,7 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 6 insertions(+), 283 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index ad134e5178496..bb9c3d7ccaee2 100644
+index a787af404450..98b5740b9c62 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -31,9 +31,6 @@
@@ -36,7 +36,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  static void cp210x_change_speed(struct tty_struct *, struct usb_serial_port *,
  							struct ktermios *);
  static void cp210x_set_termios(struct tty_struct *, struct usb_serial_port *,
-@@ -267,7 +264,6 @@ enum cp210x_event_state {
+@@ -272,7 +269,6 @@ enum cp210x_event_state {
  
  struct cp210x_port_private {
  	u8			bInterfaceNumber;
@@ -44,7 +44,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  	bool			event_mode;
  	enum cp210x_event_state event_state;
  	u8 lsr;
-@@ -593,46 +589,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -598,46 +594,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  	return result;
  }
  
@@ -91,7 +91,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  /*
   * Reads any 8-bit CP210X_ register identified by req.
   */
-@@ -780,59 +736,6 @@ static int cp210x_write_vendor_block(struct usb_serial *serial, u8 type,
+@@ -785,59 +741,6 @@ static int cp210x_write_vendor_block(struct usb_serial *serial, u8 type,
  }
  #endif
  
@@ -151,7 +151,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  static int cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
  {
  	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
-@@ -844,16 +747,8 @@ static int cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
+@@ -849,16 +752,8 @@ static int cp210x_open(struct tty_struct *tty, struct usb_serial_port *port)
  		return result;
  	}
  
@@ -170,7 +170,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  
  	result = usb_serial_generic_open(tty, port);
  	if (result)
-@@ -1032,167 +927,6 @@ static bool cp210x_tx_empty(struct usb_serial_port *port)
+@@ -1037,167 +932,6 @@ static bool cp210x_tx_empty(struct usb_serial_port *port)
  	return !count;
  }
  
@@ -338,7 +338,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  struct cp210x_rate {
  	speed_t rate;
  	speed_t high;
-@@ -1366,17 +1100,13 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1371,17 +1105,13 @@ static void cp210x_set_termios(struct tty_struct *tty,
  {
  	struct cp210x_serial_private *priv = usb_get_serial_data(port->serial);
  	struct device *dev = &port->dev;
@@ -358,7 +358,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  		cp210x_change_speed(tty, port, old_termios);
  
  	/* CP2101 only supports CS8, 1 stop bit and non-stick parity. */
-@@ -1426,7 +1156,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1431,7 +1161,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	if (ret)
  		dev_err(&port->dev, "failed to set line control: %d\n", ret);
  
@@ -367,7 +367,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  		struct cp210x_flow_ctl flow_ctl;
  		u32 ctl_hs;
  		u32 flow_repl;
-@@ -1443,7 +1173,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1448,7 +1178,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
  		ctl_hs &= ~CP210X_SERIAL_DSR_SENSITIVITY;
  		ctl_hs &= ~CP210X_SERIAL_DTR_MASK;
  		ctl_hs |= CP210X_SERIAL_DTR_SHIFT(CP210X_SERIAL_DTR_ACTIVE);
@@ -376,7 +376,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  			ctl_hs |= CP210X_SERIAL_CTS_HANDSHAKE;
  
  			flow_repl &= ~CP210X_SERIAL_RTS_MASK;
-@@ -1979,7 +1709,6 @@ static int cp210x_port_probe(struct usb_serial_port *port)
+@@ -1984,7 +1714,6 @@ static int cp210x_port_probe(struct usb_serial_port *port)
  {
  	struct usb_serial *serial = port->serial;
  	struct cp210x_port_private *port_priv;
@@ -384,7 +384,7 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  
  	port_priv = kzalloc(sizeof(*port_priv), GFP_KERNEL);
  	if (!port_priv)
-@@ -1989,12 +1718,6 @@ static int cp210x_port_probe(struct usb_serial_port *port)
+@@ -1994,12 +1723,6 @@ static int cp210x_port_probe(struct usb_serial_port *port)
  
  	usb_set_serial_port_data(port, port_priv);
  
@@ -398,5 +398,5 @@ index ad134e5178496..bb9c3d7ccaee2 100644
  }
  
 -- 
-2.32.0
+2.25.1
 

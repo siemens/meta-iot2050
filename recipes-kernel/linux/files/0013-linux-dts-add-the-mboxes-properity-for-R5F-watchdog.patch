@@ -1,7 +1,7 @@
-From 4d8e0c2b77c4a523c8fa7bf2b33fd0c4008f5393 Mon Sep 17 00:00:00 2001
+From b932f5552c82707d88194a39220470d1ab07c3b8 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 5 Aug 2021 11:12:49 +0800
-Subject: [PATCH 23/26] linux:dts:add the mboxes properity for R5F watchdog
+Subject: [PATCH 13/17] linux:dts:add the mboxes properity for R5F watchdog
 
 as lack of mboxes support under r5fss,it can not start the R5F watchdog firmware
 using remotepproc
@@ -13,10 +13,10 @@ Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
  2 files changed, 7 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index d3cf64474c03b..762bb8f544983 100644
+index 9e6d8bc7ab70..f5960af6683b 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -507,6 +507,12 @@
+@@ -501,6 +501,12 @@ mailbox0_cluster0: mailbox@31f80000 {
  			ti,mbox-num-users = <4>;
  			ti,mbox-num-fifos = <16>;
  			interrupt-parent = <&intr_main_navss>;
@@ -30,17 +30,17 @@ index d3cf64474c03b..762bb8f544983 100644
  
  		mailbox0_cluster1: mailbox@31f81000 {
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi b/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
-index b9e5fd1c07641..d5fc61deefca3 100644
+index 9e3a2e2a2582..d64165da446a 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
-@@ -251,6 +251,7 @@
- 			atcm-enable = <1>;
- 			btcm-enable = <1>;
- 			loczrama = <1>;
+@@ -325,6 +325,7 @@ mcu_r5fss0_core0: r5f@41000000 {
+ 			ti,atcm-enable = <1>;
+ 			ti,btcm-enable = <1>;
+ 			ti,loczrama = <1>;
 +			mboxes = <&mailbox0_cluster0 &mbox_mcu_r5fss0_core0>;
  			sram = <&mcu_r5fss0_core0_sram>;
  		};
  
 -- 
-2.32.0
+2.25.1
 

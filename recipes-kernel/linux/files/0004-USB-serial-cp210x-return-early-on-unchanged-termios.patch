@@ -1,7 +1,7 @@
-From e6c166b5c07b2413b65f3f3119f4dccf6b35b8d2 Mon Sep 17 00:00:00 2001
+From 5fbbcf3ea4cf1ba88b9e315c89485aca5df405dc Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:21 +0100
-Subject: [PATCH 11/26] USB: serial: cp210x: return early on unchanged termios
+Subject: [PATCH 04/17] USB: serial: cp210x: return early on unchanged termios
 
 Return early from set_termios() in case no relevant terminal settings
 have changed.
@@ -15,10 +15,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 12 insertions(+)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index d0c05aa8a0d6e..f1fd109d97d55 100644
+index b5f4e584f3c9..fadd099950a8 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1352,6 +1352,15 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
+@@ -1357,6 +1357,15 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
  	port_priv->event_mode = false;
  }
  
@@ -34,7 +34,7 @@ index d0c05aa8a0d6e..f1fd109d97d55 100644
  static void cp210x_set_termios(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
-@@ -1359,6 +1368,9 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1364,6 +1373,9 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	unsigned int cflag, old_cflag;
  	u16 bits;
  
@@ -45,5 +45,5 @@ index d0c05aa8a0d6e..f1fd109d97d55 100644
  	old_cflag = old_termios->c_cflag;
  
 -- 
-2.32.0
+2.25.1
 

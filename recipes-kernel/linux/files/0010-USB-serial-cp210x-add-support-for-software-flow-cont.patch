@@ -1,7 +1,7 @@
-From d40726e61a467e0b319a595edcbcc6be5f1474eb Mon Sep 17 00:00:00 2001
+From 7d9b71ebdcc8ade018b53ed5b9e1de3b8a54c1fb Mon Sep 17 00:00:00 2001
 From: Wang Sheng Long <shenglong.wang.ext@siemens.com>
 Date: Mon, 18 Jan 2021 12:13:26 +0100
-Subject: [PATCH 17/26] USB: serial: cp210x: add support for software flow
+Subject: [PATCH 10/17] USB: serial: cp210x: add support for software flow
  control
 
 When data is transmitted between two serial ports, the phenomenon of
@@ -30,10 +30,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 65 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index fbb10dfc56e31..5bd14770065b0 100644
+index 6947d5f4cb5e..08d4cfadccad 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -377,6 +377,16 @@ static struct usb_serial_driver * const serial_drivers[] = {
+@@ -382,6 +382,16 @@ static struct usb_serial_driver * const serial_drivers[] = {
  #define CONTROL_WRITE_DTR	0x0100
  #define CONTROL_WRITE_RTS	0x0200
  
@@ -50,7 +50,7 @@ index fbb10dfc56e31..5bd14770065b0 100644
  /* CP210X_VENDOR_SPECIFIC values */
  #define CP210X_READ_2NCONFIG	0x000E
  #define CP210X_READ_LATCH	0x00C2
-@@ -1074,11 +1084,38 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
+@@ -1079,11 +1089,38 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
  	port_priv->event_mode = false;
  }
  
@@ -90,7 +90,7 @@ index fbb10dfc56e31..5bd14770065b0 100644
  
  	return tty_termios_hw_change(a, b) || iflag_change;
  }
-@@ -1086,13 +1123,29 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1091,13 +1128,29 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  static void cp210x_set_flow_control(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
@@ -121,7 +121,7 @@ index fbb10dfc56e31..5bd14770065b0 100644
  
  	ret = cp210x_read_reg_block(port, CP210X_GET_FLOW, &flow_ctl,
  			sizeof(flow_ctl));
-@@ -1118,6 +1171,16 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+@@ -1123,6 +1176,16 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
  		flow_repl |= CP210X_SERIAL_RTS_SHIFT(CP210X_SERIAL_RTS_ACTIVE);
  	}
  
@@ -139,5 +139,5 @@ index fbb10dfc56e31..5bd14770065b0 100644
  			__func__, ctl_hs, flow_repl);
  
 -- 
-2.32.0
+2.25.1
 

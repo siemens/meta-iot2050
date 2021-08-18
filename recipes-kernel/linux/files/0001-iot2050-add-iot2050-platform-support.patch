@@ -1,21 +1,21 @@
-From f8d59478c2a6dc9a1f3013859a0c06fd771acc9d Mon Sep 17 00:00:00 2001
+From ccd4d77445e347c0d179d66e01c32a6882d24a25 Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH 01/26] iot2050: add iot2050 platform support
+Subject: [PATCH 01/17] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 Signed-off-by: chao zeng <chao.zeng@siemens.com>
 ---
- arch/arm64/boot/dts/ti/Makefile               |   6 +
+ arch/arm64/boot/dts/ti/Makefile               |   5 +
  .../boot/dts/ti/k3-am65-iot2050-pg2.dtsi      | 847 ++++++++++++++++++
  arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi   |  49 +
  .../dts/ti/k3-am6528-iot2050-basic-pg2.dts    |  52 ++
  .../boot/dts/ti/k3-am6528-iot2050-basic.dts   |  14 +
  .../dts/ti/k3-am6548-iot2050-advanced-pg2.dts |  58 ++
  .../dts/ti/k3-am6548-iot2050-advanced.dts     |  14 +
- 7 files changed, 1040 insertions(+)
+ 7 files changed, 1039 insertions(+)
  create mode 100644 arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
  create mode 100644 arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
  create mode 100644 arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
@@ -24,25 +24,21 @@ Signed-off-by: chao zeng <chao.zeng@siemens.com>
  create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
 
 diff --git a/arch/arm64/boot/dts/ti/Makefile b/arch/arm64/boot/dts/ti/Makefile
-index 12d72851f94d9..425e7e614fb99 100644
+index 48b6372a9119..9195a3289db5 100644
 --- a/arch/arm64/boot/dts/ti/Makefile
 +++ b/arch/arm64/boot/dts/ti/Makefile
-@@ -21,6 +21,12 @@ dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am654-base-board.dtb  \
- 				 k3-am654-evm-prupwm.dtbo \
- 				 k3-am654-idk-sr1.dtbo
+@@ -30,3 +30,8 @@ dtb-$(CONFIG_ARCH_K3) += k3-am642-evm.dtb
+ dtb-$(CONFIG_ARCH_K3) += k3-am642-evm-icssg1-dualemac.dtbo
  
-+dtb-$(CONFIG_ARCH_K3_AM6_SOC) += k3-am6528-iot2050-basic.dtb \
-+								 k3-am6548-iot2050-advanced.dtb	\
-+								 k3-am6528-iot2050-basic-pg2.dtb \
-+								 k3-am6548-iot2050-advanced-pg2.dtb
+ dtb-$(CONFIG_ARCH_K3) += k3-am642-sk.dtb
 +
-+
- dtb-$(CONFIG_ARCH_K3_J721E_SOC) += k3-j721e-common-proc-board.dtb \
- 				   k3-j721e-proc-board-tps65917.dtb \
- 				   k3-j7200-common-proc-board.dtb \
++dtb-$(CONFIG_ARCH_K3) += k3-am6528-iot2050-basic.dtb
++dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced.dtb
++dtb-$(CONFIG_ARCH_K3) += k3-am6528-iot2050-basic-pg2.dtb
++dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-pg2.dtb
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
 new file mode 100644
-index 0000000000000..da54e1e42ac22
+index 000000000000..ca20f2d9dec6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
 @@ -0,0 +1,847 @@
@@ -885,17 +881,17 @@ index 0000000000000..da54e1e42ac22
 +	status = "disabled";
 +};
 +
-+/* Disable crypto and eip76d_trng temporarily, because the HS system firmware has taken them up */
++/* Disable crypto and rng temporarily, because the HS system firmware has taken them up */
 +&crypto {
 +      status = "disabled";
 +};
 +
-+&eip76d_trng {
++&rng {
 +      status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 new file mode 100644
-index 0000000000000..dae196642ce54
+index 000000000000..dae196642ce5
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050.dtsi
 @@ -0,0 +1,49 @@
@@ -950,7 +946,7 @@ index 0000000000000..dae196642ce54
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
 new file mode 100644
-index 0000000000000..94315cfb0aa1a
+index 000000000000..94315cfb0aa1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
 @@ -0,0 +1,52 @@
@@ -1008,7 +1004,7 @@ index 0000000000000..94315cfb0aa1a
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
 new file mode 100644
-index 0000000000000..19a8eb8a8bb06
+index 000000000000..19a8eb8a8bb0
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
 @@ -0,0 +1,14 @@
@@ -1028,7 +1024,7 @@ index 0000000000000..19a8eb8a8bb06
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
 new file mode 100644
-index 0000000000000..144a535e236a5
+index 000000000000..144a535e236a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
 @@ -0,0 +1,58 @@
@@ -1092,7 +1088,7 @@ index 0000000000000..144a535e236a5
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
 new file mode 100644
-index 0000000000000..666a0742dcb55
+index 000000000000..666a0742dcb5
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced.dts
 @@ -0,0 +1,14 @@
@@ -1111,5 +1107,5 @@ index 0000000000000..666a0742dcb55
 +	model = "SIMATIC IOT2050 Advanced";
 +};
 -- 
-2.32.0
+2.25.1
 

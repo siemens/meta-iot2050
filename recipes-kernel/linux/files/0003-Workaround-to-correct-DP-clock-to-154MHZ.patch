@@ -1,7 +1,7 @@
-From 6eacec9122ddeb6784c2d0a8956899eb9946dbde Mon Sep 17 00:00:00 2001
+From b253d1435852448e56f297f1c027720a7fd4e12e Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 24 Jun 2021 16:47:35 +0800
-Subject: [PATCH 04/26] Workaround to correct DP clock to 154MHZ
+Subject: [PATCH 03/17] Workaround to correct DP clock to 154MHZ
 
 BUG: as the default DPI source should be DPI_1_IN_CLK
      but seems the DSS input clk swap the DPI0 and DPI1
@@ -14,10 +14,10 @@ Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
-index da54e1e42ac22..7972953a41022 100644
+index ca20f2d9dec6..63bf5a805aeb 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-pg2.dtsi
-@@ -770,7 +770,7 @@
+@@ -770,7 +770,7 @@ &dss {
  	pinctrl-names = "default";
  	pinctrl-0 = <&dss_vout1_pins_default>;
  
@@ -27,5 +27,5 @@ index da54e1e42ac22..7972953a41022 100644
  };
  
 -- 
-2.32.0
+2.25.1
 
