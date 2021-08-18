@@ -5,6 +5,7 @@
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
 #  Jan Kiszka <jan.kiszka@siemens.com>
+#  Su Bao Cheng <baocheng.su@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -16,15 +17,6 @@ import fcntl
 import struct
 import mmap
 import argparse
-
-force_update = False
-
-
-def FirmwareUpdateException(str):
-    """Report the error info and exit"""
-    if not force_update:
-        print(str)
-        sys.exit(1)
 
 
 class FirmwareUpdate(object):
@@ -56,27 +48,6 @@ class FirmwareUpdate(object):
         except IOError:
             print("ioctl failed")
             sys.exit(1)
-
-    def cpu_id_check(self):
-        """cpu id check"""
-        cpu_device_id = [0x142ba, 0x142fa, 0x140ff]
-        cpuid_register_addr = 0x43000018
-        base_addr = cpuid_register_addr & ~(mmap.PAGESIZE - 1)
-        base_addr_offset = cpuid_register_addr - base_addr
-        try:
-            f = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
-        except FileNotFoundError:
-            print("Open /dev/mem Failed")
-            sys.exit(1)
-
-        mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ, offset=base_addr)
-        mem.seek(base_addr_offset)
-        data = []
-        data.append(struct.unpack('I', mem.read(4))[0])
-        device_id = hex(data[0])
-        current_id = int(device_id, 16) >> 11
-        if current_id not in cpu_device_id:
-            FirmwareUpdateException("Upgrade is not supported for the board")
 
     def update_firmware(self):
         """Update Firmware"""
@@ -144,6 +115,43 @@ class FirmwareUpdate(object):
 
             mtd_num += 1
 
+class FirmwareUpdateControl(object):
+    def __init__(self, firmware, force_update):
+        self.firmware = firmware
+        self.force_update = force_update
+
+    def _cpu_id_check(self):
+        """cpu id check"""
+        cpu_device_id = [0x142ba, 0x142fa, 0x140ff]
+        cpuid_register_addr = 0x43000018
+        base_addr = cpuid_register_addr & ~(mmap.PAGESIZE - 1)
+        base_addr_offset = cpuid_register_addr - base_addr
+        try:
+            f = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
+        except FileNotFoundError:
+            print("Open /dev/mem Failed")
+            sys.exit(1)
+
+        mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ, offset=base_addr)
+        mem.seek(base_addr_offset)
+        data = []
+        data.append(struct.unpack('I', mem.read(4))[0])
+        device_id = hex(data[0])
+        current_id = int(device_id, 16) >> 11
+        if current_id not in cpu_device_id:
+            print("Upgrade is not supported for the board")
+            sys.exit(1)
+
+    def pre_update_check(self):
+        if self.force_update:
+            print("Force update mode, will not checking anything before update")
+            return
+        
+        self._cpu_id_check()
+
+    def update_firmware(self):
+        FirmwareUpdate(self.firmware).update_firmware()
+
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Update OSPI firmware.')
@@ -168,13 +176,10 @@ def main(argv):
         force_update_input = input("\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
         if not force_update_input == "y":
             sys.exit(1)
-        else:
-            global force_update
-            force_update = args.force
 
-    firmupdate = FirmwareUpdate(args.firmware)
+    firmupdate = FirmwareUpdateControl(args.firmware, args.force)
 
-    firmupdate.cpu_id_check()
+    firmupdate.pre_update_check()
 
     firmupdate.update_firmware()
 
