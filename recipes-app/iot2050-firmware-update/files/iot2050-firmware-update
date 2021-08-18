@@ -15,7 +15,6 @@ import os
 import fcntl
 import struct
 import mmap
-import hashlib
 import argparse
 
 force_update = False
@@ -31,28 +30,6 @@ def FirmwareUpdateException(str):
 class FirmwareUpdate(object):
     def __init__(self, firmware):
         self.firmware = firmware
-
-    def sha256_check(self):
-        """Firmware Sha256 Check"""
-        check_sha256_file = self.firmware.name + '.sha256'
-        file_sha256 = None
-        try:
-            with open(check_sha256_file, 'r') as f:
-                file_sha256 = str(f.read()).split()[0]
-        except FileNotFoundError:
-            FirmwareUpdateException("sha256 file not exists")
-
-        try:
-            self.firmware.seek(0)
-            method = hashlib.sha256()
-            method.update(self.firmware.read())
-            hash_code = method.hexdigest()
-        except IOError as e:
-            print("Reading {} failed: {}".format(self.firmware.name, e.strerror))
-            sys.exit(1)
-
-        if file_sha256 != hash_code:
-            FirmwareUpdateException("Image checksum is not correct")
 
     def get_path_type_value(self, path):
         """get the path value"""
@@ -174,7 +151,7 @@ def main(argv):
                         type=argparse.FileType('rb'),
                         help='firmware image')
     parser.add_argument('-f', '--force',
-                    help='Force update, ignoring image checksum or device ID mismatches',
+                    help='Force update, ignoring device ID mismatches',
                     action='store_true')
 
     try:
@@ -196,8 +173,6 @@ def main(argv):
             force_update = args.force
 
     firmupdate = FirmwareUpdate(args.firmware)
-
-    firmupdate.sha256_check()
 
     firmupdate.cpu_id_check()
 
