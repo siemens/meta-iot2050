@@ -3212,11 +3212,11 @@ index 0000000000..81dbf39537
 +        func(MMC, usb, 2)
 +#else
 +#define BOOT_TARGET_DEVICES(func) \
-+        func(MMC, mmc, 1) \
-+        func(MMC, mmc, 0) \
 +        func(MMC, usb, 0) \
 +        func(MMC, usb, 1) \
-+        func(MMC, usb, 2)
++        func(MMC, usb, 2) \
++        func(MMC, mmc, 0) \
++        func(MMC, mmc, 1)
 +#endif
 +#include <config_distro_bootcmd.h>
 +
