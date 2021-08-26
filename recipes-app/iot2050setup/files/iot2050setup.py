@@ -8,7 +8,12 @@ import os
 import json
 import mraa
 from collections import OrderedDict
-
+import sys
+import fcntl
+import struct
+import tty
+import termios
+import select
 
 class ansicolors:
     clear = '\033[2J'
@@ -590,13 +595,78 @@ class PeripheralsMenu:
         return 'on' if rdgroup.getSelection() else 'off'
 
 
+class TerminalResize:
+    """
+    python3 has get_terminal size, but it doesn't actually query
+    the terminal, just trusts current stty settings, which isn't
+    useful here.
+    """
+    @classmethod
+    def resize(cls):
+        fd = os.open('/dev/tty', os.O_RDWR | os.O_NOCTTY)
+        with open(fd, 'wb+', buffering=0) as ttyfd:
+            # Save the terminal state
+            fileno = sys.stdin.fileno()
+            stty_sav = termios.tcgetattr(sys.stdin)
+            fc_sav = fcntl.fcntl(fileno, fcntl.F_GETFL)
+
+            # Turn off echo.
+            stty_new = termios.tcgetattr(sys.stdin)
+            stty_new[3] = stty_new[3] & ~termios.ECHO
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, stty_new)
+            # Getting the size of the actual terminal window
+            # Reference:https://wiki.osdev.org/Terminals
+            ttyfd.write(b'\033[7\033[r\033[999;999H\033[6n')
+            ttyfd.flush()
+
+            # Put stdin into cbreak mode.
+            tty.setcbreak(sys.stdin)
+
+            # Nonblocking mode.
+            fcntl.fcntl(fileno, fcntl.F_SETFL, fc_sav | os.O_NONBLOCK)
+
+            try:
+                while True:
+                    r, w, e = select.select([ttyfd], [], [])
+                    if r:
+                        output = sys.stdin.read()
+                        break
+            finally:
+                # Reset the terminal back to normal cooked mode
+                termios.tcsetattr(fileno, termios.TCSAFLUSH, stty_sav)
+                fcntl.fcntl(fileno, fcntl.F_SETFL, fc_sav)
+
+            rows, cols = list(map(int, re.findall(r'\d+', output)))
+
+            fcntl.ioctl(ttyfd, termios.TIOCSWINSZ,
+                        struct.pack("HHHH", rows, cols, 0, 0))
+
+
 def main():
+    default_console_login = True
+    # get the ssh releated env
+    ssh_client = os.getenv('SSH_CLIENT')
+    ssh_tty = os.getenv('SSH_TTY')
+
+    if ssh_client is not None or ssh_tty is not None:
+        default_console_login = False
+
+    if default_console_login:
+        TerminalResize.resize()
+        default_console_level = subprocess.check_output('cat /proc/sys/kernel/printk',shell=True).decode('utf-8')[0]
+        # Shield KERN_DEBUG KERN_INFO KERN_NOTICE
+        subprocess.call('dmesg -n 5', shell=True)
+
     mainwindow = TopMenu()
     try:
         mainwindow.show()
     except Exception as e:
         mainwindow.close()
         raise e
+
+    # Restore default console level
+    if default_console_login:
+        subprocess.call('dmesg -n {}'.format(default_console_level), shell=True)
 
     mainwindow.close()
 
