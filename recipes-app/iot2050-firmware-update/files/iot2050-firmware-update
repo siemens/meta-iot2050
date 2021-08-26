@@ -5,54 +5,93 @@
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
 #  Jan Kiszka <jan.kiszka@siemens.com>
+#  Su Bao Cheng <baocheng.su@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+# To use this tool, an update package in <firmware-update-package>.tar.xz format are needed.
+#
+# The <firmware-update-package>.tar.xz contains below files:
+#   - firmware.bin: The firmware to update, could be more than one.
+#   - update.conf.json: The update criteria.
+#
+# Example of update.conf.json:
+# {
+# 	"firmware": [
+# 		{
+# 			"description": "[optional] bla bla bla",
+# 			"name": "pg1-basic-vx.y.z.bin",
+# 			"version": "[optional] whatever",
+# 			"target_boards": ["pg1-basic", "pg1-advanced"]
+# 		},
+# 		{
+# 			"description": "[optional] bla bla bla",
+# 			"name": "pg2-advanced-vx.y.z.bin",
+# 			"version": "[optional] whatever",
+# 			"target_boards": "pg2-advanced",
+# 			"target_os": [
+# 				{
+# 					"type": "[optional] Example Image",
+# 					"key": "BUILD_ID",
+# 					"min_version": "V01.02.02"
+# 				},
+# 				{
+# 					"type": "[optional] Industrial OS",
+# 					"key": "VERSION_ID",
+# 					"min_version": "3.1.1"
+# 				}
+# 			]
+# 		}
+# 	],
+# 	"target_os": [
+# 		{
+# 			"type": "[optional] Example Image",
+# 			"key": "BUILD_ID",
+# 			"min_version": "V01.01.01"
+# 		},
+# 		{
+# 			"type": "[optional] Industrial OS",
+# 			"key": "VERSION_ID",
+# 			"min_version": "2.1.1"
+# 		}
+# 	]
+# }
+# 
+# There are one or more `firmware` node, each node represents one firmware file
+# in the tarball and its update control fields, such as which board and which OS 
+# it could be updated upon.
+# 
+# To indicate which board or boards the firmware could be updated upon, use the 
+# mandatory `target_boards` inside the `firmware` node.
+#
+# To indicate which OS the firmware could be updated upon, use either the 
+# `target_os` inside the `firmware` node as a local configuration, or use 
+# a global `target_os` outside the `firmware` node as the global configuration. 
+# If both exists, the local one will overwrite the global one.
+#
+# Either global or local `target_os` is optional, if none exists, the updater 
+# will not check against the OS information.
+#
+# The `key` and `min_version` field within the `target_os` node will be compared 
+# to the value from `/etc/os-release` on the board. The `key` matches exactly, and
+# the `min_version` matches the minimal version number.
+# 
 
 import sys
 import os
 import fcntl
 import struct
 import mmap
-import hashlib
 import argparse
-
-force_update = False
-
-
-def FirmwareUpdateException(str):
-    """Report the error info and exit"""
-    if not force_update:
-        print(str)
-        sys.exit(1)
+import tarfile
+import json
+from types import SimpleNamespace as Namespace
 
 
 class FirmwareUpdate(object):
     def __init__(self, firmware):
         self.firmware = firmware
-
-    def sha256_check(self):
-        """Firmware Sha256 Check"""
-        check_sha256_file = self.firmware.name + '.sha256'
-        file_sha256 = None
-        try:
-            with open(check_sha256_file, 'r') as f:
-                file_sha256 = str(f.read()).split()[0]
-        except FileNotFoundError:
-            FirmwareUpdateException("sha256 file not exists")
-
-        try:
-            self.firmware.seek(0)
-            method = hashlib.sha256()
-            method.update(self.firmware.read())
-            hash_code = method.hexdigest()
-        except IOError as e:
-            print("Reading {} failed: {}".format(self.firmware.name, e.strerror))
-            sys.exit(1)
-
-        if file_sha256 != hash_code:
-            FirmwareUpdateException("Image checksum is not correct")
 
     def get_path_type_value(self, path):
         """get the path value"""
@@ -80,27 +119,6 @@ class FirmwareUpdate(object):
             print("ioctl failed")
             sys.exit(1)
 
-    def cpu_id_check(self):
-        """cpu id check"""
-        cpu_device_id = [0x142ba, 0x142fa, 0x140ff]
-        cpuid_register_addr = 0x43000018
-        base_addr = cpuid_register_addr & ~(mmap.PAGESIZE - 1)
-        base_addr_offset = cpuid_register_addr - base_addr
-        try:
-            f = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
-        except FileNotFoundError:
-            print("Open /dev/mem Failed")
-            sys.exit(1)
-
-        mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ, offset=base_addr)
-        mem.seek(base_addr_offset)
-        data = []
-        data.append(struct.unpack('I', mem.read(4))[0])
-        device_id = hex(data[0])
-        current_id = int(device_id, 16) >> 11
-        if current_id not in cpu_device_id:
-            FirmwareUpdateException("Upgrade is not supported for the board")
-
     def update_firmware(self):
         """Update Firmware"""
         mtd_num = 0
@@ -119,7 +137,9 @@ class FirmwareUpdate(object):
             mtd_base_path = "{}/mtd".format(ospi_dev_path)
 
         self.firmware.seek(0)
-        firmware_size = os.stat(self.firmware.fileno()).st_size
+        self.firmware.seek(0, os.SEEK_END)
+        firmware_size = self.firmware.tell() 
+        self.firmware.seek(0)
 
         while True:
             if firmware_size <= 0:
@@ -168,14 +188,162 @@ class FirmwareUpdate(object):
             mtd_num += 1
 
 
+class BoardInformation(object):
+    board_cpu_ids = {
+        0x142ba: 'pg1-basic',
+        0x142fa: 'pg1-advanced',
+        0x140bb: 'pg2-basic',
+        0x140fb: 'pg2-advanced'
+    }
+
+    def __init__(self):
+        self.board_name = self._get_board_name()
+
+        print("Current board: {}".format(self.board_name))
+
+        self.os_info = self._get_os_info()
+
+    def _get_board_name(self) -> str:
+        """
+        Get the board name by checking the SOC id
+        """
+        cpuid_register_addr = 0x43000018
+        base_addr = cpuid_register_addr & ~(mmap.PAGESIZE - 1)
+        base_addr_offset = cpuid_register_addr - base_addr
+        try:
+            f = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
+        except FileNotFoundError:
+            print("Open /dev/mem Failed")
+            sys.exit(1)
+
+        mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ, offset=base_addr)
+        mem.seek(base_addr_offset)
+        data = []
+        data.append(struct.unpack('I', mem.read(4))[0])
+        device_id = hex(data[0])
+        current_cpu_id = int(device_id, 16) >> 11
+        if current_cpu_id not in self.board_cpu_ids:
+            print("Upgrade is not supported for the board w/ cpu id: {}".format(current_cpu_id))
+            sys.exit(1)
+
+        return self.board_cpu_ids[current_cpu_id]
+
+    @staticmethod
+    def _get_os_info() -> dict:
+        '''
+        Get the OS information by parsing the /etc/os-release
+
+        Returned is a dict that converted from /etc/os-release, for example:
+            NAME="debian"
+            VERSION_ID="3.1.1" 
+        
+        => 
+            {
+                "NAME": "debian"
+                "VERSION_ID": "3.1.1" 
+            }
+        '''
+        with open('/etc/os-release') as f:
+            return {l.split('=')[0]:l.strip().split('=')[-1].strip('"') for l in f.readlines()}
+
+
+class UpdateConfiguration(object):
+    def __init__(self, json_fileobj):
+        # Deserialize the json file to an object so that we can use dot operator to access the fields.
+        self._jsonobj = json.load(json_fileobj, object_hook=lambda d: Namespace(**d))
+
+    def _check_os(self, target_os, os_info) -> bool:
+        for tos in target_os:
+            if tos.key in os_info and os_info[tos.key] >= (tos.min_version):
+                return True
+
+        return False
+
+    def firmware_filter(self, board_name: str, os_info: dict) -> list:
+        '''
+        Filter out the firmwares that could not be updated on the current board and current OS.
+
+        Return the list of the firmware names that could be updated.
+        '''
+        res = []
+        for firmware in self._jsonobj.firmware:
+            if board_name in firmware.target_boards:
+                target_os = []
+                try:
+                    target_os = self._jsonobj.target_os
+                except AttributeError:
+                    pass
+
+                # local target_os configuration prior to global
+                try:
+                    target_os = firmware.target_os
+                except AttributeError:
+                    pass
+
+                # Only choose the firmware that have the target_os configuration identifying with current 
+                # OS info, or the firmware w/o target_os node which means it doesn't care the OS info.
+                if len(target_os) == 0 or self._check_os(target_os, os_info):
+                    res.append(firmware.name)
+
+        return res
+
+
+class ManagedFirmwareUpdate(FirmwareUpdate):
+    '''
+    ManagedFirmwareUpdate will perform various checking upon both the update package and the 
+    targeted board, before calling the underlying FirmwareUpdate() to flash the binaries to
+    the SPI flash.
+    '''
+    _update_conf_json = 'update.conf.json'
+
+    def __init__(self, firmware):
+        self.firmware = firmware
+
+        # Build the board information
+        self._board_info = BoardInformation()
+
+        # Parse the update configuration from the json file within the tarball
+        self._update_conf = UpdateConfiguration(
+            tarfile.open(fileobj=self.firmware).extractfile(self._update_conf_json))
+
+    def update_firmware(self):
+        # Get available firmwares by checking the board name and the os information
+        firmware_names = self._update_conf.firmware_filter(self._board_info.board_name, self._board_info.os_info)
+        
+        if len(firmware_names) <= 0:
+            print("No firmware image could be updated on this board")
+            exit(1)
+
+        if len(firmware_names) == 1:
+            firmware_name = firmware_names[0]
+        else:
+            # Ask user to pick one firmware image to update
+            print("Please select which firmware image to update:")
+            for n in firmware_names:
+                print("{}\t{}".format(firmware_names.index(n) + 1, n))
+
+            choice = int(input("-> "))
+            while choice > len(firmware_names) or choice < 1:
+                print("Out of range, please reinput your choice:")
+                choice = int(input("-> "))
+            
+            firmware_name = firmware_names[choice - 1]
+
+        print("Will write {} to the SPI flash".format(firmware_name))
+
+        self.firmware.seek(0)
+        self.firmware = tarfile.open(fileobj=self.firmware).extractfile(firmware_name)
+        super().update_firmware()
+
+
 def main(argv):
     parser = argparse.ArgumentParser(description='Update OSPI firmware.')
     parser.add_argument('firmware', metavar='FIRMWARE',
                         type=argparse.FileType('rb'),
-                        help='firmware image')
+                        help='firmware image or package')
     parser.add_argument('-f', '--force',
-                    help='Force update, ignoring image checksum or device ID mismatches',
-                    action='store_true')
+                        help='Force update, ignore all the checking',
+                        action='store_true')
 
     try:
         args = parser.parse_args()
@@ -191,17 +359,14 @@ def main(argv):
         force_update_input = input("\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
         if not force_update_input == "y":
             sys.exit(1)
-        else:
-            global force_update
-            force_update = args.force
 
-    firmupdate = FirmwareUpdate(args.firmware)
+    if args.force:
+        # When forced, ignore all the checking and call the underlying updater directly
+        updater = FirmwareUpdate(args.firmware)
+    else:
+        updater = ManagedFirmwareUpdate(args.firmware)
 
-    firmupdate.sha256_check()
-
-    firmupdate.cpu_id_check()
-
-    firmupdate.update_firmware()
+    updater.update_firmware()
 
 
 if __name__ == '__main__':
