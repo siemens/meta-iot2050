@@ -1,2 +1,0 @@
-KERNEL=="eth0",SUBSYSTEM=="net",KERNELS=="pruss0_eth",SUBSYSTEMS=="platform",NAME="eth1"
-KERNEL=="eth1",SUBSYSTEM=="net",KERNELS=="pruss0_eth",SUBSYSTEMS=="platform",NAME="eth0"
