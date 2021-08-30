@@ -1,0 +1,2 @@
+KERNEL=="eth0", ACTION=="add", SUBSYSTEM=="net", KERNELS=="pruss0_eth", SUBSYSTEMS=="platform", NAME="eno2"
+KERNEL=="eth1", ACTION=="add", SUBSYSTEM=="net", KERNELS=="pruss0_eth", SUBSYSTEMS=="platform", NAME="eno1"

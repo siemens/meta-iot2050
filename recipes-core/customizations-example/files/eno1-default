@@ -1,8 +1,8 @@
 [connection]
-id=eth0-default
+id=eno1-default
 uuid=2f479c0e-43f7-3460-958d-4d44617ae118
 type=ethernet
-interface-name=eth0
+interface-name=eno1
 
 [ipv4]
 address1=192.168.200.1/24
