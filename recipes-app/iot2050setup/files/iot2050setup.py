@@ -643,13 +643,11 @@ class TerminalResize:
 
 
 def main():
-    default_console_login = True
-    # get the ssh releated env
-    ssh_client = os.getenv('SSH_CLIENT')
-    ssh_tty = os.getenv('SSH_TTY')
-
-    if ssh_client is not None or ssh_tty is not None:
-        default_console_login = False
+    default_console_login = False
+    # get the input type
+    input_type = os.readlink('/proc/self/fd/0')
+    if "ttyS" in input_type or "ttyUSB" in input_type:
+        default_console_login = True
 
     if default_console_login:
         TerminalResize.resize()
