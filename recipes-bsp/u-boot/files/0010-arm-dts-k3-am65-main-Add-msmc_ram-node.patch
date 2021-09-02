@@ -1,7 +1,7 @@
-From 6263bcf593e55737f6e03f7bf19efb0cc4f9815d Mon Sep 17 00:00:00 2001
+From 695d900fc7ebb87119b4bf872068bbc9bfb9e8ae Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:59 +0530
-Subject: [PATCH 10/27] arm: dts: k3-am65-main: Add msmc_ram node
+Subject: [PATCH 10/28] arm: dts: k3-am65-main: Add msmc_ram node
 
 Add msmc_ram node needed for prueth
 

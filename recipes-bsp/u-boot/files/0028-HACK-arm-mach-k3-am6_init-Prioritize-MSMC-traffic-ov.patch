@@ -1,0 +1,79 @@
+From e13ec19b3b137d3745f93093b7eb3d80075e2aac Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Wed, 23 Jun 2021 18:19:45 +0530
+Subject: [PATCH 28/28] HACK: arm: mach-k3: am6_init: Prioritize MSMC traffic
+ over DDR in NAVSS Northbridge
+
+NB0 is bridge to SRAM and NB1 is bridge to DDR.
+
+To ensure that SRAM transfers are not stalled due to
+delays during DDR refreshes, SRAM traffic should be higher
+priority (threadmap=2) than DDR traffic (threadmap=0).
+
+This patch does just that.
+
+This is required to fix ICSSG TX lock-ups due to delays in
+MSMC transfers due to incorrect Northbridge configuration.
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Acked-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Acked-by: Benoit Parrot <bparrot@ti.com>
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+---
+ arch/arm/mach-k3/am6_init.c                  | 15 +++++++++++++++
+ arch/arm/mach-k3/include/mach/am6_hardware.h |  7 +++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/arch/arm/mach-k3/am6_init.c b/arch/arm/mach-k3/am6_init.c
+index d78d2b8751..ae780d3ed1 100644
+--- a/arch/arm/mach-k3/am6_init.c
++++ b/arch/arm/mach-k3/am6_init.c
+@@ -151,6 +151,19 @@ int fdtdec_board_setup(const void *fdt_blob)
+ 	return fixup_usb_boot();
+ }
+ #endif
++
++static void setup_am654_navss_northbridge(void)
++{
++	/*
++	 * NB0 is bridge to SRAM and NB1 is bridge to DDR.
++	 * To ensure that SRAM transfers are not stalled due to
++	 * delays during DDR refreshes, SRAM traffic should be higher
++	 * priority (threadmap=2) than DDR traffic (threadmap=0).
++	 */
++	writel(0x2, NAVSS0_NBSS_NB0_CFG_BASE + NAVSS_NBSS_THREADMAP);
++	writel(0x0, NAVSS0_NBSS_NB1_CFG_BASE + NAVSS_NBSS_THREADMAP);
++}
++
+ void board_init_f(ulong dummy)
+ {
+ #if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM654_DDRSS)
+@@ -168,6 +181,8 @@ void board_init_f(ulong dummy)
+ 	/* Make all control module registers accessible */
+ 	ctrl_mmr_unlock();
+ 
++	setup_am654_navss_northbridge();
++
+ #ifdef CONFIG_CPU_V7R
+ 	disable_linefill_optimization();
+ 	setup_k3_mpu_regions();
+diff --git a/arch/arm/mach-k3/include/mach/am6_hardware.h b/arch/arm/mach-k3/include/mach/am6_hardware.h
+index 1908a13f0f..0d88b1fd85 100644
+--- a/arch/arm/mach-k3/include/mach/am6_hardware.h
++++ b/arch/arm/mach-k3/include/mach/am6_hardware.h
+@@ -52,4 +52,11 @@
+ /* MCU SCRATCHPAD usage */
+ #define TI_SRAM_SCRATCH_BOARD_EEPROM_START CONFIG_SYS_K3_MCU_SCRATCHPAD_BASE
+ 
++/* NAVSS Northbridge config */
++#define	NAVSS0_NBSS_NB0_CFG_BASE	0x03802000
++#define	NAVSS0_NBSS_NB1_CFG_BASE	0x03803000
++
++#define	NAVSS_NBSS_PID		0x0
++#define	NAVSS_NBSS_THREADMAP	0x10
++
+ #endif /* __ASM_ARCH_AM6_HARDWARE_H */
+-- 
+2.32.0
+

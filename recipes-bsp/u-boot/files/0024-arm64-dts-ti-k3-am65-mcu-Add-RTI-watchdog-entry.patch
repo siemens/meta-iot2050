@@ -1,7 +1,7 @@
-From 4f07de38b77c2758fee6feff4f6c187b599ea55b Mon Sep 17 00:00:00 2001
+From 183b7be295bc272355c25b285b329dc32589bdd5 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 27 Jun 2020 07:58:01 +0200
-Subject: [PATCH 24/27] arm64: dts: ti: k3-am65-mcu: Add RTI watchdog entry
+Subject: [PATCH 24/28] arm64: dts: ti: k3-am65-mcu: Add RTI watchdog entry
 
 Add the DT entry for a watchdog based on RTI1. It requires additional
 firmware on the MCU R5F cores to handle the expiry, e.g.

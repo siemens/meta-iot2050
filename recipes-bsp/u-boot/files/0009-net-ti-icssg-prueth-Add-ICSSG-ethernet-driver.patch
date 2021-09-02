@@ -1,7 +1,7 @@
-From 974666246b172323d885ed5c17f6e706c4267788 Mon Sep 17 00:00:00 2001
+From 6634486026580147d10c9ff6ecbc098cb347af2a Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:58 +0530
-Subject: [PATCH 09/27] net: ti: icssg-prueth: Add ICSSG ethernet driver
+Subject: [PATCH 09/28] net: ti: icssg-prueth: Add ICSSG ethernet driver
 
 This is the Ethernet driver for TI SoCs with the
 ICSSG PRU Sub-system running EMAC firmware.

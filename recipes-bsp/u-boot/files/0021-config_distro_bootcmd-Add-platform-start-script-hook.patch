@@ -1,7 +1,7 @@
-From a48999023dacdb1d3bd40c977729dea1bcbd3896 Mon Sep 17 00:00:00 2001
+From 10d64755028cef1bb89683a6b568435760471870 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 19 May 2020 17:10:27 +0200
-Subject: [PATCH 21/27] config_distro_bootcmd: Add platform start script hook
+Subject: [PATCH 21/28] config_distro_bootcmd: Add platform start script hook
  for networking
 
 This can be used by boards to inject start commands needed for platform

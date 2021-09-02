@@ -1,7 +1,7 @@
-From 1b4d75dbe69b6a880d13d1c139c320e0559dcfdd Mon Sep 17 00:00:00 2001
+From f9a705f3316a61d06d3cde31fe44bfc569aea8f1 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Mon, 10 Feb 2020 16:59:29 +0530
-Subject: [PATCH 22/27] arm: dts: k3-am65-main: Add ICSSG0/1 nodes
+Subject: [PATCH 22/28] arm: dts: k3-am65-main: Add ICSSG0/1 nodes
 
 Add the ICCSG0/1 and child nodes.
 

@@ -1,7 +1,7 @@
-From 9d88384812028ea4fb478529fa2be4f85293d957 Mon Sep 17 00:00:00 2001
+From 4353a9378fdb62247159fc333f9dd05dd0408519 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:55 +0530
-Subject: [PATCH 06/27] misc: uclass: Introduce misc_init_by_ofnode
+Subject: [PATCH 06/28] misc: uclass: Introduce misc_init_by_ofnode
 
 Introduce misc_init_by_ofnode to probe a misc device
 using its ofnode.

@@ -39,6 +39,7 @@ SRC_URI += " \
     file://0025-arm-dts-update-flash-layout.patch \
     file://0026-Modify-the-icssg0-pru1-and-rtu1-loadaddress.patch \
     file://0027-board-siemens-Add-support-to-select-pg1-and-pg2-boar.patch \
+    file://0028-HACK-arm-mach-k3-am6_init-Prioritize-MSMC-traffic-ov.patch \
     "
 
 SRC_URI[sha256sum] = "0d438b1bb5cceb57a18ea2de4a0d51f7be5b05b98717df05938636e0aadfe11a"

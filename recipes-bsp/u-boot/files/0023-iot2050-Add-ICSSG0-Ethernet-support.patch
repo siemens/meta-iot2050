@@ -1,7 +1,7 @@
-From e3ce9fbbfb8d5b3e0e4b3f0ed09bf95e8e5c2280 Mon Sep 17 00:00:00 2001
+From 0a8dac806eeb4cd654fe3e60af0b4b52354bc496 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 17 May 2020 20:10:30 +0200
-Subject: [PATCH 23/27] iot2050: Add ICSSG0 Ethernet support
+Subject: [PATCH 23/28] iot2050: Add ICSSG0 Ethernet support
 
 Analogously to the am654-base-board, this adds support for the dual
 Gigabit Ethernet on IOT2050. Here it is connected to ICSSG0. Either mii0

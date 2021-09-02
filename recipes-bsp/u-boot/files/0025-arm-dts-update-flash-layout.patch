@@ -1,7 +1,7 @@
-From 5c3b2724e48b381fb6e13b03daa37370a6caa92b Mon Sep 17 00:00:00 2001
+From ffb36cd81ee584e3acbab3cc5a4afff7a5bcac6b Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 3 Jun 2021 11:45:01 +0800
-Subject: [PATCH 25/27] arm:dts:update flash layout
+Subject: [PATCH 25/28] arm:dts:update flash layout
 
 extend flash layout,keep the pg1 and pg2 sysfw on the flash
 to unify uboot and retain 64k * 6 for pg2 prufw in the future

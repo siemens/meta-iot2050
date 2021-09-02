@@ -1,7 +1,7 @@
-From 0ce2c45f1bc439584aa70ee6590bdb571df9acb9 Mon Sep 17 00:00:00 2001
+From 3f216b5db455de4a0510ce1076d37fdcdff94fe3 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:56 +0530
-Subject: [PATCH 07/27] soc: ti: pruss: add a misc driver for PRUSS in TI SoCs
+Subject: [PATCH 07/28] soc: ti: pruss: add a misc driver for PRUSS in TI SoCs
 
 The Programmable Real-Time Unit - Industrial Communication
 Subsystem (PRU-ICSS) is present of various TI SoCs such as

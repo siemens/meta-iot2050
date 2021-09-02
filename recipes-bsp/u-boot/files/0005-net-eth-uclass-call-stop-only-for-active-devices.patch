@@ -1,7 +1,7 @@
-From 20fc36760d914cc87dccb86637f34b6c45517171 Mon Sep 17 00:00:00 2001
+From 47a4e6255573296fa0d105cd7fcce0326daccb10 Mon Sep 17 00:00:00 2001
 From: Keerthy <j-keerthy@ti.com>
 Date: Thu, 9 Jan 2020 10:48:54 +0530
-Subject: [PATCH 05/27] net: eth-uclass: call stop only for active devices
+Subject: [PATCH 05/28] net: eth-uclass: call stop only for active devices
 
 Currently stop is being called unconditionally without even
 checking if start is called which will result in crash where

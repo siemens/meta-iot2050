@@ -1,7 +1,7 @@
-From f3af6adb61e19883083782924587f34968006a70 Mon Sep 17 00:00:00 2001
+From 6fdce1e4daf4eb8811bdeac4d264ce801230f932 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Tue, 8 Jun 2021 10:40:33 +0800
-Subject: [PATCH 26/27] Modify the icssg0 pru1 and rtu1 loadaddress
+Subject: [PATCH 26/28] Modify the icssg0 pru1 and rtu1 loadaddress
 
 As flash layout has changed,so needed to adjust pru and rtu loadaddr
 according to the latest flash layout

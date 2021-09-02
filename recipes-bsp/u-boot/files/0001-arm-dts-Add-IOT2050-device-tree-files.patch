@@ -1,7 +1,7 @@
-From 18f619ebcf67ffbd2fdcdb465d1467a99e39afe0 Mon Sep 17 00:00:00 2001
+From c0a576015307dfc62a4b8b00368917744568d215 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 30 Nov 2020 10:13:04 +0100
-Subject: [PATCH 01/27] arm: dts: Add IOT2050 device tree files
+Subject: [PATCH 01/28] arm: dts: Add IOT2050 device tree files
 
 Prepares for the addition of the IOT2050 board which is based on the TI
 AM65x. The board comes in two variants, Basic and Advanced, so there are

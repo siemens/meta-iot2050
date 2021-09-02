@@ -1,7 +1,7 @@
-From dc633f401b9584e0a058037487c66da2f35a8c23 Mon Sep 17 00:00:00 2001
+From 6bf0aebdac6a36ecf89411fe974f50c5f2c99902 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Wed, 9 Jun 2021 15:09:18 +0800
-Subject: [PATCH 27/27] board:siemens:Add support to select pg1 and pg2 board
+Subject: [PATCH 27/28] board:siemens:Add support to select pg1 and pg2 board
  corresponding dtb
 
 There are different dts for pg1 and pg2 board,so need to judge the board type
