@@ -33,6 +33,7 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     stress-ng \
     build-essential \
     python3 \
+    python-is-python3 \
     gawk \
     curl \
     wget \
