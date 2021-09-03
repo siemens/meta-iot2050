@@ -1,7 +1,7 @@
 From 9cc9c0a3788ed165ba1efeac2543e9162f20325d Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Oct 2020 16:07:40 +0530
-Subject: [PATCH 03/26] firmware: ti_sci: Use dev_id as resource type with ABI
+Subject: [PATCH 03/27] firmware: ti_sci: Use dev_id as resource type with ABI
  3.0
 
 With ABI 3.0, sysfw deprecated special resource types used for AM65x

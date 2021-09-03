@@ -1,7 +1,7 @@
 From 5a58f7c2a08b1df1285f733fac28079b7db3607f Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Oct 2020 23:28:33 +0530
-Subject: [PATCH 02/26] firmware: ti_sci: Rework the irq_ops to configure inta
+Subject: [PATCH 02/27] firmware: ti_sci: Rework the irq_ops to configure inta
  and intr separately
 
 Currently the irq route form IP -> INTA -> INTR -> GIC is configured in

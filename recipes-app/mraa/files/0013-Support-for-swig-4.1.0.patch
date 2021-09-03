@@ -1,0 +1,133 @@
+From 299bb3b677c816f1b2b60415c18428e2d4962ccf Mon Sep 17 00:00:00 2001
+From: Hirokazu MORIKAWA <morikw2@gmail.com>
+Date: Mon, 3 May 2021 10:00:38 +0900
+Subject: [PATCH 13/13] Support for swig 4.1.0
+
+In swig 4.1.0, the complicated handling of "SWIG_V8_VERSION" has been cleaned up a bit. I made the same changes as in this swig.
+
+Signed-off-by: Hirokazu MORIKAWA <morikw2@gmail.com>
+---
+ api/mraa/gpio.hpp             |  4 ++++
+ src/javascript/CMakeLists.txt |  7 +++++-
+ src/javascript/mraajs.i       | 42 +++++++++++++++++------------------
+ 3 files changed, 31 insertions(+), 22 deletions(-)
+
+diff --git a/api/mraa/gpio.hpp b/api/mraa/gpio.hpp
+index fad439e..6aa8f52 100644
+--- a/api/mraa/gpio.hpp
++++ b/api/mraa/gpio.hpp
+@@ -186,7 +186,11 @@ class Gpio
+         v8::Local<v8::Value> argv[] = { SWIGV8_INTEGER_NEW(-1) };
+ #if NODE_MODULE_VERSION >= 0x000D
+         v8::Local<v8::Function> f = v8::Local<v8::Function>::New(v8::Isolate::GetCurrent(), This->m_v8isr);
++#if (V8_MAJOR_VERSION-0) < 4
+         f->Call(SWIGV8_CURRENT_CONTEXT()->Global(), argc, argv);
++#else
++        f->Call(SWIGV8_CURRENT_CONTEXT(), SWIGV8_CURRENT_CONTEXT()->Global(), argc, argv);
++#endif
+ #else
+         This->m_v8isr->Call(SWIGV8_CURRENT_CONTEXT()->Global(), argc, argv);
+ #endif
+diff --git a/src/javascript/CMakeLists.txt b/src/javascript/CMakeLists.txt
+index 99a96b4..5dbe2af 100644
+--- a/src/javascript/CMakeLists.txt
++++ b/src/javascript/CMakeLists.txt
+@@ -43,7 +43,12 @@ if (BUILDCPP)
+     message (STATUS "INFO - Using V8 version > 3 so requiring C++11 compiler")
+     # Node 0.12.x V8 engine major version is '3'.
+     # Node 2.1.0  V8 engine major version is '4'.
+-    set_property (TARGET mraajs PROPERTY CXX_STANDARD 11)
++    # Node 16.0.0  V8 engine major version is '9'.
++    if (${V8_VERSION_MAJOR} GREATER 8)
++      set_property (TARGET mraajs PROPERTY CXX_STANDARD 14)
++    else ()
++      set_property (TARGET mraajs PROPERTY CXX_STANDARD 11)
++    endif ()
+     set_property (TARGET mraajs PROPERTY CXX_STANDARD_REQUIRED ON)
+     if (CMAKE_VERSION VERSION_LESS "3.1")
+       message (WARNING "Need to use CMAKE version 3.1+, but it is ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}, using a workaround.")
+diff --git a/src/javascript/mraajs.i b/src/javascript/mraajs.i
+index 321cc22..4d9949c 100644
+--- a/src/javascript/mraajs.i
++++ b/src/javascript/mraajs.i
+@@ -42,18 +42,18 @@ namespace mraa {
+ class Spi;
+ %typemap(out) uint8_t*
+ {
+-%#if SWIG_V8_VERSION > 0x040000
++%#if (V8_MAJOR_VERSION-0) < 4 && (SWIG_V8_VERSION <= 0x032870)
++  $result = node::Buffer::New((char*) result, arg3)->handle_;
++  free(result);
++%#elif (V8_MAJOR_VERSION-0) < 4
++  $result = node::Buffer::New((char*) result, arg3);
++  free(result);
++%#else
+    v8::MaybeLocal<v8::Object> objret = node::Buffer::Copy(v8::Isolate::GetCurrent(), (char*) result, arg3);
+    free(result);
+    if(!objret.ToLocal(&$result)){
+ 	SWIG_exception_fail(SWIG_ERROR, "Spi buffer failed");
+    }
+-%#elif SWIG_V8_VERSION > 0x032870
+-  $result = node::Buffer::New((char*) result, arg3);
+-  free(result);
+-%#else
+-  $result = node::Buffer::New((char*) result, arg3)->handle_;
+-  free(result);
+ %#endif
+ }
+ }
+@@ -81,18 +81,18 @@ class Spi;
+        free($1);
+        SWIG_exception_fail(SWIG_ERROR, "Uart write failed");
+    }
+-%#if SWIG_V8_VERSION > 0x040000
+-   v8::MaybeLocal<v8::Object> objret = node::Buffer::Copy(v8::Isolate::GetCurrent(), (char*) $1, result);
++%#if (V8_MAJOR_VERSION-0) < 4 && (SWIG_V8_VERSION <= 0x032870)
++   $result = node::Buffer::New((char*) $1, result)->handle_;
+    free($1);
+-   if(!objret.ToLocal(&$result)) {
+-      SWIG_exception_fail(SWIG_ERROR, "Uart buffer failed");
+-   }
+-%#elif SWIG_V8_VERSION > 0x032870
++%#elif (V8_MAJOR_VERSION-0) < 4
+    $result = node::Buffer::New((char*) $1, result);
+    free($1);
+ %#else
+-   $result = node::Buffer::New((char*) $1, result)->handle_;
++   v8::MaybeLocal<v8::Object> objret = node::Buffer::Copy(v8::Isolate::GetCurrent(), (char*) $1, result);
+    free($1);
++   if(!objret.ToLocal(&$result)) {
++      SWIG_exception_fail(SWIG_ERROR, "Uart buffer failed");
++   }
+ %#endif
+ 
+ }
+@@ -116,18 +116,18 @@ class Spi;
+        free($1);
+        SWIG_exception_fail(SWIG_ERROR, "I2c write failed");
+    }
+-%#if SWIG_V8_VERSION > 0x040000
+-   v8::MaybeLocal<v8::Object> objret = node::Buffer::Copy(v8::Isolate::GetCurrent(), (char*) $1, result);
++%#if (V8_MAJOR_VERSION-0) < 4 && (SWIG_V8_VERSION <= 0x032870)
++   $result = node::Buffer::New((char*) $1, result)->handle_;
+    free($1);
+-   if(!objret.ToLocal(&$result)) {
+-      SWIG_exception_fail(SWIG_ERROR, "I2c buffer failed");
+-   }
+-%#elif SWIG_V8_VERSION > 0x032870
++%#elif (V8_MAJOR_VERSION-0) < 4
+    $result = node::Buffer::New((char*) $1, result);
+    free($1);
+ %#else
+-   $result = node::Buffer::New((char*) $1, result)->handle_;
++   v8::MaybeLocal<v8::Object> objret = node::Buffer::Copy(v8::Isolate::GetCurrent(), (char*) $1, result);
+    free($1);
++   if(!objret.ToLocal(&$result)) {
++      SWIG_exception_fail(SWIG_ERROR, "I2c buffer failed");
++   }
+ %#endif
+ }
+ 
+-- 
+2.26.2
+

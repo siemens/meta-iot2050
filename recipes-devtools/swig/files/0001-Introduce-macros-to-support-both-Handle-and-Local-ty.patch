@@ -1,0 +1,52 @@
+From a5153070d3b15fda635847f09c04868ea7f69937 Mon Sep 17 00:00:00 2001
+From: Tom Leavy <tom@wickr.com>
+Date: Wed, 25 Mar 2020 17:10:51 -0400
+Subject: [PATCH 1/4] Introduce macros to support both Handle and Local types
+
+The old Node.js versions don't treat v8::Handle and v8::Local as
+the same types, and the latest versions (v12 and newer) have
+removed v8::Handle at all.
+
+This patch introduces the following macros that use v8::Handle or
+v8::Local depending on the selected Node.js version:
+
+- SWIGV8_ARRAY
+- SWIGV8_FUNCTION_TEMPLATE
+- SWIGV8_OBJECT
+- SWIGV8_OBJECT_TEMPLATE
+- SWIGV8_VALUE
+---
+ Lib/javascript/v8/javascriptrun.swg | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Lib/javascript/v8/javascriptrun.swg b/Lib/javascript/v8/javascriptrun.swg
+index 2452f4040..cf3215334 100644
+--- a/Lib/javascript/v8/javascriptrun.swg
++++ b/Lib/javascript/v8/javascriptrun.swg
+@@ -67,6 +67,11 @@ typedef v8::PropertyCallbackInfo<v8::Value> SwigV8PropertyCallbackInfo;
+ #define SWIGV8_NUMBER_NEW(num) v8::Number::New(num)
+ #define SWIGV8_OBJECT_NEW() v8::Object::New()
+ #define SWIGV8_UNDEFINED() v8::Undefined()
++#define SWIGV8_ARRAY v8::Handle<v8::Array>
++#define SWIGV8_FUNCTION_TEMPLATE v8::Handle<v8::FunctionTemplate>
++#define SWIGV8_OBJECT v8::Handle<v8::Object>
++#define SWIGV8_OBJECT_TEMPLATE v8::Handle<v8::ObjectTemplate>
++#define SWIGV8_VALUE v8::Handle<v8::Value>
+ #define SWIGV8_NULL() v8::Null()
+ #else
+ #define SWIGV8_ARRAY_NEW() v8::Array::New(v8::Isolate::GetCurrent())
+@@ -80,6 +85,11 @@ typedef v8::PropertyCallbackInfo<v8::Value> SwigV8PropertyCallbackInfo;
+ #define SWIGV8_NUMBER_NEW(num) v8::Number::New(v8::Isolate::GetCurrent(), num)
+ #define SWIGV8_OBJECT_NEW() v8::Object::New(v8::Isolate::GetCurrent())
+ #define SWIGV8_UNDEFINED() v8::Undefined(v8::Isolate::GetCurrent())
++#define SWIGV8_ARRAY v8::Local<v8::Array>
++#define SWIGV8_FUNCTION_TEMPLATE v8::Local<v8::FunctionTemplate>
++#define SWIGV8_OBJECT v8::Local<v8::Object>
++#define SWIGV8_OBJECT_TEMPLATE v8::Local<v8::ObjectTemplate>
++#define SWIGV8_VALUE v8::Local<v8::Value>
+ #define SWIGV8_NULL() v8::Null(v8::Isolate::GetCurrent())
+ #endif
+ 
+-- 
+2.26.2
+

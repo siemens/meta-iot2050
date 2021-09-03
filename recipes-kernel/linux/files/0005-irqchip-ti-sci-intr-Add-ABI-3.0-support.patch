@@ -1,7 +1,7 @@
 From 7014352fb2af049c7eb470706f1718e146c146cf Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Wed, 21 Oct 2020 00:47:38 +0530
-Subject: [PATCH 05/26] irqchip/ti-sci-intr: Add ABI 3.0 support
+Subject: [PATCH 05/27] irqchip/ti-sci-intr: Add ABI 3.0 support
 
 Update the intr driver to include support for ABI 3.0
 

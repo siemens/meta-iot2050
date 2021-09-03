@@ -1,7 +1,7 @@
 From a362a6b9454b201b1e75b68da50366905eb5b613 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 22 Jun 2021 20:27:04 +0530
-Subject: [PATCH 21/26] serial: 8250: 8250_omap: Fix possible interrupt storm
+Subject: [PATCH 21/27] serial: 8250: 8250_omap: Fix possible interrupt storm
  on K3 SoCs
 
 [upstream commit b67e830d38fa9335d927fe67e812e3ed81b4689c]

@@ -1,7 +1,7 @@
 From a12e96d0e68acb97c446431277ab0d14001543de Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Tue, 23 Apr 2019 10:07:17 +0800
-Subject: [PATCH 09/26] Add support for U9300C TD-LTE module
+Subject: [PATCH 09/27] Add support for U9300C TD-LTE module
 
 Author: Gao Nian  <nian.gao@siemens.com>
 Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
