@@ -27,13 +27,9 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: 03124cca669f50b682336a0bdf4ede5a4238e144
+    refspec: e274130b870b7e31532fe191b9932cde1d819b4b
     layers:
       meta:
-    patches:
-      rootfs-u-boot-fix:
-        repo: meta-iot2050
-        path: isar-patches/0001-wic-plugins-Improve-rootfs-u-boot-script_prepend-pas.patch
 
 bblayers_conf_header:
   standard: |
