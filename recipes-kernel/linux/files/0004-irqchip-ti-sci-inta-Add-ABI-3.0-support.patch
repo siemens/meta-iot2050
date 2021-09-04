@@ -1,7 +1,7 @@
-From 30d2866184a6c8a8c476ab61b48679faf17d820b Mon Sep 17 00:00:00 2001
+From 5076031153612b67e5d431a9153e02ba3c0447c4 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Oct 2020 18:59:31 +0530
-Subject: [PATCH 04/27] irqchip/ti-sci-inta: Add ABI 3.0 support
+Subject: [PATCH 04/28] irqchip/ti-sci-inta: Add ABI 3.0 support
 
 Update the inta driver to include support for ABI 3.0
 
@@ -155,5 +155,5 @@ index 2cbb13f876a4..36644b29248b 100644
  
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -- 
-2.31.1
+2.17.1
 

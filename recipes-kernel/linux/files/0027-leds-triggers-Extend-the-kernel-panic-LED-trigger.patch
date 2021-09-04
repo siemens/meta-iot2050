@@ -1,0 +1,121 @@
+From 8fb861d39408b9a2a966c422aa935b13ef58bf4c Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Sat, 4 Sep 2021 21:52:46 +0800
+Subject: [PATCH 27/28] leds:triggers:Extend the kernel panic LED trigger
+
+This commit extend panic trigger, add two new panic trigger
+"panic_on" and "panic_off" and keep the "panic" compatible with
+"panic_blink".
+
+All the led on the "panic_on" would light and on the "panic_off" would turn off
+
+Expand the panic state of led to meet more requirements
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ drivers/leds/trigger/ledtrig-panic.c | 41 +++++++++++++++++++++-------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/leds/trigger/ledtrig-panic.c b/drivers/leds/trigger/ledtrig-panic.c
+index d735526b9db4..acea243b9b62 100644
+--- a/drivers/leds/trigger/ledtrig-panic.c
++++ b/drivers/leds/trigger/ledtrig-panic.c
+@@ -8,26 +8,32 @@
+  * published by the Free Software Foundation.
+  *
+  */
+-
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/notifier.h>
+ #include <linux/leds.h>
+ #include "../leds.h"
+ 
+-static struct led_trigger *trigger;
++enum led_display_type {
++	ON,
++	OFF,
++	BLINK,
++	DISPLAY_TYPE_COUNT,
++};
++
++static struct led_trigger *panic_trigger[DISPLAY_TYPE_COUNT];
+ 
+ /*
+  * This is called in a special context by the atomic panic
+  * notifier. This means the trigger can be changed without
+  * worrying about locking.
+  */
+-static void led_trigger_set_panic(struct led_classdev *led_cdev)
++static void led_trigger_set_panic(struct led_classdev *led_cdev, const char *type)
+ {
+ 	struct led_trigger *trig;
+ 
+ 	list_for_each_entry(trig, &trigger_list, next_trig) {
+-		if (strcmp("panic", trig->name))
++		if (strcmp(type, trig->name))
+ 			continue;
+ 		if (led_cdev->trigger)
+ 			list_del(&led_cdev->trig_list);
+@@ -36,10 +42,13 @@ static void led_trigger_set_panic(struct led_classdev *led_cdev)
+ 		/* Avoid the delayed blink path */
+ 		led_cdev->blink_delay_on = 0;
+ 		led_cdev->blink_delay_off = 0;
+-
+ 		led_cdev->trigger = trig;
+ 		if (trig->activate)
+ 			trig->activate(led_cdev);
++
++		/*Clear current brightness work*/
++		led_cdev->work_flags = 0;
++
+ 		break;
+ 	}
+ }
+@@ -51,7 +60,12 @@ static int led_trigger_panic_notifier(struct notifier_block *nb,
+ 
+ 	list_for_each_entry(led_cdev, &leds_list, node)
+ 		if (led_cdev->flags & LED_PANIC_INDICATOR)
+-			led_trigger_set_panic(led_cdev);
++			led_trigger_set_panic(led_cdev,"panic");
++		else if (led_cdev->flags & LED_PANIC_INDICATOR_ON)
++			led_trigger_set_panic(led_cdev,"panic_on");
++		else if (led_cdev->flags & LED_PANIC_INDICATOR_OFF)
++			led_trigger_set_panic(led_cdev,"panic_off");
++
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -59,9 +73,12 @@ static struct notifier_block led_trigger_panic_nb = {
+ 	.notifier_call = led_trigger_panic_notifier,
+ };
+ 
+-static long led_panic_blink(int state)
++static long led_panic_activity(int state)
+ {
+-	led_trigger_event(trigger, state ? LED_FULL : LED_OFF);
++	led_trigger_event(panic_trigger[BLINK], state ? LED_FULL : LED_OFF);
++	led_trigger_event(panic_trigger[ON], LED_FULL);
++	led_trigger_event(panic_trigger[OFF],LED_OFF);
++
+ 	return 0;
+ }
+ 
+@@ -70,8 +87,12 @@ static int __init ledtrig_panic_init(void)
+ 	atomic_notifier_chain_register(&panic_notifier_list,
+ 				       &led_trigger_panic_nb);
+ 
+-	led_trigger_register_simple("panic", &trigger);
+-	panic_blink = led_panic_blink;
++	led_trigger_register_simple("panic", &panic_trigger[BLINK]);
++	led_trigger_register_simple("panic_on", &panic_trigger[ON]);
++	led_trigger_register_simple("panic_off", &panic_trigger[OFF]);
++
++	panic_blink = led_panic_activity;
++
+ 	return 0;
+ }
+ device_initcall(ledtrig_panic_init);
+-- 
+2.17.1
+

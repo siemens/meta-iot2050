@@ -1,7 +1,7 @@
-From 1efe9a588b11699518949ff117a30391098946a1 Mon Sep 17 00:00:00 2001
+From 7ea806964c951777b75203c29462ad98f4c8859c Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 17 Jul 2020 16:29:55 +0300
-Subject: [PATCH 23/27] watchdog: use __watchdog_ping in startup
+Subject: [PATCH 22/28] watchdog: use __watchdog_ping in startup
 
 [upstream commit fbbe35dfcf949f4d6cf987648e52a85fc0c2a23a]
 
@@ -55,5 +55,5 @@ index 6d8f8e798ca7..8965aabb9d59 100644
  
  	return err;
 -- 
-2.31.1
+2.17.1
 

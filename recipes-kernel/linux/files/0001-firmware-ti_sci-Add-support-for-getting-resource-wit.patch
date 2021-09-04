@@ -1,7 +1,7 @@
-From dfbe48d84d617d5b2936a8f39e63ab786b077682 Mon Sep 17 00:00:00 2001
+From 2cf0f59cdf9217c10685119881b1f8a7e74d4cda Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Thu, 6 Aug 2020 13:18:16 +0530
-Subject: [PATCH 01/27] firmware: ti_sci: Add support for getting resource with
+Subject: [PATCH 01/28] firmware: ti_sci: Add support for getting resource with
  subtype
 
 With SYSFW ABI 3.0 changes, interrupts coming out of an interrupt
@@ -217,5 +217,5 @@ index 924074f4abe0..03f80cdfffe3 100644
  
  #endif	/* __TISCI_PROTOCOL_H */
 -- 
-2.31.1
+2.17.1
 

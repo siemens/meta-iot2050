@@ -1,7 +1,7 @@
-From 2b3bb7aa6851ea0212e24d00e66548764b8808fb Mon Sep 17 00:00:00 2001
+From 35d981c32975ec64ce6046669a9286f2e86a9e65 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Wed, 21 Oct 2020 15:25:16 +0530
-Subject: [PATCH 07/27] arm64: dts: ti: k3-am654: Introduce ABI3.x specific dts
+Subject: [PATCH 07/28] arm64: dts: ti: k3-am654: Introduce ABI3.x specific dts
 
 Introduce ABI3.x specific dts that supports booting with sysfw ABI 3.x
 and later.
@@ -215,5 +215,5 @@ index 000000000000..436d8ba877ad
 +	model = "Texas Instruments AM654 Base Board using sysfw ABI 3.x";
 +};
 -- 
-2.31.1
+2.17.1
 

@@ -1,7 +1,7 @@
-From 3fe9f4428ae8c4a8772218b7abf30b1e642b5b2c Mon Sep 17 00:00:00 2001
+From dae9300934ee22ea67d681aa2f415028919b1833 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Jul 2021 08:59:18 +0200
-Subject: [PATCH 26/27] arm64: dts: ti: k3-am65-mcu: Switch to upstream
+Subject: [PATCH 25/28] arm64: dts: ti: k3-am65-mcu: Switch to upstream
  watchdog
 
 Bind to the backported rti_wdt, rather than the legacy SDK version. Also
@@ -31,5 +31,5 @@ index 450456460182..605be5abea81 100644
  		assigned-clock-parents = <&k3_clks 135 4>;
  	};
 -- 
-2.31.1
+2.17.1
 

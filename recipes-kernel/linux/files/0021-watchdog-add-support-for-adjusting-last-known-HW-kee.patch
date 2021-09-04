@@ -1,7 +1,7 @@
-From 98a7ab6a800c9ba933eb2d07758c623ab73a3ffd Mon Sep 17 00:00:00 2001
+From 7d474c31925a6dd5fc4c74d0e64582c21ad49a54 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 17 Jul 2020 16:29:56 +0300
-Subject: [PATCH 22/27] watchdog: add support for adjusting last known HW
+Subject: [PATCH 21/28] watchdog: add support for adjusting last known HW
  keepalive time
 
 Certain watchdogs require the watchdog only to be pinged within a
@@ -96,5 +96,5 @@ index bebcb4f196dc..0ef61627ee55 100644
  int devm_watchdog_register_device(struct device *dev, struct watchdog_device *);
  
 -- 
-2.31.1
+2.17.1
 

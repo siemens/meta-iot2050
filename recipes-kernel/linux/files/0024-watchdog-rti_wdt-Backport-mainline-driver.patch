@@ -1,7 +1,7 @@
-From 4823856642a29f81c2310a05b4687588c62633fb Mon Sep 17 00:00:00 2001
+From 8c4ebcc21fa37f2a3a645ea3addca6158dbaf43b Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Jul 2021 13:53:20 +0200
-Subject: [PATCH 25/27] watchdog: rti_wdt: Backport mainline driver
+Subject: [PATCH 24/28] watchdog: rti_wdt: Backport mainline driver
 
 Corresponds to 8711071e9700b67045fe5518161d63f7a03e3c9e upstream.
 
@@ -350,5 +350,5 @@ index b0933b090f53..e3c90e617c7a 100644
  };
  MODULE_DEVICE_TABLE(of, rti_wdt_of_match);
 -- 
-2.31.1
+2.17.1
 

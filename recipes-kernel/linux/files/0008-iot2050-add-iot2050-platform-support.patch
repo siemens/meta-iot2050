@@ -1,7 +1,7 @@
-From 81db1f21530d256a248a0bc51a71ab5bdf819fdf Mon Sep 17 00:00:00 2001
+From 1efa3ae464447f7ce26366916eb2c1e9fc950062 Mon Sep 17 00:00:00 2001
 From: Le Jin <le.jin@siemens.com>
 Date: Mon, 18 Nov 2019 17:58:08 +0800
-Subject: [PATCH 08/27] iot2050: add iot2050 platform support
+Subject: [PATCH 08/28] iot2050: add iot2050 platform support
 
 Add support for two iot2050 variants, BASIC and ADVANCED.
 Also add support for fixed gpio number naming.
@@ -1111,5 +1111,5 @@ index aa4de6907f77..7019cc4e675d 100644
  			status = serial8250_rx_chars(up, status);
  	}
 -- 
-2.31.1
+2.17.1
 

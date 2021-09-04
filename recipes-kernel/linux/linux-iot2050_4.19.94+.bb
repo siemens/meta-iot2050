@@ -29,17 +29,18 @@ SRC_URI += " \
     file://0014-feat-add-io-expander-pcal9535-support.patch \
     file://0015-setting-the-RJ45-port-led-behavior.patch \
     file://0016-fix-clear-the-cycle-buffer-of-serial.patch \
-    file://0017-feat-extend-led-panic-indicator-on-and-off.patch \
-    file://0018-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
-    file://0019-feat-change-mmc-order-using-alias-in-dts.patch \
-    file://0020-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
-    file://0021-serial-8250-8250_omap-Fix-possible-interrupt-storm-o.patch \
-    file://0022-watchdog-add-support-for-adjusting-last-known-HW-kee.patch \
-    file://0023-watchdog-use-__watchdog_ping-in-startup.patch \
-    file://0024-watchdog-Respect-handle_boot_enabled-when-setting-la.patch \
-    file://0025-watchdog-rti_wdt-Backport-mainline-driver.patch \
-    file://0026-arm64-dts-ti-k3-am65-mcu-Switch-to-upstream-watchdog.patch \
-    file://0027-scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch \
+    file://0017-fix-can-not-auto-negotiate-to-100M-with-4-wire.patch \
+    file://0018-feat-change-mmc-order-using-alias-in-dts.patch \
+    file://0019-fix-PLL4_DCO-freq-over-range-cause-DP-not-display.patch \
+    file://0020-serial-8250-8250_omap-Fix-possible-interrupt-storm-o.patch \
+    file://0021-watchdog-add-support-for-adjusting-last-known-HW-kee.patch \
+    file://0022-watchdog-use-__watchdog_ping-in-startup.patch \
+    file://0023-watchdog-Respect-handle_boot_enabled-when-setting-la.patch \
+    file://0024-watchdog-rti_wdt-Backport-mainline-driver.patch \
+    file://0025-arm64-dts-ti-k3-am65-mcu-Switch-to-upstream-watchdog.patch \
+    file://0026-scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch \
+    file://0027-leds-triggers-Extend-the-kernel-panic-LED-trigger.patch \
+    file://0028-leds-gpio-Add-the-support-for-panic-indicator-on-and.patch \
     "
 
 KERNEL_BRANCH = "ti-sdk/processor-sdk-linux-4.19.y"
