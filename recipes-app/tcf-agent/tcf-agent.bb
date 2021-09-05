@@ -11,11 +11,11 @@
 
 inherit dpkg
 
-PV = "1.7.0-22568cb1"
+PV = "1.7.0-f577ec33"
 SRC_URI = " \
     git://git.eclipse.org/r/tcf/org.eclipse.tcf.agent.git;protocol=https \
     file://debian"
-SRCREV = "22568cb1bfa11888d788eb01e7b386dde3010969"
+SRCREV = "f577ec3314aebdce3c9c61d982049129ab8eee94"
 
 S = "${WORKDIR}/git"
 
