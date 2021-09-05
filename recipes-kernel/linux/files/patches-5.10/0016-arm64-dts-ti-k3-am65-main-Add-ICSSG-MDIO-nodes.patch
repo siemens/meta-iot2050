@@ -1,0 +1,129 @@
+From e1455d06345936e5a436f12c137ca80a963f94de Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Tue, 1 Jun 2021 10:00:31 -0500
+Subject: [PATCH 016/103] arm64: dts: ti: k3-am65-main: Add ICSSG MDIO nodes
+
+The ICSSGs on K3 AM65x SoCs contain an MDIO controller that can
+be used to control external PHYs associated with the Industrial
+Ethernet peripherals within each ICSSG instance. The MDIO module
+used within the ICSSG is similar to the MDIO Controller used
+in TI Davinci SoCs. A bus frequency of 1 MHz is chosen for the
+MDIO operations.
+
+The nodes are added and enabled in the common k3-am65-main.dtsi
+file by default, and disabled in the existing AM65 board dts
+files. These nodes need pinctrl lines, and so should be enabled
+only on boards where they are actually wired and pinned out for
+ICSSG Ethernet. Any new board dts file should disable these if
+they are not sure.
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+[s-anna@ti.com: move the disabled status to board dts files]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Acked-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20210601150032.11432-2-s-anna@ti.com
+---
+ .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 12 ++++++++
+ arch/arm64/boot/dts/ti/k3-am65-main.dtsi      | 30 +++++++++++++++++++
+ .../arm64/boot/dts/ti/k3-am654-base-board.dts | 12 ++++++++
+ 3 files changed, 54 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+index d90abda1de84..8c6b538c53f3 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+@@ -702,3 +702,15 @@ &mailbox0_cluster10 {
+ &mailbox0_cluster11 {
+ 	status = "disabled";
+ };
++
++&icssg0_mdio {
++	status = "disabled";
++};
++
++&icssg1_mdio {
++	status = "disabled";
++};
++
++&icssg2_mdio {
++	status = "disabled";
++};
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+index e92e34a017eb..9338f1042232 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+@@ -1051,6 +1051,16 @@ tx_pru0_1: txpru@c000 {
+ 			reg-names = "iram", "control", "debug";
+ 			firmware-name = "am65x-txpru0_1-fw";
+ 		};
++
++		icssg0_mdio: mdio@32400 {
++			compatible = "ti,davinci_mdio";
++			reg = <0x32400 0x100>;
++			clocks = <&k3_clks 62 3>;
++			clock-names = "fck";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			bus_freq = <1000000>;
++		};
+ 	};
+ 
+ 	icssg1: icssg@b100000 {
+@@ -1182,6 +1192,16 @@ tx_pru1_1: txpru@c000 {
+ 			reg-names = "iram", "control", "debug";
+ 			firmware-name = "am65x-txpru1_1-fw";
+ 		};
++
++		icssg1_mdio: mdio@32400 {
++			compatible = "ti,davinci_mdio";
++			reg = <0x32400 0x100>;
++			clocks = <&k3_clks 63 3>;
++			clock-names = "fck";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			bus_freq = <1000000>;
++		};
+ 	};
+ 
+ 	icssg2: icssg@b200000 {
+@@ -1313,5 +1333,15 @@ tx_pru2_1: txpru@c000 {
+ 			reg-names = "iram", "control", "debug";
+ 			firmware-name = "am65x-txpru2_1-fw";
+ 		};
++
++		icssg2_mdio: mdio@32400 {
++			compatible = "ti,davinci_mdio";
++			reg = <0x32400 0x100>;
++			clocks = <&k3_clks 64 3>;
++			clock-names = "fck";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			bus_freq = <1000000>;
++		};
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/ti/k3-am654-base-board.dts b/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
+index fea6a8243d75..b47fc2a1e59d 100644
+--- a/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
+@@ -535,3 +535,15 @@ &mcasp2 {
+ &dss {
+ 	status = "disabled";
+ };
++
++&icssg0_mdio {
++	status = "disabled";
++};
++
++&icssg1_mdio {
++	status = "disabled";
++};
++
++&icssg2_mdio {
++	status = "disabled";
++};
+-- 
+2.31.1
+
