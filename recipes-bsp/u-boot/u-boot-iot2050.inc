@@ -14,7 +14,7 @@ require recipes-bsp/u-boot/u-boot-custom.inc
 SRC_URI += " \
     file://keys \
     file://prebuild \
-    "
+    file://fw_env.config"
 
 U_BOOT_CONFIG = "iot2050_defconfig"
 U_BOOT_BIN = "flash.bin"
@@ -30,6 +30,8 @@ DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
     trusted-firmware-a-iot2050, optee-os-iot2050, \
     swig:native, python3-dev:native, python3-pkg-resources,"
+
+U_BOOT_CONFIG_PACKAGE = "1"
 
 do_prepare_build_append() {
     cd ${S}
