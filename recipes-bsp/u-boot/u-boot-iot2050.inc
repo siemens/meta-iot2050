@@ -22,6 +22,9 @@ U_BOOT_BIN = "flash.bin"
 SPI_FLASH_IMG = "${U_BOOT_BIN}"
 SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
 
+# Needed to resolve races as long as the layer has to rebuild swig
+DEPENDS += "swig"
+
 # Build environment
 DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
