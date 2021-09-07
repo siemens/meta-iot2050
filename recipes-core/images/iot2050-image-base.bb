@@ -11,8 +11,12 @@
 inherit image
 
 DESCRIPTION = "IOT2050 Debian Base Image"
+
+IMAGE_INSTALL += "u-boot-iot2050-config"
 IMAGE_INSTALL += "iot2050-firmware"
 IMAGE_INSTALL += "customizations-base"
+
+IMAGE_PREINSTALL += "libubootenv-tool"
 
 python aggregate_mainline_apt_sources () {
     import shutil
