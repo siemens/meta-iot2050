@@ -30,6 +30,9 @@ repos:
     refspec: e274130b870b7e31532fe191b9932cde1d819b4b
     layers:
       meta:
+    patches:
+      u-boot-fix:
+        path: isar-patches/0001-u-boot-Exclude-libubootenv.a-from-dh_strip.patch
 
 bblayers_conf_header:
   standard: |
