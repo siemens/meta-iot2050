@@ -1,0 +1,98 @@
+From 66c5d0139447b7e1ff43f61801283d04af5ff0a5 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 19 Jun 2020 08:56:35 +0200
+Subject: [PATCH 7/7] iot2050: Enable watchdog support, but do not auto-start
+ it
+
+This allows to use the watchdog in custom scripts but does not enforce
+that the OS has to support it as well.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 22 ++++++++++++++++++++
+ configs/iot2050_defconfig                    |  6 ++++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 1e02cece6c..a6ccac04de 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -80,6 +80,16 @@
+ 						filename = "arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dtb";
+ 					};
+ 				};
++
++#ifdef CONFIG_WDT_K3_RTI_FW_FILE
++				k3-rti-wdt-firmware {
++					type = "blob";
++					load = <0x82000000>;
++					blob {
++						filename = CONFIG_WDT_K3_RTI_FW_FILE;
++					};
++				};
++#endif
+ 			};
+ 
+ 			configurations {
+@@ -89,24 +99,36 @@
+ 					description = "iot2050-basic";
+ 					firmware = "u-boot";
+ 					fdt = "fdt-iot2050-basic";
++#ifdef CONFIG_WDT_K3_RTI_FW_FILE
++					loadables = "k3-rti-wdt-firmware";
++#endif
+ 				};
+ 
+ 				conf-iot2050-basic-pg2 {
+ 					description = "iot2050-basic-pg2";
+ 					firmware = "u-boot";
+ 					fdt = "fdt-iot2050-basic-pg2";
++#ifdef CONFIG_WDT_K3_RTI_FW_FILE
++					loadables = "k3-rti-wdt-firmware";
++#endif
+ 				};
+ 
+ 				conf-iot2050-advanced {
+ 					description = "iot2050-advanced";
+ 					firmware = "u-boot";
+ 					fdt = "fdt-iot2050-advanced";
++#ifdef CONFIG_WDT_K3_RTI_FW_FILE
++					loadables = "k3-rti-wdt-firmware";
++#endif
+ 				};
+ 
+ 				conf-iot2050-advanced-pg2 {
+ 					description = "iot2050-advanced-pg2";
+ 					firmware = "u-boot";
+ 					fdt = "fdt-iot2050-advanced-pg2";
++#ifdef CONFIG_WDT_K3_RTI_FW_FILE
++					loadables = "k3-rti-wdt-firmware";
++#endif
+ 				};
+ 			};
+ 		};
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index 4bc6fa63e2..9dfbdd4a7f 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -50,6 +50,7 @@ CONFIG_CMD_MMC=y
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_REMOTEPROC=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_WDT=y
+ # CONFIG_CMD_SETEXPR is not set
+ # CONFIG_CMD_NET is not set
+ CONFIG_CMD_TIME=y
+@@ -134,4 +135,9 @@ CONFIG_USB_XHCI_DWC3=y
+ CONFIG_USB_DWC3=y
+ CONFIG_USB_DWC3_GENERIC=y
+ CONFIG_USB_KEYBOARD=y
++# CONFIG_WATCHDOG is not set
++# CONFIG_WATCHDOG_AUTOSTART is not set
++CONFIG_WDT=y
++CONFIG_WDT_K3_RTI=y
++CONFIG_WDT_K3_RTI_LOAD_FW=y
+ CONFIG_OF_LIBFDT_OVERLAY=y
+-- 
+2.31.1
+

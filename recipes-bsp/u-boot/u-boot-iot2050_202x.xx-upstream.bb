@@ -17,10 +17,3 @@ SRC_URI += " \
 UBOOT_BRANCH = "jan/iot2050"
 
 S = "${WORKDIR}/git"
-
-DEPENDS += "k3-rti-wdt"
-DEBIAN_BUILD_DEPENDS =. "k3-rti-wdt,"
-
-do_prepare_build_append() {
-    ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
-}

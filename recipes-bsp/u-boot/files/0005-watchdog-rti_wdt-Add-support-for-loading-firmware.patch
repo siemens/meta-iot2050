@@ -1,7 +1,7 @@
-From 9b6834f6fcd46f07c70f82f81efa7cf148c75116 Mon Sep 17 00:00:00 2001
+From 318f62e69f35cd1e86094b309e888171aebd72b6 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 21 Jun 2020 09:04:30 +0200
-Subject: [PATCH 03/24] watchdog: rti_wdt: Add support for loading firmware
+Subject: [PATCH 5/7] watchdog: rti_wdt: Add support for loading firmware
 
 To avoid the need of extra boot scripting on AM65x for loading a
 watchdog firmware, add the required rproc init and loading logic for the
@@ -12,14 +12,15 @@ properly hashed in case of secure boot.
 
 One possible firmware source is https://github.com/siemens/k3-rti-wdt.
 
+The board is responsible for providing the firmware as additional
+loadable via the U-Boot fit image. The driver will pick up its location
+from /fit-images/k3-rti-wdt-firmware then.
+
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- drivers/watchdog/Kconfig      | 20 ++++++++++++
- drivers/watchdog/Makefile     |  5 +++
- drivers/watchdog/rti_wdt.c    | 58 ++++++++++++++++++++++++++++++++++-
- drivers/watchdog/rti_wdt_fw.S | 20 ++++++++++++
- 4 files changed, 102 insertions(+), 1 deletion(-)
- create mode 100644 drivers/watchdog/rti_wdt_fw.S
+ drivers/watchdog/Kconfig   | 20 +++++++++
+ drivers/watchdog/rti_wdt.c | 88 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 108 insertions(+)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
 index 602ccbe41c..280da3252f 100644
@@ -52,25 +53,8 @@ index 602ccbe41c..280da3252f 100644
  config WDT_SANDBOX
  	bool "Enable Watchdog Timer support for Sandbox"
  	depends on SANDBOX && WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 6e70c7ae19..28a978c5a1 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -32,7 +32,12 @@ obj-$(CONFIG_WDT_OCTEONTX) += octeontx_wdt.o
- obj-$(CONFIG_WDT_OMAP3) += omap_wdt.o
- obj-$(CONFIG_WDT_SBSA) += sbsa_gwdt.o
- obj-$(CONFIG_WDT_K3_RTI) += rti_wdt.o
-+obj-$(CONFIG_WDT_K3_RTI_LOAD_FW) += rti_wdt_fw.o
- obj-$(CONFIG_WDT_SP805) += sp805_wdt.o
- obj-$(CONFIG_WDT_STM32MP) += stm32mp_wdt.o
- obj-$(CONFIG_WDT_TANGIER) += tangier_wdt.o
- obj-$(CONFIG_WDT_XILINX) += xilinx_wwdt.o
-+
-+ifeq ($(CONFIG_WDT_K3_RTI_LOAD_FW),y)
-+$(obj)/rti_wdt_fw.o: $(shell readlink -f $(CONFIG_WDT_K3_RTI_FW_FILE)) FORCE
-+endif
 diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index 8335b20ae8..97daf40145 100644
+index 8335b20ae8..253286d349 100644
 --- a/drivers/watchdog/rti_wdt.c
 +++ b/drivers/watchdog/rti_wdt.c
 @@ -11,9 +11,11 @@
@@ -85,35 +69,36 @@ index 8335b20ae8..97daf40145 100644
  
  /* Timer register set definition */
  #define RTIDWDCTRL		0x90
-@@ -42,15 +44,69 @@ struct rti_wdt_priv {
+@@ -42,6 +44,88 @@ struct rti_wdt_priv {
  	unsigned int clk_khz;
  };
  
-+extern const u32 rti_wdt_fw[];
-+extern const int rti_wdt_fw_size;
-+
- static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
- {
 +#ifdef CONFIG_WDT_K3_RTI_LOAD_FW
++#define RTI_WDT_FIT_PATH	"/fit-images/k3-rti-wdt-firmware"
++
++static int rti_wdt_load_fw(struct udevice *dev)
++{
 +	struct udevice *rproc_dev;
 +	int primary_core, ret;
 +	u32 cluster_mode;
 +	ofnode node;
-+#endif
- 	struct rti_wdt_priv *priv = dev_get_priv(dev);
- 	u32 timer_margin;
--	int ret;
- 
- 	if (readl(priv->regs + RTIDWDCTRL) == WDENABLE_KEY)
- 		return -EBUSY;
- 
-+#ifdef CONFIG_WDT_K3_RTI_LOAD_FW
++	u64 rti_wdt_fw;
++	u32 rti_wdt_fw_size;
++
++	node = ofnode_path(RTI_WDT_FIT_PATH);
++	if (!ofnode_valid(node))
++		goto fit_error;
++
++	ret = ofnode_read_u64(node, "load", &rti_wdt_fw);
++	if (ret)
++		goto fit_error;
++	ret = ofnode_read_u32(node, "size", &rti_wdt_fw_size);
++	if (ret)
++		goto fit_error;
++
 +	node = ofnode_by_compatible(ofnode_null(), "ti,am654-r5fss");
-+	if (!ofnode_valid(node)) {
-+	    dt_error:
-+		dev_err(dev, "No compatible firmware target processor found\n");
-+		return -ENODEV;
-+	}
++	if (!ofnode_valid(node))
++		goto dt_error;
 +
 +	ret = ofnode_read_u32(node, "ti,cluster-mode", &cluster_mode);
 +	if (ret)
@@ -130,12 +115,8 @@ index 8335b20ae8..97daf40145 100644
 +	primary_core = dev_seq(rproc_dev);
 +
 +	ret = rproc_dev_init(primary_core);
-+	if (ret) {
-+	    fw_error:
-+		dev_err(dev, "Failed to load watchdog firmware into remote processor %d\n",
-+			primary_core);
-+		return ret;
-+	}
++	if (ret)
++		goto fw_error;
 +
 +	if (cluster_mode == 1) {
 +		ret = rproc_dev_init(primary_core + 1);
@@ -151,37 +132,43 @@ index 8335b20ae8..97daf40145 100644
 +	ret = rproc_start(primary_core);
 +	if (ret)
 +		goto fw_error;
++
++	return 0;
++
++fit_error:
++	dev_err(dev, "No loadable firmware found under %s\n", RTI_WDT_FIT_PATH);
++	return -ENOENT;
++
++dt_error:
++	dev_err(dev, "No compatible firmware target processor found\n");
++	return -ENODEV;
++
++fw_error:
++	dev_err(dev, "Failed to load watchdog firmware into remote processor %d\n",
++		primary_core);
++	return ret;
++}
++#else
++static inline int rti_wdt_load_fw(struct udevice *dev)
++{
++	return 0;
++}
 +#endif
++
+ static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+ {
+ 	struct rti_wdt_priv *priv = dev_get_priv(dev);
+@@ -51,6 +135,10 @@ static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+ 	if (readl(priv->regs + RTIDWDCTRL) == WDENABLE_KEY)
+ 		return -EBUSY;
+ 
++	ret = rti_wdt_load_fw(dev);
++	if (ret < 0)
++		return ret;
 +
  	timer_margin = timeout_ms * priv->clk_khz / 1000;
  	timer_margin >>= WDT_PRELOAD_SHIFT;
  	if (timer_margin > WDT_PRELOAD_MAX)
-diff --git a/drivers/watchdog/rti_wdt_fw.S b/drivers/watchdog/rti_wdt_fw.S
-new file mode 100644
-index 0000000000..78d99ff9f2
---- /dev/null
-+++ b/drivers/watchdog/rti_wdt_fw.S
-@@ -0,0 +1,20 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Copyright (c) Siemens AG, 2020
-+ *
-+ * Authors:
-+ *   Jan Kiszka <jan.kiszka@siemens.com>
-+ */
-+
-+.section .rodata
-+
-+.global rti_wdt_fw
-+.global rti_wdt_fw_size
-+
-+rti_wdt_fw:
-+.align 4
-+.incbin CONFIG_WDT_K3_RTI_FW_FILE
-+rti_wdt_fw_end:
-+
-+rti_wdt_fw_size:
-+.int rti_wdt_fw_end - rti_wdt_fw
 -- 
-2.26.2
+2.31.1
 
