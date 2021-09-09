@@ -4,7 +4,7 @@ config KAS_BUILD_SYSTEM
 	string
 	default "isar"
 
-choice
+choice IMAGE_TYPE
 	prompt "Image type"
 	default IMAGE_EXAMPLE
 
