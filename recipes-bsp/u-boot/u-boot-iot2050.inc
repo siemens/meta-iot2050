@@ -26,9 +26,9 @@ SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
 DEPENDS += "swig"
 
 # Build environment
-DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050 ti-pruss-firmware"
+DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050 k3-rti-wdt"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
-    trusted-firmware-a-iot2050, optee-os-iot2050, ti-pruss-firmware, \
+    trusted-firmware-a-iot2050, optee-os-iot2050, k3-rti-wdt, \
     swig:native, python3-dev:native, python3-pkg-resources,"
 
 U_BOOT_CONFIG_PACKAGE = "1"
@@ -37,15 +37,13 @@ do_prepare_build_append() {
     cd ${S}
     ln -sf ../prebuild/* ${S}
     ln -sf ../keys ${S}
+    ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     echo -$(${ISAR_RELEASE_CMD}) > ${S}/.scmversion
 }
 
 dpkg_runbuild_prepend() {
-    for fw in ${BUILDCHROOT_DIR}/lib/firmware/ti-pruss/am65x-*.elf; do
-        ln -sf /lib/firmware/$(basename $fw) ${S}
-    done
     export ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin
     export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
 }

@@ -1,0 +1,31 @@
+From ad2194c6e8c503d7ef94ee73ca252e0482a30473 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Wed, 8 Sep 2021 11:50:17 +0200
+Subject: [PATCH] u-boot: Exclude libubootenv.a from dh_strip
+
+With latest U-Boot (2021.10-rcX), this breaks on aarch64 at least with
+
+aarch64-linux-gnu-strip: debian/u-boot-iot2050-dev/usr/lib/libubootenv.a:
+sorry: copying thin archives is not currently supported: invalid operation
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/recipes-bsp/u-boot/files/debian/rules | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/meta/recipes-bsp/u-boot/files/debian/rules b/meta/recipes-bsp/u-boot/files/debian/rules
+index a5c2cd2..3d66762 100755
+--- a/meta/recipes-bsp/u-boot/files/debian/rules
++++ b/meta/recipes-bsp/u-boot/files/debian/rules
+@@ -27,5 +27,8 @@ override_dh_auto_install:
+ 
+ override_dh_auto_test:
+ 
++override_dh_strip:
++	dh_strip -X libubootenv.a
++
+ %:
+ 	dh $@ --parallel
+-- 
+2.31.1
+

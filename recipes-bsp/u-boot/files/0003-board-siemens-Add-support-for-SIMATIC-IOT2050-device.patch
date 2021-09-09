@@ -1,7 +1,7 @@
-From 975430e2bda2b69909375d1b307527ed4619526e Mon Sep 17 00:00:00 2001
+From 1462d08d4e3753a58ced2dfb98779414786bf844 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 11 May 2020 20:10:16 +0200
-Subject: [PATCH 02/24] board: siemens: Add support for SIMATIC IOT2050 devices
+Subject: [PATCH 3/7] board: siemens: Add support for SIMATIC IOT2050 devices
 
 This adds support for the IOT2050 Basic and Advanced devices. The Basic
 used the dual-core AM6528 GP processor, the Advanced one the AM6548 HS
@@ -16,25 +16,30 @@ https://github.com/siemens/meta-iot2050
 
 Based on original board support by Le Jin, Gao Nian and Chao Zeng.
 
+[backported, refreshing iot2050_defconfig]
+
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  arch/arm/mach-k3/Kconfig          |   1 +
  board/siemens/iot2050/Kconfig     |  32 ++++
- board/siemens/iot2050/MAINTAINERS |   8 +
+ board/siemens/iot2050/MAINTAINERS |   9 +
  board/siemens/iot2050/Makefile    |  10 ++
- board/siemens/iot2050/README      |  65 +++++++
- board/siemens/iot2050/board.c     | 278 ++++++++++++++++++++++++++++++
+ board/siemens/iot2050/board.c     | 284 ++++++++++++++++++++++++++++++
  board/siemens/iot2050/config.mk   |   8 +
- configs/iot2050_defconfig         | 140 +++++++++++++++
- include/configs/iot2050.h         |  60 +++++++
- 9 files changed, 602 insertions(+)
+ configs/iot2050_defconfig         | 137 ++++++++++++++
+ doc/board/index.rst               |   1 +
+ doc/board/siemens/index.rst       |   9 +
+ doc/board/siemens/iot2050.rst     |  78 ++++++++
+ include/configs/iot2050.h         |  62 +++++++
+ 11 files changed, 631 insertions(+)
  create mode 100644 board/siemens/iot2050/Kconfig
  create mode 100644 board/siemens/iot2050/MAINTAINERS
  create mode 100644 board/siemens/iot2050/Makefile
- create mode 100644 board/siemens/iot2050/README
  create mode 100644 board/siemens/iot2050/board.c
  create mode 100644 board/siemens/iot2050/config.mk
  create mode 100644 configs/iot2050_defconfig
+ create mode 100644 doc/board/siemens/index.rst
+ create mode 100644 doc/board/siemens/iot2050.rst
  create mode 100644 include/configs/iot2050.h
 
 diff --git a/arch/arm/mach-k3/Kconfig b/arch/arm/mach-k3/Kconfig
@@ -49,13 +54,13 @@ index c7d186149b..b191e88b13 100644
  endif
 diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
 new file mode 100644
-index 0000000000..06c5f14761
+index 0000000000..8f634c172c
 --- /dev/null
 +++ b/board/siemens/iot2050/Kconfig
 @@ -0,0 +1,32 @@
 +# SPDX-License-Identifier: GPL-2.0+
 +#
-+# Copyright (c) Siemens AG, 2018-2020
++# Copyright (c) Siemens AG, 2018-2021
 +#
 +# Authors:
 +#   Le Jin <le.jin@siemens.com>
@@ -87,10 +92,10 @@ index 0000000000..06c5f14761
 +endif
 diff --git a/board/siemens/iot2050/MAINTAINERS b/board/siemens/iot2050/MAINTAINERS
 new file mode 100644
-index 0000000000..028fd22960
+index 0000000000..1b525356c2
 --- /dev/null
 +++ b/board/siemens/iot2050/MAINTAINERS
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,9 @@
 +IOT2050 BOARD
 +M:	Le Jin <le.jin@siemens.com>
 +M:	Jan Kiszka <jan.kiszka@siemens.com>
@@ -99,103 +104,33 @@ index 0000000000..028fd22960
 +F:	include/configs/iot2050.h
 +F:	configs/iot2050_defconfig
 +F:	arch/arm/dts/iot2050-*
++F:	doc/board/siemens/iot2050.rst
 diff --git a/board/siemens/iot2050/Makefile b/board/siemens/iot2050/Makefile
 new file mode 100644
-index 0000000000..5f2cfa40e8
+index 0000000000..619594ab8e
 --- /dev/null
 +++ b/board/siemens/iot2050/Makefile
 @@ -0,0 +1,10 @@
 +# SPDX-License-Identifier: GPL-2.0+
 +#
 +# Makefile for Siemens IOT2050 board
-+# Copyright (c) Siemens AG, 2018-2020
++# Copyright (c) Siemens AG, 2018-2021
 +#
 +# Authors:
 +#   Le Jin <le.jin@siemens.com>
 +#
 +
 +obj-y += board.o
-diff --git a/board/siemens/iot2050/README b/board/siemens/iot2050/README
-new file mode 100644
-index 0000000000..b63f05b5cf
---- /dev/null
-+++ b/board/siemens/iot2050/README
-@@ -0,0 +1,65 @@
-+SIMATIC IOT2050 BASIC and ADVANCED
-+==================================
-+
-+The SIMATIC IOT2050 is an open industrial IoT gateway that is using the TI
-+AM6528 GP (Basic variant) or the AM6548 HS (Advanced variant). The Advanced
-+variant is prepared for secure boot.
-+
-+The IOT2050 starts only from OSPI. It loads a Siemens-provided bootloader
-+called SE-Boot for the MCU domain (R5F cores), then hands over to ATF and
-+OP-TEE, before booting U-Boot on the A53 cores. This describes how to build all
-+open artifacts into a flashable image for the OSPI flash. The flash image will
-+work on both variants.
-+
-+
-+Dependencies
-+------------
-+
-+ATF:    Upstream release 2.4 or newer
-+OP-TEE: Upstream release 3.10.0 or newer
-+
-+Binary dependencies can be found in
-+https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild.
-+The following binaries from that source need to be present in the build folder:
-+
-+ - tiboot3.bin
-+ - sysfw.itb
-+ - sysfw.itb_HS
-+
-+
-+Building
-+--------
-+
-+Make sure that CROSS_COMPILE is set appropriately:
-+
-+    export CROSS_COMPILE=aarch64-linux-gnu-
-+
-+ATF:
-+
-+    make PLAT=k3 SPD=opteed K3_USART=1
-+
-+OP-TEE:
-+
-+    make PLATFORM=k3-am65x CFG_ARM64_core=y \
-+         CFG_TEE_CORE_LOG_LEVEL=2 CFG_CONSOLE_UART=1
-+
-+U-Boot:
-+
-+    export ATF=/path/to/bl31.bin
-+    export TEE=/path/to/tee-pager_v2.bin
-+    make iot2050_defconfig
-+    make
-+
-+
-+Flashing
-+--------
-+
-+Via U-Boot:
-+
-+    sf probe
-+    load mmc 0:1 $loadaddr /path/to/flash.bin
-+    sf update $loadaddr 0x0 $filesize
-+
-+Via external programmer Dediprog SF100 or SF600:
-+
-+    dpcmd --vcc 2 -v -u flash.bin
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
 new file mode 100644
-index 0000000000..936d66467a
+index 0000000000..e636aea0aa
 --- /dev/null
 +++ b/board/siemens/iot2050/board.c
-@@ -0,0 +1,278 @@
+@@ -0,0 +1,284 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Board specific initialization for IOT2050
-+ * Copyright (c) Siemens AG, 2018-2020
++ * Copyright (c) Siemens AG, 2018-2021
 + *
 + * Authors:
 + *   Le Jin <le.jin@siemens.com>
@@ -207,6 +142,7 @@ index 0000000000..936d66467a
 +#include <dm.h>
 +#include <i2c.h>
 +#include <led.h>
++#include <malloc.h>
 +#include <net.h>
 +#include <phy.h>
 +#include <spl.h>
@@ -248,18 +184,32 @@ index 0000000000..936d66467a
 +		!strcmp((char *)info->name, "IOT2050-ADVANCED");
 +}
 +
++static bool board_is_sr1(void)
++{
++	struct iot2050_info *info = IOT2050_INFO_DATA;
++
++	return info->magic == IOT2050_INFO_MAGIC &&
++		!strstr((char *)info->name, "-PG2");
++}
++
 +static void remove_mmc1_target(void)
 +{
-+	const char *boot_targets = env_get("boot_targets");
++	char *boot_targets = strdup(env_get("boot_targets"));
++	char *mmc1 = strstr(boot_targets, "mmc1");
 +
-+	if (strncmp(boot_targets, "mmc1 ", 5) == 0)
-+		env_set("boot_targets", boot_targets + 5);
++	if (mmc1) {
++		memmove(mmc1, mmc1 + 4, strlen(mmc1 + 4) + 1);
++		env_set("boot_targets", boot_targets);
++	}
++
++	free(boot_targets);
 +}
 +
 +void set_board_info_env(void)
 +{
 +	struct iot2050_info *info = IOT2050_INFO_DATA;
 +	u8 __maybe_unused mac_cnt;
++	const char *fdtfile;
 +
 +	if (info->magic != IOT2050_INFO_MAGIC) {
 +		pr_err("IOT2050: Board info parsing error!\n");
@@ -277,28 +227,20 @@ index 0000000000..936d66467a
 +	env_set("fw_version", PLAIN_VERSION);
 +	env_set("seboot_version", info->seboot_version);
 +
-+#ifdef CONFIG_NET
-+	/* MAC address */
-+	for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
-+		if (is_valid_ethaddr(info->mac_addr[mac_cnt]))
-+			eth_env_set_enetaddr_by_index("eth", mac_cnt + 1,
-+						      info->mac_addr[mac_cnt]);
-+	}
-+
-+	/*
-+	 * Set the MAC address environment variable that ICSSG0-PRU eth0 will
-+	 * use in u-boot
-+	 */
-+	env_set("ethaddr", env_get("eth1addr"));
-+#endif
-+
 +	if (board_is_advanced()) {
-+		env_set("fdtfile", "ti/k3-am6548-iot2050-advanced.dtb");
++		if (board_is_sr1())
++			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
++		else
++			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
 +	} else {
-+		env_set("fdtfile", "ti/k3-am6528-iot2050-basic.dtb");
++		if (board_is_sr1())
++			fdtfile = "ti/k3-am6528-iot2050-basic.dtb";
++		else
++			fdtfile = "ti/k3-am6528-iot2050-basic-pg2.dtb";
 +		/* remove the unavailable eMMC (mmc1) from the list */
 +		remove_mmc1_target();
 +	}
++	env_set("fdtfile", fdtfile);
 +
 +	env_save();
 +}
@@ -399,11 +341,10 @@ index 0000000000..936d66467a
 +
 +	set_board_info_env();
 +
-+#ifdef CONFIG_IOT2050_BOOT_SWITCH
 +	/* remove the eMMC if requested via button */
-+	if (board_is_advanced() && user_button_pressed())
++	if (IS_ENABLED(CONFIG_IOT2050_BOOT_SWITCH) && board_is_advanced() &&
++	    user_button_pressed())
 +		remove_mmc1_target();
-+#endif
 +
 +	return 0;
 +}
@@ -450,10 +391,10 @@ index 0000000000..936d66467a
 +			     DP83867_LED_SETTINGS);
 +}
 +
++#if CONFIG_IS_ENABLED(LED) && CONFIG_IS_ENABLED(BOOTSTAGE)
 +/*
 + * Indicate any error or (accidental?) entering of CLI via the red status LED.
 + */
-+#if CONFIG_IS_ENABLED(LED)
 +void show_boot_progress(int progress)
 +{
 +	struct udevice *dev;
@@ -472,13 +413,13 @@ index 0000000000..936d66467a
 +#endif
 diff --git a/board/siemens/iot2050/config.mk b/board/siemens/iot2050/config.mk
 new file mode 100644
-index 0000000000..951f72ba16
+index 0000000000..267ec76c4e
 --- /dev/null
 +++ b/board/siemens/iot2050/config.mk
 @@ -0,0 +1,8 @@
 +# SPDX-License-Identifier: GPL-2.0+
 +#
-+# Copyright (c) Siemens AG, 2020
++# Copyright (c) Siemens AG, 2020-2021
 +#
 +# Authors:
 +#   Jan Kiszka <jan.kiszka@siemens.com>
@@ -486,38 +427,38 @@ index 0000000000..951f72ba16
 +flash.bin: all
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
 new file mode 100644
-index 0000000000..2ea13f3a39
+index 0000000000..4bc6fa63e2
 --- /dev/null
 +++ b/configs/iot2050_defconfig
-@@ -0,0 +1,140 @@
+@@ -0,0 +1,137 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_K3=y
 +CONFIG_SPL_GPIO_SUPPORT=y
 +CONFIG_SPL_LIBCOMMON_SUPPORT=y
 +CONFIG_SPL_LIBGENERIC_SUPPORT=y
 +CONFIG_SYS_MALLOC_F_LEN=0x8000
++CONFIG_NR_DRAM_BANKS=2
 +CONFIG_SOC_K3_AM6=y
 +CONFIG_TARGET_IOT2050_A53=y
-+CONFIG_IOT2050_BOOT_SWITCH=y
 +CONFIG_ENV_SIZE=0x20000
 +CONFIG_ENV_OFFSET=0x680000
 +CONFIG_ENV_SECT_SIZE=0x20000
 +CONFIG_SYS_SPI_U_BOOT_OFFS=0x280000
 +CONFIG_DM_GPIO=y
++CONFIG_SPL_DM_SPI=y
++CONFIG_SPL_TEXT_BASE=0x80080000
 +CONFIG_SPL_SERIAL_SUPPORT=y
-+CONFIG_SPL_DRIVERS_MISC_SUPPORT=y
 +CONFIG_SPL_STACK_R_ADDR=0x82000000
-+CONFIG_NR_DRAM_BANKS=2
 +CONFIG_ENV_OFFSET_REDUND=0x6a0000
 +CONFIG_SPL_SPI_FLASH_SUPPORT=y
 +CONFIG_SPL_SPI_SUPPORT=y
-+CONFIG_SPL_DM_SPI=y
-+CONFIG_SPL_TEXT_BASE=0x80080000
++CONFIG_DEFAULT_DEVICE_TREE="k3-am6528-iot2050-basic"
 +CONFIG_DISTRO_DEFAULTS=y
 +# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
 +CONFIG_SPL_LOAD_FIT=y
 +# CONFIG_USE_SPL_FIT_GENERATOR is not set
 +CONFIG_OF_BOARD_SETUP=y
++CONFIG_BOOTSTAGE=y
 +CONFIG_CONSOLE_MUX=y
 +# CONFIG_DISPLAY_CPUINFO is not set
 +CONFIG_SPL_BOARD_INIT=y
@@ -536,31 +477,29 @@ index 0000000000..2ea13f3a39
 +CONFIG_SYS_PROMPT="IOT2050> "
 +CONFIG_CMD_ASKENV=y
 +CONFIG_CMD_DFU=y
-+# CONFIG_CMD_FLASH is not set
 +CONFIG_CMD_GPT=y
 +CONFIG_CMD_I2C=y
 +CONFIG_CMD_MMC=y
-+# CONFIG_CMD_NET is not set
 +CONFIG_CMD_PCI=y
 +CONFIG_CMD_REMOTEPROC=y
 +CONFIG_CMD_USB=y
 +# CONFIG_CMD_SETEXPR is not set
++# CONFIG_CMD_NET is not set
 +CONFIG_CMD_TIME=y
 +# CONFIG_ISO_PARTITION is not set
 +CONFIG_OF_CONTROL=y
 +CONFIG_SPL_OF_CONTROL=y
-+CONFIG_DEFAULT_DEVICE_TREE="k3-am6528-iot2050-basic"
 +CONFIG_OF_LIST="k3-am6528-iot2050-basic k3-am6548-iot2050-advanced"
 +CONFIG_SPL_MULTI_DTB_FIT=y
 +CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
 +CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 +CONFIG_ENV_IS_IN_SPI_FLASH=y
 +CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
-+# CONFIG_NET is not set
 +CONFIG_DM=y
 +CONFIG_SPL_DM=y
 +CONFIG_SPL_DM_SEQ_ALIAS=y
 +CONFIG_SPL_REGMAP=y
++CONFIG_SPL_SYSCON=y
 +CONFIG_SPL_OF_TRANSLATE=y
 +CONFIG_CLK=y
 +CONFIG_SPL_CLK=y
@@ -576,7 +515,6 @@ index 0000000000..2ea13f3a39
 +CONFIG_DM_I2C=y
 +CONFIG_I2C_SET_DEFAULT_BUS_NUM=y
 +CONFIG_SYS_I2C_OMAP24XX=y
-+CONFIG_DM_KEYBOARD=y
 +CONFIG_LED=y
 +CONFIG_SPL_LED=y
 +CONFIG_LED_GPIO=y
@@ -593,8 +531,9 @@ index 0000000000..2ea13f3a39
 +CONFIG_SPI_FLASH_STMICRO=y
 +CONFIG_SPI_FLASH_WINBOND=y
 +# CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
++CONFIG_PHYLIB=y
++CONFIG_PHY_TI=y
 +CONFIG_DM_ETH=y
-+# CONFIG_TI_AM65_CPSW_NUSS is not set
 +CONFIG_PCI=y
 +CONFIG_DM_PCI=y
 +CONFIG_PCI_KEYSTONE=y
@@ -628,22 +567,132 @@ index 0000000000..2ea13f3a39
 +CONFIG_USB_DWC3=y
 +CONFIG_USB_DWC3_GENERIC=y
 +CONFIG_USB_KEYBOARD=y
-+CONFIG_FAT_WRITE=y
 +CONFIG_OF_LIBFDT_OVERLAY=y
+diff --git a/doc/board/index.rst b/doc/board/index.rst
+index a70d2de19d..24cd37bc68 100644
+--- a/doc/board/index.rst
++++ b/doc/board/index.rst
+@@ -19,6 +19,7 @@ Board-specific doc
+    kontron/index
+    microchip/index
+    rockchip/index
++   siemens/index
+    sifive/index
+    sipeed/index
+    st/index
+diff --git a/doc/board/siemens/index.rst b/doc/board/siemens/index.rst
+new file mode 100644
+index 0000000000..082936ea7e
+--- /dev/null
++++ b/doc/board/siemens/index.rst
+@@ -0,0 +1,9 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
++Siemens
++=======
++
++.. toctree::
++   :maxdepth: 2
++
++   iot2050
+diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
+new file mode 100644
+index 0000000000..592c59be03
+--- /dev/null
++++ b/doc/board/siemens/iot2050.rst
+@@ -0,0 +1,78 @@
++.. SPDX-License-Identifier: GPL-2.0+
++.. sectionauthor:: Jan Kiszka <jan.kiszka@siemens.com>
++
++SIMATIC IOT2050 BASIC and ADVANCED
++==================================
++
++The SIMATIC IOT2050 is an open industrial IoT gateway that is using the TI
++AM6528 GP (Basic variant) or the AM6548 HS (Advanced variant). The Advanced
++variant is prepared for secure boot.
++
++The IOT2050 starts only from OSPI. It loads a Siemens-provided bootloader
++called SE-Boot for the MCU domain (R5F cores), then hands over to ATF and
++OP-TEE, before booting U-Boot on the A53 cores. This describes how to build all
++open artifacts into a flashable image for the OSPI flash. The flash image will
++work on both variants.
++
++Dependencies
++------------
++
++ATF:    Upstream release 2.4 or newer
++OP-TEE: Upstream release 3.10.0 or newer
++
++Binary dependencies can be found in
++https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild.
++The following binaries from that source need to be present in the build folder:
++
++ - tiboot3.bin
++ - sysfw.itb
++ - sysfw.itb_HS
++ - sysfw_sr2.itb
++ - sysfw_sr2.itb_HS
++
++Building
++--------
++
++Make sure that CROSS_COMPILE is set appropriately:
++
++.. code-block:: text
++
++ $ export CROSS_COMPILE=aarch64-linux-gnu-
++
++ATF:
++
++.. code-block:: text
++
++ $ make PLAT=k3 SPD=opteed K3_USART=1
++
++OP-TEE:
++
++.. code-block:: text
++
++ $ make PLATFORM=k3-am65x CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_CONSOLE_UART=1
++
++U-Boot:
++
++.. code-block:: text
++
++ $ export ATF=/path/to/bl31.bin
++ $ export TEE=/path/to/tee-pager_v2.bin
++ $ make iot2050_defconfig
++ $ make
++
++Flashing
++--------
++
++Via U-Boot:
++
++.. code-block:: text
++
++ IOT2050> sf probe
++ IOT2050> load mmc 0:1 $loadaddr /path/to/flash.bin
++ IOT2050> sf update $loadaddr 0x0 $filesize
++
++Via external programmer Dediprog SF100 or SF600:
++
++.. code-block:: text
++
++ $ dpcmd --vcc 2 -v -u flash.bin
 diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
 new file mode 100644
-index 0000000000..2d1b1b1150
+index 0000000000..ddb4cfcc8e
 --- /dev/null
 +++ b/include/configs/iot2050.h
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,62 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * Configuration header file for IOT2050
-+ * Copyright (c) Siemens AG, 2018-2020
++ * Copyright (c) Siemens AG, 2018-2021
 + *
 + * Authors:
 + *   Le Jin <le.jin@siemens.com>
-+ *   Jan Kiszka <jan.kiszk@siemens.com>
++ *   Jan Kiszka <jan.kiszka@siemens.com>
 + */
 +
 +#ifndef __CONFIG_IOT2050_H
@@ -663,15 +712,18 @@ index 0000000000..2d1b1b1150
 +
 +/* U-Boot general configuration */
 +#define EXTRA_ENV_IOT2050_BOARD_SETTINGS				\
-+	"loadaddr=0x80080000\0"						\
-+	"scriptaddr=0x83000000\0"					\
-+	"kernel_addr_r=0x80080000\0"					\
-+	"ramdisk_addr_r=0x81000000\0"					\
-+	"fdt_addr_r=0x82000000\0"					\
-+	"overlay_addr_r=0x83000000\0"					\
 +	"usb_pgood_delay=900\0"
 +
 +#ifndef CONFIG_SPL_BUILD
++
++#if CONFIG_IS_ENABLED(CMD_USB)
++# define BOOT_TARGET_USB(func) \
++	func(USB, usb, 0) \
++	func(USB, usb, 1) \
++	func(USB, usb, 2)
++#else
++# define BOOT_TARGET_USB(func)
++#endif
 +
 +/*
 + * This defines all MMC devices, even if the basic variant has no mmc1.
@@ -681,15 +733,14 @@ index 0000000000..2d1b1b1150
 +#define BOOT_TARGET_DEVICES(func) \
 +	func(MMC, mmc, 1) \
 +	func(MMC, mmc, 0) \
-+	func(USB, usb, 0) \
-+	func(USB, usb, 1) \
-+	func(USB, usb, 2)
++	BOOT_TARGET_USB(func)
 +
 +#include <config_distro_bootcmd.h>
 +
 +#endif
 +
 +#define CONFIG_EXTRA_ENV_SETTINGS					\
++	DEFAULT_LINUX_BOOT_ENV						\
 +	BOOTENV								\
 +	EXTRA_ENV_IOT2050_BOARD_SETTINGS
 +
@@ -697,5 +748,5 @@ index 0000000000..2d1b1b1150
 +
 +#endif /* __CONFIG_IOT2050_H */
 -- 
-2.26.2
+2.31.1
 
