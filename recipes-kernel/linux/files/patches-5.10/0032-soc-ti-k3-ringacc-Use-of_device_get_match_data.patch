@@ -1,0 +1,48 @@
+From 0a7f3ada3c0cbdf7dc6c7c119c4c69ab6776550a Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Sun, 31 Jan 2021 20:58:49 -0800
+Subject: [PATCH 032/103] soc: ti: k3-ringacc: Use of_device_get_match_data()
+
+Simplify the retrieval of getting the match data in the probe
+function by directly using of_device_get_match_data() instead
+of using of_match_node() and getting data.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+---
+ drivers/soc/ti/k3-ringacc.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/soc/ti/k3-ringacc.c b/drivers/soc/ti/k3-ringacc.c
+index 7fdb688452f7..db3f705da7a0 100644
+--- a/drivers/soc/ti/k3-ringacc.c
++++ b/drivers/soc/ti/k3-ringacc.c
+@@ -9,6 +9,7 @@
+ #include <linux/io.h>
+ #include <linux/init.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/sys_soc.h>
+ #include <linux/soc/ti/k3-ringacc.h>
+@@ -1205,15 +1206,13 @@ static const struct of_device_id k3_ringacc_of_match[] = {
+ static int k3_ringacc_probe(struct platform_device *pdev)
+ {
+ 	const struct ringacc_match_data *match_data;
+-	const struct of_device_id *match;
+ 	struct device *dev = &pdev->dev;
+ 	struct k3_ringacc *ringacc;
+ 	int ret;
+ 
+-	match = of_match_node(k3_ringacc_of_match, dev->of_node);
+-	if (!match)
++	match_data = of_device_get_match_data(&pdev->dev);
++	if (!match_data)
+ 		return -ENODEV;
+-	match_data = match->data;
+ 
+ 	ringacc = devm_kzalloc(dev, sizeof(*ringacc), GFP_KERNEL);
+ 	if (!ringacc)
+-- 
+2.31.1
+

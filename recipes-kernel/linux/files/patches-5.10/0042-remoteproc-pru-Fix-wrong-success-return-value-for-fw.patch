@@ -1,0 +1,45 @@
+From 12ade80e407396eb07dd37156615979e2a151457 Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Wed, 7 Apr 2021 10:56:40 -0500
+Subject: [PATCH 042/103] remoteproc: pru: Fix wrong success return value for
+ fw events
+
+The irq_create_fwspec_mapping() returns a proper virq value on success
+and 0 upon any failure. The pru_handle_intrmap() treats this as an error
+and disposes all firmware event mappings correctly, but is returning
+this incorrect value as is, letting the pru_rproc_start() interpret it
+as a success and boot the PRU.
+
+Fix this by returning an error value back upon any such failure. While
+at this, revise the error trace to print some meaningful info about the
+failed event.
+
+Fixes: c75c9fdac66e ("remoteproc: pru: Add support for PRU specific interrupt configuration")
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20210407155641.5501-3-s-anna@ti.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
+ drivers/remoteproc/pru_rproc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/remoteproc/pru_rproc.c b/drivers/remoteproc/pru_rproc.c
+index 773c09d01958..e0c5fce8bccd 100644
+--- a/drivers/remoteproc/pru_rproc.c
++++ b/drivers/remoteproc/pru_rproc.c
+@@ -339,8 +339,10 @@ static int pru_handle_intrmap(struct rproc *rproc)
+ 
+ 		pru->mapped_irq[i] = irq_create_fwspec_mapping(&fwspec);
+ 		if (!pru->mapped_irq[i]) {
+-			dev_err(dev, "failed to get virq\n");
+-			ret = pru->mapped_irq[i];
++			dev_err(dev, "failed to get virq for fw mapping %d: event %d chnl %d host %d\n",
++				i, fwspec.param[0], fwspec.param[1],
++				fwspec.param[2]);
++			ret = -EINVAL;
+ 			goto map_fail;
+ 		}
+ 	}
+-- 
+2.31.1
+

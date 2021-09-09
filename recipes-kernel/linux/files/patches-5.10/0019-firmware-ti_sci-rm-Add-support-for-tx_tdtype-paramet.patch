@@ -1,0 +1,90 @@
+From 8b9ac996e25b620bc9e977e9547a4f0413812151 Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Sun, 25 Oct 2020 12:10:02 -0700
+Subject: [PATCH 019/103] firmware: ti_sci: rm: Add support for tx_tdtype
+ parameter for tx channel
+
+The system controller's resource manager have support for configuring the
+TDTYPE of TCHAN_CFG register on j721e.
+With this parameter the teardown completion can be controlled:
+TDTYPE == 0: Return without waiting for peer to complete the teardown
+TDTYPE == 1: Wait for peer to complete the teardown
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Tero Kristo <t-kristo@ti.com>
+Tested-by: Keerthy <j-keerthy@ti.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+---
+ drivers/firmware/ti_sci.c              | 1 +
+ drivers/firmware/ti_sci.h              | 7 +++++++
+ include/linux/soc/ti/ti_sci_protocol.h | 2 ++
+ 3 files changed, 10 insertions(+)
+
+diff --git a/drivers/firmware/ti_sci.c b/drivers/firmware/ti_sci.c
+index 896f53ec7857..65a8c2e82093 100644
+--- a/drivers/firmware/ti_sci.c
++++ b/drivers/firmware/ti_sci.c
+@@ -2362,6 +2362,7 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(const struct ti_sci_handle *handle,
+ 	req->fdepth = params->fdepth;
+ 	req->tx_sched_priority = params->tx_sched_priority;
+ 	req->tx_burst_size = params->tx_burst_size;
++	req->tx_tdtype = params->tx_tdtype;
+ 
+ 	ret = ti_sci_do_xfer(info, xfer);
+ 	if (ret) {
+diff --git a/drivers/firmware/ti_sci.h b/drivers/firmware/ti_sci.h
+index 57cd04062994..dca19ca5fc49 100644
+--- a/drivers/firmware/ti_sci.h
++++ b/drivers/firmware/ti_sci.h
+@@ -910,6 +910,7 @@ struct rm_ti_sci_msg_udmap_rx_flow_opt_cfg {
+  *   12 - Valid bit for @ref ti_sci_msg_rm_udmap_tx_ch_cfg::tx_credit_count
+  *   13 - Valid bit for @ref ti_sci_msg_rm_udmap_tx_ch_cfg::fdepth
+  *   14 - Valid bit for @ref ti_sci_msg_rm_udmap_tx_ch_cfg::tx_burst_size
++ *   15 - Valid bit for @ref ti_sci_msg_rm_udmap_tx_ch_cfg::tx_tdtype
+  *
+  * @nav_id: SoC device ID of Navigator Subsystem where tx channel is located
+  *
+@@ -973,6 +974,11 @@ struct rm_ti_sci_msg_udmap_rx_flow_opt_cfg {
+  *
+  * @tx_burst_size: UDMAP transmit channel burst size configuration to be
+  * programmed into the tx_burst_size field of the TCHAN_TCFG register.
++ *
++ * @tx_tdtype: UDMAP transmit channel teardown type configuration to be
++ * programmed into the tdtype field of the TCHAN_TCFG register:
++ * 0 - Return immediately
++ * 1 - Wait for completion message from remote peer
+  */
+ struct ti_sci_msg_rm_udmap_tx_ch_cfg_req {
+ 	struct ti_sci_msg_hdr hdr;
+@@ -994,6 +1000,7 @@ struct ti_sci_msg_rm_udmap_tx_ch_cfg_req {
+ 	u16 fdepth;
+ 	u8 tx_sched_priority;
+ 	u8 tx_burst_size;
++	u8 tx_tdtype;
+ } __packed;
+ 
+ /**
+diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
+index cf27b080e148..d254d99fd45b 100644
+--- a/include/linux/soc/ti/ti_sci_protocol.h
++++ b/include/linux/soc/ti/ti_sci_protocol.h
+@@ -345,6 +345,7 @@ struct ti_sci_msg_rm_udmap_tx_ch_cfg {
+ #define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_SUPR_TDPKT_VALID        BIT(11)
+ #define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_CREDIT_COUNT_VALID      BIT(12)
+ #define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_FDEPTH_VALID            BIT(13)
++#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_TDTYPE_VALID            BIT(15)
+ 	u16 nav_id;
+ 	u16 index;
+ 	u8 tx_pause_on_err;
+@@ -362,6 +363,7 @@ struct ti_sci_msg_rm_udmap_tx_ch_cfg {
+ 	u16 fdepth;
+ 	u8 tx_sched_priority;
+ 	u8 tx_burst_size;
++	u8 tx_tdtype;
+ };
+ 
+ /**
+-- 
+2.31.1
+

@@ -1,0 +1,41 @@
+From ddc9fca38ab9d74b9d390d610f7e15391a3b30e0 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sat, 20 Feb 2021 13:49:51 +0100
+Subject: [PATCH 009/103] arm64: dts: ti: k3-am65-mcu: Add RTI watchdog entry
+
+Add the DT entry for a watchdog based on RTI1.
+
+On SR1.0 silicon, it requires additional firmware on the MCU R5F cores
+to handle the expiry, e.g. https://github.com/siemens/k3-rti-wdt. As
+this firmware will also lock the power domain to protect it against
+premature shutdown, mark it shared.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Acked-by: Praneeth Bajjuri <praneeth@ti.com>
+Link: https://lore.kernel.org/r/279c20fa-6e5e-4f88-9cd1-f76297a28a19@web.de
+---
+ arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi b/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
+index 7454c8cec0cc..0388c02c2203 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-mcu.dtsi
+@@ -308,4 +308,13 @@ mcu_r5fss0_core1: r5f@41400000 {
+ 			ti,loczrama = <1>;
+ 		};
+ 	};
++
++	mcu_rti1: watchdog@40610000 {
++		compatible = "ti,j7-rti-wdt";
++		reg = <0x0 0x40610000 0x0 0x100>;
++		clocks = <&k3_clks 135 0>;
++		power-domains = <&k3_pds 135 TI_SCI_PD_SHARED>;
++		assigned-clocks = <&k3_clks 135 0>;
++		assigned-clock-parents = <&k3_clks 135 4>;
++	};
+ };
+-- 
+2.31.1
+

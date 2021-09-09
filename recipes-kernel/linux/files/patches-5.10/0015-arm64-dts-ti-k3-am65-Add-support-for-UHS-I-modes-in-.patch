@@ -1,0 +1,112 @@
+From 79acce813c32695bbe058f3461471287436c5264 Mon Sep 17 00:00:00 2001
+From: Aswath Govindraju <a-govindraju@ti.com>
+Date: Sat, 29 May 2021 09:07:49 +0530
+Subject: [PATCH 015/103] arm64: dts: ti: k3-am65: Add support for UHS-I modes
+ in MMCSD1 subsystem
+
+UHS-I speed modes are supported in AM65 S.R. 2.0 SoC[1].
+
+Add support by removing the no-1-8-v tag and including the voltage
+regulator device tree nodes for power cycling.
+
+However, the 4 bit interface of AM65 SR 1.0 cannot be supported at 3.3 V or
+1.8 V because of erratas i2025 and i2026 [2]. As the SD card is the primary
+boot mode for development usecases, continue to enable SD card and disable
+UHS-I modes in it to minimize any ageing issues happening because of
+erratas.
+
+k3-am6528-iot2050-basic and k3-am6548-iot2050-advanced boards use S.R. 1.0
+version of AM65 SoC. Therefore, add no-1-8-v in sdhci1 device tree node of
+the common iot2050 device tree file.
+
+[1] - https://www.ti.com/lit/ug/spruid7e/spruid7e.pdf, section 12.3.6.1.1
+[2] - https://www.ti.com/lit/er/sprz452e/sprz452e.pdf
+
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Acked-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20210529033749.6250-1-a-govindraju@ti.com
+---
+ .../boot/dts/ti/k3-am65-iot2050-common.dtsi   |  1 +
+ arch/arm64/boot/dts/ti/k3-am65-main.dtsi      |  1 -
+ .../arm64/boot/dts/ti/k3-am654-base-board.dts | 33 +++++++++++++++++++
+ 3 files changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+index f4ec9ed52939..d90abda1de84 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+@@ -555,6 +555,7 @@ &sdhci1 {
+ 	pinctrl-0 = <&main_mmc1_pins_default>;
+ 	ti,driver-strength-ohm = <50>;
+ 	disable-wp;
++	no-1-8-v;
+ };
+ 
+ &usb0 {
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+index ac3c2093603b..e92e34a017eb 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+@@ -301,7 +301,6 @@ sdhci1: mmc@4fa0000 {
+ 		ti,otap-del-sel = <0x2>;
+ 		ti,trm-icp = <0x8>;
+ 		dma-coherent;
+-		no-1-8-v;
+ 	};
+ 
+ 	scm_conf: scm-conf@100000 {
+diff --git a/arch/arm64/boot/dts/ti/k3-am654-base-board.dts b/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
+index 8c082af489f5..fea6a8243d75 100644
+--- a/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
+@@ -60,6 +60,38 @@ clk_ov5640_fixed: clock {
+ 		#clock-cells = <0>;
+ 		clock-frequency = <24000000>;
+ 	};
++
++	evm_12v0: fixedregulator-evm12v0 {
++		/* main supply */
++		compatible = "regulator-fixed";
++		regulator-name = "evm_12v0";
++		regulator-min-microvolt = <12000000>;
++		regulator-max-microvolt = <12000000>;
++		regulator-always-on;
++		regulator-boot-on;
++	};
++
++	vcc3v3_io: fixedregulator-vcc3v3io {
++		/* Output of TPS54334 */
++		compatible = "regulator-fixed";
++		regulator-name = "vcc3v3_io";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-always-on;
++		regulator-boot-on;
++		vin-supply = <&evm_12v0>;
++	};
++
++	vdd_mmc1_sd: fixedregulator-sd {
++		compatible = "regulator-fixed";
++		regulator-name = "vdd_mmc1_sd";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		enable-active-high;
++		vin-supply = <&vcc3v3_io>;
++		gpio = <&pca9554 4 GPIO_ACTIVE_HIGH>;
++	};
+ };
+ 
+ &wkup_pmx0 {
+@@ -319,6 +351,7 @@ &sdhci0 {
+  * disable sdhci1
+  */
+ &sdhci1 {
++	vmmc-supply = <&vdd_mmc1_sd>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&main_mmc1_pins_default>;
+ 	ti,driver-strength-ohm = <50>;
+-- 
+2.31.1
+

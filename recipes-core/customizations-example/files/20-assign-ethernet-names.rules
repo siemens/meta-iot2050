@@ -1,2 +1,2 @@
-ACTION=="add", SUBSYSTEM=="net", KERNELS=="pruss0_eth", SUBSYSTEMS=="platform", ATTR{phys_port_name}=="p1", NAME="eno2"
-ACTION=="add", SUBSYSTEM=="net", KERNELS=="pruss0_eth", SUBSYSTEMS=="platform", ATTR{phys_port_name}=="p2", NAME="eno1"
+ACTION=="add", SUBSYSTEM=="net", KERNELS=="icssg0-eth", SUBSYSTEMS=="platform", ATTR{phys_port_name}=="p1", NAME="eno2"
+ACTION=="add", SUBSYSTEM=="net", KERNELS=="icssg0-eth", SUBSYSTEMS=="platform", ATTR{phys_port_name}=="p2", NAME="eno1"

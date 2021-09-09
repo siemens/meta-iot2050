@@ -1,0 +1,40 @@
+From 7be82ebd6424dff4cc6395350ec92a797634dfcc Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Sun, 25 Oct 2020 12:10:04 -0700
+Subject: [PATCH 022/103] soc: ti: ti_sci_inta_msi: Add support for second
+ range in resource ranges
+
+Allocate MSI entries for both first and second range if they are valid
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+---
+ drivers/soc/ti/ti_sci_inta_msi.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/soc/ti/ti_sci_inta_msi.c b/drivers/soc/ti/ti_sci_inta_msi.c
+index 0eb9462f609e..a1d9c027022a 100644
+--- a/drivers/soc/ti/ti_sci_inta_msi.c
++++ b/drivers/soc/ti/ti_sci_inta_msi.c
+@@ -89,6 +89,18 @@ static int ti_sci_inta_msi_alloc_descs(struct device *dev,
+ 			list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
+ 			count++;
+ 		}
++		for (i = 0; i < res->desc[set].num_sec; i++) {
++			msi_desc = alloc_msi_entry(dev, 1, NULL);
++			if (!msi_desc) {
++				ti_sci_inta_msi_free_descs(dev);
++				return -ENOMEM;
++			}
++
++			msi_desc->inta.dev_index = res->desc[set].start_sec + i;
++			INIT_LIST_HEAD(&msi_desc->list);
++			list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
++			count++;
++		}
+ 	}
+ 
+ 	return count;
+-- 
+2.31.1
+

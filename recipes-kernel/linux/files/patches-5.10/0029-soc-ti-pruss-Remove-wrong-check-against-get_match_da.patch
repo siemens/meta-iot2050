@@ -1,0 +1,47 @@
+From 5885d12a1d62fb5e713f52480e22c38ceaa10d49 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+Date: Sat, 21 Nov 2020 19:22:25 -0800
+Subject: [PATCH 029/103] soc: ti: pruss: Remove wrong check against
+ *get_match_data return value
+
+Since the of_device_get_match_data() doesn't return error code, remove
+wrong IS_ERR test. Proper check against NULL pointer is already done
+later before usage: if (data && data->...).
+
+Additionally, proceeding with empty device data is valid (e.g. in case
+of "ti,am3356-pruss").
+
+Reported-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+---
+ drivers/soc/ti/pruss.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
+index cc0b4ad7a3d3..5d6e7132a5c4 100644
+--- a/drivers/soc/ti/pruss.c
++++ b/drivers/soc/ti/pruss.c
+@@ -126,8 +126,6 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)
+ 	int ret = 0;
+ 
+ 	data = of_device_get_match_data(dev);
+-	if (IS_ERR(data))
+-		return -ENODEV;
+ 
+ 	clks_np = of_get_child_by_name(cfg_node, "clocks");
+ 	if (!clks_np) {
+@@ -175,10 +173,6 @@ static int pruss_probe(struct platform_device *pdev)
+ 	const char *mem_names[PRUSS_MEM_MAX] = { "dram0", "dram1", "shrdram2" };
+ 
+ 	data = of_device_get_match_data(&pdev->dev);
+-	if (IS_ERR(data)) {
+-		dev_err(dev, "missing private data\n");
+-		return -ENODEV;
+-	}
+ 
+ 	ret = dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
+ 	if (ret) {
+-- 
+2.31.1
+
