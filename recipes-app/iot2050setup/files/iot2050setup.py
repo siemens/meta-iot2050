@@ -1,5 +1,9 @@
 #! /usr/bin/python3
-
+#
+# Copyright (c) Siemens AG, 2021
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
 import traceback
 from snack import *
 import subprocess
@@ -22,7 +26,7 @@ class ansicolors:
 class TopMenu:
     def __init__(self):
         self.gscreen = SnackScreen()
-        self.boardType = subprocess.check_output('grep -a -o -P "IOT2050 \w*" /proc/device-tree/model',
+        self.boardType = subprocess.check_output('grep -a -o -P "IOT2050 .*" /proc/device-tree/model',
                                                  shell=True).lstrip().rstrip().decode('utf-8')
 
     def show(self):
@@ -484,14 +488,16 @@ class PeripheralsMenu:
         self.terminateStatus = ''
         if (switchMode == 'RS485') or (switchMode == 'RS422'):
             self.terminateStatus = self.selectTerminate()
-        if self.topmenu.boardType == 'IOT2050 Basic':
+        if self.topmenu.boardType.startswith('IOT2050 Basic'):
             self.setBasicBoard(switchMode)
-        elif self.topmenu.boardType == 'IOT2050 Advanced':
+        elif self.topmenu.boardType.startswith('IOT2050 Advanced'):
             self.setAdvancedBoard(switchMode)
         else:
             return
         terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
         subprocess.call('switchserialmode -m ' + switchMode + terminateOpt, shell=True)
+        if self.topmenu.boardType == 'IOT2050 Advanced PG2':
+            subprocess.call('switchserialmode -r ', shell=True)
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
@@ -521,10 +527,11 @@ class PeripheralsMenu:
         self.saveConfig(self.config)
         if mode == 'RS485':
             self.setRS485SetupHoldTime()
-        ButtonChoiceWindow(screen=self.topmenu.gscreen,
-                           title='Note',
-                           text='You need to power cycle the device for the changes to take effect',
-                           buttons=['Ok'])
+        if self.topmenu.boardType != 'IOT2050 Advanced PG2':
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                            title='Note',
+                            text='You need to power cycle the device for the changes to take effect',
+                            buttons=['Ok'])
 
     def setRS485SetupHoldTime(self):
         command = 'switchserialmode cp210x -D CP2102N24 -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
