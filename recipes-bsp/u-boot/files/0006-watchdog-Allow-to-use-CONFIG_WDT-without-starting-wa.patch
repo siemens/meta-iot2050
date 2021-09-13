@@ -1,4 +1,4 @@
-From 075a23ddc098ba4cdc1c1029aea596c879949447 Mon Sep 17 00:00:00 2001
+From 4c6d980059525ed26cca2b08681ea069015231e6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 Date: Tue, 9 Mar 2021 14:26:56 +0100
 Subject: [PATCH 6/8] watchdog: Allow to use CONFIG_WDT without starting

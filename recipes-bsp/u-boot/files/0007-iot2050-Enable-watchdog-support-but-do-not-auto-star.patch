@@ -1,4 +1,4 @@
-From 66c5d0139447b7e1ff43f61801283d04af5ff0a5 Mon Sep 17 00:00:00 2001
+From 2bab35be7fe49e99341f6addbc290702aa4becbc Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 19 Jun 2020 08:56:35 +0200
 Subject: [PATCH 7/8] iot2050: Enable watchdog support, but do not auto-start

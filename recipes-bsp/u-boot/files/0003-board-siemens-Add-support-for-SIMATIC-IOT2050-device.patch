@@ -1,4 +1,4 @@
-From 1462d08d4e3753a58ced2dfb98779414786bf844 Mon Sep 17 00:00:00 2001
+From fa3ba2612198610ed008354227adca643766846e Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 11 May 2020 20:10:16 +0200
 Subject: [PATCH 3/8] board: siemens: Add support for SIMATIC IOT2050 devices
@@ -123,7 +123,7 @@ index 0000000000..619594ab8e
 +obj-y += board.o
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
 new file mode 100644
-index 0000000000..e636aea0aa
+index 0000000000..07e7370d08
 --- /dev/null
 +++ b/board/siemens/iot2050/board.c
 @@ -0,0 +1,284 @@
@@ -181,7 +181,7 @@ index 0000000000..e636aea0aa
 +	struct iot2050_info *info = IOT2050_INFO_DATA;
 +
 +	return info->magic == IOT2050_INFO_MAGIC &&
-+		!strcmp((char *)info->name, "IOT2050-ADVANCED");
++		strstr((char *)info->name, "IOT2050-ADVANCED") != NULL;
 +}
 +
 +static bool board_is_sr1(void)
