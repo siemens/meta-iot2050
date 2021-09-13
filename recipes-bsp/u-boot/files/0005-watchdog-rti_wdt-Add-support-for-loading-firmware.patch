@@ -1,7 +1,7 @@
 From 347a9a85f50fcf95d8fddc5e85d3c2b3f443e960 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 21 Jun 2020 09:04:30 +0200
-Subject: [PATCH 5/9] watchdog: rti_wdt: Add support for loading firmware
+Subject: [PATCH 5/8] watchdog: rti_wdt: Add support for loading firmware
 
 To avoid the need of extra boot scripting on AM65x for loading a
 watchdog firmware, add the required rproc init and loading logic for the

@@ -1,7 +1,7 @@
 From 967e79b7cfaacfdf463b865b33433029aff0f9d6 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Thu, 27 May 2021 10:09:04 +0800
-Subject: [PATCH 8/9] sf: query the write protect status before operating the
+Subject: [PATCH 8/8] sf: query the write protect status before operating the
  device
 
 We need to query the write protect status before operating the device,
