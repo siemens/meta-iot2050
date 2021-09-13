@@ -1,4 +1,4 @@
-From 841a04398bc75c8dd7a83bd15972b2fbcb33539c Mon Sep 17 00:00:00 2001
+From d73a5ea673496131b8478859308e9f12d4c438e5 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 2 Jun 2021 08:56:15 +0200
 Subject: [PATCH 017/103] arm64: dts: ti: iot2050: Configure r5f cluster on

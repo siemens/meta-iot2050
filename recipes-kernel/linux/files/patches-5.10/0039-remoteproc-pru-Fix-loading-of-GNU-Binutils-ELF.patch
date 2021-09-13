@@ -1,4 +1,4 @@
-From 5ebb678fae540c469649d6325b1a0ab03cf005cb Mon Sep 17 00:00:00 2001
+From 74f1f0137b0dc47119f03920083b24b6d07c9cc9 Mon Sep 17 00:00:00 2001
 From: Dimitar Dimitrov <dimitar@dinux.eu>
 Date: Wed, 30 Dec 2020 12:50:05 +0200
 Subject: [PATCH 039/103] remoteproc: pru: Fix loading of GNU Binutils ELF

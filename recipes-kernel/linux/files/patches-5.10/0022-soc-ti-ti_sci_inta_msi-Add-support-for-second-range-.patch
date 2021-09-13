@@ -1,4 +1,4 @@
-From 7be82ebd6424dff4cc6395350ec92a797634dfcc Mon Sep 17 00:00:00 2001
+From 3ad8a348de3d87f0a47ad87b6088a922bd4d02d3 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:04 -0700
 Subject: [PATCH 022/103] soc: ti: ti_sci_inta_msi: Add support for second

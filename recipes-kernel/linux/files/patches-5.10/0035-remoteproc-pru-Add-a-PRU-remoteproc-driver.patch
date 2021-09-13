@@ -1,4 +1,4 @@
-From 07db0c3a32cf5fd91735a50a0c93477fbd8a7c56 Mon Sep 17 00:00:00 2001
+From f8f8c77fc640e76591c659ed34ce024c70f940c8 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:09:58 +0100
 Subject: [PATCH 035/103] remoteproc: pru: Add a PRU remoteproc driver

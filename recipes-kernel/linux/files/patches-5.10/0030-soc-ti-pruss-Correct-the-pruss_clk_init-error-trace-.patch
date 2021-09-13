@@ -1,4 +1,4 @@
-From 4515bf2aad2e263f0b5265d65b73a488ec38bd56 Mon Sep 17 00:00:00 2001
+From 09f68ee7d4a5be640db99ed9c56baa9cff032e98 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 24 Jan 2021 20:51:37 -0800
 Subject: [PATCH 030/103] soc: ti: pruss: Correct the pruss_clk_init error

@@ -1,4 +1,4 @@
-From b52cce59b807c7cf42c27943a0f40a331c28cef9 Mon Sep 17 00:00:00 2001
+From 7a3f7901ac78495fd2deeae885f91cfc784d015f Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:24 +0200
 Subject: [PATCH 001/103] dmaengine: ti: k3-udma-glue: Add function to get

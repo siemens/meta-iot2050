@@ -1,4 +1,4 @@
-From 090b183db1181bec21569f7f75aad650deba64c5 Mon Sep 17 00:00:00 2001
+From a70f71435aeb270461b903fbac329c5dbe5b8f53 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Jul 2021 21:19:38 +0200
 Subject: [PATCH 044/103] watchdog: Start watchdog in

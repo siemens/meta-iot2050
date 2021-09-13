@@ -1,4 +1,4 @@
-From ebb5b97d2b31f9c59064dba41d7f8b6d6691d9b9 Mon Sep 17 00:00:00 2001
+From 5fb3a0908b082e3a293b9e3aeb13ad1b627dc694 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 19 May 2021 19:31:36 +0300
 Subject: [PATCH 094/103] net: ethernet: ti: icssg_prueth: am65x SR2.0 add 10M

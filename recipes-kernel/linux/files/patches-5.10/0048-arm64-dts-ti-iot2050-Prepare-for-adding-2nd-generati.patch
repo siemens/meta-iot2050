@@ -1,4 +1,4 @@
-From 0027698996f25ae7e3eeb71a25971e3208895e0e Mon Sep 17 00:00:00 2001
+From fe440dc4af4e1455d7d8aeb593061561a53f1de0 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 7 Sep 2021 17:49:55 +0200
 Subject: [PATCH 048/103] arm64: dts: ti: iot2050: Prepare for adding
