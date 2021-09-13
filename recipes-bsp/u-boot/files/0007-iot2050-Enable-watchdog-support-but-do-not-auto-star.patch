@@ -1,7 +1,7 @@
-From 66c5d0139447b7e1ff43f61801283d04af5ff0a5 Mon Sep 17 00:00:00 2001
+From 1885b5e4c003cd9cf1af8dd07b0c8fa1d413e21f Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 19 Jun 2020 08:56:35 +0200
-Subject: [PATCH 7/7] iot2050: Enable watchdog support, but do not auto-start
+Subject: [PATCH 7/8] iot2050: Enable watchdog support, but do not auto-start
  it
 
 This allows to use the watchdog in custom scripts but does not enforce
@@ -94,5 +94,5 @@ index 4bc6fa63e2..9dfbdd4a7f 100644
 +CONFIG_WDT_K3_RTI_LOAD_FW=y
  CONFIG_OF_LIBFDT_OVERLAY=y
 -- 
-2.31.1
+2.32.0
 
