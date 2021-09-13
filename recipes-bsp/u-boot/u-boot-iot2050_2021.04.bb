@@ -19,7 +19,7 @@ SRC_URI += " \
     file://0005-watchdog-rti_wdt-Add-support-for-loading-firmware.patch \
     file://0006-watchdog-Allow-to-use-CONFIG_WDT-without-starting-wa.patch \
     file://0007-iot2050-Enable-watchdog-support-but-do-not-auto-star.patch \
-    file://0008-sf-query-the-write-protect-status-before-operating-t.patch \
+    file://0008-sf-Querying-write-protect-status-before-operating-th.patch \
     "
 
 SRC_URI[sha256sum] = "0d438b1bb5cceb57a18ea2de4a0d51f7be5b05b98717df05938636e0aadfe11a"
