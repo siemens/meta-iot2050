@@ -1,4 +1,4 @@
-From 318f62e69f35cd1e86094b309e888171aebd72b6 Mon Sep 17 00:00:00 2001
+From 41c8877104f451c3b5e2019c5b57faba0f89d20c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 21 Jun 2020 09:04:30 +0200
 Subject: [PATCH 5/8] watchdog: rti_wdt: Add support for loading firmware
