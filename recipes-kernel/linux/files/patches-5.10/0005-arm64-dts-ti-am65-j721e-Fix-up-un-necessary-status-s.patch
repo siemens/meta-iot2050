@@ -1,7 +1,7 @@
 From 7e6d0d38dbb9ecaec40c6bd114a190c3c70db701 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:24 -0600
-Subject: [PATCH 005/103] arm64: dts: ti: am65/j721e: Fix up un-necessary
+Subject: [PATCH 005/104] arm64: dts: ti: am65/j721e: Fix up un-necessary
  status set to "okay" for crypto
 
 The default state of a device tree node is "okay". There is no specific

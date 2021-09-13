@@ -1,7 +1,7 @@
 From e75c57ddd0d2dca8a719d1c7de1664692cceccb4 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:58:49 -0800
-Subject: [PATCH 032/103] soc: ti: k3-ringacc: Use of_device_get_match_data()
+Subject: [PATCH 032/104] soc: ti: k3-ringacc: Use of_device_get_match_data()
 
 Simplify the retrieval of getting the match data in the probe
 function by directly using of_device_get_match_data() instead

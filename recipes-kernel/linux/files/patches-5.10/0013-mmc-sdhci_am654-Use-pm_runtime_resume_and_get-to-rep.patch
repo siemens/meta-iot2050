@@ -1,7 +1,7 @@
 From 7dece4acefd346f3d91dac239f472fa677a03cc8 Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
-Subject: [PATCH 013/103] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
+Subject: [PATCH 013/104] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
  replace open coding
 
 use pm_runtime_resume_and_get() to replace pm_runtime_get_sync and
