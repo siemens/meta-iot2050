@@ -1,7 +1,7 @@
-From d3bf017ff471bfffdb4f8e29812e0b81db093d2c Mon Sep 17 00:00:00 2001
+From 14969c5e3b51cff6b46bb0cea3ae42d1f028de46 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 20 Apr 2021 13:17:30 +0530
-Subject: [PATCH 069/103] net: ethernet: ti: prueth: Add IEP driver
+Subject: [PATCH 069/104] net: ethernet: ti: prueth: Add IEP driver
 
 Add a driver for Industrial Ethernet Peripheral (IEP) block of PRUSS to
 support timestamping of ethernet packets and thus support PTP and PPS

@@ -1,7 +1,7 @@
-From ece2717dfe60efc411f45bbce6fd6cf407149bb3 Mon Sep 17 00:00:00 2001
+From 143dfa543c399ac80b6527145362808091796033 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 13:05:28 -0500
-Subject: [PATCH 057/103] remoteproc: Introduce deny_sysfs_ops flag
+Subject: [PATCH 057/104] remoteproc: Introduce deny_sysfs_ops flag
 
 The remoteproc framework provides sysfs interfaces for changing the
 firmware name and for starting/stopping a remote processor through

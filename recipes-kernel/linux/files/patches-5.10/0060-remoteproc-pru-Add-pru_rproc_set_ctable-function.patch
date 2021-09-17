@@ -1,7 +1,7 @@
-From 4c6786d8d25190ef1a25ad971387299e95935307 Mon Sep 17 00:00:00 2001
+From 012ca2186b2d53ef054262c302b57feece8dc3e5 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Fri, 26 Mar 2021 15:43:53 -0500
-Subject: [PATCH 060/103] remoteproc: pru: Add pru_rproc_set_ctable() function
+Subject: [PATCH 060/104] remoteproc: pru: Add pru_rproc_set_ctable() function
 
 Some firmwares expect the OS drivers to configure the CTABLE
 entries publishing dynamically allocated memory regions. For

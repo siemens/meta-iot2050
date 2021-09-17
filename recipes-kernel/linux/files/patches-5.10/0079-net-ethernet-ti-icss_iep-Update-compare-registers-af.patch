@@ -1,7 +1,7 @@
-From 728916eccc909837890055684897e8cadcf65032 Mon Sep 17 00:00:00 2001
+From 5ba507a117684a93de7e294dc5b7608bc2f5a724 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Thu, 29 Apr 2021 18:13:36 +0300
-Subject: [PATCH 079/103] net: ethernet: ti: icss_iep: Update compare registers
+Subject: [PATCH 079/104] net: ethernet: ti: icss_iep: Update compare registers
  after changing ptp clock time
 
 Consider the scenario where PPS is enabled, then iep set_time or adjust_time is

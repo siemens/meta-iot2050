@@ -1,7 +1,7 @@
-From 5856d386d9ca6753757162e54a5cbcf3700b8da5 Mon Sep 17 00:00:00 2001
+From 004e270e87b86c6c0a6baa796a85b9eed4995670 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:32:29 -0500
-Subject: [PATCH 058/103] remoteproc: pru: Add APIs to get and put the PRU
+Subject: [PATCH 058/104] remoteproc: pru: Add APIs to get and put the PRU
  cores
 
 Add two new APIs, pru_rproc_get() and pru_rproc_put(), to the PRU

@@ -1,7 +1,7 @@
-From f166ffd46c4198bd834b3ddb7cf4bad55914ffc9 Mon Sep 17 00:00:00 2001
+From 4453abfd5a3b492c3b05e4bb02ca123d78bf2ba7 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:58:00 -0500
-Subject: [PATCH 062/103] soc: ti: pruss: Add pruss_get()/put() API
+Subject: [PATCH 062/104] soc: ti: pruss: Add pruss_get()/put() API
 
 Add two new get and put API, pruss_get() and pruss_put() to the
 PRUSS platform driver to allow client drivers to request a handle

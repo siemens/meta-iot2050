@@ -1,7 +1,7 @@
-From 0675da2df623448679bbbb55be5f565348d1efdf Mon Sep 17 00:00:00 2001
+From 212a300213a7f1e594f664ec9c1f39bca941e556 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:28 +0300
-Subject: [PATCH 071/103] net: ethernet: ti: icss_iep: drop
+Subject: [PATCH 071/104] net: ethernet: ti: icss_iep: drop
  ICSS_IEP_CAPx_FALL_REGy
 
 ICSS_IEP_CAPx_FALL_REGy are not used, but cause indexation issues in

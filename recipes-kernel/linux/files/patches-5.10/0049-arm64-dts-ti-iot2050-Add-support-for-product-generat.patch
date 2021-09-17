@@ -1,7 +1,7 @@
-From d2b397098f7c151c6332e5d90e6f4dc27a9c257e Mon Sep 17 00:00:00 2001
+From da40c1cadf6dd6ae4b7baeefb5ee4bebe33b2485 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Jun 2021 11:04:56 +0200
-Subject: [PATCH 049/103] arm64: dts: ti: iot2050: Add support for product
+Subject: [PATCH 049/104] arm64: dts: ti: iot2050: Add support for product
  generation 2 boards
 
 This adds the devices trees for IOT2050 Product Generation 2 (PG2)
