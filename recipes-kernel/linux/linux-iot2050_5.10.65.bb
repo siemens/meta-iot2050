@@ -9,6 +9,6 @@ require linux-iot2050-5.10.inc
 
 KERNEL_SOURCE = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${PV}.tar.xz"
 
-SRC_URI[sha256sum] = "3eb84bd24a2de2b4749314e34597c02401c5d6831b055ed5224adb405c35e30a"
+SRC_URI[sha256sum] = "edd3dedbce5bcaa5ba7cde62f8f3fd58b2ab21e2ec427b9d200685da5ec03e66"
 
 S = "${WORKDIR}/linux-${PV}"
