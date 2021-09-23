@@ -1,4 +1,4 @@
-From fa3ba2612198610ed008354227adca643766846e Mon Sep 17 00:00:00 2001
+From 073c027d0e87d87b36ed3fd4719bfa18a1bd5bfb Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 11 May 2020 20:10:16 +0200
 Subject: [PATCH 3/8] board: siemens: Add support for SIMATIC IOT2050 devices
@@ -24,14 +24,14 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  board/siemens/iot2050/Kconfig     |  32 ++++
  board/siemens/iot2050/MAINTAINERS |   9 +
  board/siemens/iot2050/Makefile    |  10 ++
- board/siemens/iot2050/board.c     | 284 ++++++++++++++++++++++++++++++
+ board/siemens/iot2050/board.c     | 272 ++++++++++++++++++++++++++++++
  board/siemens/iot2050/config.mk   |   8 +
- configs/iot2050_defconfig         | 137 ++++++++++++++
+ configs/iot2050_defconfig         | 136 +++++++++++++++
  doc/board/index.rst               |   1 +
  doc/board/siemens/index.rst       |   9 +
- doc/board/siemens/iot2050.rst     |  78 ++++++++
+ doc/board/siemens/iot2050.rst     |  78 +++++++++
  include/configs/iot2050.h         |  62 +++++++
- 11 files changed, 631 insertions(+)
+ 11 files changed, 618 insertions(+)
  create mode 100644 board/siemens/iot2050/Kconfig
  create mode 100644 board/siemens/iot2050/MAINTAINERS
  create mode 100644 board/siemens/iot2050/Makefile
@@ -123,10 +123,10 @@ index 0000000000..619594ab8e
 +obj-y += board.o
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
 new file mode 100644
-index 0000000000..07e7370d08
+index 0000000000..b2110978ae
 --- /dev/null
 +++ b/board/siemens/iot2050/board.c
-@@ -0,0 +1,284 @@
+@@ -0,0 +1,272 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Board specific initialization for IOT2050
@@ -226,6 +226,16 @@ index 0000000000..07e7370d08
 +	env_set("board_a5e", info->a5e);
 +	env_set("fw_version", PLAIN_VERSION);
 +	env_set("seboot_version", info->seboot_version);
++
++	if (IS_ENABLED(CONFIG_NET)) {
++		/* set MAC addresses to ensure forwarding to the OS */
++		for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
++			if (is_valid_ethaddr(info->mac_addr[mac_cnt]))
++				eth_env_set_enetaddr_by_index("eth",
++							      mac_cnt + 1,
++							      info->mac_addr[mac_cnt]);
++		}
++	}
 +
 +	if (board_is_advanced()) {
 +		if (board_is_sr1())
@@ -369,28 +379,6 @@ index 0000000000..07e7370d08
 +{
 +}
 +
-+/* RJ45 LED configuration */
-+#define DP83867_DEVADDR			0x1f
-+
-+#define DP83867_LEDCR_1			0x0018
-+
-+#define DP83867_LED_1000_BT_LINK	0x5
-+#define DP83867_LED_100_BTX_LINK	0x6
-+#define DP83867_LED_LINK_BLINK_ACTIVE	0xb
-+#define DP83867_LED_SET(n, v)		((v) << ((n) * 4))
-+
-+#define DP83867_LED_SETTINGS \
-+	(DP83867_LED_SET(0, DP83867_LED_LINK_BLINK_ACTIVE) | \
-+	 DP83867_LED_SET(1, DP83867_LED_1000_BT_LINK) | \
-+	 DP83867_LED_SET(2, DP83867_LED_100_BTX_LINK) | \
-+	 DP83867_LED_SET(3, DP83867_LED_100_BTX_LINK))
-+
-+int board_phy_config(struct phy_device *phydev)
-+{
-+	return phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_LEDCR_1,
-+			     DP83867_LED_SETTINGS);
-+}
-+
 +#if CONFIG_IS_ENABLED(LED) && CONFIG_IS_ENABLED(BOOTSTAGE)
 +/*
 + * Indicate any error or (accidental?) entering of CLI via the red status LED.
@@ -427,10 +415,10 @@ index 0000000000..267ec76c4e
 +flash.bin: all
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
 new file mode 100644
-index 0000000000..4bc6fa63e2
+index 0000000000..82a8a48ee0
 --- /dev/null
 +++ b/configs/iot2050_defconfig
-@@ -0,0 +1,137 @@
+@@ -0,0 +1,136 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_K3=y
 +CONFIG_SPL_GPIO_SUPPORT=y
@@ -484,7 +472,6 @@ index 0000000000..4bc6fa63e2
 +CONFIG_CMD_REMOTEPROC=y
 +CONFIG_CMD_USB=y
 +# CONFIG_CMD_SETEXPR is not set
-+# CONFIG_CMD_NET is not set
 +CONFIG_CMD_TIME=y
 +# CONFIG_ISO_PARTITION is not set
 +CONFIG_OF_CONTROL=y

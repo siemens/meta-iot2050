@@ -1,4 +1,4 @@
-From 2bab35be7fe49e99341f6addbc290702aa4becbc Mon Sep 17 00:00:00 2001
+From 127ad94ae5665d87cb6def61cb59335287b630fa Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 19 Jun 2020 08:56:35 +0200
 Subject: [PATCH 7/8] iot2050: Enable watchdog support, but do not auto-start
@@ -9,32 +9,36 @@ that the OS has to support it as well.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 22 ++++++++++++++++++++
- configs/iot2050_defconfig                    |  6 ++++++
- 2 files changed, 28 insertions(+)
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 25 ++++++++++++++++++++
+ configs/iot2050_defconfig                    |  6 +++++
+ tools/binman/missing-blob-help               |  5 ++++
+ 3 files changed, 36 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 1e02cece6c..a6ccac04de 100644
+index 1e02cece6c..69479d7b18 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-@@ -80,6 +80,16 @@
+@@ -80,6 +80,19 @@
  						filename = "arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dtb";
  					};
  				};
 +
 +#ifdef CONFIG_WDT_K3_RTI_FW_FILE
 +				k3-rti-wdt-firmware {
-+					type = "blob";
++					type = "firmware";
 +					load = <0x82000000>;
-+					blob {
++					arch = "arm";
++					compression = "none";
++					blob-ext {
 +						filename = CONFIG_WDT_K3_RTI_FW_FILE;
++						missing-msg = "k3-rti-wdt-firmware";
 +					};
 +				};
 +#endif
  			};
  
  			configurations {
-@@ -89,24 +99,36 @@
+@@ -89,24 +102,36 @@
  					description = "iot2050-basic";
  					firmware = "u-boot";
  					fdt = "fdt-iot2050-basic";
@@ -72,7 +76,7 @@ index 1e02cece6c..a6ccac04de 100644
  			};
  		};
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
-index 4bc6fa63e2..9dfbdd4a7f 100644
+index 82a8a48ee0..ffbce3264d 100644
 --- a/configs/iot2050_defconfig
 +++ b/configs/iot2050_defconfig
 @@ -50,6 +50,7 @@ CONFIG_CMD_MMC=y
@@ -81,9 +85,9 @@ index 4bc6fa63e2..9dfbdd4a7f 100644
  CONFIG_CMD_USB=y
 +CONFIG_CMD_WDT=y
  # CONFIG_CMD_SETEXPR is not set
- # CONFIG_CMD_NET is not set
  CONFIG_CMD_TIME=y
-@@ -134,4 +135,9 @@ CONFIG_USB_XHCI_DWC3=y
+ # CONFIG_ISO_PARTITION is not set
+@@ -133,4 +134,9 @@ CONFIG_USB_XHCI_DWC3=y
  CONFIG_USB_DWC3=y
  CONFIG_USB_DWC3_GENERIC=y
  CONFIG_USB_KEYBOARD=y
@@ -93,6 +97,19 @@ index 4bc6fa63e2..9dfbdd4a7f 100644
 +CONFIG_WDT_K3_RTI=y
 +CONFIG_WDT_K3_RTI_LOAD_FW=y
  CONFIG_OF_LIBFDT_OVERLAY=y
+diff --git a/tools/binman/missing-blob-help b/tools/binman/missing-blob-help
+index f7bc80ea83..dc2d9c9811 100644
+--- a/tools/binman/missing-blob-help
++++ b/tools/binman/missing-blob-help
+@@ -17,3 +17,8 @@ board/sunxi/README.sunxi64
+ scp-sunxi:
+ SCP firmware is required for system suspend, but is otherwise optional.
+ Please read the section on SCP firmware in board/sunxi/README.sunxi64
++
++k3-rti-wdt-firmware:
++If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
++the R5F core(s) to trigger the system reset. One possible source is
++https://github.com/siemens/k3-rti-wdt.
 -- 
 2.31.1
 

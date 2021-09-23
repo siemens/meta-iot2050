@@ -1,4 +1,4 @@
-From 605cf79343bb34c53b3315f1b7610aefcb100af3 Mon Sep 17 00:00:00 2001
+From 6685cfd1b25dd18458dfb085d3ee7b7908df4c53 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 30 Nov 2020 10:13:04 +0100
 Subject: [PATCH 2/8] arm: dts: Add IOT2050 device tree files
@@ -10,7 +10,7 @@ files needed. Furthermore, the SPL has its own device tree.
 
 Based on original board support by Le Jin, Gao Nian and Chao Zeng.
 
-[backport, filtering out not yet supported nodes]
+[backported, filtering out not yet supported nodes]
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
@@ -19,15 +19,15 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  arch/arm/dts/k3-am65-iot2050-common-pg1.dtsi  |  22 +
  arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi  |  51 ++
  .../dts/k3-am65-iot2050-common-u-boot.dtsi    |  99 +++
- arch/arm/dts/k3-am65-iot2050-common.dtsi      | 699 ++++++++++++++++++
+ arch/arm/dts/k3-am65-iot2050-common.dtsi      | 721 ++++++++++++++++++
  arch/arm/dts/k3-am65-iot2050-spl.dts          |  17 +
  .../dts/k3-am6528-iot2050-basic-common.dtsi   |  63 ++
- arch/arm/dts/k3-am6528-iot2050-basic-pg2.dts  |  21 +
- arch/arm/dts/k3-am6528-iot2050-basic.dts      |  21 +
+ arch/arm/dts/k3-am6528-iot2050-basic-pg2.dts  |  24 +
+ arch/arm/dts/k3-am6528-iot2050-basic.dts      |  24 +
  .../k3-am6548-iot2050-advanced-common.dtsi    |  59 ++
- .../dts/k3-am6548-iot2050-advanced-pg2.dts    |  26 +
- arch/arm/dts/k3-am6548-iot2050-advanced.dts   |  21 +
- 13 files changed, 1255 insertions(+), 1 deletion(-)
+ .../dts/k3-am6548-iot2050-advanced-pg2.dts    |  29 +
+ arch/arm/dts/k3-am6548-iot2050-advanced.dts   |  24 +
+ 13 files changed, 1289 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
  create mode 100644 arch/arm/dts/k3-am65-iot2050-common-pg1.dtsi
  create mode 100644 arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
@@ -245,7 +245,7 @@ index 0000000000..5d18401f9f
 +};
 diff --git a/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi b/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
 new file mode 100644
-index 0000000000..2323628b04
+index 0000000000..c25bce7339
 --- /dev/null
 +++ b/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
 @@ -0,0 +1,51 @@
@@ -261,7 +261,7 @@ index 0000000000..2323628b04
 + */
 +
 +&main_pmx0 {
-+	cp2102n_reset_pin_default: cp2102n_reset_pin_default {
++	cp2102n_reset_pin_default: cp2102n-reset-pin-default {
 +		pinctrl-single,pins = <
 +			/* (AF12) GPIO1_24, used as cp2102 reset */
 +			AM65X_IOPAD(0x01e0, PIN_OUTPUT, 7)
@@ -407,10 +407,10 @@ index 0000000000..88c36fcf43
 +};
 diff --git a/arch/arm/dts/k3-am65-iot2050-common.dtsi b/arch/arm/dts/k3-am65-iot2050-common.dtsi
 new file mode 100644
-index 0000000000..bfef3e044c
+index 0000000000..c28c440b8e
 --- /dev/null
 +++ b/arch/arm/dts/k3-am65-iot2050-common.dtsi
-@@ -0,0 +1,699 @@
+@@ -0,0 +1,721 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Siemens AG, 2018-2021
@@ -1064,11 +1064,21 @@ index 0000000000..bfef3e044c
 +};
 +
 +&mailbox0_cluster0 {
-+	status = "disabled";
++	interrupts = <436>;
++
++	mbox_mcu_r5fss0_core0: mbox-mcu-r5fss0-core0 {
++		ti,mbox-tx = <1 0 0>;
++		ti,mbox-rx = <0 0 0>;
++	};
 +};
 +
 +&mailbox0_cluster1 {
-+	status = "disabled";
++	interrupts = <432>;
++
++	mbox_mcu_r5fss0_core1: mbox-mcu-r5fss0-core1 {
++		ti,mbox-tx = <1 0 0>;
++		ti,mbox-rx = <0 0 0>;
++	};
 +};
 +
 +&mailbox0_cluster2 {
@@ -1109,6 +1119,18 @@ index 0000000000..bfef3e044c
 +
 +&mailbox0_cluster11 {
 +	status = "disabled";
++};
++
++&mcu_r5fss0_core0 {
++	memory-region = <&mcu_r5fss0_core0_dma_memory_region>,
++			<&mcu_r5fss0_core0_memory_region>;
++	mboxes = <&mailbox0_cluster0 &mbox_mcu_r5fss0_core0>;
++};
++
++&mcu_r5fss0_core1 {
++	memory-region = <&mcu_r5fss0_core1_dma_memory_region>,
++			<&mcu_r5fss0_core1_memory_region>;
++	mboxes = <&mailbox0_cluster1 &mbox_mcu_r5fss0_core1>;
 +};
 diff --git a/arch/arm/dts/k3-am65-iot2050-spl.dts b/arch/arm/dts/k3-am65-iot2050-spl.dts
 new file mode 100644
@@ -1204,10 +1226,10 @@ index 0000000000..0d215b4d66
 +};
 diff --git a/arch/arm/dts/k3-am6528-iot2050-basic-pg2.dts b/arch/arm/dts/k3-am6528-iot2050-basic-pg2.dts
 new file mode 100644
-index 0000000000..5ce609dd49
+index 0000000000..c62549a4b4
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6528-iot2050-basic-pg2.dts
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,24 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Siemens AG, 2018-2021
@@ -1218,6 +1240,9 @@ index 0000000000..5ce609dd49
 + *
 + * AM6528-based (dual-core) IOT2050 Basic variant, Product Generation 2
 + * 1 GB RAM, no eMMC, main_uart0 on connector X30
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
 + */
 +
 +/dts-v1/;
@@ -1231,10 +1256,10 @@ index 0000000000..5ce609dd49
 +};
 diff --git a/arch/arm/dts/k3-am6528-iot2050-basic.dts b/arch/arm/dts/k3-am6528-iot2050-basic.dts
 new file mode 100644
-index 0000000000..368a25d449
+index 0000000000..87928ff282
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6528-iot2050-basic.dts
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,24 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Siemens AG, 2018-2021
@@ -1245,6 +1270,9 @@ index 0000000000..368a25d449
 + *
 + * AM6528-based (dual-core) IOT2050 Basic variant, Product Generation 1
 + * 1 GB RAM, no eMMC, main_uart0 on connector X30
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
 + */
 +
 +/dts-v1/;
@@ -1323,10 +1351,10 @@ index 0000000000..816a4cb4a6
 +};
 diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dts
 new file mode 100644
-index 0000000000..066390616b
+index 0000000000..f00dc86d01
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dts
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,29 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Siemens AG, 2018-2021
@@ -1337,6 +1365,9 @@ index 0000000000..066390616b
 + *
 + * AM6548-based (quad-core) IOT2050 Advanced variant, Product Generation 2
 + * 2 GB RAM, 16 GB eMMC, USB-serial converter on connector X30
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
 + */
 +
 +/dts-v1/;
@@ -1355,10 +1386,10 @@ index 0000000000..066390616b
 +};
 diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced.dts b/arch/arm/dts/k3-am6548-iot2050-advanced.dts
 new file mode 100644
-index 0000000000..7ee5e4942c
+index 0000000000..077f165bdc
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6548-iot2050-advanced.dts
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,24 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Siemens AG, 2018-2021
@@ -1369,6 +1400,9 @@ index 0000000000..7ee5e4942c
 + *
 + * AM6548-based (quad-core) IOT2050 Advanced variant, Product Generation 1
 + * 2 GB RAM, 16 GB eMMC, USB-serial converter on connector X30
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
 + */
 +
 +/dts-v1/;

@@ -13,7 +13,7 @@ KERNEL_SOURCE = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${KERNEL_BAS
 SRC_URI[sha256sum] = "333cadc15f23e2060bb9701dbd9c23cfb196c528cded797329a0c369c2b6ea80"
 
 SRC_URI += " \
-    https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt/5.10/patch-${PV}.patch.xz;sha256sum=bdf17a434c40f21f69cd60028e36347ebdbad76359e98ae8c6c9de2b6df8c644 \
+    https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt/5.10/older/patch-${PV}.patch.xz;sha256sum=bdf17a434c40f21f69cd60028e36347ebdbad76359e98ae8c6c9de2b6df8c644 \
     file://iot2050-rt.cfg"
 
 S = "${WORKDIR}/linux-${KERNEL_BASE_VER}"

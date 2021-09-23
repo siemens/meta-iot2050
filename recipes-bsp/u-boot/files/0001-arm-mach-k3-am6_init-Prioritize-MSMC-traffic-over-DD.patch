@@ -1,4 +1,4 @@
-From 9df7c3c562514af966b3d27a873e10468031af82 Mon Sep 17 00:00:00 2001
+From 1438d1bfbdd163f29db3c1d1c0e0c1a075896b1c Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Wed, 8 Sep 2021 22:28:59 +0200
 Subject: [PATCH 1/8] arm: mach-k3: am6_init: Prioritize MSMC traffic over DDR
