@@ -1,7 +1,7 @@
-From 6f43edea2ec02b39b92453bc012e82c4c327782e Mon Sep 17 00:00:00 2001
+From 0c2bb1f89117c59f68e91d99b56d89ffd2a376b1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 Date: Tue, 9 Mar 2021 14:26:56 +0100
-Subject: [PATCH 6/8] watchdog: Allow to use CONFIG_WDT without starting
+Subject: [PATCH 6/9] watchdog: Allow to use CONFIG_WDT without starting
  watchdog
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,5 +68,5 @@ index 28f7918c46..01e5fa47e8 100644
  	gd->flags |= GD_FLG_WDT_READY;
  	printf("WDT:   Started with%s servicing (%ds timeout)\n",
 -- 
-2.31.1
+2.32.0
 

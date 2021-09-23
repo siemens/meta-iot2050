@@ -1,7 +1,7 @@
-From 127ad94ae5665d87cb6def61cb59335287b630fa Mon Sep 17 00:00:00 2001
+From 88dc18b97e06f2ec88c5f4f9d6ef03baa257211a Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 19 Jun 2020 08:56:35 +0200
-Subject: [PATCH 7/8] iot2050: Enable watchdog support, but do not auto-start
+Subject: [PATCH 7/9] iot2050: Enable watchdog support, but do not auto-start
  it
 
 This allows to use the watchdog in custom scripts but does not enforce
@@ -111,5 +111,5 @@ index f7bc80ea83..dc2d9c9811 100644
 +the R5F core(s) to trigger the system reset. One possible source is
 +https://github.com/siemens/k3-rti-wdt.
 -- 
-2.31.1
+2.32.0
 
