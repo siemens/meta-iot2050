@@ -26,7 +26,7 @@ class ansicolors:
 class TopMenu:
     def __init__(self):
         self.gscreen = SnackScreen()
-        self.boardType = subprocess.check_output('grep -a -o -P "IOT2050 .*" /proc/device-tree/model',
+        self.boardType = subprocess.check_output('grep -a -o -P "IOT2050[\w\s]+" /proc/device-tree/model',
                                                  shell=True).lstrip().rstrip().decode('utf-8')
 
     def show(self):
@@ -496,11 +496,11 @@ class PeripheralsMenu:
             return
         terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
         subprocess.call('switchserialmode -m ' + switchMode + terminateOpt, shell=True)
-        if self.topmenu.boardType == 'IOT2050 Advanced PG2':
-            subprocess.call('switchserialmode -r ', shell=True)
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
+        if self.topmenu.boardType == 'IOT2050 Advanced PG2':
+            subprocess.call('switchserialmode -r', shell=True)
 
     def currentMode(self):
         mode = self.config['User_configuration']['External_Serial_Current_Mode']
