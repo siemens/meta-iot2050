@@ -1,0 +1,38 @@
+From ccb066ecd608cfea2990e05b260a05501287539a Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Sun, 26 Sep 2021 10:54:21 +0800
+Subject: [PATCH 105/105] arm64:dts:ti:iot2050:modify the usb related dts
+ configure
+
+As there are some incorrect dts configurations for usb port.
+it needs to re-correct it.
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
+index 2323628b0444..80e3610be1fa 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
+@@ -44,8 +44,15 @@ &dwc3_0 {
+ 	phy-names = "usb3-phy";
+ };
+ 
+-&usb0_phy {
++&usb0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb0_pins_default>;
++	dr_mode = "host";
+ 	maximum-speed = "super-speed";
+ 	snps,dis-u1-entry-quirk;
+ 	snps,dis-u2-entry-quirk;
+ };
++
++&usb0_phy {
++	status = "okay";
++};
+-- 
+2.32.0
+

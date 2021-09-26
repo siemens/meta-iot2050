@@ -1,7 +1,7 @@
-From 77148768c1ca36782540b068bdfb8e7b7632fcc7 Mon Sep 17 00:00:00 2001
+From 7f588fdf5a77c54ac74903d56cda1c086eba565e Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
-Subject: [PATCH 021/104] firmware: ti_sci: rm: Add support for second resource
+Subject: [PATCH 021/105] firmware: ti_sci: rm: Add support for second resource
  range
 
 Sysfw added support for a second range in the resource range API to be able
@@ -174,5 +174,5 @@ index 6cd537db4d33..9699b260de59 100644
  };
  
 -- 
-2.31.1
+2.32.0
 

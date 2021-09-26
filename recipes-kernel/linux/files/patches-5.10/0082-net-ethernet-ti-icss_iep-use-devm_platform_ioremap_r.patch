@@ -1,7 +1,7 @@
-From ce0c55790d6e7429cdbbe52e68c5efff3027c0c8 Mon Sep 17 00:00:00 2001
+From 55857dca1e991d3a888255c08ab77f9bb7ad97cb Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:39 +0300
-Subject: [PATCH 082/104] net: ethernet: ti: icss_iep: use
+Subject: [PATCH 082/105] net: ethernet: ti: icss_iep: use
  devm_platform_ioremap_resource
 
 Use devm_platform_ioremap_resource() in probe to simplify code.
@@ -35,5 +35,5 @@ index 08b456f0bc12..640f483854d0 100644
  		return -ENODEV;
  
 -- 
-2.31.1
+2.32.0
 

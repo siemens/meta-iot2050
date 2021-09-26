@@ -1,7 +1,7 @@
-From 863ec9f27fa24721a1fd5c2ecbea7f8b3cec59dc Mon Sep 17 00:00:00 2001
+From fdabaa813450cabfb54c1b47d97483c143bdbd5e Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:34 +0300
-Subject: [PATCH 077/104] net: ethernet: ti: icss_iep: use readl/writel in
+Subject: [PATCH 077/105] net: ethernet: ti: icss_iep: use readl/writel in
  cap_cmp_handler
 
 Use readl/writel in cap_cmp_handler and timer handler instead of regmap
@@ -102,5 +102,5 @@ index b39d4c08c6c9..e2663dd5cf38 100644
  	return HRTIMER_NORESTART;
  }
 -- 
-2.31.1
+2.32.0
 
