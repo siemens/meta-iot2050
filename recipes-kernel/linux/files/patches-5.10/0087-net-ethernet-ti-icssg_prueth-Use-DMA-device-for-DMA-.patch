@@ -1,4 +1,4 @@
-From 697cda9e51db3253bf5933d8eaa6f2a7d5c2bb63 Mon Sep 17 00:00:00 2001
+From 98dd46caaa1f2df7a6389dc584d60c94b14f3fc6 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:25 +0300
 Subject: [PATCH 087/104] net: ethernet: ti: icssg_prueth: Use DMA device for

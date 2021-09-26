@@ -1,4 +1,4 @@
-From 09502d0b37bd2c91cebfdd9b4451fc8a28ed3f36 Mon Sep 17 00:00:00 2001
+From eaf14682c7e545e897968d32b9552e4162774a50 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:24 +0300
 Subject: [PATCH 086/104] net: ethernet: ti: icssg_prueth: add 10M full duplex

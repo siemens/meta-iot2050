@@ -1,4 +1,4 @@
-From 012ca2186b2d53ef054262c302b57feece8dc3e5 Mon Sep 17 00:00:00 2001
+From 62255f5c519ecf01ac4cd4f76c1647884d2fadb4 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Fri, 26 Mar 2021 15:43:53 -0500
 Subject: [PATCH 060/104] remoteproc: pru: Add pru_rproc_set_ctable() function
