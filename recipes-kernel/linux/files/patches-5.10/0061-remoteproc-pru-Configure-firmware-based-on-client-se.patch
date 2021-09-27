@@ -1,4 +1,4 @@
-From 47fbe25296c2aedd8984013ceddc224d9642b516 Mon Sep 17 00:00:00 2001
+From 3b6f5e3b257ee95ef065fd774ba01b4e21b1f474 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:50:14 -0500
 Subject: [PATCH 061/104] remoteproc: pru: Configure firmware based on client

@@ -1,4 +1,4 @@
-From 19d6c003c45deb30105b30c85c7428d9a700bfd8 Mon Sep 17 00:00:00 2001
+From ccb6f8b8bcf23b254fae4d1f0b51265bf5d0ead0 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Mon, 21 Jun 2021 15:47:49 +0530
 Subject: [PATCH 095/104] net: ti: icssg_prueth: Free desc pool before DMA

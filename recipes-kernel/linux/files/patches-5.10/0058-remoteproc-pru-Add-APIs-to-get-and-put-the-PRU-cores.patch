@@ -1,4 +1,4 @@
-From 004e270e87b86c6c0a6baa796a85b9eed4995670 Mon Sep 17 00:00:00 2001
+From 8fa387356193dd3f8dcd96889962d044e711ceb2 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:32:29 -0500
 Subject: [PATCH 058/104] remoteproc: pru: Add APIs to get and put the PRU
