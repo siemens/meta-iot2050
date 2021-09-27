@@ -1,4 +1,4 @@
-From 53678fa87a34d25272d5fe19a21397cf0d39afe6 Mon Sep 17 00:00:00 2001
+From 05b0710049c12c114b73e7850a81e3fcf75eed68 Mon Sep 17 00:00:00 2001
 From: Chao Zeng <chao.zeng@siemens.com>
 Date: Tue, 22 Jun 2021 13:21:26 +0800
 Subject: [PATCH 8/8] sf: Querying write-protect status before operating the

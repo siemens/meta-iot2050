@@ -1,4 +1,4 @@
-From 6685cfd1b25dd18458dfb085d3ee7b7908df4c53 Mon Sep 17 00:00:00 2001
+From e5fcae48800cc368eb26b917e9349b9ea53ebaa1 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 30 Nov 2020 10:13:04 +0100
 Subject: [PATCH 2/8] arm: dts: Add IOT2050 device tree files
@@ -17,7 +17,8 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  arch/arm/dts/Makefile                         |   9 +-
  arch/arm/dts/k3-am65-iot2050-boot-image.dtsi  | 148 ++++
  arch/arm/dts/k3-am65-iot2050-common-pg1.dtsi  |  22 +
- arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi  |  51 ++
+ .../k3-am65-iot2050-common-pg2-u-boot.dtsi    |  27 +
+ arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi  |  53 ++
  .../dts/k3-am65-iot2050-common-u-boot.dtsi    |  99 +++
  arch/arm/dts/k3-am65-iot2050-common.dtsi      | 721 ++++++++++++++++++
  arch/arm/dts/k3-am65-iot2050-spl.dts          |  17 +
@@ -27,9 +28,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  .../k3-am6548-iot2050-advanced-common.dtsi    |  59 ++
  .../dts/k3-am6548-iot2050-advanced-pg2.dts    |  29 +
  arch/arm/dts/k3-am6548-iot2050-advanced.dts   |  24 +
- 13 files changed, 1289 insertions(+), 1 deletion(-)
+ 14 files changed, 1318 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
  create mode 100644 arch/arm/dts/k3-am65-iot2050-common-pg1.dtsi
+ create mode 100644 arch/arm/dts/k3-am65-iot2050-common-pg2-u-boot.dtsi
  create mode 100644 arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
  create mode 100644 arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
  create mode 100644 arch/arm/dts/k3-am65-iot2050-common.dtsi
@@ -243,12 +245,45 @@ index 0000000000..5d18401f9f
 +&sdhci1 {
 +	no-1-8-v;
 +};
+diff --git a/arch/arm/dts/k3-am65-iot2050-common-pg2-u-boot.dtsi b/arch/arm/dts/k3-am65-iot2050-common-pg2-u-boot.dtsi
+new file mode 100644
+index 0000000000..64dddce648
+--- /dev/null
++++ b/arch/arm/dts/k3-am65-iot2050-common-pg2-u-boot.dtsi
+@@ -0,0 +1,27 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) Siemens AG, 2018-2021
++ *
++ * Authors:
++ *   Chao Zeng <chao.zeng@siemens.com>
++ *
++ * U-Boot bits of the IOT2050 Advanced PG2 variants
++ * (downgrade of usb0 to USB 2.0 mode)
++ */
++
++&serdes0 {
++	status = "disabled";
++};
++
++&dwc3_0 {
++	assigned-clock-parents = <&k3_clks 151 4>,	/* set REF_CLK to 20MHz i.e. PER0_PLL/48 */
++				 <&k3_clks 151 9>;	/* set PIPE3_TXB_CLK to CLK_12M_RC/256 (for HS only) */
++	/delete-property/ phys;
++	/delete-property/ phy-names;
++};
++
++&usb0 {
++	maximum-speed = "high-speed";
++	/delete-property/ snps,dis-u1-entry-quirk;
++	/delete-property/ snps,dis-u2-entry-quirk;
++};
 diff --git a/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi b/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
 new file mode 100644
-index 0000000000..c25bce7339
+index 0000000000..e7e0ca4159
 --- /dev/null
 +++ b/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,53 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (c) Siemens AG, 2021
@@ -295,11 +330,13 @@ index 0000000000..c25bce7339
 +	phy-names = "usb3-phy";
 +};
 +
-+&usb0_phy {
++&usb0 {
 +	maximum-speed = "super-speed";
 +	snps,dis-u1-entry-quirk;
 +	snps,dis-u2-entry-quirk;
 +};
++
++#include "k3-am65-iot2050-common-pg2-u-boot.dtsi"
 diff --git a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
 new file mode 100644
 index 0000000000..88c36fcf43
