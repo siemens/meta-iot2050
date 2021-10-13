@@ -19,8 +19,6 @@ Type=simple
 RemainAfterExit=yes
 ExecStart=/usr/share/regen-rootfs-uuid/regen-rootfs-uuid.sh
 ExecStartPost=-/bin/systemctl disable regen-rootfs-uuid-on-first-boot.service
-StandardOutput=syslog
-StandardError=syslog
 
 [Install]
 WantedBy=sysinit.target

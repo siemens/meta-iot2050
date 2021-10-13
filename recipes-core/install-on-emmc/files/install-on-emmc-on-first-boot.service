@@ -16,8 +16,8 @@ Before=systemd-remount-fs.service shutdown.target
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/share/install-on-emmc/install-on-emmc.sh
-StandardOutput=syslog+console
-StandardError=syslog+console
+StandardOutput=journal+console
+StandardError=journal+console
 
 [Install]
 WantedBy=systemd-remount-fs.service
