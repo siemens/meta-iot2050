@@ -15,6 +15,7 @@ WKS_FILE = "iot2050-swu.wks.in"
 IMAGE_INSTALL += "swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
+IMAGE_INSTALL += "iot2050-watchdog"
 
 IMAGE_INSTALL += "data-partition"
 
