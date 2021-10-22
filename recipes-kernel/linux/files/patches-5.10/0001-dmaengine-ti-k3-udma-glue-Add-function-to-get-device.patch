@@ -1,7 +1,7 @@
-From 7a3f7901ac78495fd2deeae885f91cfc784d015f Mon Sep 17 00:00:00 2001
+From f91d9ec0fd20c299ec830a552a251df5ee795068 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:24 +0200
-Subject: [PATCH 001/104] dmaengine: ti: k3-udma-glue: Add function to get
+Subject: [PATCH 001/108] dmaengine: ti: k3-udma-glue: Add function to get
  device pointer for DMA API
 
 Glue layer users should use the device of the DMA for DMA mapping and
@@ -99,5 +99,5 @@ index 5eb34ad973a7..d7c12f31377c 100644
  
  #endif /* K3_UDMA_GLUE_H_ */
 -- 
-2.31.1
+2.32.0
 

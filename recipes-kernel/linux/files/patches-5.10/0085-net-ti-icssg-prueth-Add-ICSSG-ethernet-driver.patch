@@ -1,7 +1,7 @@
-From c3be05c640f3ac35f0349ab0f861d3c552f0bd57 Mon Sep 17 00:00:00 2001
+From f8c1f99e3f97ff4ea2eb9b50ceb81df9e1bca8a0 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 18 May 2021 23:37:23 +0300
-Subject: [PATCH 085/104] net: ti: icssg-prueth: Add ICSSG ethernet driver
+Subject: [PATCH 085/108] net: ti: icssg-prueth: Add ICSSG ethernet driver
 
 This is the Ethernet driver for TI SoCs with the
 ICSSG PRU Sub-system running dual-EMAC firmware.
@@ -4497,5 +4497,5 @@ index 5fdd6f03446d..2a034c08b4c2 100644
  /*
   * enum pruss_gp_mux_sel - PRUSS GPI/O Mux modes for the
 -- 
-2.31.1
+2.32.0
 
