@@ -29,13 +29,18 @@ set -e
 
 usage()
 {
-	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] KASFILE\n"
-	printf "%b" "       $0 [OPTIONS] for-all-repos KASFILE COMMAND\n"
+	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] [KASFILE]\n"
+	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
+	printf "%b" "       $0 [OPTIONS] menu [KCONFIG]\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
+	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
 	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
+	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
 	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
+	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
+		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
 	printf "%b" "--with-loop-dev		Pass a loop device to the " \
@@ -83,7 +88,7 @@ enable_isar_mode() {
 	fi
 }
 
-KAS_IMAGE_VERSION_DEFAULT="2.5"
+KAS_IMAGE_VERSION_DEFAULT="2.6.3"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
 
@@ -96,7 +101,10 @@ set_container_image_var() {
 }
 
 KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR:-$(pwd)}")
+# KAS_WORK_DIR needs to exist for the subsequent code
+trace mkdir -p "${KAS_WORK_DIR}"
 KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
+trace mkdir -p "${KAS_BUILD_DIR}"
 
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
@@ -179,12 +187,12 @@ while [ $# -gt 0 ]; do
 		KAS_NO_PROXY_FROM_ENV=1
 		shift 1
 		;;
-    --repo-ro)
-        KAS_REPO_MOUNT_OPT="ro"
+	--repo-ro)
+		KAS_REPO_MOUNT_OPT="ro"
 		shift 1
 		;;
-    --repo-rw)
-        KAS_REPO_MOUNT_OPT="rw"
+	--repo-rw)
+		KAS_REPO_MOUNT_OPT="rw"
 		shift 1
 		;;
 	-v | -d)
@@ -220,7 +228,7 @@ while [ $# -gt 0 ]; do
 		shift 1
 		break
 		;;
-	build|checkout|for-all-repos)
+	build|checkout|for-all-repos|menu)
 		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
@@ -236,7 +244,7 @@ done
 
 KAS_EXTRA_BITBAKE_ARGS=0
 
-# parse kas sub-command (build or shell) options
+# parse kas sub-command options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
 	-h|--help)
@@ -286,27 +294,42 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	esac
 done
 
-[ -n "${KAS_FIRST_FILE}" ] || usage
+if [ -n "${KAS_FIRST_FILE}" ]; then
+	KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
+	KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
+		|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
+		|| KAS_REPO_DIR=${KAS_FILE_DIR}
+else
+	KAS_REPO_DIR=$(pwd)
+fi
 
-BUILD_SYSTEM=$(grep -e "^build_system: " "${KAS_FIRST_FILE}" 2>/dev/null | sed 's/build_system:[ ]\+//')
+if [ "${KAS_CMD}" = "menu" ]; then
+	if [ -z "${KAS_FIRST_FILE}" ]; then
+		KAS_FIRST_FILE="Kconfig"
+	fi
+
+	BUILD_SYSTEM=$(tr '\n' '\f' 2>/dev/null < ${KAS_FIRST_FILE} | \
+		sed -e 's/\(.*\fconfig KAS_BUILD_SYSTEM\f\(.*\)\|.*\)/\2/' \
+		    -e 's/\f\([[:alpha:]].*\|$\)//' \
+		    -e 's/.*default \"\(.*\)\".*/\1/')
+else
+	if [ -z "${KAS_FIRST_FILE}" ]; then
+		KAS_FIRST_FILE="${KAS_WORK_DIR}/.config.yaml"
+	fi
+
+	BUILD_SYSTEM=$(grep -e "^build_system: " "${KAS_FIRST_FILE}" 2>/dev/null | \
+		sed 's/build_system:[ ]\+//')
+fi
+
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
 	enable_isar_mode
 fi
 
 set_container_image_var
 
-KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
-
-KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
-	|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
-	|| KAS_REPO_DIR=${KAS_FILE_DIR}
-
 KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 
-KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/||g;s|:|:/repo/|g')"
-
-trace mkdir -p "${KAS_WORK_DIR}"
-trace mkdir -p "${KAS_BUILD_DIR}"
+KAS_FILES="$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/|/repo/|g')"
 
 if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	echo "Error: Running as root - may break certain recipes."
@@ -316,8 +339,9 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 fi
 
 set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
-	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
+	-v "${KAS_WORK_DIR}":/work:rw -e KAS_WORK_DIR=/work \
 	-v "${KAS_BUILD_DIR}":/build:rw \
+	--workdir=/repo \
 	-e KAS_BUILD_DIR=/build \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
@@ -375,6 +399,10 @@ if [ -n "${SSTATE_DIR}" ]; then
 fi
 
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
+	if [ ! -d "${KAS_REPO_REF_DIR}" ]; then
+		echo "Passed KAS_REPO_REF_DIR '${KAS_REPO_REF_DIR}' is not a directory"
+		exit 1
+	fi
 	set -- "$@" \
 		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:ro \
 		-e KAS_REPO_REF_DIR=/repo-ref

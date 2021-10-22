@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2021
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-image: ghcr.io/siemens/kas/kas-isar:2.4
+image: ghcr.io/siemens/kas/kas-isar:2.6.3
 
 variables:
   GIT_STRATEGY: clone

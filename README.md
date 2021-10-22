@@ -13,25 +13,13 @@ For example under Debian Linux
 sudo apt install docker.io
 ```
 
-Then build the example image
+Then open the menu to select the desired image and options:
 
 ```shell
-./kas-container build kas-iot2050-example.yml
+./kas-container menu
 ```
 
-Build the example RT image, for example
-
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
-```
-
-Using 3rd-party mirrors, for example
-
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/mirror-example.yml
-```
-
-After build complete, the final image is under
+After the build completed, the final image is under
 
 ```text
 build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
@@ -45,8 +33,9 @@ build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
 ```shell
 ./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml
 ```
+(or select SDK in `kas menu`)
 
-After build complete, the SDK tarball is located at
+After the build completed, the SDK tarball is located at
 
 ```text
 build/tmp/deploy/images/iot2050/sdk-isar-arm64.tar.xz
@@ -64,24 +53,6 @@ docker load -i build/tmp/deploy/images/iot2050/sdk-iot2050-debian-arm64-docker-a
 
 ```shell
 ./kas-container --isar clean
-```
-
-## Build released version
-
-First checkout the desired tag. Then build the image or sdk by appending the `kas/opt/package-lock.yml`:
-
-```shell
-# example image
-./kas-container build kas-iot2050-example.yml:kas/opt/package-lock.yml
-
-# example rt image
-./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml:kas/opt/package-lock.yml
-
-# bootloader
-./kas-container build kas-iot2050-boot.yml:kas/opt/package-lock.yml
-
-# SDK
-./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml:kas/opt/package-lock.yml
 ```
 
 ## Booting the image from SD card
