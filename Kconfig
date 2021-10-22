@@ -101,4 +101,21 @@ config KAS_INCLUDE_PACKAGE_LOCK
 	default "kas/opt/package-lock.yml"
 	depends on PACKAGE_LOCK
 
+config DEBIAN_MIRROR
+	bool "Use specific debian mirror"
+	depends on !PACKAGE_LOCK
+	help
+	  Rather than relying on deb.debian.org to select the best local
+	  mirror, specify a specific one.
+
+config DEBIAN_MIRROR_URL
+	string "URL of Debian mirror"
+	default "ftp.de.debian.org"
+	depends on DEBIAN_MIRROR
+
+config KAS_INCLUDE_DEBIAN_MIRROR
+	string
+	default "kas/opt/debian-mirror.yml"
+	depends on DEBIAN_MIRROR
+
 endif
