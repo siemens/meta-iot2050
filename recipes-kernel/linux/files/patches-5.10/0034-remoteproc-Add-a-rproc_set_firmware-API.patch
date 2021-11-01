@@ -1,7 +1,7 @@
-From 45c511cd51003520e278a4d9ef58f4eec6873cdf Mon Sep 17 00:00:00 2001
+From fa744e6fbc2fb61eb8bc0e911f612b8e8a0a51e0 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 20 Nov 2020 21:20:42 -0600
-Subject: [PATCH 034/104] remoteproc: Add a rproc_set_firmware() API
+Subject: [PATCH 034/108] remoteproc: Add a rproc_set_firmware() API
 
 A new API, rproc_set_firmware() is added to allow the remoteproc platform
 drivers and remoteproc client drivers to be able to configure a custom
@@ -159,5 +159,5 @@ index 3fa3ba6498e8..e8ac041c64d9 100644
  int rproc_coredump_add_segment(struct rproc *rproc, dma_addr_t da, size_t size);
  int rproc_coredump_add_custom_segment(struct rproc *rproc,
 -- 
-2.31.1
+2.32.0
 

@@ -1,7 +1,7 @@
-From 7dece4acefd346f3d91dac239f472fa677a03cc8 Mon Sep 17 00:00:00 2001
+From 02727ec6c09897692372b752f06d370254732ccb Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
-Subject: [PATCH 013/104] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
+Subject: [PATCH 013/108] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
  replace open coding
 
 use pm_runtime_resume_and_get() to replace pm_runtime_get_sync and
@@ -34,5 +34,5 @@ index a64ea143d185..c4799a16a61f 100644
  	base = devm_platform_ioremap_resource(pdev, 1);
  	if (IS_ERR(base)) {
 -- 
-2.31.1
+2.32.0
 
