@@ -1,7 +1,7 @@
-From 299bb3b677c816f1b2b60415c18428e2d4962ccf Mon Sep 17 00:00:00 2001
+From 283df2573e5d9b7c4813074068b3dde8b6e7f797 Mon Sep 17 00:00:00 2001
 From: Hirokazu MORIKAWA <morikw2@gmail.com>
 Date: Mon, 3 May 2021 10:00:38 +0900
-Subject: [PATCH 13/13] Support for swig 4.1.0
+Subject: [PATCH 13/14] Support for swig 4.1.0
 
 In swig 4.1.0, the complicated handling of "SWIG_V8_VERSION" has been cleaned up a bit. I made the same changes as in this swig.
 
@@ -129,5 +129,5 @@ index 321cc22..4d9949c 100644
  }
  
 -- 
-2.26.2
+2.32.0
 

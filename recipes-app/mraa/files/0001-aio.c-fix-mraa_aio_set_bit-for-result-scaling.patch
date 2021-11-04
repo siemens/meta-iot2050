@@ -1,7 +1,7 @@
-From 3b1222d0fc05107020e4f1e00e1d45b782c38c95 Mon Sep 17 00:00:00 2001
+From 95f32e87ca29fadeac35bc7f8925ba151d9eb770 Mon Sep 17 00:00:00 2001
 From: "le.jin" <le.jin@siemens.com>
 Date: Fri, 1 Nov 2019 18:02:54 +0800
-Subject: [PATCH 01/13] aio.c: fix mraa_aio_set_bit for result scaling
+Subject: [PATCH 01/14] aio.c: fix mraa_aio_set_bit for result scaling
 
 Signed-off-by: le.jin <le.jin@siemens.com>
 ---
@@ -28,5 +28,5 @@ index 0cc631f..7a94ac1 100644
  }
  
 -- 
-2.26.2
+2.32.0
 

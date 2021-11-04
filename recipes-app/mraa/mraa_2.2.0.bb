@@ -25,6 +25,7 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https \
             file://0011-gpio-Avoid-spurious-value-reset-without-output-mode-.patch \
             file://0012-version.h-Fix-multiple-definitions-of-gVERSION-_SHOR.patch \
             file://0013-Support-for-swig-4.1.0.patch \
+            file://0014-uart-allow-change-the-uart-attribute-immediately.patch \
             file://rules"
 SRCREV = "7786c7ded5c9ce7773890d0e3dc27632898fc6b1"
 

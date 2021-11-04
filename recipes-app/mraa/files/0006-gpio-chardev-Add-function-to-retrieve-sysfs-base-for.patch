@@ -1,7 +1,7 @@
-From cfbcd5a9b19b925d33cc02aef4aae20e7cb2f5db Mon Sep 17 00:00:00 2001
+From 53444ab8b3c4ece6a807cdc0d34ba9dfb4ae6175 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 07:05:19 +0100
-Subject: [PATCH 06/13] gpio: chardev: Add function to retrieve sysfs base for
+Subject: [PATCH 06/14] gpio: chardev: Add function to retrieve sysfs base for
  a gpiochip
 
 This allows to full mux structures which still need the sysfs GPIO
@@ -75,5 +75,5 @@ index 9bea44b..d83a40c 100644
  mraa_get_line_info_from_descriptor(int chip_fd, unsigned line_number)
  {
 -- 
-2.26.2
+2.32.0
 

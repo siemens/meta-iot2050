@@ -1,7 +1,7 @@
-From b45b6518a48aa6a72960d7c79754400ac48fde7c Mon Sep 17 00:00:00 2001
+From a5b6072b1ba89423f4014a96a30ebb0a77415140 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Apr 2021 18:57:44 +0200
-Subject: [PATCH 11/13] gpio: Avoid spurious value reset without output mode
+Subject: [PATCH 11/14] gpio: Avoid spurious value reset without output mode
  changes
 
 When a GPIO controlled via sysfs is set again to output mode, the kernel
@@ -149,5 +149,5 @@ index ff97b4b..baac7cd 100644
  
      return result;
 -- 
-2.26.2
+2.32.0
 

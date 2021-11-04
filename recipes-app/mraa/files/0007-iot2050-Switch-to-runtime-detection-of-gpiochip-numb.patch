@@ -1,7 +1,7 @@
-From 2f227c0ac521866f991677be6a1324575237d04d Mon Sep 17 00:00:00 2001
+From 82fea7d51af3d4fbdeb58b8bfaf2767371c6f039 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 18 Jan 2021 09:13:17 +0100
-Subject: [PATCH 07/13] iot2050: Switch to runtime detection of gpiochip
+Subject: [PATCH 07/14] iot2050: Switch to runtime detection of gpiochip
  numbers and bases
 
 This makes the logic independent of the gpiochip probing order.
@@ -718,5 +718,5 @@ index 0035404..a042bf3 100644
      mux_info[4].value = MRAA_GPIO_IN;
      iot2050_pin_add_aio(b, pin_index, 5, mux_info, 5);
 -- 
-2.26.2
+2.32.0
 

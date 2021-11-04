@@ -1,7 +1,7 @@
-From 47c4020db5c2e3d415989183c8c2ba847ae48ea3 Mon Sep 17 00:00:00 2001
+From 767b2f996b69860948a4511828e4deb25217af20 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 26 Jun 2021 07:01:38 +0200
-Subject: [PATCH 12/13] version.h: Fix multiple definitions of gVERSION[_SHORT]
+Subject: [PATCH 12/14] version.h: Fix multiple definitions of gVERSION[_SHORT]
 
 Recent gcc versions / default settings reject this.
 
@@ -26,5 +26,5 @@ index 47366ef..3a567a1 100644
  #ifdef __cplusplus
  }
 -- 
-2.26.2
+2.32.0
 

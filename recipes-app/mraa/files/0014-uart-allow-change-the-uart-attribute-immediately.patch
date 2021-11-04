@@ -1,0 +1,40 @@
+From 07c406fad4708b7f35acea1f2a1e405a0387d5e7 Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Thu, 4 Nov 2021 14:10:14 +0800
+Subject: [PATCH 14/14] uart: allow change the uart attribute immediately
+
+When using the flow control, the rts asserts,
+There is also data in the buffer on the sender,
+So it can't change the termios attribute when
+re-instantiate the device.
+
+When the device is re-instantiated, discard
+the input and output buffers
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ src/uart/uart.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/uart/uart.c b/src/uart/uart.c
+index 3e3aa32..ccc0e57 100644
+--- a/src/uart/uart.c
++++ b/src/uart/uart.c
+@@ -296,11 +296,13 @@ mraa_uart_init_raw(const char* path)
+         goto init_raw_cleanup;
+     }
+ 
++    tcflush(dev->fd,TCIOFLUSH);
++
+     // setup for a 'raw' mode.  8N1, no echo or special character
+     // handling, such as flow control or line editing semantics.
+     // cfmakeraw is not POSIX!
+     cfmakeraw(&termio);
+-    if (tcsetattr(dev->fd, TCSAFLUSH, &termio) < 0) {
++    if (tcsetattr(dev->fd, TCSANOW, &termio) < 0) {
+         syslog(LOG_ERR, "uart: tcsetattr(%s) failed after cfmakeraw(): %s", path, strerror(errno));
+         status = MRAA_ERROR_INVALID_RESOURCE;
+         goto init_raw_cleanup;
+-- 
+2.32.0
+
