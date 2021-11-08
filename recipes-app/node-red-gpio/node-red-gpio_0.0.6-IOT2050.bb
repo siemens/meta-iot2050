@@ -19,7 +19,8 @@ SRC_URI = " \
     file://0001-add-the-board-info-add-the-led-control-node.patch \
     file://0002-extend-gpio-to-D19.patch \
     file://0003-Clean-up-mraa-objects-on-node-closing.patch \
-    file://0004-Add-USER-button.patch"
+    file://0004-Add-USER-button.patch \
+    file://0005-Add-configurable-GPIO-mode-for-DIN.patch"
 SRCREV="3087e8e2a1ea189f394bca0a2af159ad859d7722"
 
 S = "${WORKDIR}/git"
