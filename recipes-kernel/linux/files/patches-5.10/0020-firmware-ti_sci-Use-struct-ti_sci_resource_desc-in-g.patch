@@ -1,7 +1,7 @@
-From e1b42d7a877e39afe84a9423efdce3fe355dc17f Mon Sep 17 00:00:00 2001
+From b651e23a3f40e43ef55e0590efa28d3936f45c64 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
-Subject: [PATCH 020/108] firmware: ti_sci: Use struct ti_sci_resource_desc in
+Subject: [PATCH 020/116] firmware: ti_sci: Use struct ti_sci_resource_desc in
  get_range ops
 
 Use the ti_sci_resource_desc directly and update it's start and num members
@@ -177,5 +177,5 @@ index d254d99fd45b..6cd537db4d33 100644
   * struct ti_sci_resource - Structure representing a resource assigned
   *			    to a device.
 -- 
-2.32.0
+2.33.1
 

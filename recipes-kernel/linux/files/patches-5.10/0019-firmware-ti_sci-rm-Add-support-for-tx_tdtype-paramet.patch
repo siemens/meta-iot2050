@@ -1,7 +1,7 @@
-From 0f5310a6f8bc4c28f2f2a6ea6e27663150cb0259 Mon Sep 17 00:00:00 2001
+From 22d2dbcc367a794afdcc6ab7b486d8f3a27061a3 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:02 -0700
-Subject: [PATCH 019/108] firmware: ti_sci: rm: Add support for tx_tdtype
+Subject: [PATCH 019/116] firmware: ti_sci: rm: Add support for tx_tdtype
  parameter for tx channel
 
 The system controller's resource manager have support for configuring the
@@ -86,5 +86,5 @@ index cf27b080e148..d254d99fd45b 100644
  
  /**
 -- 
-2.32.0
+2.33.1
 

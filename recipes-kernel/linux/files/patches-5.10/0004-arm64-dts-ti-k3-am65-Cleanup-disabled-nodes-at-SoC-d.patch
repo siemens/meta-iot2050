@@ -1,7 +1,7 @@
-From 1156fabd02fa65e7372d82b00fbae07360267909 Mon Sep 17 00:00:00 2001
+From a894a3372c3c8ee5af53ff05a08f64699227542d Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:22 -0600
-Subject: [PATCH 004/108] arm64: dts: ti: k3-am65*: Cleanup disabled nodes at
+Subject: [PATCH 004/116] arm64: dts: ti: k3-am65*: Cleanup disabled nodes at
  SoC dtsi level
 
 The device tree standard states that when the status property is
@@ -121,5 +121,5 @@ index 937dd7280c7a..8c082af489f5 100644
 +	status = "disabled";
 +};
 -- 
-2.32.0
+2.33.1
 

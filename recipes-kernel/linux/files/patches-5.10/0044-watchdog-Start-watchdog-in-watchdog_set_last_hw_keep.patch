@@ -1,7 +1,7 @@
-From e018a676923c133b92ee6680c6d9c34240fa8299 Mon Sep 17 00:00:00 2001
+From 8aedfe807760f940e17e248e21e18e309cc5e39f Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 30 Jul 2021 21:19:38 +0200
-Subject: [PATCH 044/108] watchdog: Start watchdog in
+Subject: [PATCH 044/116] watchdog: Start watchdog in
  watchdog_set_last_hw_keepalive only if appropriate
 
 We must not pet a running watchdog when handle_boot_enabled is off
@@ -33,5 +33,5 @@ index 2946f3a63110..2ee017442dfc 100644
  EXPORT_SYMBOL_GPL(watchdog_set_last_hw_keepalive);
  
 -- 
-2.32.0
+2.33.1
 
