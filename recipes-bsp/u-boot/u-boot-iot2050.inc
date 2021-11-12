@@ -26,9 +26,9 @@ SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
 DEPENDS += "swig"
 
 # Build environment
-DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050 k3-rti-wdt"
+DEPENDS += "trusted-firmware-a-iot2050 optee-os-${MACHINE} k3-rti-wdt"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
-    trusted-firmware-a-iot2050, optee-os-iot2050, k3-rti-wdt, \
+    trusted-firmware-a-iot2050, optee-os-${MACHINE}, k3-rti-wdt, \
     swig:native, python3-dev:native, python3-pkg-resources,"
 
 U_BOOT_CONFIG_PACKAGE = "1"
