@@ -10,9 +10,9 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
-# To use this tool, an update package in <firmware-update-package>.tar.xz format are needed.
+# To use this tool, an update package in <firmware-update-package>.tar.xz format is needed.
 #
-# The <firmware-update-package>.tar.xz contains below files:
+# The <firmware-update-package>.tar.xz should contain:
 #   - firmware.bin: The firmware to update, could be more than one.
 #   - update.conf.json: The update criteria.
 #
@@ -23,13 +23,13 @@
 # 			"description": "[optional] bla bla bla",
 # 			"name": "pg1-basic-vx.y.z.bin",
 # 			"version": "[optional] whatever",
-# 			"target_boards": ["pg1-basic", "pg1-advanced"]
+# 			"target_boards": ["SIMATIC IOT2050 Basic", "SIMATIC IOT2050-ADVANCED"]
 # 		},
 # 		{
 # 			"description": "[optional] bla bla bla",
 # 			"name": "pg2-advanced-vx.y.z.bin",
 # 			"version": "[optional] whatever",
-# 			"target_boards": "pg2-advanced",
+# 			"target_boards": "SIMATIC IOT2050 Advanced PG2",
 # 			"target_os": [
 # 				{
 # 					"type": "[optional] Example Image",
@@ -63,7 +63,15 @@
 # it could be updated upon.
 # 
 # To indicate which board or boards the firmware could be updated upon, use the 
-# mandatory `target_boards` inside the `firmware` node.
+# mandatory `target_boards` inside the `firmware` node. Possible target boards:
+#   - PG1 Basic:
+#       "SIMATIC IOT2050-BASIC", "SIMATIC IOT2050 Basic"
+#   - PG1 Advanced:
+#       "SIMATIC IOT2050-ADVANCED", "SIMATIC IOT2050 Advanced"
+#   - PG2 Basic:
+#       "SIMATIC IOT2050 Basic PG2"
+#   - PG2 Advanced:
+#       "SIMATIC IOT2050 Advanced PG2"
 #
 # To indicate which OS the firmware could be updated upon, use either the 
 # `target_os` inside the `firmware` node as a local configuration, or use 
@@ -189,13 +197,6 @@ class FirmwareUpdate(object):
 
 
 class BoardInformation(object):
-    board_cpu_ids = {
-        0x142ba: 'pg1-basic',
-        0x142fa: 'pg1-advanced',
-        0x140bb: 'pg2-basic',
-        0x140fb: 'pg2-advanced'
-    }
-
     def __init__(self):
         self.board_name = self._get_board_name()
 
@@ -205,28 +206,13 @@ class BoardInformation(object):
 
     def _get_board_name(self) -> str:
         """
-        Get the board name by checking the SOC id
+        Get the board name by checking the device tree node
+        /proc/device-tree/model
         """
-        cpuid_register_addr = 0x43000018
-        base_addr = cpuid_register_addr & ~(mmap.PAGESIZE - 1)
-        base_addr_offset = cpuid_register_addr - base_addr
-        try:
-            f = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
-        except FileNotFoundError:
-            print("Open /dev/mem Failed")
-            sys.exit(1)
-
-        mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ, offset=base_addr)
-        mem.seek(base_addr_offset)
-        data = []
-        data.append(struct.unpack('I', mem.read(4))[0])
-        device_id = hex(data[0])
-        current_cpu_id = int(device_id, 16) >> 11
-        if current_cpu_id not in self.board_cpu_ids:
-            print("Upgrade is not supported for the board w/ cpu id: {}".format(current_cpu_id))
-            sys.exit(1)
-
-        return self.board_cpu_ids[current_cpu_id]
+        with open('/proc/device-tree/model') as f_model:
+            board_name = f_model.read().strip('\0')
+        
+        return board_name
 
     @staticmethod
     def _get_os_info() -> dict:
