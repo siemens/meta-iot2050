@@ -84,12 +84,14 @@ if [ "${EMMC_DEV}" = "${BOOT_DEV}" ]; then
 fi
 
 # Presence of /etc/install-on-emmc skips button check
+GPIO_PIN=$(gpiofind USER-button)
 if [ -e /etc/install-on-emmc ]; then
 	echo "Found /etc/install-on-emmc, starting installation on eEMMC"
+elif [ $(gpioget ${GPIO_PIN}) = 0 ]; then
+	echo "USER button has been pressed, starting installation on eEMM "
 else
 	echo "Press USER button to install on eMMC, you have 20 seconds"
 	echo "WARNING: All data on eMMC will be overwritten!"
-	GPIO_PIN=$(gpiofind USER-button)
 
 	blink ${LED_ORANGE} 1
 

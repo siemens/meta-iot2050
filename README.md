@@ -127,6 +127,9 @@ The installation can also be triggered automatically by creating the file
 `/etc/install-on-emmc` on the vanilla image by mounting it under Linux and
 executing, e.g., `touch <mountpoint>/etc/install-on-emmc`.
 
+The installation can also be triggered by keeping pressing the user button 
+during startup at the first boot.
+
 ## Selecting a boot device
 
 By default, the boot loader will pick the first bootable device. If that device
