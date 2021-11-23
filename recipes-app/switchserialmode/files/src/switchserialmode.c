@@ -349,15 +349,17 @@ static E_STATUS ttyuart_switchto_rs485(const char *uartdev, int logicLevel)
 
     SET_UART_RTS_ACTIVE_LOGIC(rs485conf.flags, logicLevel);
 
-    rs485conf.flags |= SER_RS485_ENABLED | SER_RS485_RX_DURING_TX;
+    rs485conf.flags |= SER_RS485_ENABLED;
 
     return ttyuart_set_rs485conf(uartdev, &rs485conf);
 }
 
-static E_STATUS ttyuart_switchto_rs422(const char *uartdev)
+static E_STATUS ttyuart_switchto_rs422(const char *uartdev, int logicLevel)
 {
     struct serial_rs485 rs485conf;
     memset(&rs485conf, 0, sizeof(rs485conf));
+
+    SET_UART_RTS_ACTIVE_LOGIC(rs485conf.flags, logicLevel);
 
     rs485conf.flags |= SER_RS485_ENABLED | SER_RS485_RX_DURING_TX;
 
@@ -412,7 +414,7 @@ static void ttyuart_command_handle(int argc, char **argv)
     }
     else if(0 == strcasecmp(mode, "rs422"))
     {
-        ttyuart_switchto_rs422(devType);
+        ttyuart_switchto_rs422(devType, logicLevel);
     }
     else
     {
