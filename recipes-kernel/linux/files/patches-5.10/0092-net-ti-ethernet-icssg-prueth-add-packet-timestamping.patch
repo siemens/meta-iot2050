@@ -1,7 +1,7 @@
-From a142c398d05803280f37ed78fabef57cf4b52673 Mon Sep 17 00:00:00 2001
+From bfa8432d3ef27e0f74b85a88b689e24d6cf916ac Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 18 May 2021 23:37:30 +0300
-Subject: [PATCH 092/116] net: ti: ethernet: icssg-prueth: add packet
+Subject: [PATCH 092/117] net: ti: ethernet: icssg-prueth: add packet
  timestamping and ptp support
 
 Add packet timestamping TS and PTP PHC clock support.
@@ -856,5 +856,5 @@ index 2e8d45c8c25d..156716bf0a76 100644
  
  struct emac_tx_ts_response_sr1 {
 -- 
-2.33.1
+2.25.1
 

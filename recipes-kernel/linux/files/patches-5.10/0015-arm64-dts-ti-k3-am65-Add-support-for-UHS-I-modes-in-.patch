@@ -1,7 +1,7 @@
-From 5d0f351d889b0628f35184a085c0114a352cf024 Mon Sep 17 00:00:00 2001
+From 3b4b0e433dcc4391ff6f0c76f4bbf3b973ff3f1c Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Sat, 29 May 2021 09:07:49 +0530
-Subject: [PATCH 015/116] arm64: dts: ti: k3-am65: Add support for UHS-I modes
+Subject: [PATCH 015/117] arm64: dts: ti: k3-am65: Add support for UHS-I modes
  in MMCSD1 subsystem
 
 UHS-I speed modes are supported in AM65 S.R. 2.0 SoC[1].
@@ -108,5 +108,5 @@ index 8c082af489f5..fea6a8243d75 100644
  	pinctrl-0 = <&main_mmc1_pins_default>;
  	ti,driver-strength-ohm = <50>;
 -- 
-2.33.1
+2.25.1
 
