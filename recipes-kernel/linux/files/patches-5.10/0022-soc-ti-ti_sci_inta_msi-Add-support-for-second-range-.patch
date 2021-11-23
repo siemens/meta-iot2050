@@ -1,7 +1,7 @@
-From 76e16364c745f87dab9fb13787fd41acd14bb49c Mon Sep 17 00:00:00 2001
+From 39d977f5d9a95c5691796f34afba1d0d7dbc4261 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:04 -0700
-Subject: [PATCH 022/116] soc: ti: ti_sci_inta_msi: Add support for second
+Subject: [PATCH 022/117] soc: ti: ti_sci_inta_msi: Add support for second
  range in resource ranges
 
 Allocate MSI entries for both first and second range if they are valid
@@ -36,5 +36,5 @@ index 0eb9462f609e..a1d9c027022a 100644
  
  	return count;
 -- 
-2.33.1
+2.25.1
 

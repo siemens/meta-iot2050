@@ -1,7 +1,7 @@
-From 74f63476a6c8f513e97fe57ed70f3f1ea85e25e2 Mon Sep 17 00:00:00 2001
+From f3ced8a45574b102424275929877531b7fe33200 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:38 +0300
-Subject: [PATCH 081/116] net: ethernet: ti: icss_iep: set phc time to system
+Subject: [PATCH 081/117] net: ethernet: ti: icss_iep: set phc time to system
  time on init
 
 Following customer feedback IEP PHC time has to be set to system time on
@@ -28,5 +28,5 @@ index df74b5fd17e9..08b456f0bc12 100644
  	iep->clk_tick_time = def_inc;
  
 -- 
-2.33.1
+2.25.1
 

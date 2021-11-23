@@ -1,7 +1,7 @@
-From e48fbc039d4490a7b07ff27034ef261bb332e605 Mon Sep 17 00:00:00 2001
+From d46b6f8efe4dee7bf06bf182133fc5fcb8567b4e Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
-Subject: [PATCH 113/116] USB: serial: cp210x: refactor flow-control handling
+Subject: [PATCH 113/117] USB: serial: cp210x: refactor flow-control handling
 
 Add a helper function to be used to configure flow control.
 
@@ -152,5 +152,5 @@ index 899c854d65d5..19666329f386 100644
  	/*
  	 * Enable event-insertion mode only if input parity checking is
 -- 
-2.33.1
+2.25.1
 

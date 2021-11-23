@@ -1,7 +1,7 @@
-From f222526be26acb66e41dc947a62feca32cef45b8 Mon Sep 17 00:00:00 2001
+From 5bfcc76544ade43c53fa9d80737f2bc058d22d38 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Mar 2021 15:33:43 +0100
-Subject: [PATCH 010/116] arm64: dts: ti: Add support for Siemens IOT2050
+Subject: [PATCH 010/117] arm64: dts: ti: Add support for Siemens IOT2050
  boards
 
 Add support for two Siemens SIMATIC IOT2050 variants, Basic and
@@ -836,5 +836,5 @@ index 000000000000..ec9617c13cdb
 +	status = "disabled";
 +};
 -- 
-2.33.1
+2.25.1
 
