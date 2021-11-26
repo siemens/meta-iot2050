@@ -1,7 +1,7 @@
-From 8cf713de6807a6c11725c4bb4d0174512ba11d0e Mon Sep 17 00:00:00 2001
+From c6806cb3b46939546487b8b072cd94350caa2fcb Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:58:49 -0800
-Subject: [PATCH 032/117] soc: ti: k3-ringacc: Use of_device_get_match_data()
+Subject: [PATCH 032/118] soc: ti: k3-ringacc: Use of_device_get_match_data()
 
 Simplify the retrieval of getting the match data in the probe
 function by directly using of_device_get_match_data() instead
@@ -44,5 +44,5 @@ index 7fdb688452f7..db3f705da7a0 100644
  	ringacc = devm_kzalloc(dev, sizeof(*ringacc), GFP_KERNEL);
  	if (!ringacc)
 -- 
-2.25.1
+2.33.1
 

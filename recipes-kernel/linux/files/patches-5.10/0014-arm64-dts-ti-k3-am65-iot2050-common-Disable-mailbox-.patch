@@ -1,7 +1,7 @@
-From 298911f4da4268a10ebd1be89bb3dcb39303f01d Mon Sep 17 00:00:00 2001
+From 42d38a24e818034fc232ff1b1ffe0bb4eca71444 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 14 May 2021 16:20:16 -0500
-Subject: [PATCH 014/117] arm64: dts: ti: k3-am65-iot2050-common: Disable
+Subject: [PATCH 014/118] arm64: dts: ti: k3-am65-iot2050-common: Disable
  mailbox nodes
 
 There are no sub-mailbox devices defined currently for both the
@@ -80,5 +80,5 @@ index de763ca9251c..f4ec9ed52939 100644
 +	status = "disabled";
 +};
 -- 
-2.25.1
+2.33.1
 

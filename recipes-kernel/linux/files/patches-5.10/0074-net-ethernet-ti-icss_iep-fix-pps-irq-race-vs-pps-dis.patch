@@ -1,7 +1,7 @@
-From 2e22afeae8d3f0384ddee7c78a201de150fddc78 Mon Sep 17 00:00:00 2001
+From 30a085109e66db87a7a7057d00eacff72a1f41b5 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:31 +0300
-Subject: [PATCH 074/117] net: ethernet: ti: icss_iep: fix pps irq race vs pps
+Subject: [PATCH 074/118] net: ethernet: ti: icss_iep: fix pps irq race vs pps
  disable
 
 When PPS is disabled the PPS IRQ can be running and PPS timer started which
@@ -123,5 +123,5 @@ index c0bcb1d1180a..ead1e7c94021 100644
  	mutex_unlock(&iep->ptp_clk_mutex);
  
 -- 
-2.25.1
+2.33.1
 

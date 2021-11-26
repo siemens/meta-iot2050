@@ -1,7 +1,7 @@
-From df91a5f865fab96ed5c0c3f0e2b941d629bc845a Mon Sep 17 00:00:00 2001
+From ab1763a5c1c952c4a77f29cdf9302cfa2beab4e2 Mon Sep 17 00:00:00 2001
 From: Su Bao Cheng <baocheng.su@siemens.com>
 Date: Mon, 22 Nov 2021 15:59:01 +0800
-Subject: [PATCH 117/117] Revert "serial: 8250: Don't touch RTS modem control
+Subject: [PATCH 117/118] Revert "serial: 8250: Don't touch RTS modem control
  while in rs485 mode"
 
 This reverts commit f45709df7731ad36306a28a3e1af7309d55c35f5.
@@ -45,5 +45,5 @@ index 3de0a16e055a..37e859da7d60 100644
  
  	mcr = (mcr & up->mcr_mask) | up->mcr_force | up->mcr;
 -- 
-2.25.1
+2.33.1
 

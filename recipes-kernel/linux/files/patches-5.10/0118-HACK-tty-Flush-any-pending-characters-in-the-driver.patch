@@ -1,0 +1,37 @@
+From 761e435e38a9eca8b87cf00fc6066e316573d5a6 Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Thu, 25 Nov 2021 16:06:32 +0800
+Subject: [PATCH 118/118] HACK: tty: Flush any pending characters in the driver
+
+omap_8250 can't send the data when closing the port,it keeps the buffer.
+
+then re-used the port, at least there are several bugs.
+1. the receive side could receive these data again.
+2. it would hang when change the termios.
+
+Flush the buffer when send timeout or some errors.
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ drivers/tty/tty_ioctl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/tty/tty_ioctl.c b/drivers/tty/tty_ioctl.c
+index 803da2d111c8..e1cb9741cd4d 100644
+--- a/drivers/tty/tty_ioctl.c
++++ b/drivers/tty/tty_ioctl.c
+@@ -224,8 +224,10 @@ void tty_wait_until_sent(struct tty_struct *tty, long timeout)
+ 
+ 	timeout = wait_event_interruptible_timeout(tty->write_wait,
+ 			!tty_chars_in_buffer(tty), timeout);
+-	if (timeout <= 0)
++	if (timeout <= 0){
++		tty_driver_flush_buffer(tty);
+ 		return;
++	}
+ 
+ 	if (timeout == MAX_SCHEDULE_TIMEOUT)
+ 		timeout = 0;
+-- 
+2.33.1
+

@@ -1,7 +1,7 @@
-From 0e39b5cc2a91c8e654f79718ae8ea84a2f8a4e2a Mon Sep 17 00:00:00 2001
+From ff20783b325ba0f4d6201e2ffedf43fe47738b17 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:24 +0100
-Subject: [PATCH 112/117] USB: serial: cp210x: drop flow-control debugging
+Subject: [PATCH 112/118] USB: serial: cp210x: drop flow-control debugging
 
 Drop some unnecessary flow-control debugging.
 
@@ -43,5 +43,5 @@ index b0543b2b7423..899c854d65d5 100644
  		flow_ctl.ulControlHandshake = cpu_to_le32(ctl_hs);
  		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
 -- 
-2.25.1
+2.33.1
 

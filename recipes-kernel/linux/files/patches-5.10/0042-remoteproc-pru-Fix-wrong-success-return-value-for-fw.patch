@@ -1,7 +1,7 @@
-From 6ba06ee752ecf5d7b57eacb0afdde4ef27232fb4 Mon Sep 17 00:00:00 2001
+From 3a09d1469019f15c51a6f243d529ca929ec5b1dd Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:40 -0500
-Subject: [PATCH 042/117] remoteproc: pru: Fix wrong success return value for
+Subject: [PATCH 042/118] remoteproc: pru: Fix wrong success return value for
  fw events
 
 The irq_create_fwspec_mapping() returns a proper virq value on success
@@ -41,5 +41,5 @@ index 773c09d01958..e0c5fce8bccd 100644
  		}
  	}
 -- 
-2.25.1
+2.33.1
 

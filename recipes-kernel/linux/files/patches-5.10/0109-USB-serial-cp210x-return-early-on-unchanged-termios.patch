@@ -1,7 +1,7 @@
-From d1faa633d39fc5acf68b4ef07aaaf06212937dd8 Mon Sep 17 00:00:00 2001
+From a5d1fe3ede8bd9484c48855ee3a8f09343601011 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:21 +0100
-Subject: [PATCH 109/117] USB: serial: cp210x: return early on unchanged
+Subject: [PATCH 109/118] USB: serial: cp210x: return early on unchanged
  termios
 
 Return early from set_termios() in case no relevant terminal settings
@@ -46,5 +46,5 @@ index 329fc25f78a4..a9f732c563c8 100644
  	old_cflag = old_termios->c_cflag;
  
 -- 
-2.25.1
+2.33.1
 

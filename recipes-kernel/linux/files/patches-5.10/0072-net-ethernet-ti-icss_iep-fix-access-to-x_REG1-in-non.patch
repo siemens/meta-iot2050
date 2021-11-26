@@ -1,7 +1,7 @@
-From 4afcf2f7fc9669ca4c4507480ca083af695090fb Mon Sep 17 00:00:00 2001
+From 79660be71868c8d305e0a1039b127981250ae412 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:29 +0300
-Subject: [PATCH 072/117] net: ethernet: ti: icss_iep: fix access to x_REG1 in
+Subject: [PATCH 072/118] net: ethernet: ti: icss_iep: fix access to x_REG1 in
  non 64bit mode
 
 Do not access x_REG1 registers in non 64bit mode.
@@ -93,5 +93,5 @@ index 60a284c6c0c9..73c0a31e8245 100644
  			pevent.type = PTP_CLOCK_EXTTS;
  			pevent.index = i;
 -- 
-2.25.1
+2.33.1
 
