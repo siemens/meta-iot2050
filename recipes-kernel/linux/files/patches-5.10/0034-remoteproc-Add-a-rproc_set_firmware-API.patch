@@ -1,7 +1,7 @@
 From 45c511cd51003520e278a4d9ef58f4eec6873cdf Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 20 Nov 2020 21:20:42 -0600
-Subject: [PATCH 034/117] remoteproc: Add a rproc_set_firmware() API
+Subject: [PATCH 034/118] remoteproc: Add a rproc_set_firmware() API
 
 A new API, rproc_set_firmware() is added to allow the remoteproc platform
 drivers and remoteproc client drivers to be able to configure a custom

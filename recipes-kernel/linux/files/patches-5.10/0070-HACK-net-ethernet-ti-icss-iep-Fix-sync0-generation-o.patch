@@ -1,7 +1,7 @@
 From 78ad4241b67421e67c38c1c187c26dbb73b514d1 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Apr 2021 13:17:31 +0530
-Subject: [PATCH 070/117] HACK: net: ethernet: ti: icss-iep: Fix sync0
+Subject: [PATCH 070/118] HACK: net: ethernet: ti: icss-iep: Fix sync0
  generation on a compare event
 
 commit 41e5c46849b5 ("net: ethernet: ti: icss-iep: Add support for generating

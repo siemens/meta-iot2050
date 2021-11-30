@@ -1,7 +1,7 @@
 From 0ee4d816ac51e946a4c2cf7d4ec8acb639f0b1a7 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 20 Nov 2020 21:01:54 -0600
-Subject: [PATCH 056/117] remoteproc: Fix unbalanced boot with sysfs for no
+Subject: [PATCH 056/118] remoteproc: Fix unbalanced boot with sysfs for no
  auto-boot rprocs
 
 The remoteproc core performs automatic boot and shutdown of a remote

@@ -1,7 +1,7 @@
 From 95c9dd53a0065a3535457e0819c3c0dbbc843f42 Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Wed, 6 Nov 2019 11:21:49 +0800
-Subject: [PATCH 101/117] HACK: setting the RJ45 port led behavior
+Subject: [PATCH 101/118] HACK: setting the RJ45 port led behavior
 
 Temporary needed until we have a proper, likely LED-class based
 solution upstream.

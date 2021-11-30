@@ -1,7 +1,7 @@
 From c74706ee3e3c437dbb884cfcdfc42106196f05ee Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:29 +0300
-Subject: [PATCH 072/117] net: ethernet: ti: icss_iep: fix access to x_REG1 in
+Subject: [PATCH 072/118] net: ethernet: ti: icss_iep: fix access to x_REG1 in
  non 64bit mode
 
 Do not access x_REG1 registers in non 64bit mode.

@@ -1,7 +1,7 @@
 From c3a00d96e18796a63539b9af4bb08d3741994ef6 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
-Subject: [PATCH 113/117] USB: serial: cp210x: refactor flow-control handling
+Subject: [PATCH 113/118] USB: serial: cp210x: refactor flow-control handling
 
 Add a helper function to be used to configure flow control.
 
