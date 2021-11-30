@@ -1,4 +1,4 @@
-From b3a73239499f705c61f85d154aacb2df7358d06a Mon Sep 17 00:00:00 2001
+From 78ad4241b67421e67c38c1c187c26dbb73b514d1 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Apr 2021 13:17:31 +0530
 Subject: [PATCH 070/117] HACK: net: ethernet: ti: icss-iep: Fix sync0
@@ -119,5 +119,5 @@ index 234972a034a9..22034d41c988 100644
  EXPORT_SYMBOL_GPL(icss_iep_put);
  
 -- 
-2.25.1
+2.31.1
 

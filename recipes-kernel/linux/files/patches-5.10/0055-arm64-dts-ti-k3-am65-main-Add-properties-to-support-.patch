@@ -1,4 +1,4 @@
-From d360383f1a3a556289d762ed03885e5a8fb9ccae Mon Sep 17 00:00:00 2001
+From af16fed3807c9be3777284270ceed919d65ebf25 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:38:07 +0530
 Subject: [PATCH 055/117] arm64: dts: ti: k3-am65-main: Add properties to
@@ -82,5 +82,5 @@ index 9b1a016162b2..b786daed9639 100644
  
  	pcie1_ep: pcie-ep@5600000 {
 -- 
-2.25.1
+2.31.1
 

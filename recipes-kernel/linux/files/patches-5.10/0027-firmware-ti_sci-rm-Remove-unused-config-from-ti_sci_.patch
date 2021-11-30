@@ -1,4 +1,4 @@
-From 80177c300d4a8c4e398b3fa43f865ca607565337 Mon Sep 17 00:00:00 2001
+From b52a49d481aedcfee6a30b772b39038fd9c83a12 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:07 -0700
 Subject: [PATCH 027/117] firmware: ti_sci: rm: Remove unused config() from
@@ -127,5 +127,5 @@ index d1711050cd9d..0aad7009b50e 100644
  		       const struct ti_sci_msg_rm_ring_cfg *params);
  };
 -- 
-2.25.1
+2.31.1
 

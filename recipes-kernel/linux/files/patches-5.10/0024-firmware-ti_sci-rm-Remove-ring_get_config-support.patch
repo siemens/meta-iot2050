@@ -1,4 +1,4 @@
-From fd5a492effcc64d95ccfa5cbb01187a08a4aca19 Mon Sep 17 00:00:00 2001
+From 3a14e51fc33f0a5cdde74486ca6785b53c44e56b Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:05 -0700
 Subject: [PATCH 024/117] firmware: ti_sci: rm: Remove ring_get_config support
@@ -200,5 +200,5 @@ index 6978afc00823..6710d7ac7a72 100644
  
  /**
 -- 
-2.25.1
+2.31.1
 

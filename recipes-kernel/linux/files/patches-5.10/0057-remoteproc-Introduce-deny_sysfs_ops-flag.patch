@@ -1,4 +1,4 @@
-From 7a78ff1b4bdece07569a4afcccc9e23bb2055b0e Mon Sep 17 00:00:00 2001
+From 9566b2e022f1cd74300ea8c7bdca737ec7b70485 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 13:05:28 -0500
 Subject: [PATCH 057/117] remoteproc: Introduce deny_sysfs_ops flag
@@ -95,5 +95,5 @@ index e8ac041c64d9..02425aac6100 100644
  	int nb_vdev;
  	u8 elf_class;
 -- 
-2.25.1
+2.31.1
 

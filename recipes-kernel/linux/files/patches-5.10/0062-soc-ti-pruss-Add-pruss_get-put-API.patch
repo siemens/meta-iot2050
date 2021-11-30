@@ -1,4 +1,4 @@
-From a427cddd1302a8d03ca3a51cdd322e826fd2dfe3 Mon Sep 17 00:00:00 2001
+From 9fcfa8b94ca04ba0d7469776aa73064ffd9df7d2 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:58:00 -0500
 Subject: [PATCH 062/117] soc: ti: pruss: Add pruss_get()/put() API
@@ -176,5 +176,5 @@ index ecfded30ed05..4d1321f0d326 100644
  
  /*
 -- 
-2.25.1
+2.31.1
 

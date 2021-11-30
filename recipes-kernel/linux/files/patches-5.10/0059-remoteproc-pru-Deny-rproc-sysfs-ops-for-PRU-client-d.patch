@@ -1,4 +1,4 @@
-From 89f0c3125b98acf46558fde1328e62c52f02a850 Mon Sep 17 00:00:00 2001
+From 4c88ce9f46c959ff426ca4137f8798d8b8b22f9f Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 16 Dec 2020 17:52:37 +0100
 Subject: [PATCH 059/117] remoteproc: pru: Deny rproc sysfs ops for PRU client
@@ -41,5 +41,5 @@ index 0b57b3f7747f..8fac021adc52 100644
  
  	put_device(&rproc->dev);
 -- 
-2.25.1
+2.31.1
 

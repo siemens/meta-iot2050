@@ -1,4 +1,4 @@
-From 1a10ff79eb4053abf9ccbfb8b885dd4069db3687 Mon Sep 17 00:00:00 2001
+From 666c3b76eaf701966f1c81bba7194bcf1092c46c Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:23 +0100
 Subject: [PATCH 111/117] USB: serial: cp210x: set terminal settings on open
@@ -398,5 +398,5 @@ index 7a7078de4b5c..b0543b2b7423 100644
  }
  
 -- 
-2.25.1
+2.31.1
 
