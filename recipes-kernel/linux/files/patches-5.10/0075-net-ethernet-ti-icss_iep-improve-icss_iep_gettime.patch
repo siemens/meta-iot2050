@@ -1,7 +1,7 @@
-From cf7cfabad0625afe04c7e7801379f3f66efab217 Mon Sep 17 00:00:00 2001
+From 0961dd65d33fd3cfd9c6af60e2ec609e46394abb Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:32 +0300
-Subject: [PATCH 075/117] net: ethernet: ti: icss_iep: improve icss_iep_gettime
+Subject: [PATCH 075/118] net: ethernet: ti: icss_iep: improve icss_iep_gettime
 
 There are few issues with icss_iep_gettime():
 - it has to be very fast, but it's not protected from interruption
@@ -69,5 +69,5 @@ index ead1e7c94021..cbec01328a71 100644
  
  static void icss_iep_enable(struct icss_iep *iep)
 -- 
-2.25.1
+2.31.1
 

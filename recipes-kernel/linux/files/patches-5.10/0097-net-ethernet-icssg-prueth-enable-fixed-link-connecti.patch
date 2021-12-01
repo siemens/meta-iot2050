@@ -1,7 +1,7 @@
-From 5299479646bc1e7250fbf6dd4bfe51c0c43ebb51 Mon Sep 17 00:00:00 2001
+From fce321b6376c541a5562e7a0518d037f0f090717 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 18 Jun 2021 20:51:48 +0300
-Subject: [PATCH 097/117] net: ethernet: icssg-prueth: enable "fixed-link"
+Subject: [PATCH 097/118] net: ethernet: icssg-prueth: enable "fixed-link"
  connection
 
 The ICSSG has incomplete and incorrect "fixed-link" connection type
@@ -71,5 +71,5 @@ index d19a05fd8b06..3b1769a5e2b3 100644
  		ret = -EPROBE_DEFER;
  		goto free;
 -- 
-2.25.1
+2.31.1
 
