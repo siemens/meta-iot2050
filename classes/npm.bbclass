@@ -7,6 +7,7 @@
 #   cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
 
 inherit dpkg-raw
+inherit buildchroot
 
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json"
@@ -18,6 +19,30 @@ ISAR_CROSS_COMPILE = "0"
 
 SRC_URI = "npm://registry.npmjs.org;name=${NPMPN};version=${PV} \
     ${NPM_SHRINKWRAP}"
+
+BUILDROOT = "${BUILDCHROOT_DIR}/${PP}"
+
+npm_do_mounts() {
+    mkdir -p ${BUILDROOT}
+    sudo mount --bind ${WORKDIR} ${BUILDROOT}
+
+    buildchroot_do_mounts
+}
+
+dpkg_undo_mounts() {
+    i=0
+    while ! sudo umount ${BUILDROOT}; do
+        sleep 0.1
+        if [ `expr $i % 100` -eq 0 ] ; then
+            bbwarn "${BUILDROOT}: Couldn't unmount ($i), retrying..."
+        fi
+        if [ $i -ge 10000 ]; then
+            bbfatal "${BUILDROOT}: Couldn't unmount after timeout"
+        fi
+        i=`expr $i + 1`
+    done
+    sudo rmdir ${BUILDROOT}
+}
 
 # function maps arch names to npm arch names
 def npm_arch_map(target_arch, d):
@@ -91,7 +116,7 @@ do_install_npm() {
         apt-get install -y -o Debug::pkgProblemResolver=yes \
                 --no-install-recommends"
 
-    dpkg_do_mounts
+    npm_do_mounts
 
     E="${@ bb.utils.export_proxies(d)}"
     deb_dl_dir_import "${BUILDCHROOT_DIR}"
@@ -106,6 +131,7 @@ do_install_npm() {
 
     dpkg_undo_mounts
 }
+do_apt_fetch[depends] = "${BUILDCHROOT_DEP}"
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
 do_install_npm[depends] += "${@(d.getVar('NPM_CLASS_PACKAGE') + ':do_deploy_deb') if d.getVar('OWN_NPM_CLASS_PACKAGE') == '1' else ''}"
 do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
@@ -142,7 +168,7 @@ python fetch_npm() {
         if hash == fetch_hash:
             return
 
-    bb.build.exec_func("dpkg_do_mounts", d)
+    bb.build.exec_func("npm_do_mounts", d)
     bb.utils.export_proxies(d)
 
     old_cwd = os.getcwd()
@@ -204,7 +230,7 @@ python clean_npm() {
 do_cleanall[postfuncs] += "clean_npm"
 
 do_install() {
-    dpkg_do_mounts
+    npm_do_mounts
 
     # changing the home directory to the working directory, the .npmrc will
     # be created in this directory
