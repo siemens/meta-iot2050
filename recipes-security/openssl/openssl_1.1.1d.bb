@@ -27,5 +27,5 @@ do_prepare_build() {
 }
 
 dpkg_runbuild_prepend() {
-	export DEB_BUILD_OPTIONS="nocheck"
+	sbuild_export DEB_BUILD_OPTIONS="nocheck"
 }
