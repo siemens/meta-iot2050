@@ -26,5 +26,5 @@ do_prepare_build() {
 }
 
 dpkg_runbuild_prepend() {
-    export CC="gcc"
+    dpkg_build_export CC gcc
 }

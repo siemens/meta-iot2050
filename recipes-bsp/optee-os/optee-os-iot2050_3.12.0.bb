@@ -23,5 +23,5 @@ OPTEE_EXTRA_BUILDARGS = " \
     CFG_CONSOLE_UART=1"
 
 dpkg_runbuild_prepend() {
-    export TEE_IMPL_VERSION=${PV}
+    dpkg_build_export TEE_IMPL_VERSION ${PV}
 }
