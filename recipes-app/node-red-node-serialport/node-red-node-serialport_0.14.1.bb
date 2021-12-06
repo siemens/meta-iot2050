@@ -12,4 +12,6 @@ inherit npm
 
 DESCRIPTION = "Node-RED nodes to talk to serial ports"
 
+DEBIAN_BUILD_DEPENDS =. "libnode-dev,"
+
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"

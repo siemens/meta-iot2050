@@ -12,4 +12,6 @@ inherit npm
 
 DESCRIPTION = "A sqlite node for Node-RED"
 
+DEBIAN_BUILD_DEPENDS =. "libnode-dev,"
+
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"

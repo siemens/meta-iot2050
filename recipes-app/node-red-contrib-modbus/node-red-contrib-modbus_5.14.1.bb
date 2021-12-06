@@ -12,4 +12,6 @@ inherit npm
 
 DESCRIPTION = "The all in one Modbus TCP and Serial contribution package for Node-RED"
 
+DEBIAN_BUILD_DEPENDS =. "libnode-dev,"
+
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"
