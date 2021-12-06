@@ -35,8 +35,8 @@ U_BOOT_CONFIG_PACKAGE = "1"
 
 do_prepare_build_append() {
     cd ${S}
-    ln -sf ../prebuild/* ${S}
-    ln -sf ../keys ${S}
+    cp -lf ../prebuild/* ${S}
+    cp -Rlf ../keys ${S}
     ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
@@ -48,16 +48,10 @@ dpkg_runbuild_prepend() {
     export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
 }
 
-dpkg_build_sstate_prepare_append() {
-    ln -f ${S}/${SPI_FLASH_IMG} -t ${DPKG_SSTATE}
-}
-
-dpkg_build_sstate_finalize_append() {
-    ln -f ${DPKG_SSTATE}/${SPI_FLASH_IMG} -t ${S}
-}
-
 do_deploy() {
-    cp -f "${S}/${SPI_FLASH_IMG}" "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
+    dpkg --fsys-tarfile ${WORKDIR}/${PN}_${PV}_${PACKAGE_ARCH}.deb | \
+        tar xOf - ./usr/lib/u-boot/${MACHINE}/${SPI_FLASH_IMG} \
+        > "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
 }
 
 addtask deploy after do_dpkg_build before do_build
