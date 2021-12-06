@@ -35,8 +35,8 @@ U_BOOT_CONFIG_PACKAGE = "1"
 
 do_prepare_build_append() {
     cd ${S}
-    ln -sf ../prebuild/* ${S}
-    ln -sf ../keys ${S}
+    cp -lf ../prebuild/* ${S}
+    cp -Rlf ../keys ${S}
     ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
@@ -51,7 +51,9 @@ dpkg_runbuild_prepend() {
 do_build[dirs] += "${DEPLOY_DIR_IMAGE}"
 
 do_deploy() {
-    cp -f "${S}/${SPI_FLASH_IMG}" "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
+     dpkg --fsys-tarfile ${WORKDIR}/${PN}_${PV}_${PACKAGE_ARCH}.deb | \
+        tar xOf - ./usr/lib/u-boot/${MACHINE}/flash.bin \
+        > "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
 }
 
 addtask deploy after do_dpkg_build before do_build
