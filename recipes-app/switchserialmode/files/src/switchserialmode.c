@@ -1197,6 +1197,7 @@ static void cp210x_command_handle(int argc, char **argv)
 
 static void cp210x_hardware_reset(void)
 {
+    usleep(60*1000);
     gpio_set("CP2102N-RESET", 0);
     sleep(1);
     gpio_set("CP2102N-RESET", 1);
