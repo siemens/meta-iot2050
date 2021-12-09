@@ -19,7 +19,7 @@ OPTEE_NAME = "iot2050"
 
 OPTEE_PLATFORM = "k3-am65x"
 OPTEE_EXTRA_BUILDARGS = " \
-    CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 ta-targets=ta_arm64 \
+    CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_USER_TA_TARGETS=ta_arm64 \
     CFG_CONSOLE_UART=1"
 
 dpkg_runbuild_prepend() {
