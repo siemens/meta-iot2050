@@ -21,6 +21,7 @@ SRC_URI += " \
     file://0007-iot2050-Enable-watchdog-support-but-do-not-auto-star.patch \
     file://0008-sf-Querying-write-protect-status-before-operating-th.patch \
     file://0009-boards-siemens-iot2050-Ignore-network-errors-during-.patch \
+    file://0010-iot2050-Allow-re-writing-vars-if-saved-state-was-inv.patch \
     "
 
 SRC_URI[sha256sum] = "0d438b1bb5cceb57a18ea2de4a0d51f7be5b05b98717df05938636e0aadfe11a"

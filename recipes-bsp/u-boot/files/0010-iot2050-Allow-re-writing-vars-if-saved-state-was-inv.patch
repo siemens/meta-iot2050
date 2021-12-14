@@ -1,0 +1,45 @@
+From d09add421b2d62a49315c79a0db96bd79fc91a10 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 13 Dec 2021 13:23:23 +0100
+Subject: [PATCH 10/10] iot2050: Allow re-writing vars if saved state was
+ invalid
+
+If the board information structure is only half-initialized, we may
+write invalid UUIDs (and other values) into the U-Boot env. Allow to
+rewrite them once valid versions are reported via the info structure.
+
+This practically only happens during first boot-ups in factory, but this
+change eases the initialization process there.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ board/siemens/iot2050/board.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 817fbf4ecb..21e73d4b80 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -80,6 +80,7 @@ void set_board_info_env(void)
+ {
+ 	struct iot2050_info *info = IOT2050_INFO_DATA;
+ 	u8 __maybe_unused mac_cnt;
++	const char *saved_uuid;
+ 	const char *fdtfile;
+ 
+ 	if (info->magic != IOT2050_INFO_MAGIC) {
+@@ -87,7 +88,10 @@ void set_board_info_env(void)
+ 		return;
+ 	}
+ 
+-	if (env_get("board_uuid"))
++	saved_uuid = env_get("board_uuid");
++	if (saved_uuid &&
++	    (strcmp(saved_uuid, "UUID-INVALID") != 0 ||
++	     strcmp(info->uuid, "UUID-INVALID") == 0))
+ 		return;
+ 
+ 	env_set("board_name", info->name);
+-- 
+2.31.1
+
