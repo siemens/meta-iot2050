@@ -1,7 +1,7 @@
 From e6738c3fb4735300a6f394e0c0d89c7763583fa5 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 3 Nov 2021 14:09:15 +0100
-Subject: [PATCH 09/10] boards: siemens: iot2050: Ignore network errors during
+Subject: [PATCH 9/9] boards: siemens: iot2050: Ignore network errors during
  bootstage tracking
 
 We need to filter out NET_ETH_START errors because we have to enable
