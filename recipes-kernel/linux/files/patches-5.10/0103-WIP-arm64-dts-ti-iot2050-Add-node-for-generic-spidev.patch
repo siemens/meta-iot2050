@@ -1,7 +1,7 @@
-From d8c55854d446024c9cd1227884c8be0f35b3c36b Mon Sep 17 00:00:00 2001
+From 649b5040ae82176137de81445d1c07e4c2b3e8ca Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Mar 2021 15:28:21 +0100
-Subject: [PATCH 103/118] WIP: arm64: dts: ti: iot2050: Add node for generic
+Subject: [PATCH 103/119] WIP: arm64: dts: ti: iot2050: Add node for generic
  spidev
 
 This allows to use mcu_spi0 via userspace spidev.
@@ -33,5 +33,5 @@ index 2faefccca7a9..3510948e9d41 100644
  
  &tscadc0 {
 -- 
-2.31.1
+2.34.1
 
