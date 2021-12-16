@@ -1,7 +1,7 @@
-From a8880d6fc70da8dd72133b892f20046d2b69ea5a Mon Sep 17 00:00:00 2001
+From 004ec8206cb1d1439b92d3ad5a908a840e1ed3d8 Mon Sep 17 00:00:00 2001
 From: Lukas Wunner <lukas@wunner.de>
 Date: Mon, 22 Nov 2021 16:58:24 +0100
-Subject: [PATCH 117/118] serial: 8250: Fix RTS modem control while in rs485
+Subject: [PATCH 117/119] serial: 8250: Fix RTS modem control while in rs485
  mode
 
 Commit f45709df7731 ("serial: 8250: Don't touch RTS modem control while
@@ -99,5 +99,5 @@ index 68a0ff605476..d9a64b1dd5e6 100644
  		ret = 0;
  	}
 -- 
-2.31.1
+2.34.1
 

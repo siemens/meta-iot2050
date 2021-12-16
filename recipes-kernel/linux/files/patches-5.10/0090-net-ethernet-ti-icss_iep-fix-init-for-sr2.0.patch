@@ -1,7 +1,7 @@
-From 2fdcd242488e6110efe413e7e8bf26a527b3ffe8 Mon Sep 17 00:00:00 2001
+From 61c151b14453e6fe6581a24fea1cd9c8caa0fdaf Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 18 May 2021 23:37:28 +0300
-Subject: [PATCH 090/118] net: ethernet: ti: icss_iep: fix init for sr2.0
+Subject: [PATCH 090/119] net: ethernet: ti: icss_iep: fix init for sr2.0
 
 There are two issues with IEP initialization for ICSSG SR2.0 where only one
 IEP0 is used in shadow mode:
@@ -147,5 +147,5 @@ index 23e72e0ffe46..eec7e9fb1f61 100644
  	dev_set_drvdata(dev, iep);
  	icss_iep_disable(iep);
 -- 
-2.31.1
+2.34.1
 

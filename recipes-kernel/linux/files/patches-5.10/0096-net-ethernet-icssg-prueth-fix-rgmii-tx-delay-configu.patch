@@ -1,7 +1,7 @@
-From e1f7c7672096f10f474f504b0ef29685831169d1 Mon Sep 17 00:00:00 2001
+From 7c65b1ec71def3c53e10ca51a7bfa92f86234b6a Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 18 Jun 2021 20:51:47 +0300
-Subject: [PATCH 096/118] net: ethernet: icssg-prueth: fix rgmii tx delay
+Subject: [PATCH 096/119] net: ethernet: icssg-prueth: fix rgmii tx delay
  configuration
 
 The driver enables RGMII TX delay without checking specified
@@ -125,5 +125,5 @@ index 38d151dca81c..d19a05fd8b06 100644
  		if (ret)
  			goto put_cores;
 -- 
-2.31.1
+2.34.1
 

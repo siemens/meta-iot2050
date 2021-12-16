@@ -1,7 +1,7 @@
-From 84642db14e786cd75b5e09cdc63b198b4106306a Mon Sep 17 00:00:00 2001
+From c6dcd01c3e4d59aac22e0d019cf5192c09c23b07 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:30 +0300
-Subject: [PATCH 073/118] net: ethernet: ti: icss_iep: disable extts and pps if
+Subject: [PATCH 073/119] net: ethernet: ti: icss_iep: disable extts and pps if
  no slow compensation or non 64bit mode
 
 Disable extts and pps if no slow compensation support or non 64bit mode.
@@ -37,5 +37,5 @@ index 73c0a31e8245..c0bcb1d1180a 100644
  
  put_iep_device:
 -- 
-2.31.1
+2.34.1
 

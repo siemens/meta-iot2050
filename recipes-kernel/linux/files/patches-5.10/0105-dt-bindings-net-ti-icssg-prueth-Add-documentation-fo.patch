@@ -1,7 +1,7 @@
-From 4f6059505883285f86e592672e0374b8ee595c0c Mon Sep 17 00:00:00 2001
+From 8712acbd73e529040491181fab19fb8a2caea025 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Tue, 12 Oct 2021 13:54:41 +0300
-Subject: [PATCH 105/118] dt-bindings: net: ti, icssg-prueth: Add documentation
+Subject: [PATCH 105/119] dt-bindings: net: ti, icssg-prueth: Add documentation
  for half duplex
 
 In order to support half-duplex operation at 10M and 100M link speeds, the
@@ -37,5 +37,5 @@ index 125a204ef2d2..41cba6907fc9 100644
  Example (k3-am654 base board SR2.0, dual-emac):
  ==============================================
 -- 
-2.31.1
+2.34.1
 

@@ -1,7 +1,7 @@
-From d015fec92e923f9c2f5d06b89a5150932110b5b3 Mon Sep 17 00:00:00 2001
+From df55a48a3f79e1b1c62ca072bb7e401e46d9c925 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 31 May 2021 16:31:35 +0530
-Subject: [PATCH 050/118] arm64: dts: ti: k3-am65-main: fix DSS irq trigger
+Subject: [PATCH 050/119] arm64: dts: ti: k3-am65-main: fix DSS irq trigger
  type
 
 DSS irq trigger type is set to IRQ_TYPE_EDGE_RISING. For some reason this
@@ -35,5 +35,5 @@ index 9338f1042232..9b1a016162b2 100644
  		dma-coherent;
  
 -- 
-2.31.1
+2.34.1
 
