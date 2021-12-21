@@ -28,11 +28,6 @@ load mmc 0:1 $loadaddr /path/to/iot2050-image-boot.bin
 sf update $loadaddr 0x0 $filesize
 ```
 
-> :note:
-> When updating the boot loader of the BASIC variant, make sure to remove
-> 0014-iot2050-Provide-dtb-for-devices-using-boot-load-V01..patch from the kernel
-> patch queue in recipes-kernel/linux/linux-iot2050_*.bb.
-
 ## Recovering a bricked device
 
 If the device does not come up anymore after flashing the boot loader, you can
