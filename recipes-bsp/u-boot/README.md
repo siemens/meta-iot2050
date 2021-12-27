@@ -8,10 +8,17 @@ The boot loader is built like this:
 ./kas-container build kas-iot2050-boot.yml
 ```
 
-After the build the boot image is under
+Default built is for PG2 board. To build for PG1:
+
+```shell
+./kas-container build kas-iot2050-boot.yml:kas/opt/pg1.yml
+```
+
+After the build the boot images are under
 
 ```text
-build/tmp/deploy/images/iot2050/iot2050-image-boot.bin
+build/tmp/deploy/images/iot2050/iot2050-pg1-image-boot.bin
+build/tmp/deploy/images/iot2050/iot2050-pg2-image-boot.bin
 ```
 
 ## Flashing the image
@@ -19,12 +26,12 @@ build/tmp/deploy/images/iot2050/iot2050-image-boot.bin
 > :warning:
 > Flashing an incorrect image may brick the device!
 
-Write `iot2050-image-boot.bin` to an SD card and insert that into
+Write `iot2050-pgN-image-boot.bin` to an SD card and insert that into
 the target device. Then boot into the U-Boot shell and execute there:
 
 ```shell
 sf probe
-load mmc 0:1 $loadaddr /path/to/iot2050-image-boot.bin
+load mmc 0:1 $loadaddr /path/to/iot2050-pgN-image-boot.bin
 sf update $loadaddr 0x0 $filesize
 ```
 
@@ -36,5 +43,5 @@ Dediprog SF100 or SF600. Attach the programmer to X17, then run the following
 on the host machine:
 
 ```shell
-dpcmd --vcc 2 -v -u iot2050-image-boot.bin
+dpcmd --vcc 2 -v -u iot2050-pgN-image-boot.bin
 ```

@@ -20,7 +20,7 @@ U_BOOT_CONFIG = "iot2050_defconfig"
 U_BOOT_BIN = "flash.bin"
 
 SPI_FLASH_IMG = "${U_BOOT_BIN}"
-SPI_FLASH_DEPLOY_IMG = "iot2050-image-boot.bin"
+SPI_FLASH_DEPLOY_IMG ??= "iot2050-image-boot.bin"
 
 # Needed to resolve races as long as the layer has to rebuild swig
 DEPENDS += "swig"
