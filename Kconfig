@@ -75,6 +75,18 @@ config KAS_INCLUDE_RT
 	default "kas/opt/preempt-rt.yml"
 	depends on PREEMPT_RT
 
+config CORAL
+	bool "Google Coral Edge TPU support"
+	default y
+	help
+	  Add driver and libraries to use a Google Coral Edge TPU accelerator
+	  card if it is installed in the IOT2050 extension slot.
+
+config KAS_INCLUDE_NO_CORAL
+	string
+	default "kas/opt/no-coral.yml"
+	depends on !CORAL
+
 comment "Build options"
 
 config SDK
