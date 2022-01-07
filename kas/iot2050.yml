@@ -27,12 +27,12 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: e274130b870b7e31532fe191b9932cde1d819b4b
+    refspec: eeefa03185e3f259d08ff94295b0981a19eddf55
     layers:
       meta:
     patches:
-      u-boot-fix:
-        path: isar-patches/0001-u-boot-Exclude-libubootenv.a-from-dh_strip.patch
+      no-shortcut-on-cross-arch-all:
+        path: isar-patches/0001-Revert-buildchroot-Do-not-build-cross-when-there-are.patch
 
 bblayers_conf_header:
   standard: |

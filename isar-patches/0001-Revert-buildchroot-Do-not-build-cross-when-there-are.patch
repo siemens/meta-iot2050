@@ -1,0 +1,49 @@
+From 554d763c4bc5b44d596757613d6fd78c02d9fd0c Mon Sep 17 00:00:00 2001
+From: Felix Moessbauer <felix.moessbauer@siemens.com>
+Date: Wed, 22 Dec 2021 13:55:16 +0100
+Subject: [PATCH] Revert "buildchroot: Do not build cross when there are no
+ arch-specific outputs"
+
+This reverts commit 563986703d9a0405c70af9b50ecedede2ac59cbd.
+
+The reverted patch made a shortcut to simplify the handling of cross-build
+dependencies of architecture:all packages.
+This is not valid for the following reasons:
+
+1. Just scanning the control file for 'all' is not sufficient as
+a source package might generate both arch specific and :all packages.
+
+2. This breaks architecture specific transitive build dependencies.
+These mainly apply to correctly packaged python packages that support
+cross building and use setuptools. By that, the transitive dependency
+libpython3.9-minimal:<target-arch> is not attracted but instead the version
+for the host, leading to very hard to debug build-time issues.
+
+In case packages do not handle their cross-build dependencies correctly, we
+should not try to work around in ISAR, but better enforce upstream patches.
+
+Signed-off-by: Felix Moessbauer <felix.moessbauer@siemens.com>
+---
+ meta/recipes-devtools/buildchroot/files/deps.sh | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/meta/recipes-devtools/buildchroot/files/deps.sh b/meta/recipes-devtools/buildchroot/files/deps.sh
+index 1d617bc8..ccfc460c 100644
+--- a/meta/recipes-devtools/buildchroot/files/deps.sh
++++ b/meta/recipes-devtools/buildchroot/files/deps.sh
+@@ -27,12 +27,6 @@ if [ "$3" != "--download-only" ]; then
+         -o APT::Get::List-Cleanup="0"
+ fi
+ 
+-# Do not set an architecture when building only 'all' (generic) packages.
+-# This can avoid unneeded cross-build issues.
+-if ! grep "^Architecture:" debian/control | grep -qv "all"; then
+-    set_arch=""
+-fi
+-
+ control_file=$(pwd)/debian/control
+ cd ..
+ 
+-- 
+2.31.1
+
