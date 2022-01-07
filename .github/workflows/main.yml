@@ -42,9 +42,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build bootloader image for PG1
-        run: ./kas-container build kas-iot2050-boot.yml:kas/opt/pg1.yml
+        run: ./kas-container build kas-iot2050-boot-pg1.yml
       - name: Build bootloader image for PG2
-        run: ./kas-container build kas-iot2050-boot.yml
+        run: ./kas-container build kas-iot2050-boot-pg2.yml
       - name: Archive bootloaders
         uses: actions/upload-artifact@v2
         with:

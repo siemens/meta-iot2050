@@ -2,16 +2,11 @@
 
 ## Building the image
 
-The boot loader is built like this:
+The boot loader for PG1 and PG2 boards is built like this:
 
 ```shell
-./kas-container build kas-iot2050-boot.yml
-```
-
-Default built is for PG2 board. To build for PG1:
-
-```shell
-./kas-container build kas-iot2050-boot.yml:kas/opt/pg1.yml
+./kas-container build kas-iot2050-boot-pg1.yml
+./kas-container build kas-iot2050-boot-pg2.yml
 ```
 
 After the build the boot images are under
