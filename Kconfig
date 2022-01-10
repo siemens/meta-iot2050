@@ -30,6 +30,12 @@ config IMAGE_LXDE
 	  Based on the example image, this adds an LXDE-based graphical user
 	  interface.
 
+config IMAGE_SWUPDATE
+	bool "Example image with SWUpdate support"
+	help
+	  Based on the example image, this adds SWUpdate and changes the
+	  partition layout to an A/B rootfs.
+
 config IMAGE_BOOT_PG1
 	bool "Firmware image for PG1 devices"
 	help
@@ -55,11 +61,12 @@ endchoice
 config KAS_INCLUDE_MAIN
 	string
 	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
+	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
 	default "kas-iot2050-lxde.yml" if IMAGE_LXDE
 	default "kas-iot2050-boot-pg1.yml" if IMAGE_BOOT_PG1
 	default "kas-iot2050-boot-pg2.yml" if IMAGE_BOOT_PG2
 
-if IMAGE_EXAMPLE || IMAGE_LXDE
+if IMAGE_EXAMPLE || IMAGE_LXDE || IMAGE_SWUPDATE
 
 comment "Image features"
 
