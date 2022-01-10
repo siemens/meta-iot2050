@@ -29,7 +29,7 @@ DEPENDS += "swig"
 DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050 k3-rti-wdt"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
     trusted-firmware-a-iot2050, optee-os-iot2050, k3-rti-wdt, \
-    swig:native, python3-dev:native, python3-pkg-resources,"
+    swig, python3-dev:native, python3-pkg-resources,"
 
 U_BOOT_CONFIG_PACKAGE = "1"
 
@@ -48,7 +48,13 @@ dpkg_runbuild_prepend() {
     export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
 }
 
-do_build[dirs] += "${DEPLOY_DIR_IMAGE}"
+dpkg_build_sstate_prepare_append() {
+    ln -f ${S}/${SPI_FLASH_IMG} -t ${DPKG_SSTATE}
+}
+
+dpkg_build_sstate_finalize_append() {
+    ln -f ${DPKG_SSTATE}/${SPI_FLASH_IMG} -t ${S}
+}
 
 do_deploy() {
     cp -f "${S}/${SPI_FLASH_IMG}" "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
