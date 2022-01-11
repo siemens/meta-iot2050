@@ -27,12 +27,9 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: eeefa03185e3f259d08ff94295b0981a19eddf55
+    refspec: 74036ebaab5265d62cdf90f563acd5b4d3b8b6d2
     layers:
       meta:
-    patches:
-      no-shortcut-on-cross-arch-all:
-        path: isar-patches/0001-Revert-buildchroot-Do-not-build-cross-when-there-are.patch
 
 bblayers_conf_header:
   standard: |
