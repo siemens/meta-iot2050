@@ -10,6 +10,8 @@ header:
   includes:
    - kas-iot2050-example.yml
 
+build_system: isar
+
 target: iot2050-image-swu-example
 
 # wic-swu-img extracts a partition and generates a cpio image for
