@@ -243,3 +243,11 @@ do_install() {
 
     dpkg_undo_mounts
 }
+
+do_prepare_build_append() {
+    # disable slow stripping - not enough value for our ad-hoc npm packaging
+    cat <<EOF >> ${S}/debian/rules
+
+override_dh_strip_nondeterminism:
+EOF
+}
