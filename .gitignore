@@ -1,3 +1,4 @@
 build/
 isar/
 recipes-core/customizations-base/local.inc
+.config.yaml
