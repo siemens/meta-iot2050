@@ -40,3 +40,25 @@ on the host machine:
 ```shell
 dpcmd --vcc 2 -v -u iot2050-pgN-image-boot.bin
 ```
+
+Also, as alternative it is possible to use flash programmer which can work
+with Winbond chips (W25Q128), as example - ch341a. The flash chip is located on
+the back side of the board.
+
+> :warning:
+> This way is not preferred, please, use Dediprog flash programmers if possible.
+
+![overview](back_iot2050.png)
+
+
+Install flashrom with:
+
+```shell
+apt-get install flashrom
+```
+
+Attach the grabber to the flash chip, then run the following on the host machine:
+
+```shell
+flashrom -p ch341a_spi -c W25Q128.V -w iot2050-image-boot.bin
+```
