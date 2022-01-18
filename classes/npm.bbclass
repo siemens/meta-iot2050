@@ -35,6 +35,8 @@ OWN_NPM_CLASS_PACKAGE ?= "0"
 # needed as gyp from bullseye does not establish /usr/bin/python
 NPM_EXTRA_DEPS = "${@'python' if d.getVar('NPM_REBUILD') == '1' else ''}"
 
+DEBIAN_BUILD_DEPENDS =. "${@'libnode72,' if d.getVar('NPM_REBUILD') == '1' else ''}"
+
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
     if len(src_uri) == 0:
