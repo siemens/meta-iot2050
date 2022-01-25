@@ -1,0 +1,41 @@
+From 8712acbd73e529040491181fab19fb8a2caea025 Mon Sep 17 00:00:00 2001
+From: Murali Karicheri <m-karicheri2@ti.com>
+Date: Tue, 12 Oct 2021 13:54:41 +0300
+Subject: [PATCH 105/119] dt-bindings: net: ti, icssg-prueth: Add documentation
+ for half duplex
+
+In order to support half-duplex operation at 10M and 100M link speeds, the
+PHY collision detection signal (GPIO output pin) should be routed to ICSSG,
+GPIO pin so that firmware can detect collision signal and apply the csma/cd
+algorithm applicable for half duplex operation. A DT property, half-duplex
+is introduced for this purpose. If board has the required modification
+done, this DT property can be added to eth node of ICSSG, MII port to
+support half duplex operation at that port.
+
+On AM654x-IDK only ICSSG0 MII port 1 can be used.
+
+Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ Documentation/devicetree/bindings/net/ti,icssg-prueth.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/net/ti,icssg-prueth.txt b/Documentation/devicetree/bindings/net/ti,icssg-prueth.txt
+index 125a204ef2d2..41cba6907fc9 100644
+--- a/Documentation/devicetree/bindings/net/ti,icssg-prueth.txt
++++ b/Documentation/devicetree/bindings/net/ti,icssg-prueth.txt
+@@ -39,6 +39,10 @@ Required properties for children:
+ 
+ Optional properties for children:
+ - local-mac-address	: mac address for the port.
++- ti,half-duplex-capable : Enable half duplex operation on ICSSG MII port.
++			  This requires board modification to route PHY
++			  output pin (COL) to ICSSG GPIO pin
++			  (PRG0_PRU1_GPIO10) as input.
+ 
+ Example (k3-am654 base board SR2.0, dual-emac):
+ ==============================================
+-- 
+2.34.1
+

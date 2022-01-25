@@ -1,7 +1,7 @@
-From d565a0a0b9d915281f95c3755fcfc36d78172e7c Mon Sep 17 00:00:00 2001
+From 7d9707f34ee2a62b209a6796e50515d6178824f3 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 19 May 2021 19:31:36 +0300
-Subject: [PATCH 094/104] net: ethernet: ti: icssg_prueth: am65x SR2.0 add 10M
+Subject: [PATCH 094/119] net: ethernet: ti: icssg_prueth: am65x SR2.0 add 10M
  full duplex support
 
 For for AM65x SR2.0 it's required to enable IEP1 in raw 64bit mode which is
@@ -158,5 +158,5 @@ index b536ac5ec0bf..7cc81c67bf72 100644
  
  /**
 -- 
-2.31.1
+2.34.1
 

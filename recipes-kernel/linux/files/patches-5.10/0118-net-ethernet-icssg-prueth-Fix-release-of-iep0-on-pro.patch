@@ -1,0 +1,30 @@
+From cfc9a80b1ad4256c4e83a8f1ceb4877d45164e2c Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 30 Nov 2021 10:53:42 +0100
+Subject: [PATCH 118/119] net: ethernet: icssg-prueth: Fix release of iep0 on
+ probing error
+
+A typo caused crashes in case icss_iep_get_idx succeeded for iep0 but
+failed for iep1.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index e33aafc9e029..f996273b4ea3 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -2458,7 +2458,7 @@ static int prueth_probe(struct platform_device *pdev)
+ 	prueth->iep1 = icss_iep_get_idx(np, 1);
+ 	if (IS_ERR(prueth->iep1)) {
+ 		ret = dev_err_probe(dev, PTR_ERR(prueth->iep1), "iep1 get failed\n");
+-		icss_iep_put(prueth->iep1);
++		icss_iep_put(prueth->iep0);
+ 		prueth->iep0 = NULL;
+ 		prueth->iep1 = NULL;
+ 		goto free_pool;
+-- 
+2.34.1
+

@@ -1,7 +1,7 @@
-From 3c43cf32b8651a36ee609e9e8d38c3cf93ed94c1 Mon Sep 17 00:00:00 2001
+From f9d7760e5e4da7f5656f6fff424b80aa9f0b9597 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
-Subject: [PATCH 029/104] soc: ti: pruss: Remove wrong check against
+Subject: [PATCH 029/119] soc: ti: pruss: Remove wrong check against
  *get_match_data return value
 
 Since the of_device_get_match_data() doesn't return error code, remove
@@ -43,5 +43,5 @@ index cc0b4ad7a3d3..5d6e7132a5c4 100644
  	ret = dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
  	if (ret) {
 -- 
-2.31.1
+2.34.1
 

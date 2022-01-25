@@ -15,9 +15,11 @@ SRC_URI[sha256sum] = "b13991099f25d00dac479db93b55034cb93d206e296f2c7aa9c42b92bc
 
 S = "${WORKDIR}/optee_os-${PV}"
 
+OPTEE_NAME = "iot2050"
+
 OPTEE_PLATFORM = "k3-am65x"
 OPTEE_EXTRA_BUILDARGS = " \
-    CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 ta-targets=ta_arm64 \
+    CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_USER_TA_TARGETS=ta_arm64 \
     CFG_CONSOLE_UART=1"
 
 dpkg_runbuild_prepend() {

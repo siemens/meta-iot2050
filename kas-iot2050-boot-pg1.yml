@@ -1,0 +1,23 @@
+#
+# Copyright (c) Siemens AG, 2019-2022
+#
+# Authors:
+#  Le Jin <le.jin@siemens.com>
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 10
+  includes:
+    - kas/iot2050.yml
+
+build_system: isar
+
+target: u-boot-iot2050
+
+local_conf_header:
+  u-boot: |
+    PREFERRED_PROVIDER_u-boot-${MACHINE} = "u-boot-iot2050-pg1"

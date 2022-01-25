@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2021
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-image: ghcr.io/siemens/kas/kas-isar:2.4
+image: ghcr.io/siemens/kas/kas-isar:2.6.3
 
 variables:
   GIT_STRATEGY: clone
@@ -24,4 +24,6 @@ all:
     - kas build kas-iot2050-example.yml
     - kas build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
     - sudo rm -rf build/tmp
-    - kas build kas-iot2050-boot.yml
+    - kas build kas-iot2050-boot-pg1.yml
+    - sudo rm -rf build/tmp
+    - kas build kas-iot2050-boot-pg2.yml

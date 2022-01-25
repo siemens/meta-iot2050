@@ -1,7 +1,7 @@
-From 9bf5e97a7e8181388cf518a7a6af2d49c4b68805 Mon Sep 17 00:00:00 2001
+From f8907a50264ee6106f9df2e453eb067dedb7b6ab Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:33 +0300
-Subject: [PATCH 076/104] net: ethernet: ti: icss_iep: simplify peroutput
+Subject: [PATCH 076/119] net: ethernet: ti: icss_iep: simplify peroutput
  processing
 
 simplify peroutput processing
@@ -114,5 +114,5 @@ index cbec01328a71..b39d4c08c6c9 100644
  		hrtimer_start(&iep->sync_timer, ms_to_ktime(110), /* 100ms + buffer */
  			      HRTIMER_MODE_REL);
 -- 
-2.31.1
+2.34.1
 
