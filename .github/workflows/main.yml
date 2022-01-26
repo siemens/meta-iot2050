@@ -50,3 +50,36 @@ jobs:
         with:
           name: iot2050-bootloaders
           path: build/tmp/deploy/images/iot2050/*.bin
+  
+  download_bootloaders:
+    needs: bootloaders
+    runs-on: [self-hosted, Linux_527]
+    steps:
+        - name: download_bootloader
+          run: echo "download"
+        - uses: actions/download-artifact@v2
+          with:
+            name: iot2050-bootloaders
+            path: $GITHUB_RUN_NUMBER/download
+            
+  download_debian-example-image:
+    needs: debian-example-image
+    runs-on: [self-hosted, Linux_527]
+    steps:
+        - name: download_debian-example-image
+          run: echo "download"
+        - uses: actions/download-artifact@v2
+          with:
+            name: iot2050-example-image
+            path: $GITHUB_RUN_NUMBER/download
+
+  download_debian-rt-example-image:
+    needs: debian-rt-example-image
+    runs-on: [self-hosted, Linux_527]
+    steps:
+        - name: download_debian-rt-example-image
+          run: echo "download"
+        - uses: actions/download-artifact@v2
+          with:
+            name: iot2050-example-image-rt
+            path: $GITHUB_RUN_NUMBER/download
