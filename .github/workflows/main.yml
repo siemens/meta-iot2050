@@ -3,6 +3,20 @@ name: CI
 on: [push]
 
 jobs:
+  CI-Infomation-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo-CI-job-env-infomation
+        run: |
+          echo "GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}"
+          echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+          echo "GITHUB_RUN_NUMBER : ${GITHUB_RUN_NUMBER}"
+          echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}"
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+          echo "GITHUB_SHA: ${GITHUB_SHA}"
+          echo "GITHUB_REF_NAME: ${GITHUB_REF_NAME}"
+          echo "GITHUB_REF_TYPE: ${GITHUB_REF_TYPE}"
+              
   debian-example-image:
     name: Debian example image
     runs-on: ubuntu-latest
@@ -55,47 +69,36 @@ jobs:
     needs: bootloaders
     runs-on: [self-hosted, Linux_527]
     steps:
-        - name: download_bootloader
-          run: echo "download"
-        - uses: actions/download-artifact@v2
-          with:
-            name: iot2050-bootloaders
-            path: download/${GITHUB_RUN_NUMBER}/bootloaders
+      - name: download_bootloader
+        run: |
+          echo "download"
+      - uses: actions/download-artifact@v2
+        with:
+          name: iot2050-bootloaders
+          path: |
+            download/${{github.run_number}}/bootloaders
             
   download_debian-example-image:
     needs: debian-example-image
     runs-on: [self-hosted, Linux_527]
     steps:
-        - name: download_debian-example-image
-          run: echo "download"
-        - uses: actions/download-artifact@v2
-          with:
-            name: iot2050-example-image
-            path: download/${GITHUB_RUN_NUMBER}/example-image-RT
+      - name: download_debian-example-image
+        run: echo "download"
+      - uses: actions/download-artifact@v2
+        with:
+          name: iot2050-example-image
+          path: |
+            download/${{github.run_number}}/example-image-RT
 
   download_debian-rt-example-image:
     needs: debian-rt-example-image
     runs-on: [self-hosted, Linux_527]
     steps:
-        - name: download_debian-rt-example-image
-          run: echo "download"
-        - uses: actions/download-artifact@v2
-          with:
-            name: iot2050-example-image-rt
-            path: download/${GITHUB_RUN_NUMBER}/example-image
+      - name: download_debian-rt-example-image
+        run: echo "download"
+      - uses: actions/download-artifact@v2
+        with:
+          name: iot2050-example-image-rt
+          path: |
+            download/${{github.run_number}}/example-image
 
-  sample-job:
-    runs-on: ubuntu-latest
-    steps:
-        - name: echo-default-env-variables
-          run: |
-              echo "Home: ${HOME}"
-              echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
-              echo "GITHUB_ACTIONS: ${GITHUB_ACTIONS}"
-              echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
-              echo "GITHUB_RUN_NUMBER : ${GITHUB_RUN_NUMBER}"
-              echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}"
-              echo "GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}"
-              echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
-              echo "GITHUB_SHA: ${GITHUB_SHA}"
-              echo "GITHUB_REF: ${GITHUB_REF}"
