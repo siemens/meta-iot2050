@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on:
+  pull_request:
+    types: [ assigned, opened, synchronize, reopened ]
+    branches:
+      - master
 
 jobs:
   CI-Infomation-job:
@@ -10,9 +14,9 @@ jobs:
         run: |
           echo "GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}"
           echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+          echo "pull_request.number: ${{github.event.pull_request.number}}"
           echo "GITHUB_RUN_NUMBER : ${GITHUB_RUN_NUMBER}"
           echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}"
-          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
           echo "GITHUB_SHA: ${GITHUB_SHA}"
           echo "GITHUB_REF_NAME: ${GITHUB_REF_NAME}"
           echo "GITHUB_REF_TYPE: ${GITHUB_REF_TYPE}"
@@ -76,7 +80,7 @@ jobs:
         with:
           name: iot2050-bootloaders
           path: |
-            download/${{github.run_number}}/bootloaders
+            download/${{github.event.pull_request.number}}/bootloaders
             
   download_debian-example-image:
     needs: debian-example-image
@@ -88,7 +92,7 @@ jobs:
         with:
           name: iot2050-example-image
           path: |
-            download/${{github.run_number}}/example-image-RT
+            download/${{github.event.pull_request.number}}/example-image-RT
 
   download_debian-rt-example-image:
     needs: debian-rt-example-image
@@ -100,5 +104,5 @@ jobs:
         with:
           name: iot2050-example-image-rt
           path: |
-            download/${{github.run_number}}/example-image
+            download/${{github.event.pull_request.number}}/example-image
 
