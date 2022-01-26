@@ -93,7 +93,7 @@ jobs:
               echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
               echo "GITHUB_ACTIONS: ${GITHUB_ACTIONS}"
               echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
-              echo "GITHUB_RUN_NUMBER : ${GITHUB_RUN_NUMBER }"
+              echo "GITHUB_RUN_NUMBER : ${GITHUB_RUN_NUMBER}"
               echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}"
               echo "GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME}"
               echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
