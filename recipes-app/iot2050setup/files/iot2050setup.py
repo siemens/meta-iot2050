@@ -167,14 +167,21 @@ class PeripheralsMenu:
         self.topmenu = topmenu
         self.configureFile = '/etc/board-configuration.json'
         self.config = self.getConfig()
+        self.bkey_pciex2_ekey_none = '0'
+        self.bkey_pcie_ekey_pcie = '1'
+        self.bkey_usb30_ekey_pcie = '2'
 
     def show(self):
+        menuItems=[('Configure External COM Ports', self.configureExternalSerialMode),
+                    ('Configure Arduino I/O', self.configureArduinoIoMode)]
+        if self.topmenu.boardType == 'IOT2050 Advanced M2':
+            menuItems.append(('Configure M.2 Connector', self.configM2Connector))
+
         while True:
             action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
                                                     title='Peripherals',
                                                     text='',
-                                                    items=[('Configure External COM Ports', self.configureExternalSerialMode),
-                                                           ('Configure Arduino I/O', self.configureArduinoIoMode)],
+                                                    items=menuItems,
                                                     buttons=[('Back', 'back', 'ESC')])
             if action == 'back':
                 return
@@ -601,6 +608,55 @@ class PeripheralsMenu:
             return default
         return 'on' if rdgroup.getSelection() else 'off'
 
+    def currentM2Select(self):
+        manual_config = subprocess.check_output("fw_printenv m2_manual_config",shell=True).decode('utf-8').lstrip().rstrip()
+        manual_config = manual_config.split("=")[1]
+
+        if manual_config:
+            if manual_config == self.bkey_usb30_ekey_pcie:
+                return 1
+            elif manual_config == self.bkey_pcie_ekey_pcie:
+                return 2
+            elif manual_config == self.bkey_pciex2_ekey_none:
+                return 3
+        else:
+            return 0
+
+    def m2AutoDetect(self):
+        subprocess.call("fw_setenv m2_manual_config",shell=True)
+
+    def m2_select_usb30_pcie(self):
+        subprocess.call("fw_setenv m2_manual_config  %s" % self.bkey_usb30_ekey_pcie,shell=True)
+
+    def m2_select_pcie_pcie(self):
+        subprocess.call("fw_setenv m2_manual_config  %s" % self.bkey_pcie_ekey_pcie,shell=True)
+
+    def m2_select_pciex2(self):
+        subprocess.call("fw_setenv m2_manual_config  %s" % self.bkey_pciex2_ekey_none,shell=True)
+
+    def configM2Connector(self):
+        while True:
+            m2Info = "Option | B-KEY | E-KEY | Recommend"
+            m2Capabililty = [('1    |       AutoDetect ',self.m2AutoDetect),
+                                ('2    | USB3.0 | PCIE | 5G WIFI/BT', self.m2_select_usb30_pcie),
+                                ('3    | PCIE   | PCIE | 5G WIFI/BT', self.m2_select_pcie_pcie),
+                                ('4    | PCIEx2 | ---- | SSD',        self.m2_select_pciex2)]
+
+            action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
+                                title="M2 Advaced Configure",
+                                text=m2Info,
+                                items=m2Capabililty,
+                                buttons=[('Ok', 'ok'),('Back', 'back', 'ESC')],
+                                default=self.currentM2Select())
+
+            if action == 'back':
+                return
+            selection()
+
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                title='Note',
+                text='You need to power cycle the device for the changes to take effect',
+                buttons=['Ok'])
 
 class TerminalResize:
     """
