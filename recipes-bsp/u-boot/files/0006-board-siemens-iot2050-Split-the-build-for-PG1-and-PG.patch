@@ -1,0 +1,346 @@
+From 706a83f6facf0e1069cfc71c182761becf0c5154 Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Wed, 12 Jan 2022 15:05:27 +0800
+Subject: [PATCH 6/8] board: siemens: iot2050: Split the build for PG1 and PG2
+
+Due to different signature keys, the PG1 and the PG2 boards can no
+longer use the same FSBL (tiboot3). This makes it impossible anyway to
+maintaine a single flash.bin for both variants, so we can also split the
+build.
+
+A new target is added to indicates the build is for PG1 vs. PG2 boards.
+Hence now the variants have separated defconfig files.
+
+The runtime board_is_sr1() check does make no sense anymore, so remove
+it and replace with build time check.
+
+Documentation is updated accordingly. New binary artifacts are already
+available via meta-iot2050.
+
+Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
+[Jan: refactor config option into targets, tweak some wordings]
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi  | 80 ++++++-------------
+ board/siemens/iot2050/Kconfig                 | 28 ++++++-
+ board/siemens/iot2050/board.c                 | 12 +--
+ ...ot2050_defconfig => iot2050_pg1_defconfig} |  2 +-
+ ...ot2050_defconfig => iot2050_pg2_defconfig} |  5 +-
+ doc/board/siemens/iot2050.rst                 | 15 +++-
+ 6 files changed, 65 insertions(+), 77 deletions(-)
+ copy configs/{iot2050_defconfig => iot2050_pg1_defconfig} (99%)
+ rename configs/{iot2050_defconfig => iot2050_pg2_defconfig} (95%)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 27058370ccc..3135ad04715 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Copyright (c) Siemens AG, 2020-2021
++ * Copyright (c) Siemens AG, 2020-2022
+  *
+  * Authors:
+  *   Jan Kiszka <jan.kiszka@siemens.com>
+@@ -17,7 +17,11 @@
+ 
+ 		blob-ext@0x000000 {
+ 			offset = <0x000000>;
+-			filename = "tiboot3.bin";
++#ifdef CONFIG_TARGET_IOT2050_A53_PG1
++			filename = "seboot_pg1.bin";
++#else
++			filename = "seboot_pg2.bin";
++#endif
+ 			missing-msg = "iot2050-seboot";
+ 		};
+ 
+@@ -43,42 +47,30 @@
+ 				};
+ 
+ 				fdt-iot2050-basic {
+-					description = "k3-am6528-iot2050-basic.dtb";
++					description = "k3-am6528-iot2050-basic*.dtb";
+ 					type = "flat_dt";
+ 					arch = "arm64";
+ 					compression = "none";
+ 					blob {
++#ifdef CONFIG_TARGET_IOT2050_A53_PG1
+ 						filename = "arch/arm/dts/k3-am6528-iot2050-basic.dtb";
+-					};
+-				};
+-
+-				fdt-iot2050-basic-pg2 {
+-					description = "k3-am6528-iot2050-basic-pg2.dtb";
+-					type = "flat_dt";
+-					arch = "arm64";
+-					compression = "none";
+-					blob {
++#else
+ 						filename = "arch/arm/dts/k3-am6528-iot2050-basic-pg2.dtb";
++#endif
+ 					};
+ 				};
+ 
+ 				fdt-iot2050-advanced {
+-					description = "k3-am6548-iot2050-advanced.dtb";
++					description = "k3-am6548-iot2050-advanced*.dtb";
+ 					type = "flat_dt";
+ 					arch = "arm64";
+ 					compression = "none";
+ 					blob {
++#ifdef CONFIG_TARGET_IOT2050_A53_PG1
+ 						filename = "arch/arm/dts/k3-am6548-iot2050-advanced.dtb";
+-					};
+-				};
+-
+-				fdt-iot2050-advanced-pg2 {
+-					description = "k3-am6548-iot2050-advanced-pg2.dtb";
+-					type = "flat_dt";
+-					arch = "arm64";
+-					compression = "none";
+-					blob {
++#else
+ 						filename = "arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dtb";
++#endif
+ 					};
+ 				};
+ 
+@@ -108,30 +100,12 @@
+ #endif
+ 				};
+ 
+-				conf-iot2050-basic-pg2 {
+-					description = "iot2050-basic-pg2";
+-					firmware = "u-boot";
+-					fdt = "fdt-iot2050-basic-pg2";
+-#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+-					loadables = "k3-rti-wdt-firmware";
+-#endif
+-				};
+-
+ 				conf-iot2050-advanced {
+ 					description = "iot2050-advanced";
+ 					firmware = "u-boot";
+ 					fdt = "fdt-iot2050-advanced";
+ #ifdef CONFIG_WDT_K3_RTI_FW_FILE
+ 					loadables = "k3-rti-wdt-firmware";
+-#endif
+-				};
+-
+-				conf-iot2050-advanced-pg2 {
+-					description = "iot2050-advanced-pg2";
+-					firmware = "u-boot";
+-					fdt = "fdt-iot2050-advanced-pg2";
+-#ifdef CONFIG_WDT_K3_RTI_FW_FILE
+-					loadables = "k3-rti-wdt-firmware";
+ #endif
+ 				};
+ 			};
+@@ -150,28 +124,24 @@
+ 			fill-byte = [00];
+ 		};
+ 
+-		/* PG1 sysfw, basic variant */
++		/* sysfw, basic variant */
+ 		blob-ext@0x6c0000 {
+ 			offset = <0x6c0000>;
+-			filename = "sysfw.itb";
++#ifdef CONFIG_TARGET_IOT2050_A53_PG1
++			filename = "sysfw_sr1.itb";
++#else
++			filename = "sysfw_sr2.itb";
++#endif
+ 			missing-msg = "iot2050-sysfw";
+ 		};
+-		/* PG1 sysfw, advanced variant */
++		/* sysfw, advanced variant */
+ 		blob-ext@0x740000 {
+ 			offset = <0x740000>;
+-			filename = "sysfw.itb_HS";
+-			missing-msg = "iot2050-sysfw";
+-		};
+-		/* PG2 sysfw, basic variant */
+-		blob-ext@0x7c0000 {
+-			offset = <0x7c0000>;
+-			filename = "sysfw_sr2.itb";
+-			missing-msg = "iot2050-sysfw";
+-		};
+-		/* PG2 sysfw, advanced variant */
+-		blob-ext@0x840000 {
+-			offset = <0x840000>;
++#ifdef CONFIG_TARGET_IOT2050_A53_PG1
++			filename = "sysfw_sr1.itb_HS";
++#else
+ 			filename = "sysfw_sr2.itb_HS";
++#endif
+ 			missing-msg = "iot2050-sysfw";
+ 		};
+ 	};
+diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
+index 8f634c172c1..e264bec2d44 100644
+--- a/board/siemens/iot2050/Kconfig
++++ b/board/siemens/iot2050/Kconfig
+@@ -1,20 +1,40 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+-# Copyright (c) Siemens AG, 2018-2021
++# Copyright (c) Siemens AG, 2018-2022
+ #
+ # Authors:
+ #   Le Jin <le.jin@siemens.com>
+ #   Jan Kiszka <jan.kiszka@siemens.com>
+ 
+-config TARGET_IOT2050_A53
+-	bool "IOT2050 running on A53"
++choice
++        prompt "Siemens SIMATIC IOT2050 boards"
++        optional
++
++config TARGET_IOT2050_A53_PG1
++	bool "IOT2050 PG1 running on A53"
++	select IOT2050_A53_COMMON
++	help
++	  This builds U-Boot for the Product Generation 1 (PG1) of the IOT2050
++	  devices.
++
++config TARGET_IOT2050_A53_PG2
++	bool "IOT2050 PG2 running on A53"
++	select IOT2050_A53_COMMON
++	help
++	  This builds U-Boot for the Product Generation 2 (PG2) of the IOT2050
++	  devices.
++
++endchoice
++
++config IOT2050_A53_COMMON
++	bool
+ 	select ARM64
+ 	select SOC_K3_AM6
+ 	select BOARD_LATE_INIT
+ 	select SYS_DISABLE_DCACHE_OPS
+ 	select BINMAN
+ 
+-if TARGET_IOT2050_A53
++if IOT2050_A53_COMMON
+ 
+ config SYS_BOARD
+ 	default "iot2050"
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index b965ae9fa49..050ddb5899b 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -55,14 +55,6 @@ static bool board_is_advanced(void)
+ 		strstr((char *)info->name, "IOT2050-ADVANCED") != NULL;
+ }
+ 
+-static bool board_is_sr1(void)
+-{
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
+-
+-	return info->magic == IOT2050_INFO_MAGIC &&
+-		!strstr((char *)info->name, "-PG2");
+-}
+-
+ static void remove_mmc1_target(void)
+ {
+ 	char *boot_targets = strdup(env_get("boot_targets"));
+@@ -109,12 +101,12 @@ void set_board_info_env(void)
+ 	}
+ 
+ 	if (board_is_advanced()) {
+-		if (board_is_sr1())
++		if (IS_ENABLED(CONFIG_TARGET_IOT2050_A53_PG1))
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
+ 		else
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
+ 	} else {
+-		if (board_is_sr1())
++		if (IS_ENABLED(CONFIG_TARGET_IOT2050_A53_PG1))
+ 			fdtfile = "ti/k3-am6528-iot2050-basic.dtb";
+ 		else
+ 			fdtfile = "ti/k3-am6528-iot2050-basic-pg2.dtb";
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_pg1_defconfig
+similarity index 99%
+copy from configs/iot2050_defconfig
+copy to configs/iot2050_pg1_defconfig
+index 4a87a3394de..bdec46c1638 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_pg1_defconfig
+@@ -8,7 +8,7 @@ CONFIG_SPL_LIBCOMMON_SUPPORT=y
+ CONFIG_SPL_LIBGENERIC_SUPPORT=y
+ CONFIG_NR_DRAM_BANKS=2
+ CONFIG_SOC_K3_AM6=y
+-CONFIG_TARGET_IOT2050_A53=y
++CONFIG_TARGET_IOT2050_A53_PG1=y
+ CONFIG_ENV_SIZE=0x20000
+ CONFIG_ENV_OFFSET=0x680000
+ CONFIG_ENV_SECT_SIZE=0x20000
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_pg2_defconfig
+similarity index 95%
+rename from configs/iot2050_defconfig
+rename to configs/iot2050_pg2_defconfig
+index 4a87a3394de..1bee7c46175 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_pg2_defconfig
+@@ -8,13 +8,13 @@ CONFIG_SPL_LIBCOMMON_SUPPORT=y
+ CONFIG_SPL_LIBGENERIC_SUPPORT=y
+ CONFIG_NR_DRAM_BANKS=2
+ CONFIG_SOC_K3_AM6=y
+-CONFIG_TARGET_IOT2050_A53=y
++CONFIG_TARGET_IOT2050_A53_PG2=y
+ CONFIG_ENV_SIZE=0x20000
+ CONFIG_ENV_OFFSET=0x680000
+ CONFIG_ENV_SECT_SIZE=0x20000
+ CONFIG_DM_GPIO=y
+ CONFIG_SPL_DM_SPI=y
+-CONFIG_DEFAULT_DEVICE_TREE="k3-am6528-iot2050-basic"
++CONFIG_DEFAULT_DEVICE_TREE="k3-am6528-iot2050-basic-pg2"
+ CONFIG_SPL_TEXT_BASE=0x80080000
+ CONFIG_SPL_SERIAL=y
+ CONFIG_SPL_STACK_R_ADDR=0x82000000
+@@ -60,7 +60,6 @@ CONFIG_CMD_TIME=y
+ # CONFIG_ISO_PARTITION is not set
+ CONFIG_OF_CONTROL=y
+ CONFIG_SPL_OF_CONTROL=y
+-CONFIG_OF_LIST="k3-am6528-iot2050-basic k3-am6548-iot2050-advanced"
+ CONFIG_SPL_MULTI_DTB_FIT=y
+ CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
+ CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
+diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
+index 7e97f817ce4..fd3431fa3f8 100644
+--- a/doc/board/siemens/iot2050.rst
++++ b/doc/board/siemens/iot2050.rst
+@@ -24,9 +24,10 @@ Binary dependencies can be found in
+ https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild.
+ The following binaries from that source need to be present in the build folder:
+ 
+- - tiboot3.bin
+- - sysfw.itb
+- - sysfw.itb_HS
++ - seboot_pg1.bin
++ - sysfw_sr1.itb
++ - sysfw_sr1.itb_HS
++ - seboot_pg2.bin
+  - sysfw_sr2.itb
+  - sysfw_sr2.itb_HS
+ 
+@@ -57,7 +58,13 @@ U-Boot:
+ 
+  $ export ATF=/path/to/bl31.bin
+  $ export TEE=/path/to/tee-pager_v2.bin
+- $ make iot2050_defconfig
++
++ # configure for PG1
++ $ make iot2050_pg1_defconfig
++
++ # or configure for PG2
++ $ make iot2050_pg2_defconfig
++
+  $ make
+ 
+ Flashing
+-- 
+2.34.1
+

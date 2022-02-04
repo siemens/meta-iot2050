@@ -8,10 +8,8 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require u-boot-iot2050_2021.04.inc
+require u-boot-iot2050_2022.01.inc
 
-SPI_FLASH_DEPLOY_IMG = "iot2050-pg2-image-boot.bin"
+U_BOOT_CONFIG = "iot2050_pg1_defconfig"
 
-do_prepare_build_append() {
-    ln -sf ../prebuild/tiboot3_sr2.bin ${S}/tiboot3.bin
-}
+SPI_FLASH_DEPLOY_IMG = "iot2050-pg1-image-boot.bin"
