@@ -26,5 +26,8 @@ do_prepare_build() {
 }
 
 dpkg_runbuild_prepend() {
-    export CC="gcc"
+    cat << EOF >> ${S}/debian/rules
+
+export CC="gcc"
+EOF
 }
