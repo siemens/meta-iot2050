@@ -44,8 +44,11 @@ do_prepare_build_append() {
 }
 
 dpkg_runbuild_prepend() {
-    export ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin
-    export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
+    cat << EOF >> ${S}/debian/rules
+
+export ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin
+export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
+EOF
 }
 
 do_deploy() {
