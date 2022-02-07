@@ -26,6 +26,4 @@ do_prepare_build() {
 	quilt push -a
 }
 
-dpkg_runbuild_prepend() {
-	export DEB_BUILD_OPTIONS="nocheck"
-}
+DEB_BUILD_OPTIONS += "nocheck"
