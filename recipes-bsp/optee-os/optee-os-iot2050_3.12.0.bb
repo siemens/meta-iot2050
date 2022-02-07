@@ -23,5 +23,8 @@ OPTEE_EXTRA_BUILDARGS = " \
     CFG_CONSOLE_UART=1"
 
 dpkg_runbuild_prepend() {
-    export TEE_IMPL_VERSION=${PV}
+    cat << EOF >> ${S}/debian/rules
+
+export TEE_IMPL_VERSION=${PV}
+EOF
 }
