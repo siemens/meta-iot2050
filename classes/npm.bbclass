@@ -34,6 +34,8 @@ OWN_NPM_CLASS_PACKAGE ?= "0"
 
 # needed as gyp from bullseye does not establish /usr/bin/python
 NPM_EXTRA_DEPS = "${@'python' if d.getVar('NPM_REBUILD') == '1' else ''}"
+DEBIAN_BUILD_DEPENDS =. "${@'python,' if d.getVar('NPM_REBUILD') == '1' else ''}"
+DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
 
 DEBIAN_BUILD_DEPENDS =. "${@'libnode72,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 
@@ -206,25 +208,22 @@ python clean_npm() {
 do_cleanall[postfuncs] += "clean_npm"
 
 do_install() {
-    dpkg_do_mounts
+    # create directories to be installed
+    if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
+        mkdir -p ${D}/${NPM_LOCAL_INSTALL_DIR}
+    else
+        mkdir -p ${D}/usr/lib
+    fi
+}
 
-    # changing the home directory to the working directory, the .npmrc will
-    # be created in this directory
-    export HOME=${PP}
-
-    # ensure empty cache
-    export npm_config_cache=${PP}/npm_cache
-    sudo rm -rf ${WORKDIR}/npm_cache
-
+do_prepare_build_append() {
     INSTALL_FLAGS="--offline --only=production --no-package-lock --verbose \
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH}"
 
     if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
-        mkdir -p ${D}/${NPM_LOCAL_INSTALL_DIR}
         CHDIR=${PP}/image/${NPM_LOCAL_INSTALL_DIR}
     else
         CHDIR=/
-        mkdir -p ${D}/usr/lib
         INSTALL_FLAGS="$INSTALL_FLAGS --prefix ${PP}/image/usr -g"
     fi
 
@@ -232,24 +231,20 @@ do_install() {
         INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source --no-save"
     fi
 
-    export CHDIR INSTALL_FLAGS
-    sudo -E chroot --userspec=$(id -u):$(id -g) ${BUILDCHROOT_DIR} sh -c ' \
-        cd $CHDIR
-        npm install $INSTALL_FLAGS /downloads/${@get_npm_bundled_tgz(d)}
-    '
-
-    # this is left behind by npm, despite --no-package-lock and --no-save
-    if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
-        rm -f ${D}/${NPM_LOCAL_INSTALL_DIR}/node_modules/.package-lock.json
-    fi
-
-    dpkg_undo_mounts
-}
-
-do_prepare_build_append() {
-    # disable slow stripping - not enough value for our ad-hoc npm packaging
     cat <<EOF >> ${S}/debian/rules
 
+export HOME=${PP}
+export npm_config_cache=${PP}/npm_cache
+
+override_dh_auto_build:
+	# ensure empty cache
+	rm -rf ${PP}/npm_cache
+	cd ${CHDIR} && npm install ${INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
+	if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then \
+	    rm -f ${CHDIR}/node_modules/.package-lock.json; \
+	fi
+
+# disable slow stripping - not enough value for our ad-hoc npm packaging
 override_dh_strip_nondeterminism:
 EOF
 }
