@@ -30,10 +30,8 @@ def npm_arch_map(target_arch, d):
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 
 NPM_CLASS_PACKAGE ?= "npm"
-OWN_NPM_CLASS_PACKAGE ?= "0"
 
 # needed as gyp from bullseye does not establish /usr/bin/python
-NPM_EXTRA_DEPS = "${@'python' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${@'python,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
 
@@ -76,45 +74,14 @@ def get_npm_bundled_tgz(d):
 
 def runcmd(d, cmd, dir):
     import subprocess
-    import os
 
-    uid = os.geteuid()
-    gid = os.getegid()
-    chrootcmd = "sudo -E chroot --userspec={0}:{1} ".format(uid, gid)
-    chrootcmd += d.getVar('BUILDCHROOT_DIR')
-    chrootcmd += " sh -c 'cd {0}/{1}; {2}'".format(d.getVar('PP'), dir, cmd)
+    chrootcmd = "sh -c 'cd {0}/{1}; {2}'".format(d.getVar('PP'), dir, cmd)
     bb.note("Running " + chrootcmd)
     (retval, output) = subprocess.getstatusoutput(chrootcmd)
     if retval:
         bb.fatal("Failed to run '{0}'{1}".format(
             cmd, (":\n" + output) if output else ""))
     bb.note(output)
-
-do_install_npm() {
-    install_cmd="sudo -E chroot ${BUILDCHROOT_DIR} \
-        apt-get install -y -o Debug::pkgProblemResolver=yes \
-                --no-install-recommends"
-
-    dpkg_do_mounts
-
-    E="${@ bb.utils.export_proxies(d)}"
-    deb_dl_dir_import "${BUILDCHROOT_DIR}"
-    sudo -E chroot ${BUILDCHROOT_DIR} \
-            apt-get update \
-                    -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
-                    -o Dir::Etc::sourceparts="-" \
-                    -o APT::Get::List-Cleanup="0"
-    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
-    deb_dl_dir_export "${BUILDCHROOT_DIR}"
-    ${install_cmd} ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
-
-    dpkg_undo_mounts
-}
-do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
-do_install_npm[depends] += "${@(d.getVar('NPM_CLASS_PACKAGE') + ':do_deploy_deb') if d.getVar('OWN_NPM_CLASS_PACKAGE') == '1' else ''}"
-do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
-
-addtask install_npm before do_fetch
 
 python fetch_npm() {
     import json, os, shutil
@@ -146,9 +113,6 @@ python fetch_npm() {
         if hash == fetch_hash:
             return
 
-    bb.build.exec_func("dpkg_do_mounts", d)
-    bb.utils.export_proxies(d)
-
     old_cwd = os.getcwd()
     os.chdir(tmpdir)
 
@@ -156,7 +120,7 @@ python fetch_npm() {
 
     # changing the home directory to the tmpdir directory, the .npmrc will
     # be created in this directory
-    os.environ['HOME'] = d.getVar('PP') + "/fetch-tmp"
+    os.environ['HOME'] = workdir + "/fetch-tmp"
 
     os.environ.update({'npm_config_registry': d.getVar('NPM_REGISTRY')})
 
@@ -189,7 +153,6 @@ python fetch_npm() {
         hash_file.write(fetch_hash)
 
     os.chdir(old_cwd)
-    bb.build.exec_func("dpkg_undo_mounts", d)
 }
 do_fetch[postfuncs] += "fetch_npm"
 do_fetch[cleandirs] += "${WORKDIR}/fetch-tmp"
