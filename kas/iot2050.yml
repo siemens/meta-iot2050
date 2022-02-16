@@ -27,24 +27,17 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: 74036ebaab5265d62cdf90f563acd5b4d3b8b6d2
+    refspec: cf3f18a649ff42726677a58b224b9bb58ea4ba46
     layers:
       meta:
-    patches:
-      deb-build-profiles:
-        repo: meta-coral
-        path: patches/isar/0001-add-support-for-debian-build-profiles-and-options.patch
-      adjust-kernel-recipe:
-        repo: meta-coral
-        path: patches/isar/0002-refactor-linux-custom.inc-to-use-ISAR-s-DEB_BUILD_PR.patch
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
-    refspec: f0202eaabc39b167d3e86e8595c6f97331f29293
+    refspec: 9d0a1f60ae955ee2edca6caf98312e79accb98e2
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    refspec: 0feddaa6dd65c5a1b56ff6fcb18b4e748e53972f
+    refspec: ed318f247beef10e0433c6ed699b4c1ab008fa6a
 
 bblayers_conf_header:
   standard: |
