@@ -3,6 +3,11 @@ description: 'Remove content of the provided image to free disk space for the bu
 runs:
   using: "composite"
   steps:
-      - name: Remove /usr/local/* to free disk space
-        run:  sudo rm -rf /usr/local/*
+      - name:  Free disk space
+        run: |
+          sudo apt-get purge 'dotnet*' google-chrome-stable 'temurin*' google-cloud-sdk hhvm azure-cli 'mongodb*' powershell firefox chromium 'llvm*' 'libllvm*' 'adoptopenjdk*' 'mysql*' libgl1-mesa-dri apache2 'mono*'
+          sudo rm -rf /usr/local/* /opt/hostedtoolcache /opt/pipx* /opt/az
+        shell: bash
+      - name: Show disk space usage
+        run:  df -h
         shell: bash
