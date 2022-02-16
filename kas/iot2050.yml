@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2022
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -30,6 +30,17 @@ repos:
     refspec: 74036ebaab5265d62cdf90f563acd5b4d3b8b6d2
     layers:
       meta:
+    patches:
+      deb-build-profiles:
+        repo: meta-coral
+        path: patches/isar/0001-add-support-for-debian-build-profiles-and-options.patch
+      adjust-kernel-recipe:
+        repo: meta-coral
+        path: patches/isar/0002-refactor-linux-custom.inc-to-use-ISAR-s-DEB_BUILD_PR.patch
+
+  meta-coral:
+    url: https://github.com/siemens/meta-coral
+    refspec: f0202eaabc39b167d3e86e8595c6f97331f29293
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git

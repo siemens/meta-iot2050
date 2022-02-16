@@ -18,14 +18,12 @@ CHANGELOG_V="<orig-version>+iot2050"
 
 KEEP_INSTALLED_ON_CLEAN = "1"
 
+DEB_BUILD_OPTIONS += "nocheck"
+
 do_prepare_build() {
 	deb_add_changelog
 
 	cd ${S}
 	quilt import ${WORKDIR}/*.patch
 	quilt push -a
-}
-
-dpkg_runbuild_prepend() {
-	export DEB_BUILD_OPTIONS="nocheck"
 }
