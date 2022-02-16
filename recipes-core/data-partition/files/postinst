@@ -1,0 +1,3 @@
+#!/bin/sh
+
+deb-systemd-helper enable data.mount || true

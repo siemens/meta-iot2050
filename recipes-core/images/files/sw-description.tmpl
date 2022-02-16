@@ -1,0 +1,25 @@
+#
+# Copyright (c) Siemens AG, 2021
+#
+# Authors:
+#  Quirin Gylstorff <quirin.gylstorff@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+software =
+{
+    version = "0.1";
+    name = "iot2050 update image"
+    images: ({
+            filename = "${ROOTFS_PARTITION_NAME}";
+            device = "rootfs1,rootfs2";
+            type = "roundrobin";
+            compressed = "zlib";
+            filesystem = "ext4";
+            properties: {
+                        subtype = "image";
+            };
+    });
+}

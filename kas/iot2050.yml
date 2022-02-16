@@ -31,6 +31,10 @@ repos:
     layers:
       meta:
 
+  cip-core:
+    url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
+    refspec: 0feddaa6dd65c5a1b56ff6fcb18b4e748e53972f
+
 bblayers_conf_header:
   standard: |
     LCONF_VERSION = "6"

@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
@@ -25,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
       - name: Upload image
@@ -35,12 +39,32 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img.bmap
 
+  debian-swupdate-image:
+    name: Debian SWUpdate image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
+      - name: Build image
+        run: ./kas-container build kas-iot2050-swupdate.yml
+      - name: Upload image
+        uses: actions/upload-artifact@v2
+        with:
+          name: iot2050-swupdate-image
+          path: |
+            build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img
+            build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img.bmap
+
   bootloaders:
     name: Bootloaders for both PG1 and PG2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image for PG1
         run: ./kas-container build kas-iot2050-boot-pg1.yml
       - name: Build bootloader image for PG2

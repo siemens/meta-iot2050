@@ -1,0 +1,8 @@
+name: 'Free Disk Space'
+description: 'Remove content of the provided image to free disk space for the build'
+runs:
+  using: "composite"
+  steps:
+      - name: Remove /usr/local/* to free disk space
+        run:  sudo rm -rf /usr/local/*
+        shell: bash

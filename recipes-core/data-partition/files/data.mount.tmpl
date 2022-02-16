@@ -1,0 +1,12 @@
+[Unit]
+Description=Mount /data partition
+After=expand-on-first-boot.service
+
+[Mount]
+What=/dev/disk/by-partlabel/data
+Where=/data
+Type=ext4
+Options=data=journal,noatime,nodiratime,nodelalloc,commit=${FS_COMMIT_INTERVAL}
+
+[Install]
+WantedBy=local-fs.target
