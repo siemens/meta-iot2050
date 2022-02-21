@@ -13,7 +13,7 @@ Before=swupdate.service shutdown.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/share/u-boot-env/patch-u-boot-env.sh /usr/share/u-boot-env/patch-u-boot-env.config
+ExecStart=/usr/share/u-boot-env/patch-u-boot-env.sh sysselect /usr/share/u-boot-env/patch-u-boot-env.config
 ExecStartPost=-/bin/systemctl disable patch-u-boot-env.service
 
 [Install]
