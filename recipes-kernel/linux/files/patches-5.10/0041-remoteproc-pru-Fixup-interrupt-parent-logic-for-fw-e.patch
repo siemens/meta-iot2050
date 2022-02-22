@@ -1,7 +1,7 @@
-From 73cf263b9f828611c8a9bb8cc4146e5b5e1f53fd Mon Sep 17 00:00:00 2001
+From 4e14b6ebeef63b7612696cea8f4c3723b4ac1817 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:39 -0500
-Subject: [PATCH 041/120] remoteproc: pru: Fixup interrupt-parent logic for fw
+Subject: [PATCH 041/118] remoteproc: pru: Fixup interrupt-parent logic for fw
  events
 
 The PRU firmware interrupt mapping logic in pru_handle_intrmap() uses

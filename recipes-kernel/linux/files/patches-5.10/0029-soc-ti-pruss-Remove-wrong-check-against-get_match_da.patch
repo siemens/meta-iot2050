@@ -1,7 +1,7 @@
-From 3c43cf32b8651a36ee609e9e8d38c3cf93ed94c1 Mon Sep 17 00:00:00 2001
+From 1411bab7ddcc3c9fe2c670fbd879675b9ef6528b Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
-Subject: [PATCH 029/120] soc: ti: pruss: Remove wrong check against
+Subject: [PATCH 029/118] soc: ti: pruss: Remove wrong check against
  *get_match_data return value
 
 Since the of_device_get_match_data() doesn't return error code, remove
@@ -19,7 +19,7 @@ Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
  1 file changed, 6 deletions(-)
 
 diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
-index cc0b4ad7a3d3..5d6e7132a5c4 100644
+index 30695172a508..aa3aba80dbc6 100644
 --- a/drivers/soc/ti/pruss.c
 +++ b/drivers/soc/ti/pruss.c
 @@ -126,8 +126,6 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)
