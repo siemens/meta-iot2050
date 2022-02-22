@@ -1,4 +1,4 @@
-From 80820f4090316c6abd72bafb5239cce937c27fb2 Mon Sep 17 00:00:00 2001
+From 55dc9d15aa0f6dd9de572fe0d59960096580f672 Mon Sep 17 00:00:00 2001
 From: Lukas Wunner <lukas@wunner.de>
 Date: Mon, 22 Nov 2021 16:58:24 +0100
 Subject: [PATCH 118/120] serial: 8250: Fix RTS modem control while in rs485

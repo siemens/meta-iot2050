@@ -1,4 +1,4 @@
-From 85335cd29aa4bd59d50cbf650c9472d02b0dcf64 Mon Sep 17 00:00:00 2001
+From 8f778f3c7ab6161d3a07a3074b0214a87fe0a052 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Thu, 16 Dec 2021 15:09:25 +0800
 Subject: [PATCH 120/120] arm64: dts: ti: Indicate the green light is off when

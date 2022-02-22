@@ -1,4 +1,4 @@
-From 1ccc0be4309f44d84fac1c09e1f2969a251b93f0 Mon Sep 17 00:00:00 2001
+From 8e61f99c0ea90af91f003118dfd60eaf44c54e9a Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:22 +0100
 Subject: [PATCH 111/120] USB: serial: cp210x: clean up line-control handling

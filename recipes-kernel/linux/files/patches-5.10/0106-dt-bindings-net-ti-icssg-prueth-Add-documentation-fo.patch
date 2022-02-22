@@ -1,4 +1,4 @@
-From 913a59c02f32c33ed05416b8ded4fcee1c61605e Mon Sep 17 00:00:00 2001
+From 35a6221fdfd327c7b3d5216aa81b4f272f673ba4 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Tue, 12 Oct 2021 13:54:41 +0300
 Subject: [PATCH 106/120] dt-bindings: net: ti, icssg-prueth: Add documentation

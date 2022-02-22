@@ -1,4 +1,4 @@
-From 914ad91ef5cd0b998147a81e9ad2a80b1c57f317 Mon Sep 17 00:00:00 2001
+From 095c40f3c97842a5bf9bdc91ddd987e85be5ea4d Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 22 Oct 2021 13:37:22 +0800
 Subject: [PATCH 109/120] arm64: dts: ti: add the support for the half-duplex

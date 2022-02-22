@@ -1,4 +1,4 @@
-From a316d9d3da77b782e0ab52935d2fccae881f2d07 Mon Sep 17 00:00:00 2001
+From d148f4f80a2b5047758b26abdcf3bce121962ee3 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:24 +0100
 Subject: [PATCH 113/120] USB: serial: cp210x: drop flow-control debugging

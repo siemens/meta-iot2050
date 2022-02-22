@@ -1,4 +1,4 @@
-From 6d5b8cca3e9d4dfb2858b5701aef3f7baa34d62f Mon Sep 17 00:00:00 2001
+From 53f61f1502d4d8e690b1214030dd345c867dc88a Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:26 +0100
 Subject: [PATCH 115/120] USB: serial: cp210x: clean up dtr_rts()
