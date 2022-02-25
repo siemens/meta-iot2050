@@ -1,7 +1,7 @@
-From 7e6d0d38dbb9ecaec40c6bd114a190c3c70db701 Mon Sep 17 00:00:00 2001
+From d06a6931ac0be3d4303ddffb037eb43c3f8c6671 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:24 -0600
-Subject: [PATCH 005/120] arm64: dts: ti: am65/j721e: Fix up un-necessary
+Subject: [PATCH 005/118] arm64: dts: ti: am65/j721e: Fix up un-necessary
  status set to "okay" for crypto
 
 The default state of a device tree node is "okay". There is no specific
@@ -31,7 +31,7 @@ index c842b9803f2d..116818912ba2 100644
  		dmas = <&main_udmap 0xc000>, <&main_udmap 0x4000>,
  				<&main_udmap 0x4001>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 6ffdebd60122..d386b38b5b0b 100644
+index 85526f72b461..98009d3aa25d 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -359,8 +359,6 @@ main_crypto: crypto@4e00000 {
