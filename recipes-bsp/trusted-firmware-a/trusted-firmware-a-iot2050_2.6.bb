@@ -11,7 +11,7 @@
 require recipes-bsp/trusted-firmware-a/trusted-firmware-a-custom.inc
 
 SRC_URI += "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${PV}.tar.gz"
-SRC_URI[sha256sum] = "ad8a2ffcbcd12d919723da07630fc0840c3c2fba7656d1462e45488e42995d7c"
+SRC_URI[sha256sum] = "4e59f02ccb042d5d18c89c849701b96e6cf4b788709564405354b5d313d173f7"
 
 S = "${WORKDIR}/trusted-firmware-a-${PV}"
 
