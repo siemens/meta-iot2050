@@ -11,9 +11,11 @@
 require recipes-bsp/optee-os/optee-os-custom.inc
 
 SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz"
-SRC_URI[sha256sum] = "b13991099f25d00dac479db93b55034cb93d206e296f2c7aa9c42b92bca2c783"
+SRC_URI[sha256sum] = "ebc8e18ad2039ee97c34f74a7546de9119e26f04c368b6c7fd0c55f93d33d2d6"
 
 S = "${WORKDIR}/optee_os-${PV}"
+
+DEBIAN_BUILD_DEPENDS += ", python3-cryptography:native"
 
 OPTEE_NAME = "iot2050"
 
