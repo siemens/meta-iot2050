@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2021
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -17,3 +17,7 @@ SRC_URI += " \
 UBOOT_BRANCH = "jan/iot2050"
 
 S = "${WORKDIR}/git"
+
+U_BOOT_CONFIG = "iot2050_${PRODUCT_GENERATION}_defconfig"
+
+SPI_FLASH_DEPLOY_IMG = "iot2050-${PRODUCT_GENERATION}-image-boot.bin"
