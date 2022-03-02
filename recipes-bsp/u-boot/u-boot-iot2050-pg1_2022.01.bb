@@ -10,6 +10,6 @@
 
 require u-boot-iot2050_2022.01.inc
 
-U_BOOT_CONFIG = "iot2050_pg1_defconfig"
+U_BOOT_CONFIG = "iot2050_${PRODUCT_GENERATION}_defconfig"
 
-SPI_FLASH_DEPLOY_IMG = "iot2050-pg1-image-boot.bin"
+SPI_FLASH_DEPLOY_IMG = "iot2050-${PRODUCT_GENERATION}-image-boot.bin"

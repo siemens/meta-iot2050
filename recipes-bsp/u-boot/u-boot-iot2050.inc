@@ -11,6 +11,8 @@
 
 require recipes-bsp/u-boot/u-boot-custom.inc
 
+PRODUCT_GENERATION = "${@d.getVar('PN').split('-')[3]}"
+
 SRC_URI += " \
     file://keys \
     file://prebuild \
