@@ -1,0 +1,62 @@
+From 95d5104cdcf2e804fc5eb846245a5a85cfbafdba Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 21 Feb 2022 17:09:08 +0100
+Subject: [PATCH 2/8] watchdog: rti_wdt: Add 10% safety margin to clock
+ frequency
+
+When running against RC_OSC_32k, the watchdog may suffer from running
+faster than expected, expiring earlier. The Linux kernel adds a 10%
+margin to the timeout calculation by slowing down the read clock rate
+accordingly. Do the same here, also to have comparable preset values
+for both drivers.
+
+Along this, fix the name of the local var holding to frequency - in Hz,
+not kHz.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/watchdog/rti_wdt.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 253286d349b..8d93f19b984 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -41,7 +41,7 @@
+ 
+ struct rti_wdt_priv {
+ 	phys_addr_t regs;
+-	unsigned int clk_khz;
++	unsigned int clk_hz;
+ };
+ 
+ #ifdef CONFIG_WDT_K3_RTI_LOAD_FW
+@@ -139,7 +139,7 @@ static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	timer_margin = timeout_ms * priv->clk_khz / 1000;
++	timer_margin = timeout_ms * priv->clk_hz / 1000;
+ 	timer_margin >>= WDT_PRELOAD_SHIFT;
+ 	if (timer_margin > WDT_PRELOAD_MAX)
+ 		timer_margin = WDT_PRELOAD_MAX;
+@@ -185,7 +185,15 @@ static int rti_wdt_probe(struct udevice *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	priv->clk_khz = clk_get_rate(&clk);
++	priv->clk_hz = clk_get_rate(&clk);
++
++	/*
++	 * If watchdog is running at 32k clock, it is not accurate.
++	 * Adjust frequency down in this case so that it does not expire
++	 * earlier than expected.
++	 */
++	if (priv->clk_hz < 32768)
++		priv->clk_hz = priv->clk_hz * 9 / 10;
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+

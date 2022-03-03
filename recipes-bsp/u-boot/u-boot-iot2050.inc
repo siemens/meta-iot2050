@@ -11,12 +11,13 @@
 
 require recipes-bsp/u-boot/u-boot-custom.inc
 
+PRODUCT_GENERATION = "${@d.getVar('PN').split('-')[3]}"
+
 SRC_URI += " \
     file://keys \
     file://prebuild \
     file://fw_env.config"
 
-U_BOOT_CONFIG = "iot2050_defconfig"
 U_BOOT_BIN = "flash.bin"
 
 SPI_FLASH_IMG = "${U_BOOT_BIN}"
