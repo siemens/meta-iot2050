@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -10,6 +10,6 @@
 
 inherit npm
 
-DESCRIPTION = "A set of dashboard nodes for Node-RED"
+DESCRIPTION = "A Node-RED node to interact with Siemens S7 PLCs"
 
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"

@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2022
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
@@ -11,11 +11,11 @@
 
 inherit dpkg
 
-PV = "1.7.0-f577ec33"
+PV = "1.7.0-a199cc0e"
 SRC_URI = " \
     git://git.eclipse.org/r/tcf/org.eclipse.tcf.agent.git;protocol=https \
     file://debian"
-SRCREV = "f577ec3314aebdce3c9c61d982049129ab8eee94"
+SRCREV = "a199cc0e59f7edb5f2f38eceb2c7feb1073cce3b"
 
 S = "${WORKDIR}/git"
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -10,6 +10,6 @@
 
 inherit npm
 
-DESCRIPTION = "A Node-RED node to interact with Siemens S7 PLCs"
+DESCRIPTION = "A sqlite node for Node-RED"
 
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"

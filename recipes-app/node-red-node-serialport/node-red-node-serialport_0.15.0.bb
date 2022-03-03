@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -10,6 +10,6 @@
 
 inherit npm
 
-DESCRIPTION = "A sqlite node for Node-RED"
+DESCRIPTION = "Node-RED nodes to talk to serial ports"
 
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"
