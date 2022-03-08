@@ -97,10 +97,13 @@ config KAS_INCLUDE_LXDE
 	default "kas/opt/lxde.yml"
 	depends on LXDE
 
+endif
+
 comment "Build options"
 
 config SDK
 	bool "Build SDK"
+	depends on IMAGE_EXAMPLE || IMAGE_SWUPDATE
 	help
 	  Generate an SDK consisting of a cross-compiler and library headers
 	  needed to build applications for the device.
@@ -139,5 +142,3 @@ config KAS_INCLUDE_DEBIAN_MIRROR
 	string
 	default "kas/opt/debian-mirror.yml"
 	depends on DEBIAN_MIRROR
-
-endif
