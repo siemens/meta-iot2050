@@ -1,7 +1,7 @@
-From 40171361d1e9b429fc56af825d633c0dc2a4ffdc Mon Sep 17 00:00:00 2001
+From 28e2fcc8f8b3232faf44e421c43dd6258a6f0ec9 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 23 Feb 2022 10:26:16 +0100
-Subject: [PATCH 3/8] mtd: spi: Convert is_locked callback to is_unlocked
+Subject: [PATCH 3/9] mtd: spi: Convert is_locked callback to is_unlocked
 
 There was no user of this callback after 5b66fdb29dc3 anymore, and its
 semantic as now inconsistent between stm and sst26. What we need for the
@@ -15,7 +15,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  2 files changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/mtd/spi/spi-nor-core.c b/drivers/mtd/spi/spi-nor-core.c
-index 4388a08a90d..6459a101a44 100644
+index 4388a08a90..6459a101a4 100644
 --- a/drivers/mtd/spi/spi-nor-core.c
 +++ b/drivers/mtd/spi/spi-nor-core.c
 @@ -1308,13 +1308,13 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
@@ -87,7 +87,7 @@ index 4388a08a90d..6459a101a44 100644
  #endif
  
 diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
-index 4ceeae623de..f857a94db71 100644
+index 4ceeae623d..f857a94db7 100644
 --- a/include/linux/mtd/spi-nor.h
 +++ b/include/linux/mtd/spi-nor.h
 @@ -506,8 +506,8 @@ struct spi_flash {

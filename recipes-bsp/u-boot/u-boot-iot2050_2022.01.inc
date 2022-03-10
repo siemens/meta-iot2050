@@ -21,6 +21,7 @@ SRC_URI += " \
     file://0006-board-siemens-iot2050-Split-the-build-for-PG1-and-PG.patch \
     file://0007-arm-dts-iot2050-Use-the-auto-generator-nodes-for-fdt.patch \
     file://0008-iot2050-Update-firmware-layout.patch \
+    file://0009-board-siemens-fix-the-issue-that-board-can-t-load-th.patch \
     "
 
 SRC_URI[sha256sum] = "81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413"

@@ -1,7 +1,7 @@
-From 96cb235042c65dcb85d26d0428a8dafff64b35dd Mon Sep 17 00:00:00 2001
+From de72d7649c4cbc739f71363c13beec788c1b0182 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 14:52:01 +0800
-Subject: [PATCH 7/8] arm: dts: iot2050: Use the auto generator nodes for fdt
+Subject: [PATCH 7/9] arm: dts: iot2050: Use the auto generator nodes for fdt
 
 Refactor according to the entry `fit: Entry containing a FIT` of
 document tools/binman/README.entries.
@@ -15,7 +15,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  2 files changed, 8 insertions(+), 37 deletions(-)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 3135ad04715..46669576864 100644
+index 3135ad0471..4666957686 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -32,6 +32,7 @@
@@ -88,7 +88,7 @@ index 3135ad04715..46669576864 100644
  					loadables = "k3-rti-wdt-firmware";
  #endif
 diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
-index 1bee7c46175..c8c21f71e25 100644
+index 1bee7c4617..c8c21f71e2 100644
 --- a/configs/iot2050_pg2_defconfig
 +++ b/configs/iot2050_pg2_defconfig
 @@ -60,6 +60,7 @@ CONFIG_CMD_TIME=y

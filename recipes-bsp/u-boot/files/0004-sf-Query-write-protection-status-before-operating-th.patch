@@ -1,7 +1,7 @@
-From fb8c19671c4b1c4303abeccd49d053cb39ce447a Mon Sep 17 00:00:00 2001
+From 83c37e11d1f747fe9a68b3d322865f69fe527cfc Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 2 Feb 2022 07:20:43 +0100
-Subject: [PATCH 4/8] sf: Query write-protection status before operating the
+Subject: [PATCH 4/9] sf: Query write-protection status before operating the
  flash
 
 Do not suggest successful operation if a flash area to be changed is
@@ -17,7 +17,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 12 insertions(+)
 
 diff --git a/cmd/sf.c b/cmd/sf.c
-index eac27ed2d77..d4b70d26c48 100644
+index eac27ed2d7..d4b70d26c4 100644
 --- a/cmd/sf.c
 +++ b/cmd/sf.c
 @@ -287,6 +287,12 @@ static int do_spi_flash_read_write(int argc, char *const argv[])

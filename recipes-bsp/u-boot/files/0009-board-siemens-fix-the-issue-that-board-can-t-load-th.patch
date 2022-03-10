@@ -1,0 +1,32 @@
+From a261ae6452c812986e94a801ae552d49a09956ca Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Thu, 10 Mar 2022 15:38:32 +0800
+Subject: [PATCH 9/9] board:siemens:fix the issue that board can't load the
+ correct dtb
+
+the name like k3-am6528-iot2050-basic-pg2 not the iot2050-basic-pg2.
+so it can't find the correnct dtb.
+
+correct this issue
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ board/siemens/iot2050/board.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 050ddb5899..da5fb04e71 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -159,7 +159,7 @@ int board_fit_config_name_match(const char *name)
+ 		return -1;
+ 
+ 	str_to_upper(name, upper_name, sizeof(upper_name));
+-	if (!strcmp(upper_name, (char *)info->name))
++	if (strstr(upper_name, (char *)info->name))
+ 		return 0;
+ 
+ 	return -1;
+-- 
+2.34.1
+
