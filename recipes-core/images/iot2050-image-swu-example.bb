@@ -21,8 +21,7 @@ IMAGE_INSTALL += "data-partition"
 
 FILESPATH_prepend := "${THISDIR}/files:"
 
-EXTRACT_PARTITIONS = "img1"
-ROOTFS_PARTITION_NAME = "${EXTRACT_PARTITIONS}.gz"
+ROOTFS_PARTITION_NAME = "${IMAGE_FULLNAME}.wic.img.p1.gz"
 
 # Variables for swupdate image creation:
 SRC_URI += "file://sw-description.tmpl"
