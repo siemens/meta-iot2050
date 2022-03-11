@@ -1,4 +1,4 @@
-From 96cb235042c65dcb85d26d0428a8dafff64b35dd Mon Sep 17 00:00:00 2001
+From e1b6f8688c998fc23e1f44fb3f98f86d439609a8 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 14:52:01 +0800
 Subject: [PATCH 7/8] arm: dts: iot2050: Use the auto generator nodes for fdt
@@ -6,13 +6,17 @@ Subject: [PATCH 7/8] arm: dts: iot2050: Use the auto generator nodes for fdt
 Refactor according to the entry `fit: Entry containing a FIT` of
 document tools/binman/README.entries.
 
+As the generator uses the device tree name for the config description,
+board_fit_config_name_match requires a small adjustment as well.
+
 Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
-[Jan: re-add now required CONFIG_OF_LIST]
+[Jan: re-add now required CONFIG_OF_LIST, update config matching]
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 44 ++++----------------
+ board/siemens/iot2050/board.c                |  3 ++
  configs/iot2050_pg2_defconfig                |  1 +
- 2 files changed, 8 insertions(+), 37 deletions(-)
+ 3 files changed, 11 insertions(+), 37 deletions(-)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 index 3135ad04715..46669576864 100644
@@ -87,6 +91,20 @@ index 3135ad04715..46669576864 100644
  #ifdef CONFIG_WDT_K3_RTI_FW_FILE
  					loadables = "k3-rti-wdt-firmware";
  #endif
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 050ddb5899b..2be5d1eefc3 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -154,6 +154,9 @@ int board_fit_config_name_match(const char *name)
+ 	struct iot2050_info *info = IOT2050_INFO_DATA;
+ 	char upper_name[32];
+ 
++	/* skip the prefix "k3-am65x8-" */
++	name += 10;
++
+ 	if (info->magic != IOT2050_INFO_MAGIC ||
+ 	    strlen(name) >= sizeof(upper_name))
+ 		return -1;
 diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
 index 1bee7c46175..c8c21f71e25 100644
 --- a/configs/iot2050_pg2_defconfig
