@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 # HOWTO generate an npm-shrinkwrap.json:
-#   npm install --global-style <my-favorite-package>
+#   npm config set global-style=true (you may want to reset this afterward)
+#   npm install <my-favorite-package>
 #   cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
 
 inherit dpkg-raw
