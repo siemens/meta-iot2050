@@ -24,12 +24,6 @@ config IMAGE_EXAMPLE
 	  This is the official example image with several tools as well as
 	  Node-RED preinstalled. It comes without a graphical user interface.
 
-config IMAGE_LXDE
-	bool "LXDE example image"
-	help
-	  Based on the example image, this adds an LXDE-based graphical user
-	  interface.
-
 config IMAGE_SWUPDATE
 	bool "Example image with SWUpdate support"
 	help
@@ -62,11 +56,10 @@ config KAS_INCLUDE_MAIN
 	string
 	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
 	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
-	default "kas-iot2050-lxde.yml" if IMAGE_LXDE
 	default "kas-iot2050-boot-pg1.yml" if IMAGE_BOOT_PG1
 	default "kas-iot2050-boot-pg2.yml" if IMAGE_BOOT_PG2
 
-if IMAGE_EXAMPLE || IMAGE_LXDE || IMAGE_SWUPDATE
+if IMAGE_EXAMPLE || IMAGE_SWUPDATE
 
 comment "Image features"
 
@@ -93,6 +86,16 @@ config KAS_INCLUDE_NO_CORAL
 	string
 	default "kas/opt/no-coral.yml"
 	depends on !CORAL
+
+config LXDE
+	bool "LXDE graphical user interface"
+	help
+	  This adds an LXDE-based graphical user interface.
+
+config KAS_INCLUDE_LXDE
+	string
+	default "kas/opt/lxde.yml"
+	depends on LXDE
 
 comment "Build options"
 
