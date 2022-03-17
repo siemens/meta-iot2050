@@ -109,6 +109,10 @@ IMAGE_INSTALL += " \
     iot2050-firmware-update \
     tcf-agent \
     mraa \
+    "
+
+# focal is using nodejs 10, our packages require >= 12
+IMAGE_INSTALL_append_iot2050-debian = " \
     node-red \
     node-red-gpio \
     node-red-preinstalled-nodes \
