@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2021
+# Copyright (c) Siemens AG, 2021-2022
 #
 # Authors:
 #  Quirin Gylstorff <quirin.gylstorff@siemens.com>
@@ -14,6 +14,10 @@ IMAGE_FSTYPES = "wic-swu-img"
 require recipes-core/images/iot2050-image-example.bb
 
 WKS_FILE = "iot2050-swu.wks.in"
+
+# not compatible with SWUpdate images
+IMAGE_INSTALL_remove = "regen-rootfs-uuid"
+IMAGE_INSTALL_remove = "install-on-emmc"
 
 IMAGE_INSTALL += "swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
