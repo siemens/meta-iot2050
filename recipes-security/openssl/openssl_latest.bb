@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -11,7 +11,7 @@
 inherit dpkg
 
 SRC_URI = " \
-    apt://${PN}/${BASE_DISTRO_CODENAME} \
+    apt://${PN} \
     file://0001-make-bnrand_range-reliable-with-deterministic-run-ti.patch;apply=no \
     "
 CHANGELOG_V="<orig-version>+iot2050"
