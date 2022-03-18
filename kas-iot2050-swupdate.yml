@@ -13,9 +13,3 @@ header:
 build_system: isar
 
 target: iot2050-image-swu-example
-
-# wic-swu-img extracts a partition and generates a cpio image for
-# updating with swupdate
-local_conf_header:
-  generate-swu: |
-    IMAGE_FSTYPES = "wic-swu-img"

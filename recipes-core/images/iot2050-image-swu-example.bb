@@ -8,6 +8,9 @@
 # COPYING.MIT file in the top-level directory.
 #
 
+# generate a swu image for a/b updating via swupdate
+IMAGE_FSTYPES = "wic-swu-img"
+
 require recipes-core/images/iot2050-image-example.bb
 
 WKS_FILE = "iot2050-swu.wks.in"
