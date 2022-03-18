@@ -13,3 +13,7 @@ inherit npm
 DESCRIPTION = "Node-RED nodes to talk to serial ports"
 
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"
+
+do_install_append() {
+    rm -rf $(find ${D} -name prebuilds -type d)
+}
