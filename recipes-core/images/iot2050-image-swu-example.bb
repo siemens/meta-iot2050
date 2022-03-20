@@ -8,31 +8,31 @@
 # COPYING.MIT file in the top-level directory.
 #
 
+inherit image_uuid
+
 # generate a swu image for a/b updating via swupdate
 IMAGE_FSTYPES = "wic-swu-img"
 
+require recipes-core/images/swupdate.inc
 require recipes-core/images/iot2050-image-example.bb
 
 WKS_FILE = "iot2050-swu.wks.in"
+
+WIC_IMAGER_INSTALL += "efibootguard"
+# watchdog is managed by U-Boot - disable
+WDOG_TIMEOUT = "0"
+WICVARS += "WDOG_TIMEOUT KERNEL_IMAGE INITRD_IMAGE DTB_FILES"
 
 # not compatible with SWUpdate images
 IMAGE_INSTALL_remove = "regen-rootfs-uuid"
 IMAGE_INSTALL_remove = "install-on-emmc"
 IMAGE_INSTALL_remove = "node-red-preinstalled-nodes"
 
+# EFI Boot Guard is used instead
+IMAGE_INSTALL_remove = "u-boot-script"
+
+IMAGE_INSTALL += "efibootguard"
 IMAGE_INSTALL += "swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
 IMAGE_INSTALL += "iot2050-watchdog"
-
-IMAGE_INSTALL += "data-partition"
-
-FILESPATH_prepend := "${THISDIR}/files:"
-
-ROOTFS_PARTITION_NAME = "${IMAGE_FULLNAME}.wic.img.p1.gz"
-
-# Variables for swupdate image creation:
-SRC_URI += "file://sw-description.tmpl"
-TEMPLATE_FILES += "sw-description.tmpl"
-TEMPLATE_VARS += "ROOTFS_PARTITION_NAME"
-SWU_ADDITIONAL_FILES += "${ROOTFS_PARTITION_NAME}"
