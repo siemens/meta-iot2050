@@ -56,8 +56,3 @@ python image_postprocess_restore_sources_list () {
     else:
         bb.note('No need to restore sources for mainline packages')
 }
-
-python do_image_append() {
-    bb.warn('This image is NOT COMPATIBLE with current official firmware releases!\n'
-            'It is recommended to build release V01.01.01 instead.')
-}
