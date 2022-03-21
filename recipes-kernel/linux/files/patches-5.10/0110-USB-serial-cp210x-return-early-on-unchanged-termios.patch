@@ -1,0 +1,50 @@
+From c6728086d6262783adeca7425f667948e391bf8f Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Mon, 16 Nov 2020 17:18:21 +0100
+Subject: [PATCH 110/119] USB: serial: cp210x: return early on unchanged
+ termios
+
+Return early from set_termios() in case no relevant terminal settings
+have changed.
+
+This avoids testing each parameter in turn and specifically allows the
+line-control handling to be cleaned up further.
+
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/cp210x.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index 7ac668023da8..363232b6e4b2 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -1372,6 +1372,15 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
+ 	port_priv->event_mode = false;
+ }
+ 
++static bool cp210x_termios_change(const struct ktermios *a, const struct ktermios *b)
++{
++	bool iflag_change;
++
++	iflag_change = ((a->c_iflag ^ b->c_iflag) & INPCK);
++
++	return tty_termios_hw_change(a, b) || iflag_change;
++}
++
+ static void cp210x_set_termios(struct tty_struct *tty,
+ 		struct usb_serial_port *port, struct ktermios *old_termios)
+ {
+@@ -1379,6 +1388,9 @@ static void cp210x_set_termios(struct tty_struct *tty,
+ 	unsigned int cflag, old_cflag;
+ 	u16 bits;
+ 
++	if (!cp210x_termios_change(&tty->termios, old_termios))
++		return;
++
+ 	cflag = tty->termios.c_cflag;
+ 	old_cflag = old_termios->c_cflag;
+ 
+-- 
+2.34.1
+

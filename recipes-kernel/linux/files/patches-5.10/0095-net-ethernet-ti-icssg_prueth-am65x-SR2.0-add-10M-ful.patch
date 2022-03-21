@@ -1,0 +1,162 @@
+From 8cd6e3b313215f77d303b994964f3376ce3193ba Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Wed, 19 May 2021 19:31:36 +0300
+Subject: [PATCH 095/119] net: ethernet: ti: icssg_prueth: am65x SR2.0 add 10M
+ full duplex support
+
+For for AM65x SR2.0 it's required to enable IEP1 in raw 64bit mode which is
+used by PRU FW to monitor the link and apply w/a for 10M link issue.
+Note. No public errata available yet.
+
+Without this w/a the PRU FW will stuck if link state changes under TX
+traffic pressure.
+
+Hence, add support for 10M full duplex for AM65x SR2.0:
+ - add new IEP API to enable IEP, but without PTP support
+ - add pdata quirk_10m_link_issue to enable 10M link issue w/a.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c     | 26 ++++++++++++++++++++++++++
+ drivers/net/ethernet/ti/icss_iep.h     |  2 ++
+ drivers/net/ethernet/ti/icssg_prueth.c | 19 +++++++++++++++----
+ drivers/net/ethernet/ti/icssg_prueth.h |  3 +++
+ 4 files changed, 46 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index 0ed54c8251e2..d3aa3dca729c 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -810,6 +810,32 @@ void icss_iep_put(struct icss_iep *iep)
+ }
+ EXPORT_SYMBOL_GPL(icss_iep_put);
+ 
++void icss_iep_init_fw(struct icss_iep *iep)
++{
++	/* start IEP for FW use in raw 64bit mode, no PTP support */
++	iep->clk_tick_time = iep->def_inc;
++	iep->cycle_time_ns = 0;
++	iep->ops = NULL;
++	iep->clockops_data = NULL;
++	icss_iep_set_default_inc(iep, iep->def_inc);
++	icss_iep_set_compensation_inc(iep, iep->def_inc);
++	icss_iep_set_compensation_count(iep, 0);
++	regmap_write(iep->map, ICSS_IEP_SYNC_PWIDTH_REG, iep->refclk_freq / 10); /* 100 ms pulse */
++	regmap_write(iep->map, ICSS_IEP_SYNC0_PERIOD_REG, 0);
++	if (iep->plat_data->flags & ICSS_IEP_SLOW_COMPEN_REG_SUPPORT)
++		icss_iep_set_slow_compensation_count(iep, 0);
++
++	icss_iep_enable(iep);
++	icss_iep_settime(iep, 0);
++}
++EXPORT_SYMBOL_GPL(icss_iep_init_fw);
++
++void icss_iep_exit_fw(struct icss_iep *iep)
++{
++	icss_iep_disable(iep);
++}
++EXPORT_SYMBOL_GPL(icss_iep_exit_fw);
++
+ int icss_iep_init(struct icss_iep *iep, const struct icss_iep_clockops *clkops,
+ 		  void *clockops_data, u32 cycle_time_ns)
+ {
+diff --git a/drivers/net/ethernet/ti/icss_iep.h b/drivers/net/ethernet/ti/icss_iep.h
+index eefc8c8bd8cc..1c8f74ae659a 100644
+--- a/drivers/net/ethernet/ti/icss_iep.h
++++ b/drivers/net/ethernet/ti/icss_iep.h
+@@ -34,5 +34,7 @@ int icss_iep_exit(struct icss_iep *iep);
+ int icss_iep_get_count_low(struct icss_iep *iep);
+ int icss_iep_get_count_hi(struct icss_iep *iep);
+ int icss_iep_get_ptp_clock_idx(struct icss_iep *iep);
++void icss_iep_init_fw(struct icss_iep *iep);
++void icss_iep_exit_fw(struct icss_iep *iep);
+ 
+ #endif /* __NET_TI_ICSS_IEP_H */
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index c8cd1bb2c7be..ef7392a2b9da 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -2127,9 +2127,6 @@ static int prueth_netdev_init(struct prueth *prueth,
+ 	}
+ 
+ 	/* remove unsupported modes */
+-	/* 10M FD fixed in FW for SR1.0 */
+-	if (!emac->is_sr1)
+-		phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Full_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Half_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+@@ -2457,6 +2454,11 @@ static int prueth_probe(struct platform_device *pdev)
+ 			icss_iep_exit(prueth->iep1);
+ 			goto free_iep;
+ 		}
++	} else if (prueth->pdata.quirk_10m_link_issue) {
++		/* Enable IEP1 for FW in 64bit mode as W/A for 10M FD link detect issue under TX
++		 * traffic.
++		 */
++		icss_iep_init_fw(prueth->iep1);
+ 	}
+ 
+ 	/* setup netdev interfaces */
+@@ -2540,6 +2542,8 @@ static int prueth_probe(struct platform_device *pdev)
+ 	if (prueth->is_sr1) {
+ 		icss_iep_exit(prueth->iep1);
+ 		icss_iep_exit(prueth->iep0);
++	} else if (prueth->pdata.quirk_10m_link_issue) {
++		icss_iep_exit_fw(prueth->iep1);
+ 	}
+ 
+ free_iep:
+@@ -2591,6 +2595,8 @@ static int prueth_remove(struct platform_device *pdev)
+ 	if (prueth->is_sr1) {
+ 		icss_iep_exit(prueth->iep1);
+ 		icss_iep_exit(prueth->iep0);
++	} else if (prueth->pdata.quirk_10m_link_issue) {
++		icss_iep_exit_fw(prueth->iep1);
+ 	}
+ 
+ 	icss_iep_put(prueth->iep1);
+@@ -2669,8 +2675,13 @@ static const struct dev_pm_ops prueth_dev_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(prueth_suspend, prueth_resume)
+ };
+ 
++static const struct prueth_pdata am654_icssg_pdata_sr1 = {
++	.fdqring_mode = K3_RINGACC_RING_MODE_MESSAGE,
++};
++
+ static const struct prueth_pdata am654_icssg_pdata = {
+ 	.fdqring_mode = K3_RINGACC_RING_MODE_MESSAGE,
++	.quirk_10m_link_issue = 1,
+ };
+ 
+ static const struct prueth_pdata am64x_icssg_pdata = {
+@@ -2678,7 +2689,7 @@ static const struct prueth_pdata am64x_icssg_pdata = {
+ };
+ 
+ static const struct of_device_id prueth_dt_match[] = {
+-	{ .compatible = "ti,am654-icssg-prueth-sr1", .data = &am654_icssg_pdata },
++	{ .compatible = "ti,am654-icssg-prueth-sr1", .data = &am654_icssg_pdata_sr1 },
+ 	{ .compatible = "ti,am654-icssg-prueth", .data = &am654_icssg_pdata },
+ 	{ .compatible = "ti,am642-icssg-prueth", .data = &am64x_icssg_pdata },
+ 	{ /* sentinel */ }
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.h b/drivers/net/ethernet/ti/icssg_prueth.h
+index b536ac5ec0bf..7cc81c67bf72 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.h
++++ b/drivers/net/ethernet/ti/icssg_prueth.h
+@@ -173,9 +173,12 @@ struct prueth_emac {
+ /**
+  * struct prueth - PRUeth platform data
+  * @fdqring_mode: Free desc queue mode
++ * @quirk_10m_link_issue: 10M link detect errata
+  */
+ struct prueth_pdata {
+ 	enum k3_ring_mode fdqring_mode;
++
++	u32	quirk_10m_link_issue:1;
+ };
+ 
+ /**
+-- 
+2.34.1
+

@@ -1,0 +1,61 @@
+From 559c212c7c32f9a8a0d39601ca19b54e44f27c96 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 13 Sep 2021 12:27:17 +0200
+Subject: [PATCH 105/119] watchdog: rti-wdt: Provide set_timeout handler to
+ make existing userspace happy
+
+Prominent userspace - systemd - cannot handle watchdogs without
+WDIOF_SETTIMEOUT. To avoid failing in this case, implement a handler
+that ignores such requests, only warning if they mismatch with the
+pre-configured one.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/watchdog/rti_wdt.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 40696a260534..ed893f53c791 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -173,13 +173,28 @@ static unsigned int rti_wdt_get_timeleft_ms(struct watchdog_device *wdd)
+ 	return timer_counter;
+ }
+ 
++static int rti_wdt_set_timeout(struct watchdog_device *wdd,
++			       unsigned int timeout)
++{
++	/*
++	 * Updating the timeout after start is actually not supported, but
++	 * let's ignore requests, only warning if they mismatch the already
++	 * configured value. Helps existing userspace such as systemd.
++	 */
++	if (timeout != heartbeat)
++		dev_warn(wdd->parent,
++			 "new timeout value does not match already configured one\n");
++
++	return 0;
++}
++
+ static unsigned int rti_wdt_get_timeleft(struct watchdog_device *wdd)
+ {
+ 	return rti_wdt_get_timeleft_ms(wdd) / 1000;
+ }
+ 
+ static const struct watchdog_info rti_wdt_info = {
+-	.options = WDIOF_KEEPALIVEPING,
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
+ 	.identity = "K3 RTI Watchdog",
+ };
+ 
+@@ -187,6 +202,7 @@ static const struct watchdog_ops rti_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= rti_wdt_start,
+ 	.ping		= rti_wdt_ping,
++	.set_timeout	= rti_wdt_set_timeout,
+ 	.get_timeleft	= rti_wdt_get_timeleft,
+ };
+ 
+-- 
+2.34.1
+

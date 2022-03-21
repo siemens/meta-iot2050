@@ -1,7 +1,7 @@
-From 7c676da1465ba6381b195b886b26e3a6e444e118 Mon Sep 17 00:00:00 2001
+From 792558f2d1f9a7cc64cb9f1a5b03f6746d3a6a02 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:10:01 +0100
-Subject: [PATCH 038/118] remoteproc: pru: Add support for various PRU cores on
+Subject: [PATCH 038/119] remoteproc: pru: Add support for various PRU cores on
  K3 AM65x SoCs
 
 The K3 AM65x family of SoCs have the next generation of the PRU-ICSS

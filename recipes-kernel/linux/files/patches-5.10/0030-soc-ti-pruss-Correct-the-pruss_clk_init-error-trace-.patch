@@ -1,7 +1,7 @@
-From f7fc5f5dec87a820a9b901fda69e63119b30c05b Mon Sep 17 00:00:00 2001
+From 78c3fb87aff6b7eb72f39ee671af923ef7e31408 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 24 Jan 2021 20:51:37 -0800
-Subject: [PATCH 030/118] soc: ti: pruss: Correct the pruss_clk_init error
+Subject: [PATCH 030/119] soc: ti: pruss: Correct the pruss_clk_init error
  trace text
 
 The pruss_clk_init() function can register more than one clock.

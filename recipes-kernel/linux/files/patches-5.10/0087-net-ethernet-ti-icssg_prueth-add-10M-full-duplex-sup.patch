@@ -1,0 +1,254 @@
+From 50f6479b037d735c9d206a1f919e9b6c1ea3b68d Mon Sep 17 00:00:00 2001
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Date: Tue, 18 May 2021 23:37:24 +0300
+Subject: [PATCH 087/119] net: ethernet: ti: icssg_prueth: add 10M full duplex
+ support
+
+For 10M support RGMII need to be configured in inband mode and FW has to be
+notified about current link speed in PORT_LINK_SPEED MMR.
+
+There is an issue which causes ICSSG FW to stuck if link down happens while
+there is TX traffic and only ICSSG reset helps to recovery.
+Hence, enable 10M FD only for SR1.0 as it has FW fix for above issue.
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/net/ethernet/ti/icss_mii_rt.h      | 17 +++++++---
+ drivers/net/ethernet/ti/icssg_config.c     | 39 ++++++++++++++++++----
+ drivers/net/ethernet/ti/icssg_prueth.c     | 26 ++++++---------
+ drivers/net/ethernet/ti/icssg_prueth.h     |  1 +
+ drivers/net/ethernet/ti/icssg_switch_map.h |  6 ++++
+ 5 files changed, 63 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_mii_rt.h b/drivers/net/ethernet/ti/icss_mii_rt.h
+index a7643bb46b9d..836060ffdd4a 100644
+--- a/drivers/net/ethernet/ti/icss_mii_rt.h
++++ b/drivers/net/ethernet/ti/icss_mii_rt.h
+@@ -105,7 +105,9 @@
+ enum mii_mode { MII_MODE_MII = 0, MII_MODE_RGMII, MII_MODE_SGMII };
+ 
+ /* RGMII CFG Register bits */
++#define RGMII_CFG_INBAND_EN_MII0	BIT(16)
+ #define RGMII_CFG_GIG_EN_MII0	BIT(17)
++#define RGMII_CFG_INBAND_EN_MII1	BIT(20)
+ #define RGMII_CFG_GIG_EN_MII1	BIT(21)
+ #define RGMII_CFG_FULL_DUPLEX_MII0	BIT(18)
+ #define RGMII_CFG_FULL_DUPLEX_MII1	BIT(22)
+@@ -135,20 +137,27 @@ static inline void icssg_mii_update_ipg(struct regmap *mii_rt, int mii, u32 ipg)
+ 	}
+ }
+ 
+-static inline void icssg_update_rgmii_cfg(struct regmap *miig_rt, bool gig_en,
+-					  bool full_duplex, int mii)
++static inline void icssg_update_rgmii_cfg(struct regmap *miig_rt, int speed,
++					  int duplex, int mii)
+ {
+ 	u32 gig_en_mask, gig_val = 0, full_duplex_mask, full_duplex_val = 0;
++	u32 inband_en_mask, inband_val = 0;
+ 
+ 	gig_en_mask = (mii == ICSS_MII0) ? RGMII_CFG_GIG_EN_MII0 :
+ 					RGMII_CFG_GIG_EN_MII1;
+-	if (gig_en)
++	if (speed == SPEED_1000)
+ 		gig_val = gig_en_mask;
+ 	regmap_update_bits(miig_rt, RGMII_CFG_OFFSET, gig_en_mask, gig_val);
+ 
++	inband_en_mask = (mii == ICSS_MII0) ? RGMII_CFG_INBAND_EN_MII0 :
++					RGMII_CFG_INBAND_EN_MII1;
++	if (speed == SPEED_10)
++		inband_val = inband_en_mask;
++	regmap_update_bits(miig_rt, RGMII_CFG_OFFSET, inband_en_mask, inband_val);
++
+ 	full_duplex_mask = (mii == ICSS_MII0) ? RGMII_CFG_FULL_DUPLEX_MII0 :
+ 					   RGMII_CFG_FULL_DUPLEX_MII1;
+-	if (full_duplex)
++	if (duplex == DUPLEX_FULL)
+ 		full_duplex_val = full_duplex_mask;
+ 	regmap_update_bits(miig_rt, RGMII_CFG_OFFSET, full_duplex_mask,
+ 			   full_duplex_val);
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index 3f0ab061e0e6..b5cef264cdf9 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -15,12 +15,10 @@
+  * h/w design.
+  */
+ 
+-/* SR1.0 IPG is in core_clk cycles */
++/* IPG is in core_clk cycles */
+ #define MII_RT_TX_IPG_100M_SR1	0x166
+-#define MII_RT_TX_IPG_1G_SR1	0x18
+-
+-/* SR2.0 IPG is in rgmii_clk (125MHz) clock cycles + 1 */
+-#define MII_RT_TX_IPG_100M	0xb2	/* FIXME: cross check */
++#define MII_RT_TX_IPG_1G_SR1	0x1a
++#define MII_RT_TX_IPG_100M	0x17
+ #define MII_RT_TX_IPG_1G	0xb
+ 
+ #define	ICSSG_QUEUES_MAX		64
+@@ -128,7 +126,7 @@ static void icssg_config_rgmii_init(struct prueth *prueth, int slice)
+ 	mii_mode |= MII_MODE_RGMII << ICSSG_CFG_MII1_MODE_SHIFT;
+ 	regmap_write(miig_rt, ICSSG_CFG_OFFSET, ICSSG_CFG_DEFAULT | mii_mode);
+ 
+-	icssg_update_rgmii_cfg(miig_rt, true, true, slice);
++	icssg_update_rgmii_cfg(miig_rt, SPEED_1000, DUPLEX_FULL, slice);
+ 	/* reset hwqueues */
+ 	if (slice)
+ 		queue = ICSSG_NUM_TX_QUEUES;
+@@ -190,6 +188,12 @@ void icssg_config_ipg(struct prueth *prueth, int speed, int mii)
+ 		icssg_mii_update_ipg(prueth->mii_rt, mii, prueth->is_sr1 ?
+ 				     MII_RT_TX_IPG_100M_SR1 : MII_RT_TX_IPG_100M);
+ 		break;
++	case SPEED_10:
++		/* Firmware hardcodes IPG  for PG1. PG2 same as 100M */
++		if (!prueth->is_sr1)
++			icssg_mii_update_ipg(prueth->mii_rt, mii,
++					     MII_RT_TX_IPG_100M);
++		break;
+ 	default:
+ 		/* Other links speeds not supported */
+ 		pr_err("Unsupported link speed\n");
+@@ -410,3 +414,26 @@ int emac_set_port_state(struct prueth_emac *emac,
+ 
+ 	return ret;
+ }
++
++void icssg_config_set_speed(struct prueth_emac *emac)
++{
++	u8 fw_speed;
++
++	switch (emac->speed) {
++	case SPEED_1000:
++		fw_speed = FW_LINK_SPEED_1G;
++		break;
++	case SPEED_100:
++		fw_speed = FW_LINK_SPEED_100M;
++		break;
++	case SPEED_10:
++		fw_speed = FW_LINK_SPEED_10M;
++		break;
++	default:
++		/* Other links speeds not supported */
++		pr_err("Unsupported link speed\n");
++		return;
++	}
++
++	writeb(fw_speed, emac->dram.va + PORT_LINK_SPEED_OFFSET);
++}
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 5a9b8aa41bb8..730f08471738 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -655,18 +655,16 @@ static int emac_send_command_sr1(struct prueth_emac *emac, u32 cmd)
+ 	return ret;
+ }
+ 
+-static void emac_change_port_speed_duplex(struct prueth_emac *emac,
+-					  bool full_duplex, int speed)
++static void emac_change_port_speed_duplex(struct prueth_emac *emac)
+ {
+ 	u32 cmd = ICSSG_PSTATE_SPEED_DUPLEX_CMD, val;
+ 	struct prueth *prueth = emac->prueth;
+ 	int slice = prueth_emac_slice(emac);
+ 
+-	/* only 100M and 1G and full duplex supported for now */
+-	if (!(full_duplex && (speed == SPEED_1000 || speed == SPEED_100)))
++	/* only full duplex supported for now */
++	if (emac->duplex != DUPLEX_FULL)
+ 		return;
+ 
+-	/* FIXME for SR2.0 */
+ 	if (!emac->is_sr1)
+ 		return;
+ 
+@@ -1058,7 +1056,6 @@ static void emac_adjust_link(struct net_device *ndev)
+ {
+ 	struct prueth_emac *emac = netdev_priv(ndev);
+ 	struct phy_device *phydev = emac->phydev;
+-	bool gig_en = false, full_duplex = false;
+ 	struct prueth *prueth = emac->prueth;
+ 	int slice = prueth_emac_slice(emac);
+ 	bool new_state = false;
+@@ -1098,17 +1095,13 @@ static void emac_adjust_link(struct net_device *ndev)
+ 		 */
+ 		spin_lock_irqsave(&emac->lock, flags);
+ 		if (emac->link) {
+-			if (phydev->speed == SPEED_1000)
+-				gig_en = true;
+-
+-			if (phydev->duplex == DUPLEX_FULL)
+-				full_duplex = true;
+ 			/* Set the RGMII cfg for gig en and full duplex */
+-			icssg_update_rgmii_cfg(prueth->miig_rt, gig_en,
+-					       full_duplex, slice);
++			icssg_update_rgmii_cfg(prueth->miig_rt, emac->speed,
++					       emac->duplex, slice);
+ 
+ 			/* update the Tx IPG based on 100M/1G speed */
+ 			icssg_config_ipg(prueth, emac->speed, slice);
++			icssg_config_set_speed(emac);
+ 		}
+ 		spin_unlock_irqrestore(&emac->lock, flags);
+ 
+@@ -1116,8 +1109,7 @@ static void emac_adjust_link(struct net_device *ndev)
+ 		 * setting when link is up.
+ 		 */
+ 		if (emac->link)
+-			emac_change_port_speed_duplex(emac, full_duplex,
+-						      emac->speed);
++			emac_change_port_speed_duplex(emac);
+ 	}
+ 
+ 	if (emac->link) {
+@@ -1718,8 +1710,10 @@ static int prueth_netdev_init(struct prueth *prueth,
+ 	}
+ 
+ 	/* remove unsupported modes */
++	/* 10M FD fixed in FW for SR1.0 */
++	if (!emac->is_sr1)
++		phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Full_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Half_BIT);
+-	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Full_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_Pause_BIT);
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.h b/drivers/net/ethernet/ti/icssg_prueth.h
+index 1c2908eb2d57..69c558eb004d 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.h
++++ b/drivers/net/ethernet/ti/icssg_prueth.h
+@@ -247,6 +247,7 @@ int icssg_config_sr2(struct prueth *prueth, struct prueth_emac *emac,
+ 		     int slice);
+ int emac_set_port_state(struct prueth_emac *emac,
+ 			enum icssg_port_state_cmd state);
++void icssg_config_set_speed(struct prueth_emac *emac);
+ #define prueth_napi_to_tx_chn(pnapi) \
+ 	container_of(pnapi, struct prueth_tx_chn, napi_tx)
+ 
+diff --git a/drivers/net/ethernet/ti/icssg_switch_map.h b/drivers/net/ethernet/ti/icssg_switch_map.h
+index bf52d350bdd0..644a22b53424 100644
+--- a/drivers/net/ethernet/ti/icssg_switch_map.h
++++ b/drivers/net/ethernet/ti/icssg_switch_map.h
+@@ -13,6 +13,10 @@
+  *
+  */
+ 
++#define FW_LINK_SPEED_1G                           (0x00)
++#define FW_LINK_SPEED_100M                         (0x01)
++#define FW_LINK_SPEED_10M                          (0x02)
++
+ /*Time after which FDB entries are checked for aged out values. Value in nanoseconds*/
+ #define FDB_AGEING_TIMEOUT_OFFSET                          0x0014
+ /*default VLAN tag for Host Port*/
+@@ -122,6 +126,8 @@
+ #define EXPRESS_PRE_EMPTIVE_Q_MAP                          0x0034
+ /*Stores the table used for priority mapping. 1B per PCP/Queue*/
+ #define PORT_Q_PRIORITY_MAPPING_OFFSET                     0x003C
++/*Used to notify the FW of the current link speed*/
++#define PORT_LINK_SPEED_OFFSET                             0x00A8
+ /*TAS gate mask for windows list0*/
+ #define TAS_GATE_MASK_LIST0                                0x0100
+ /*TAS gate mask for windows list1*/
+-- 
+2.34.1
+

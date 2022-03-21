@@ -1,0 +1,32 @@
+From d18409efe752fcdadee838d4c294c0a5a1eff28d Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Thu, 29 Apr 2021 18:13:38 +0300
+Subject: [PATCH 082/119] net: ethernet: ti: icss_iep: set phc time to system
+ time on init
+
+Following customer feedback IEP PHC time has to be set to system time on
+init to avoid clock jumps between local PHC clocks in case they are
+synchronized to each other.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index df74b5fd17e9..08b456f0bc12 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -844,7 +844,7 @@ int icss_iep_init(struct icss_iep *iep, const struct icss_iep_clockops *clkops,
+ 		icss_iep_enable(iep);
+ 
+ 	iep->cycle_time_ns = cycle_time_ns;
+-	icss_iep_set_counter(iep, 0);
++	icss_iep_set_counter(iep, ktime_get_real_ns());
+ 
+ 	iep->clk_tick_time = def_inc;
+ 
+-- 
+2.34.1
+

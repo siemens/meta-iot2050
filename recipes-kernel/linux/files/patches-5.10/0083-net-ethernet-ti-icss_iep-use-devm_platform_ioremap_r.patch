@@ -1,0 +1,39 @@
+From c15ff1ec2997041374389567d9157484871cd0c9 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Thu, 29 Apr 2021 18:13:39 +0300
+Subject: [PATCH 083/119] net: ethernet: ti: icss_iep: use
+ devm_platform_ioremap_resource
+
+Use devm_platform_ioremap_resource() in probe to simplify code.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index 08b456f0bc12..640f483854d0 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -877,7 +877,6 @@ static int icss_iep_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct icss_iep *iep;
+-	struct resource *res;
+ 	struct clk *iep_clk;
+ 	int ret;
+ 
+@@ -886,8 +885,7 @@ static int icss_iep_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	iep->dev = dev;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	iep->base = devm_ioremap_resource(dev, res);
++	iep->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(iep->base))
+ 		return -ENODEV;
+ 
+-- 
+2.34.1
+

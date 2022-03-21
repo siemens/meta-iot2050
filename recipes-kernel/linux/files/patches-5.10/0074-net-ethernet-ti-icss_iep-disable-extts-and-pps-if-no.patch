@@ -1,0 +1,41 @@
+From 1901a77c22066f65a93113509f677180f1e3166b Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Thu, 29 Apr 2021 18:13:30 +0300
+Subject: [PATCH 074/119] net: ethernet: ti: icss_iep: disable extts and pps if
+ no slow compensation or non 64bit mode
+
+Disable extts and pps if no slow compensation support or non 64bit mode.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index 73c0a31e8245..c0bcb1d1180a 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -734,6 +734,11 @@ struct icss_iep *icss_iep_get(struct device_node *np)
+ 
+ 	iep->ptp_info = icss_iep_ptp_info;
+ 
++
++	if (!(iep->plat_data->flags & ICSS_IEP_64BIT_COUNTER_SUPPORT) ||
++	    !(iep->plat_data->flags & ICSS_IEP_SLOW_COMPEN_REG_SUPPORT))
++		goto exit;
++
+ 	if (iep->cap_cmp_irq || (iep->ops && iep->ops->perout_enable)) {
+ 		iep->ptp_info.n_per_out = 1;
+ 		iep->ptp_info.pps = 1;
+@@ -742,6 +747,7 @@ struct icss_iep *icss_iep_get(struct device_node *np)
+ 	if (iep->cap_cmp_irq || (iep->ops && iep->ops->extts_enable))
+ 		iep->ptp_info.n_ext_ts = 2;
+ 
++exit:
+ 	return iep;
+ 
+ put_iep_device:
+-- 
+2.34.1
+

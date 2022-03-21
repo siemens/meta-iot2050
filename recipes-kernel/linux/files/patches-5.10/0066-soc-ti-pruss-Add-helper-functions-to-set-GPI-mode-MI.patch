@@ -1,0 +1,86 @@
+From 443660f965e7e23bf00ba08454d3b72177629794 Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Fri, 11 Dec 2020 19:48:09 +0100
+Subject: [PATCH 066/119] soc: ti: pruss: Add helper functions to set GPI mode,
+ MII_RT_event and XFR
+
+The PRUSS CFG module is represented as a syscon node and is currently
+managed by the PRUSS platform driver. Add easy accessor functions to set
+GPI mode, MII_RT event enable/disable and XFR (XIN XOUT) enable/disable
+to enable the PRUSS Ethernet usecase. These functions reuse the generic
+pruss_cfg_update() API function.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Co-developed-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+Signed-off-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+---
+ include/linux/pruss.h | 55 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+
+diff --git a/include/linux/pruss.h b/include/linux/pruss.h
+index a4f59a46c331..ba5b728d5015 100644
+--- a/include/linux/pruss.h
++++ b/include/linux/pruss.h
+@@ -235,4 +235,59 @@ static inline bool is_pru_rproc(struct device *dev)
+ 	return true;
+ }
+ 
++/**
++ * pruss_cfg_gpimode() - set the GPI mode of the PRU
++ * @pruss: the pruss instance handle
++ * @pru_id: id of the PRU core within the PRUSS
++ * @mode: GPI mode to set
++ *
++ * Sets the GPI mode for a given PRU by programming the
++ * corresponding PRUSS_CFG_GPCFGx register
++ *
++ * Return: 0 on success, or an error code otherwise
++ */
++static inline int pruss_cfg_gpimode(struct pruss *pruss,
++				    enum pruss_pru_id pru_id,
++				    enum pruss_gpi_mode mode)
++{
++	if (pru_id < 0 || pru_id >= PRUSS_NUM_PRUS)
++		return -EINVAL;
++
++	return pruss_cfg_update(pruss, PRUSS_CFG_GPCFG(pru_id),
++				PRUSS_GPCFG_PRU_GPI_MODE_MASK,
++				mode << PRUSS_GPCFG_PRU_GPI_MODE_SHIFT);
++}
++
++/**
++ * pruss_cfg_miirt_enable() - Enable/disable MII RT Events
++ * @pruss: the pruss instance
++ * @enable: enable/disable
++ *
++ * Enable/disable the MII RT Events for the PRUSS.
++ *
++ * Return: 0 on success, or an error code otherwise
++ */
++static inline int pruss_cfg_miirt_enable(struct pruss *pruss, bool enable)
++{
++	u32 set = enable ? PRUSS_MII_RT_EVENT_EN : 0;
++
++	return pruss_cfg_update(pruss, PRUSS_CFG_MII_RT,
++				PRUSS_MII_RT_EVENT_EN, set);
++}
++
++/**
++ * pruss_cfg_xfr_enable() - Enable/disable XIN XOUT shift functionality
++ * @pruss: the pruss instance
++ * @enable: enable/disable
++ *
++ * Return: 0 on success, or an error code otherwise
++ */
++static inline int pruss_cfg_xfr_enable(struct pruss *pruss, bool enable)
++{
++	u32 set = enable ? PRUSS_SPP_XFER_SHIFT_EN : 0;
++
++	return pruss_cfg_update(pruss, PRUSS_CFG_SPP,
++				PRUSS_SPP_XFER_SHIFT_EN, set);
++}
++
+ #endif /* __LINUX_PRUSS_H */
+-- 
+2.34.1
+

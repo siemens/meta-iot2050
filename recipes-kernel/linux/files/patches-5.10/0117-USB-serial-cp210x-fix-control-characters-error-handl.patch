@@ -1,0 +1,53 @@
+From 0f2d109aefdc0affd798635813b480a662670455 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Mon, 5 Jul 2021 10:20:10 +0200
+Subject: [PATCH 117/119] USB: serial: cp210x: fix control-characters error
+ handling
+
+In the unlikely event that setting the software flow-control characters
+fails the other flow-control settings should still be updated (just like
+all other terminal settings).
+
+Move out the error message printed by the set_chars() helper to make it
+more obvious that this is intentional.
+
+Fixes: 7748feffcd80 ("USB: serial: cp210x: add support for software flow control")
+Cc: stable@vger.kernel.org	# 5.11
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/cp210x.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index 815e8589f877..d39e28805ec7 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -1123,10 +1123,8 @@ static int cp210x_set_chars(struct usb_serial_port *port,
+ 
+ 	kfree(dmabuf);
+ 
+-	if (result < 0) {
+-		dev_err(&port->dev, "failed to set special chars: %d\n", result);
++	if (result < 0)
+ 		return result;
+-	}
+ 
+ 	return 0;
+ }
+@@ -1163,8 +1161,10 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+ 		chars.bXoffChar = STOP_CHAR(tty);
+ 
+ 		ret = cp210x_set_chars(port, &chars);
+-		if (ret)
+-			return;
++		if (ret) {
++			dev_err(&port->dev, "failed to set special chars: %d\n",
++					ret);
++		}
+ 	}
+ 
+ 	ret = cp210x_read_reg_block(port, CP210X_GET_FLOW, &flow_ctl,
+-- 
+2.34.1
+

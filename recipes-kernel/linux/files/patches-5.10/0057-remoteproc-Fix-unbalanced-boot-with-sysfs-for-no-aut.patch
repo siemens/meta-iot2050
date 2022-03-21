@@ -1,0 +1,77 @@
+From ea0e5955a7ad73775e818d28a07e62bd3db6367f Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Fri, 20 Nov 2020 21:01:54 -0600
+Subject: [PATCH 057/119] remoteproc: Fix unbalanced boot with sysfs for no
+ auto-boot rprocs
+
+The remoteproc core performs automatic boot and shutdown of a remote
+processor during rproc_add() and rproc_del() for remote processors
+supporting 'auto-boot'. The remoteproc devices not using 'auto-boot'
+require either a remoteproc client driver or a userspace client to
+use the sysfs 'state' variable to perform the boot and shutdown. The
+in-kernel client drivers hold the corresponding remoteproc driver
+module's reference count when they acquire a rproc handle through
+the rproc_get_by_phandle() API, but there is no such support for
+userspace applications performing the boot through sysfs interface.
+
+The shutdown of a remoteproc upon removing a remoteproc platform
+driver is automatic only with 'auto-boot' and this can cause a
+remoteproc with no auto-boot to stay powered on and never freed
+up if booted using the sysfs interface without a matching stop,
+and when the remoteproc driver module is removed or unbound from
+the device. This will result in a memory leak as well as the
+corresponding remoteproc ida being never deallocated. Fix this
+by holding a module reference count for the remoteproc's driver
+during a sysfs 'start' and releasing it during the sysfs 'stop'
+operation.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Acked-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+---
+ drivers/remoteproc/remoteproc_sysfs.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/remoteproc/remoteproc_sysfs.c b/drivers/remoteproc/remoteproc_sysfs.c
+index 1dbef895e65e..3b05230641c8 100644
+--- a/drivers/remoteproc/remoteproc_sysfs.c
++++ b/drivers/remoteproc/remoteproc_sysfs.c
+@@ -3,6 +3,7 @@
+  * Remote Processor Framework
+  */
+ 
++#include <linux/module.h>
+ #include <linux/remoteproc.h>
+ #include <linux/slab.h>
+ 
+@@ -199,14 +200,27 @@ static ssize_t state_store(struct device *dev,
+ 		if (rproc->state == RPROC_RUNNING)
+ 			return -EBUSY;
+ 
++		/*
++		 * prevent underlying implementation from being removed
++		 * when remoteproc does not support auto-boot
++		 */
++		if (!rproc->auto_boot &&
++		    !try_module_get(dev->parent->driver->owner))
++			return -EINVAL;
++
+ 		ret = rproc_boot(rproc);
+-		if (ret)
++		if (ret) {
+ 			dev_err(&rproc->dev, "Boot failed: %d\n", ret);
++			if (!rproc->auto_boot)
++				module_put(dev->parent->driver->owner);
++		}
+ 	} else if (sysfs_streq(buf, "stop")) {
+ 		if (rproc->state != RPROC_RUNNING)
+ 			return -EINVAL;
+ 
+ 		rproc_shutdown(rproc);
++		if (!rproc->auto_boot)
++			module_put(dev->parent->driver->owner);
+ 	} else {
+ 		dev_err(&rproc->dev, "Unrecognised option: %s\n", buf);
+ 		ret = -EINVAL;
+-- 
+2.34.1
+

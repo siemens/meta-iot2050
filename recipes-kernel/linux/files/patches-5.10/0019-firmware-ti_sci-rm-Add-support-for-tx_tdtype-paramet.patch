@@ -1,7 +1,7 @@
-From 9f93def1282f18683b4db932c455fab913750b39 Mon Sep 17 00:00:00 2001
+From 52df53802dafe39cc01976e33a7247ba6e8e9c90 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:02 -0700
-Subject: [PATCH 019/118] firmware: ti_sci: rm: Add support for tx_tdtype
+Subject: [PATCH 019/119] firmware: ti_sci: rm: Add support for tx_tdtype
  parameter for tx channel
 
 The system controller's resource manager have support for configuring the

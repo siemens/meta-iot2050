@@ -1,0 +1,99 @@
+From d30114d25719d41b4624f5c40475f76b3f25776f Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Fri, 26 Mar 2021 13:05:28 -0500
+Subject: [PATCH 058/119] remoteproc: Introduce deny_sysfs_ops flag
+
+The remoteproc framework provides sysfs interfaces for changing the
+firmware name and for starting/stopping a remote processor through
+the sysfs files 'state' and 'firmware'. The 'recovery' and 'coredump'
+sysfs files can also be used similarly to control the error recovery
+state machine and coredump of a remoteproc. These interfaces are
+currently  allowed irrespective of how the remoteprocs were booted
+(like remoteproc self auto-boot, remoteproc client-driven boot etc).
+These interfaces can adversely affect a remoteproc and its clients
+especially when a remoteproc is being controlled by a remoteproc
+client driver(s). Also, not all remoteproc drivers may want to
+support the sysfs interfaces by default.
+
+Add support to deny the sysfs state/firmware/recovery/coredump change
+by introducing a state flag 'deny_sysfs_ops' that the individual
+remoteproc drivers can set based on their usage needs. The default
+behavior is to allow the sysfs operations as before.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/remoteproc/remoteproc_sysfs.c | 16 ++++++++++++++++
+ include/linux/remoteproc.h            |  2 ++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/drivers/remoteproc/remoteproc_sysfs.c b/drivers/remoteproc/remoteproc_sysfs.c
+index 3b05230641c8..16f4a3ea0b25 100644
+--- a/drivers/remoteproc/remoteproc_sysfs.c
++++ b/drivers/remoteproc/remoteproc_sysfs.c
+@@ -49,6 +49,10 @@ static ssize_t recovery_store(struct device *dev,
+ {
+ 	struct rproc *rproc = to_rproc(dev);
+ 
++	/* restrict sysfs operations if not allowed by remoteproc drivers */
++	if (rproc->deny_sysfs_ops)
++		return -EPERM;
++
+ 	if (sysfs_streq(buf, "enabled")) {
+ 		/* change the flag and begin the recovery process if needed */
+ 		rproc->recovery_disabled = false;
+@@ -108,6 +112,10 @@ static ssize_t coredump_store(struct device *dev,
+ {
+ 	struct rproc *rproc = to_rproc(dev);
+ 
++	/* restrict sysfs operations if not allowed by remoteproc drivers */
++	if (rproc->deny_sysfs_ops)
++		return -EPERM;
++
+ 	if (rproc->state == RPROC_CRASHED) {
+ 		dev_err(&rproc->dev, "can't change coredump configuration\n");
+ 		return -EBUSY;
+@@ -157,6 +165,10 @@ static ssize_t firmware_store(struct device *dev,
+ 	struct rproc *rproc = to_rproc(dev);
+ 	int err;
+ 
++	/* restrict sysfs operations if not allowed by remoteproc drivers */
++	if (rproc->deny_sysfs_ops)
++		return -EPERM;
++
+ 	err = rproc_set_firmware(rproc, buf);
+ 
+ 	return err ? err : count;
+@@ -196,6 +208,10 @@ static ssize_t state_store(struct device *dev,
+ 	struct rproc *rproc = to_rproc(dev);
+ 	int ret = 0;
+ 
++	/* restrict sysfs operations if not allowed by remoteproc drivers */
++	if (rproc->deny_sysfs_ops)
++		return -EPERM;
++
+ 	if (sysfs_streq(buf, "start")) {
+ 		if (rproc->state == RPROC_RUNNING)
+ 			return -EBUSY;
+diff --git a/include/linux/remoteproc.h b/include/linux/remoteproc.h
+index e8ac041c64d9..02425aac6100 100644
+--- a/include/linux/remoteproc.h
++++ b/include/linux/remoteproc.h
+@@ -508,6 +508,7 @@ struct rproc_dump_segment {
+  * @has_iommu: flag to indicate if remote processor is behind an MMU
+  * @auto_boot: flag to indicate if remote processor should be auto-started
+  * @autonomous: true if an external entity has booted the remote processor
++ * @deny_sysfs_ops: flag to not permit sysfs store operations
+  * @dump_segments: list of segments in the firmware
+  * @nb_vdev: number of vdev currently handled by rproc
+  * @char_dev: character device of the rproc
+@@ -545,6 +546,7 @@ struct rproc {
+ 	bool has_iommu;
+ 	bool auto_boot;
+ 	bool autonomous;
++	bool deny_sysfs_ops;
+ 	struct list_head dump_segments;
+ 	int nb_vdev;
+ 	u8 elf_class;
+-- 
+2.34.1
+
