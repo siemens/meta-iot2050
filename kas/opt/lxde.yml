@@ -1,8 +1,8 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2022
 #
 # Authors:
-#  Le Jin <le.jin@siemens.com>
+#  Jan Kiszka <jan.kiszka@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -10,9 +10,7 @@
 
 header:
   version: 10
-  includes:
-   - kas-iot2050-example.yml
 
-build_system: isar
-
-target: iot2050-image-lxde
+local_conf_header:
+  add-lxde: |
+    IMAGE_INSTALL += "lxde-touch"
