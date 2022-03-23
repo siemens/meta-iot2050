@@ -59,6 +59,7 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     rsyslog \
     net-tools \
     i2c-tools \
+    mtd-utils \
     sudo \
     "
 
