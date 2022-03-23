@@ -1,0 +1,84 @@
+From b9271e1aed8a1d0a9956433a3a9082f734c7eb83 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Thu, 29 Apr 2021 18:13:28 +0300
+Subject: [PATCH 072/119] net: ethernet: ti: icss_iep: drop
+ ICSS_IEP_CAPx_FALL_REGy
+
+ICSS_IEP_CAPx_FALL_REGy are not used, but cause indexation issues in
+icss_iep_cap_cmp_handler().
+So, drop them for now - can be properly added later if needed.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 15 ---------------
+ 1 file changed, 15 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index 22034d41c988..60a284c6c0c9 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -65,13 +65,9 @@ enum {
+ 
+ 	ICSS_IEP_CAP6_RISE_REG0,
+ 	ICSS_IEP_CAP6_RISE_REG1,
+-	ICSS_IEP_CAP6_FALL_REG0,
+-	ICSS_IEP_CAP6_FALL_REG1,
+ 
+ 	ICSS_IEP_CAP7_RISE_REG0,
+ 	ICSS_IEP_CAP7_RISE_REG1,
+-	ICSS_IEP_CAP7_FALL_REG0,
+-	ICSS_IEP_CAP7_FALL_REG1,
+ 
+ 	ICSS_IEP_CMP_CFG_REG,
+ 	ICSS_IEP_CMP_STAT_REG,
+@@ -912,13 +908,9 @@ static const struct icss_iep_plat_data am654_icss_iep_plat_data = {
+ 
+ 		[ICSS_IEP_CAP6_RISE_REG0] = 0x50,
+ 		[ICSS_IEP_CAP6_RISE_REG1] = 0x54,
+-		[ICSS_IEP_CAP6_FALL_REG0] = 0x58,
+-		[ICSS_IEP_CAP6_FALL_REG1] = 0x5c,
+ 
+ 		[ICSS_IEP_CAP7_RISE_REG0] = 0x60,
+ 		[ICSS_IEP_CAP7_RISE_REG1] = 0x64,
+-		[ICSS_IEP_CAP7_FALL_REG0] = 0x68,
+-		[ICSS_IEP_CAP7_FALL_REG1] = 0x6c,
+ 
+ 		[ICSS_IEP_CMP_CFG_REG] = 0x70,
+ 		[ICSS_IEP_CMP_STAT_REG] = 0x74,
+@@ -954,13 +946,9 @@ static const struct icss_iep_plat_data am57xx_icss_iep_plat_data = {
+ 
+ 		[ICSS_IEP_CAP6_RISE_REG0] = 0x50,
+ 		[ICSS_IEP_CAP6_RISE_REG1] = 0x54,
+-		[ICSS_IEP_CAP6_FALL_REG0] = 0x58,
+-		[ICSS_IEP_CAP6_FALL_REG1] = 0x5c,
+ 
+ 		[ICSS_IEP_CAP7_RISE_REG0] = 0x60,
+ 		[ICSS_IEP_CAP7_RISE_REG1] = 0x64,
+-		[ICSS_IEP_CAP7_FALL_REG0] = 0x68,
+-		[ICSS_IEP_CAP7_FALL_REG1] = 0x6c,
+ 
+ 		[ICSS_IEP_CMP_CFG_REG] = 0x70,
+ 		[ICSS_IEP_CMP_STAT_REG] = 0x74,
+@@ -987,7 +975,6 @@ static bool am335x_icss_iep_valid_reg(struct device *dev, unsigned int reg)
+ 	switch (reg) {
+ 	case ICSS_IEP_GLOBAL_CFG_REG ... ICSS_IEP_CAPTURE_STAT_REG:
+ 	case ICSS_IEP_CAP6_RISE_REG0:
+-	case ICSS_IEP_CAP6_FALL_REG0:
+ 	case ICSS_IEP_CMP_CFG_REG ... ICSS_IEP_CMP0_REG0:
+ 	case ICSS_IEP_CMP8_REG0 ... ICSS_IEP_SYNC_START_REG:
+ 		return true;
+@@ -1017,10 +1004,8 @@ static const struct icss_iep_plat_data am335x_icss_iep_plat_data = {
+ 		[ICSS_IEP_CAPTURE_STAT_REG] = 0x14,
+ 
+ 		[ICSS_IEP_CAP6_RISE_REG0] = 0x30,
+-		[ICSS_IEP_CAP6_FALL_REG0] = 0x34,
+ 
+ 		[ICSS_IEP_CAP7_RISE_REG0] = 0x38,
+-		[ICSS_IEP_CAP7_FALL_REG0] = 0x3C,
+ 
+ 		[ICSS_IEP_CMP_CFG_REG] = 0x40,
+ 		[ICSS_IEP_CMP_STAT_REG] = 0x44,
+-- 
+2.34.1
+

@@ -1,7 +1,7 @@
-From 52841953a4cb44a15014fb34f4ebd784bdacb68a Mon Sep 17 00:00:00 2001
+From 02878f8922baa24e75b93084f4f09e5e3d7ba673 Mon Sep 17 00:00:00 2001
 From: Dimitar Dimitrov <dimitar@dinux.eu>
 Date: Wed, 30 Dec 2020 12:50:05 +0200
-Subject: [PATCH 039/118] remoteproc: pru: Fix loading of GNU Binutils ELF
+Subject: [PATCH 039/119] remoteproc: pru: Fix loading of GNU Binutils ELF
 
 PRU port of GNU Binutils lacks support for separate address spaces.
 PRU IRAM addresses are marked with artificial offset to differentiate

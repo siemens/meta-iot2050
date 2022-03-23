@@ -1,0 +1,123 @@
+From b99cfb748b990b323b938e1f57983dc7ac7b2bdc Mon Sep 17 00:00:00 2001
+From: Lokesh Vutla <lokeshvutla@ti.com>
+Date: Tue, 20 Apr 2021 13:17:31 +0530
+Subject: [PATCH 071/119] HACK: net: ethernet: ti: icss-iep: Fix sync0
+ generation on a compare event
+
+commit 41e5c46849b5 ("net: ethernet: ti: icss-iep: Add support for generating
+perout/PPS signal for am57xx variant") introduced support for generating
+PPS signal using the following method:
+- Configure sync0 in single shot mode with 100ms as pulse length.
+	- This allows to generate a pulse on first compare event after
+	sync0 is enabled.
+- Adjust CMP[1] register to next second boundary on every compare event.
+
+With this setup only one pulse is created after enabling the pps as
+sync0 is configured in single shot mode. In order to create a pulse on
+every compare event, sync0 has to be disabled and enabled after the
+pulse is completed. There are 2 ways to do it:
+- Create a hrtimer task which gets scheduled after completed the pulse. With
+  this there is a possibility that pulse can be missed, but in current
+  situation there is not other better way. $patch is implementing this.
+- Trigger an interrupt on falling edge of the pulse. But hardware does
+  not support for this interrupt.
+
+There are other ways on how sync0 can be configured. Below gives details
+on why other approaches are not taken:
+- Cyclic generation: Where cycle time & pulse length is configured upfront.
+		     Configuring cycle time upfront is a problem, as
+		     cycle time is in IEP clock cycles and cmp event is
+		     based on the IEP counter with compensation. This
+		     way cmp event and sync0 signal goes out of sync.
+- Single shot mode: This is the current implementation.
+- Cyclic with Ack mode: Where cycle time is configured upfront. Pulse
+			width is based on the Ack from software. In case
+			if this is used, ack should happen in cmp
+			interrupt handler. In this case, the interrupt
+			handling and ack is fast enough that most of the
+			times the pulse is not observed on the scope.
+- Single shot with Ack mode: Where cycle length and pulse length is not
+			     fixed. Pulse gets started with first compare
+			     event. Pulse gets low with the ack from
+			     software. This will have the same problem
+			     as single shot mode and cyclic with ack
+			     mode.
+
+After these experiments, the possible approach is to use Single shot
+mode and re-enable sync after every pulse. This patch is using a hrtimer
+task for re-enabling sync and that is why it is marked as HACK.
+
+TODO: Explore if the task can be offloaded to firmware and then revert
+this HACK
+
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index 234972a034a9..22034d41c988 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -126,6 +126,7 @@ struct icss_iep {
+ 	int cap_cmp_irq;
+ 	struct ptp_clock_time period;
+ 	u32 latch_enable;
++	struct hrtimer sync_timer;
+ };
+ 
+ /**
+@@ -539,6 +540,10 @@ static irqreturn_t icss_iep_cap_cmp_handler(int irq, void *dev_id)
+ 		pevent.index = index;
+ 		ptp_clock_event(iep->ptp_clock, &pevent);
+ 		dev_dbg(iep->dev, "IEP:pps ts: %llu\n", ns);
++
++		hrtimer_start(&iep->sync_timer, ms_to_ktime(110), /* 100ms + buffer */
++			      HRTIMER_MODE_REL);
++
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+@@ -664,6 +669,17 @@ static struct ptp_clock_info icss_iep_ptp_info = {
+ 	.enable		= icss_iep_ptp_enable,
+ };
+ 
++static enum hrtimer_restart icss_iep_sync0_work(struct hrtimer *timer)
++{
++	struct icss_iep *iep = container_of(timer, struct icss_iep, sync_timer);
++
++	regmap_write(iep->map, ICSS_IEP_SYNC_CTRL_REG, 0);
++	regmap_write(iep->map, ICSS_IEP_SYNC_CTRL_REG,
++		     IEP_SYNC_CTRL_SYNC_N_EN(0) | IEP_SYNC_CTRL_SYNC_EN);
++
++	return HRTIMER_NORESTART;
++}
++
+ struct icss_iep *icss_iep_get(struct device_node *np)
+ {
+ 	struct platform_device *pdev;
+@@ -707,6 +723,8 @@ struct icss_iep *icss_iep_get(struct device_node *np)
+ 			dev_err(iep->dev, "Request irq failed for cap_cmp %d\n", ret);
+ 			goto put_iep_device;
+ 		}
++		hrtimer_init(&iep->sync_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++		iep->sync_timer.function = icss_iep_sync0_work;
+ 	}
+ 
+ 	iep->ptp_info = icss_iep_ptp_info;
+@@ -734,8 +752,10 @@ void icss_iep_put(struct icss_iep *iep)
+ 	iep->client_np = NULL;
+ 	device_unlock(iep->dev);
+ 	put_device(iep->dev);
+-	if (iep->cap_cmp_irq)
++	if (iep->cap_cmp_irq) {
+ 		free_irq(iep->cap_cmp_irq, iep);
++		hrtimer_cancel(&iep->sync_timer);
++	}
+ }
+ EXPORT_SYMBOL_GPL(icss_iep_put);
+ 
+-- 
+2.34.1
+

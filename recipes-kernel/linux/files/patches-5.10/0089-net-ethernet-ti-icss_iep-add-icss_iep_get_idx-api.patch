@@ -1,0 +1,63 @@
+From 6b2e7086d0ed6f1b9921415e3ac9032bb5570f29 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Tue, 18 May 2021 23:37:26 +0300
+Subject: [PATCH 089/119] net: ethernet: ti: icss_iep: add icss_iep_get_idx()
+ api
+
+Add icss_iep_get_idx() API to allow retrieve IEP from phandle list in DT.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 10 ++++++++--
+ drivers/net/ethernet/ti/icss_iep.h |  1 +
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index 640f483854d0..51f8717fc446 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -754,13 +754,13 @@ static enum hrtimer_restart icss_iep_sync0_work(struct hrtimer *timer)
+ 	return HRTIMER_NORESTART;
+ }
+ 
+-struct icss_iep *icss_iep_get(struct device_node *np)
++struct icss_iep *icss_iep_get_idx(struct device_node *np, int idx)
+ {
+ 	struct platform_device *pdev;
+ 	struct device_node *iep_np;
+ 	struct icss_iep *iep;
+ 
+-	iep_np = of_parse_phandle(np, "iep", 0);
++	iep_np = of_parse_phandle(np, "iep", idx);
+ 	if (!iep_np || !of_device_is_available(iep_np))
+ 		return ERR_PTR(-ENODEV);
+ 
+@@ -804,6 +804,12 @@ struct icss_iep *icss_iep_get(struct device_node *np)
+ exit:
+ 	return iep;
+ }
++EXPORT_SYMBOL_GPL(icss_iep_get_idx);
++
++struct icss_iep *icss_iep_get(struct device_node *np)
++{
++	return icss_iep_get_idx(np, 0);
++}
+ EXPORT_SYMBOL_GPL(icss_iep_get);
+ 
+ void icss_iep_put(struct icss_iep *iep)
+diff --git a/drivers/net/ethernet/ti/icss_iep.h b/drivers/net/ethernet/ti/icss_iep.h
+index a41e18df666e..eefc8c8bd8cc 100644
+--- a/drivers/net/ethernet/ti/icss_iep.h
++++ b/drivers/net/ethernet/ti/icss_iep.h
+@@ -26,6 +26,7 @@ struct icss_iep_clockops {
+ };
+ 
+ struct icss_iep *icss_iep_get(struct device_node *np);
++struct icss_iep *icss_iep_get_idx(struct device_node *np, int idx);
+ void icss_iep_put(struct icss_iep *iep);
+ int icss_iep_init(struct icss_iep *iep, const struct icss_iep_clockops *clkops,
+ 		  void *clockops_data, u32 cycle_time_ns);
+-- 
+2.34.1
+

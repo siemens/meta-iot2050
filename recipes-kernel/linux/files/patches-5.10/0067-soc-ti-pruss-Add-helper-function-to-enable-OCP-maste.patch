@@ -1,0 +1,182 @@
+From 349313a3c6e898066e6c57ddae9b2008117a1acd Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Fri, 26 Mar 2021 16:38:11 -0500
+Subject: [PATCH 067/119] soc: ti: pruss: Add helper function to enable OCP
+ master ports
+
+The PRU-ICSS subsystem on OMAP-architecture based SoCS (AM33xx, AM437x
+and AM57xx SoCs) has a control bit STANDBY_INIT in the PRUSS_CFG register
+to initiate a Standby sequence (when set) and trigger a MStandby request
+to the SoC's PRCM module. This same bit is also used to enable the OCP
+master ports (when cleared). The clearing of the STANDBY_INIT bit requires
+an acknowledgment from PRCM and is done through the monitoring of the
+PRUSS_SYSCFG.SUB_MWAIT bit.
+
+Add a helper function pruss_cfg_ocp_master_ports() to allow the PRU
+client drivers to control this bit and enable or disable the firmware
+running on PRU cores access to any peripherals or memory to achieve
+desired functionality. The access is disabled by default on power-up
+and on any suspend (context is not maintained).
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Co-developed-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+Signed-off-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+---
+ drivers/soc/ti/pruss.c | 81 ++++++++++++++++++++++++++++++++++++++++--
+ include/linux/pruss.h  |  6 ++++
+ 2 files changed, 85 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
+index 8841d85a0a0d..1254495b7c45 100644
+--- a/drivers/soc/ti/pruss.c
++++ b/drivers/soc/ti/pruss.c
+@@ -22,14 +22,19 @@
+ #include <linux/remoteproc.h>
+ #include <linux/slab.h>
+ 
++#define SYSCFG_STANDBY_INIT	BIT(4)
++#define SYSCFG_SUB_MWAIT_READY	BIT(5)
++
+ /**
+  * struct pruss_private_data - PRUSS driver private data
+  * @has_no_sharedram: flag to indicate the absence of PRUSS Shared Data RAM
+  * @has_core_mux_clock: flag to indicate the presence of PRUSS core clock
++ * @has_ocp_syscfg: flag to indicate if OCP SYSCFG is present
+  */
+ struct pruss_private_data {
+ 	bool has_no_sharedram;
+ 	bool has_core_mux_clock;
++	bool has_ocp_syscfg;
+ };
+ 
+ /**
+@@ -206,6 +211,72 @@ int pruss_cfg_update(struct pruss *pruss, unsigned int reg,
+ }
+ EXPORT_SYMBOL_GPL(pruss_cfg_update);
+ 
++/**
++ * pruss_cfg_ocp_master_ports() - configure PRUSS OCP master ports
++ * @pruss: the pruss instance handle
++ * @enable: set to true for enabling or false for disabling the OCP master ports
++ *
++ * This function programs the PRUSS_SYSCFG.STANDBY_INIT bit either to enable or
++ * disable the OCP master ports (applicable only on SoCs using OCP interconnect
++ * like the OMAP family). Clearing the bit achieves dual functionalities - one
++ * is to deassert the MStandby signal to the device PRCM, and the other is to
++ * enable OCP master ports to allow accesses outside of the PRU-ICSS. The
++ * function has to wait for the PRCM to acknowledge through the monitoring of
++ * the PRUSS_SYSCFG.SUB_MWAIT bit when enabling master ports. Setting the bit
++ * disables the master access, and also signals the PRCM that the PRUSS is ready
++ * for Standby.
++ *
++ * Return: 0 on success, or an error code otherwise. ETIMEDOUT is returned
++ * when the ready-state fails.
++ */
++int pruss_cfg_ocp_master_ports(struct pruss *pruss, bool enable)
++{
++	int ret;
++	u32 syscfg_val, i;
++	const struct pruss_private_data *data;
++
++	if (IS_ERR_OR_NULL(pruss))
++		return -EINVAL;
++
++	data = of_device_get_match_data(pruss->dev);
++
++	/* nothing to do on non OMAP-SoCs */
++	if (!data || !data->has_ocp_syscfg)
++		return 0;
++
++	/* assert the MStandby signal during disable path */
++	if (!enable)
++		return pruss_cfg_update(pruss, PRUSS_CFG_SYSCFG,
++					SYSCFG_STANDBY_INIT,
++					SYSCFG_STANDBY_INIT);
++
++	/* enable the OCP master ports and disable MStandby */
++	ret = pruss_cfg_update(pruss, PRUSS_CFG_SYSCFG, SYSCFG_STANDBY_INIT, 0);
++	if (ret)
++		return ret;
++
++	/* wait till we are ready for transactions - delay is arbitrary */
++	for (i = 0; i < 10; i++) {
++		ret = pruss_cfg_read(pruss, PRUSS_CFG_SYSCFG, &syscfg_val);
++		if (ret)
++			goto disable;
++
++		if (!(syscfg_val & SYSCFG_SUB_MWAIT_READY))
++			return 0;
++
++		udelay(5);
++	}
++
++	dev_err(pruss->dev, "timeout waiting for SUB_MWAIT_READY\n");
++	ret = -ETIMEDOUT;
++
++disable:
++	pruss_cfg_update(pruss, PRUSS_CFG_SYSCFG, SYSCFG_STANDBY_INIT,
++			 SYSCFG_STANDBY_INIT);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(pruss_cfg_ocp_master_ports);
++
+ static void pruss_of_free_clk_provider(void *data)
+ {
+ 	struct device_node *clk_mux_np = data;
+@@ -497,10 +568,16 @@ static int pruss_remove(struct platform_device *pdev)
+ /* instance-specific driver private data */
+ static const struct pruss_private_data am437x_pruss1_data = {
+ 	.has_no_sharedram = false,
++	.has_ocp_syscfg = true,
+ };
+ 
+ static const struct pruss_private_data am437x_pruss0_data = {
+ 	.has_no_sharedram = true,
++	.has_ocp_syscfg = false,
++};
++
++static const struct pruss_private_data am33xx_am57xx_data = {
++	.has_ocp_syscfg = true,
+ };
+ 
+ static const struct pruss_private_data am65x_j721e_pruss_data = {
+@@ -508,10 +585,10 @@ static const struct pruss_private_data am65x_j721e_pruss_data = {
+ };
+ 
+ static const struct of_device_id pruss_of_match[] = {
+-	{ .compatible = "ti,am3356-pruss" },
++	{ .compatible = "ti,am3356-pruss", .data = &am33xx_am57xx_data },
+ 	{ .compatible = "ti,am4376-pruss0", .data = &am437x_pruss0_data, },
+ 	{ .compatible = "ti,am4376-pruss1", .data = &am437x_pruss1_data, },
+-	{ .compatible = "ti,am5728-pruss" },
++	{ .compatible = "ti,am5728-pruss", .data = &am33xx_am57xx_data },
+ 	{ .compatible = "ti,k2g-pruss" },
+ 	{ .compatible = "ti,am654-icssg", .data = &am65x_j721e_pruss_data, },
+ 	{ .compatible = "ti,j721e-icssg", .data = &am65x_j721e_pruss_data, },
+diff --git a/include/linux/pruss.h b/include/linux/pruss.h
+index ba5b728d5015..5fdd6f03446d 100644
+--- a/include/linux/pruss.h
++++ b/include/linux/pruss.h
+@@ -163,6 +163,7 @@ int pruss_release_mem_region(struct pruss *pruss,
+ int pruss_cfg_read(struct pruss *pruss, unsigned int reg, unsigned int *val);
+ int pruss_cfg_update(struct pruss *pruss, unsigned int reg,
+ 		     unsigned int mask, unsigned int val);
++int pruss_cfg_ocp_master_ports(struct pruss *pruss, bool enable);
+ 
+ #else
+ 
+@@ -198,6 +199,11 @@ static inline int pruss_cfg_update(struct pruss *pruss, unsigned int reg,
+ 	return -EOPNOTSUPP;
+ }
+ 
++static inline int pruss_cfg_ocp_master_ports(struct pruss *pruss, bool enable)
++{
++	return -EOPNOTSUPP;
++}
++
+ #endif /* CONFIG_TI_PRUSS */
+ 
+ #if IS_ENABLED(CONFIG_PRU_REMOTEPROC)
+-- 
+2.34.1
+

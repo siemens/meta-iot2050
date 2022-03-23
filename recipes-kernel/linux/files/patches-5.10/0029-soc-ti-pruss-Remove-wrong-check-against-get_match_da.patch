@@ -1,7 +1,7 @@
-From 1411bab7ddcc3c9fe2c670fbd879675b9ef6528b Mon Sep 17 00:00:00 2001
+From ddc79889dead59d19c16511a19bfe9a65099d86d Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
-Subject: [PATCH 029/118] soc: ti: pruss: Remove wrong check against
+Subject: [PATCH 029/119] soc: ti: pruss: Remove wrong check against
  *get_match_data return value
 
 Since the of_device_get_match_data() doesn't return error code, remove

@@ -1,0 +1,107 @@
+From e36585eb1ed9708aa3a6af032da52976ebece120 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Tue, 12 Oct 2021 13:54:42 +0300
+Subject: [PATCH 107/119] net: ethernet: icssg-prueth: sr1.0: add support for
+ half duplex operation
+
+This patch adds support for half duplex operation at 10M and 100M link
+speeds. Driver needs to configure rand_seed, a random number, in the config
+struct passed to firmware. This is used as a seed value at firmware for
+random number generation logic required to implement csma/cd logic timer.
+Also don't clear the half duplex bits in the supported modes of phydev for
+10M and 100M as they now become supported.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_config.c |  1 +
+ drivers/net/ethernet/ti/icssg_config.h |  2 ++
+ drivers/net/ethernet/ti/icssg_prueth.c | 19 +++++++++++++++++--
+ drivers/net/ethernet/ti/icssg_prueth.h |  1 +
+ 4 files changed, 21 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index b5cef264cdf9..905c743e8e11 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -239,6 +239,7 @@ void icssg_config_sr1(struct prueth *prueth, struct prueth_emac *emac,
+ 	config->num_tx_threads = 0;
+ 	config->rx_flow_id = emac->rx_flow_id_base; /* flow id for host port */
+ 	config->rx_mgr_flow_id = emac->rx_mgm_flow_id_base; /* for mgm ch */
++	config->rand_seed = get_random_int();
+ 
+ 	for (i = PRUETH_EMAC_BUF_POOL_START_SR1; i < PRUETH_NUM_BUF_POOLS_SR1;
+ 	     i++) {
+diff --git a/drivers/net/ethernet/ti/icssg_config.h b/drivers/net/ethernet/ti/icssg_config.h
+index 82930383204b..b9fe3f3cc940 100644
+--- a/drivers/net/ethernet/ti/icssg_config.h
++++ b/drivers/net/ethernet/ti/icssg_config.h
+@@ -60,6 +60,8 @@ struct icssg_config_sr1 {
+ 	__le32 n_burst;		/* for debug */
+ 	__le32 rtu_status;	/* RTU status */
+ 	__le32 info;		/* reserved */
++	__le32 reserve;
++	__le32 rand_seed;	/* Used for the random number generation at fw */
+ } __packed;
+ 
+ /* Shutdown command to stop processing at firmware.
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index abd062bedebb..635eec1fd6ee 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -1232,6 +1232,15 @@ static void prueth_emac_stop(struct prueth_emac *emac)
+ 	rproc_shutdown(prueth->pru[slice]);
+ }
+ 
++static void icssg_config_half_duplex(struct prueth *prueth, int slice)
++{
++	void __iomem *va = prueth->shram.va + slice * ICSSG_CONFIG_OFFSET_SLICE1;
++	struct icssg_config_sr1 *config = (struct icssg_config_sr1 *)va;
++	u32 val = get_random_int();
++
++	writel(val, &config->rand_seed);
++}
++
+ /* called back by PHY layer if there is change in link state of hw port*/
+ static void emac_adjust_link(struct net_device *ndev)
+ {
+@@ -1275,6 +1284,8 @@ static void emac_adjust_link(struct net_device *ndev)
+ 		 * values
+ 		 */
+ 		if (emac->link) {
++			if (emac->duplex == DUPLEX_HALF)
++				icssg_config_half_duplex(prueth, prueth_emac_slice(emac));
+ 			/* Set the RGMII cfg for gig en and full duplex */
+ 			icssg_update_rgmii_cfg(prueth->miig_rt, emac->speed,
+ 					       emac->duplex, slice);
+@@ -2176,9 +2187,13 @@ static int prueth_netdev_init(struct prueth *prueth,
+ 		goto free;
+ 	}
+ 
++	emac->half_duplex = of_property_read_bool(eth_node, "ti,half-duplex-capable");
++
+ 	/* remove unsupported modes */
+-	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Half_BIT);
+-	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
++	if (!emac->half_duplex) {
++		phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_10baseT_Half_BIT);
++		phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
++	}
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_Pause_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_Asym_Pause_BIT);
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.h b/drivers/net/ethernet/ti/icssg_prueth.h
+index 59dec45a3c86..917c6f9a2514 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.h
++++ b/drivers/net/ethernet/ti/icssg_prueth.h
+@@ -139,6 +139,7 @@ struct prueth_emac {
+ 	struct icss_iep *iep;
+ 	unsigned int rx_ts_enabled : 1;
+ 	unsigned int tx_ts_enabled : 1;
++	unsigned int half_duplex : 1;
+ 
+ 	/* DMA related */
+ 	struct prueth_tx_chn tx_chns[PRUETH_MAX_TX_QUEUES];
+-- 
+2.34.1
+
