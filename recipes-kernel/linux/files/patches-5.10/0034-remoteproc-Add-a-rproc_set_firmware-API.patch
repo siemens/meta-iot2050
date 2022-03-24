@@ -1,4 +1,4 @@
-From a7aeff02164ef9414676e72cb62b91f7f3f2d8c0 Mon Sep 17 00:00:00 2001
+From 6df4b0aec3b1c602dd3a4371c18beea76920beff Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 20 Nov 2020 21:20:42 -0600
 Subject: [PATCH 034/119] remoteproc: Add a rproc_set_firmware() API
@@ -28,10 +28,10 @@ Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
  3 files changed, 66 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index 47924d5ed4f5..edab36dbfd6b 100644
+index 369a97f3eca9..5250a081ea93 100644
 --- a/drivers/remoteproc/remoteproc_core.c
 +++ b/drivers/remoteproc/remoteproc_core.c
-@@ -1934,6 +1934,69 @@ struct rproc *rproc_get_by_phandle(phandle phandle)
+@@ -1936,6 +1936,69 @@ struct rproc *rproc_get_by_phandle(phandle phandle)
  #endif
  EXPORT_SYMBOL(rproc_get_by_phandle);
  

@@ -1,4 +1,4 @@
-From cfc3585ccd5ab224309a94e6318ba1f355a70630 Mon Sep 17 00:00:00 2001
+From 4ce932a0e31bf5ed2195d161250bef1eb0242e0f Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:24 -0600
 Subject: [PATCH 005/119] arm64: dts: ti: am65/j721e: Fix up un-necessary
@@ -31,7 +31,7 @@ index c842b9803f2d..116818912ba2 100644
  		dmas = <&main_udmap 0xc000>, <&main_udmap 0x4000>,
  				<&main_udmap 0x4001>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 6ffdebd60122..d386b38b5b0b 100644
+index 85526f72b461..98009d3aa25d 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -359,8 +359,6 @@ main_crypto: crypto@4e00000 {

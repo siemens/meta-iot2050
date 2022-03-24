@@ -1,0 +1,60 @@
+From 7c7ad3d0988cfa5f2e569f1016bbb8036816fd9b Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 15 Feb 2022 22:15:40 +0100
+Subject: [PATCH 5/8] arm: dts: iot2050: Add cfg register space for ringacc and
+ udmap
+
+Recent unrelated fixes (9876ae7db6da) revealed that we were missing bits
+from 2af181b53e28 in the IOT2050 dt. Add them, but only for main U-Boot.
+SPL loads from QSPI only, thus cannot use DMA.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../dts/k3-am65-iot2050-common-u-boot.dtsi    | 25 ++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
+index 286e25f3794..d80c5501d2f 100644
+--- a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Copyright (c) Siemens AG, 2018-2021
++ * Copyright (c) Siemens AG, 2018-2022
+  *
+  * Authors:
+  *   Le Jin <le.jin@siemens.com>
+@@ -27,6 +27,29 @@
+ 
+ &cbass_mcu {
+ 	u-boot,dm-spl;
++
++	mcu_navss: bus@28380000 {
++		ringacc@2b800000 {
++			reg =	<0x0 0x2b800000 0x0 0x400000>,
++				<0x0 0x2b000000 0x0 0x400000>,
++				<0x0 0x28590000 0x0 0x100>,
++				<0x0 0x2a500000 0x0 0x40000>,
++				<0x0 0x28440000 0x0 0x40000>;
++			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
++			ti,dma-ring-reset-quirk;
++		};
++
++		dma-controller@285c0000 {
++			reg =	<0x0 0x285c0000 0x0 0x100>,
++				<0x0 0x284c0000 0x0 0x4000>,
++				<0x0 0x2a800000 0x0 0x40000>,
++				<0x0 0x284a0000 0x0 0x4000>,
++				<0x0 0x2aa00000 0x0 0x40000>,
++				<0x0 0x28400000 0x0 0x2000>;
++			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
++					    "tchanrt", "rflow";
++		};
++	};
+ };
+ 
+ &cbass_wakeup {
+-- 
+2.34.1
+

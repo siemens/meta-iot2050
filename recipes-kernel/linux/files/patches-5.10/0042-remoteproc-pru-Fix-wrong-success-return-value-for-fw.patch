@@ -1,4 +1,4 @@
-From 48381160333cca6de0dfbad26e8e95a0b8431a23 Mon Sep 17 00:00:00 2001
+From f5f116a011a493ce5e23f1449bd42774ec946a30 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:40 -0500
 Subject: [PATCH 042/119] remoteproc: pru: Fix wrong success return value for

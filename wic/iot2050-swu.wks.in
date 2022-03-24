@@ -1,0 +1,20 @@
+#
+# Copyright (c) Siemens AG, 2021
+#
+# Authors:
+#  Quirin Gylstorff <quirin.gylstorff@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+bootloader --ptable gpt --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 rootwait ${EXTRA_KERNEL_PARAMS}"
+
+# rootfs 1
+part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=env exists sysselect || setenv sysselect 1,root=PARTLABEL=rootfs\"\$\{sysselect\}\"" --fixed-size 4G --fstype ext4 --label rootfs1 --align 1024
+
+# rootfs 2
+part --source rootfs-u-boot --sourceparams="no_initrd=yes,script_prepend=env exists sysselect || setenv sysselect 1,root=PARTLABEL=rootfs\"\$\{sysselect\}\"" --fixed-size 4G --fstype ext4 --label rootfs2 --align 1024
+
+# data partition
+part --size 512M --fstype ext4 --label data --align 1024

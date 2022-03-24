@@ -1,4 +1,4 @@
-From 5a18765f2d2eee68e6895ed7cb48990725ffda7a Mon Sep 17 00:00:00 2001
+From f63c0f8baa4945b1b89f604bc050e3da425daad0 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Thu, 16 Dec 2021 15:09:25 +0800
 Subject: [PATCH 119/119] arm64: dts: ti: Indicate the green light is off when
@@ -13,7 +13,7 @@ Signed-off-by: chao zeng <chao.zeng@siemens.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index 34a4bcec204a..733d6925c613 100644
+index ea8ff74c681c..3310880e83ee 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 @@ -81,6 +81,7 @@ status-led-red {

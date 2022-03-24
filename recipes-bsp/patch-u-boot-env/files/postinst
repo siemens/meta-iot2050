@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2021
+#
+# Authors:
+#  Quirin Gylstorff <quirin.gylstorff@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+deb-systemd-helper enable patch-u-boot-env.service || true

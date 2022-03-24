@@ -1,0 +1,115 @@
+From 40171361d1e9b429fc56af825d633c0dc2a4ffdc Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Wed, 23 Feb 2022 10:26:16 +0100
+Subject: [PATCH 3/8] mtd: spi: Convert is_locked callback to is_unlocked
+
+There was no user of this callback after 5b66fdb29dc3 anymore, and its
+semantic as now inconsistent between stm and sst26. What we need for the
+upcoming new usecase is a "completely unlocked" semantic. So consolidate
+over this.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/mtd/spi/spi-nor-core.c | 26 +++++++++++++-------------
+ include/linux/mtd/spi-nor.h    |  6 +++---
+ 2 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/mtd/spi/spi-nor-core.c b/drivers/mtd/spi/spi-nor-core.c
+index 4388a08a90d..6459a101a44 100644
+--- a/drivers/mtd/spi/spi-nor-core.c
++++ b/drivers/mtd/spi/spi-nor-core.c
+@@ -1308,13 +1308,13 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+ }
+ 
+ /*
+- * Check if a region of the flash is (completely) locked. See stm_lock() for
++ * Check if a region of the flash is (completely) unlocked. See stm_lock() for
+  * more info.
+  *
+- * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
++ * Returns 1 if entire region is unlocked, 0 if any portion is locked, and
+  * negative on errors.
+  */
+-static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
++static int stm_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+ {
+ 	int status;
+ 
+@@ -1322,7 +1322,7 @@ static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+ 	if (status < 0)
+ 		return status;
+ 
+-	return stm_is_locked_sr(nor, ofs, len, status);
++	return stm_is_unlocked_sr(nor, ofs, len, status);
+ }
+ #endif /* CONFIG_SPI_FLASH_STMICRO */
+ 
+@@ -1555,16 +1555,16 @@ static int sst26_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
+ }
+ 
+ /*
+- * Returns EACCES (positive value) if region is locked, 0 if region is unlocked,
+- * and negative on errors.
++ * Returns EACCES (positive value) if region is (partially) locked, 0 if region
++ * is completely unlocked, and negative on errors.
+  */
+-static int sst26_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
++static int sst26_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+ {
+ 	/*
+-	 * is_locked function is used for check before reading or erasing flash
+-	 * region, so offset and length might be not 64k allighned, so adjust
+-	 * them to be 64k allighned as sst26_lock_ctl works only with 64k
+-	 * allighned regions.
++	 * is_unlocked function is used for check before reading or erasing
++	 * flash region, so offset and length might be not 64k aligned, so
++	 * adjust them to be 64k aligned as sst26_lock_ctl works only with 64k
++	 * aligned regions.
+ 	 */
+ 	ofs -= ofs & (SZ_64K - 1);
+ 	len = len & (SZ_64K - 1) ? (len & ~(SZ_64K - 1)) + SZ_64K : len;
+@@ -3785,7 +3785,7 @@ int spi_nor_scan(struct spi_nor *nor)
+ 			info->flags & SPI_NOR_HAS_LOCK) {
+ 		nor->flash_lock = stm_lock;
+ 		nor->flash_unlock = stm_unlock;
+-		nor->flash_is_locked = stm_is_locked;
++		nor->flash_is_unlocked = stm_is_unlocked;
+ 	}
+ #endif
+ 
+@@ -3797,7 +3797,7 @@ int spi_nor_scan(struct spi_nor *nor)
+ 	if (info->flags & SPI_NOR_HAS_SST26LOCK) {
+ 		nor->flash_lock = sst26_lock;
+ 		nor->flash_unlock = sst26_unlock;
+-		nor->flash_is_locked = sst26_is_locked;
++		nor->flash_is_unlocked = sst26_is_unlocked;
+ 	}
+ #endif
+ 
+diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
+index 4ceeae623de..f857a94db71 100644
+--- a/include/linux/mtd/spi-nor.h
++++ b/include/linux/mtd/spi-nor.h
+@@ -506,8 +506,8 @@ struct spi_flash {
+  *			spi-nor will send the erase opcode via write_reg()
+  * @flash_lock:		[FLASH-SPECIFIC] lock a region of the SPI NOR
+  * @flash_unlock:	[FLASH-SPECIFIC] unlock a region of the SPI NOR
+- * @flash_is_locked:	[FLASH-SPECIFIC] check if a region of the SPI NOR is
+- *			completely locked
++ * @flash_is_unlocked:	[FLASH-SPECIFIC] check if a region of the SPI NOR is
++ *			completely unlocked
+  * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
+  * @octal_dtr_enable:	[FLASH-SPECIFIC] enables SPI NOR octal DTR mode.
+  * @ready:		[FLASH-SPECIFIC] check if the flash is ready
+@@ -556,7 +556,7 @@ struct spi_nor {
+ 
+ 	int (*flash_lock)(struct spi_nor *nor, loff_t ofs, uint64_t len);
+ 	int (*flash_unlock)(struct spi_nor *nor, loff_t ofs, uint64_t len);
+-	int (*flash_is_locked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
++	int (*flash_is_unlocked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
+ 	int (*quad_enable)(struct spi_nor *nor);
+ 	int (*octal_dtr_enable)(struct spi_nor *nor);
+ 	int (*ready)(struct spi_nor *nor);
+-- 
+2.34.1
+

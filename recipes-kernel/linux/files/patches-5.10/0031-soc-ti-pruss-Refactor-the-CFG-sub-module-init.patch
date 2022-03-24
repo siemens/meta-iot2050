@@ -1,4 +1,4 @@
-From c0b27a001f9ccb7565ae6c9d40d7ab8040b4f14b Mon Sep 17 00:00:00 2001
+From 5f2b19f77ae6c65c4f96ce12dcebd55c5493dbf0 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:53:43 -0800
 Subject: [PATCH 031/119] soc: ti: pruss: Refactor the CFG sub-module init
@@ -16,7 +16,7 @@ Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
  1 file changed, 50 insertions(+), 41 deletions(-)
 
 diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
-index 1d6890134312..f22ac1edbdd0 100644
+index dc94335fc351..afc8aae68035 100644
 --- a/drivers/soc/ti/pruss.c
 +++ b/drivers/soc/ti/pruss.c
 @@ -161,6 +161,53 @@ static struct regmap_config regmap_conf = {

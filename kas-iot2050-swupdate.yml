@@ -1,0 +1,21 @@
+#
+# Copyright (c) Siemens AG, 2021
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 10
+  includes:
+   - kas-iot2050-example.yml
+
+build_system: isar
+
+target: iot2050-image-swu-example
+
+# wic-swu-img extracts a partition and generates a cpio image for
+# updating with swupdate
+local_conf_header:
+  generate-swu: |
+    IMAGE_FSTYPES = "wic-swu-img"

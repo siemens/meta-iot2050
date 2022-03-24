@@ -1,0 +1,51 @@
+From fb8c19671c4b1c4303abeccd49d053cb39ce447a Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Wed, 2 Feb 2022 07:20:43 +0100
+Subject: [PATCH 4/8] sf: Query write-protection status before operating the
+ flash
+
+Do not suggest successful operation if a flash area to be changed is
+actually locked, thus will not execute the request. Rather report an
+error and bail out. That's way more user-friendly than asking them to
+manually check for this case.
+
+Derived from original patch by Chao Zeng.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ cmd/sf.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/cmd/sf.c b/cmd/sf.c
+index eac27ed2d77..d4b70d26c48 100644
+--- a/cmd/sf.c
++++ b/cmd/sf.c
+@@ -287,6 +287,12 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
+ 		return 1;
+ 	}
+ 
++	if (strncmp(argv[0], "read", 4) != 0 && flash->flash_is_unlocked &&
++	    !flash->flash_is_unlocked(flash, offset, len)) {
++		printf("ERROR: flash area is locked\n");
++		return 1;
++	}
++
+ 	buf = map_physmem(addr, len, MAP_WRBACK);
+ 	if (!buf && addr) {
+ 		puts("Failed to map physical memory\n");
+@@ -343,6 +349,12 @@ static int do_spi_flash_erase(int argc, char *const argv[])
+ 		return 1;
+ 	}
+ 
++	if (flash->flash_is_unlocked &&
++	    !flash->flash_is_unlocked(flash, offset, len)) {
++		printf("ERROR: flash area is locked\n");
++		return 1;
++	}
++
+ 	ret = spi_flash_erase(flash, offset, size);
+ 	printf("SF: %zu bytes @ %#x Erased: ", (size_t)size, (u32)offset);
+ 	if (ret)
+-- 
+2.34.1
+

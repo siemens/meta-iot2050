@@ -1,4 +1,4 @@
-From 57f338ecf2bde7ac33333ec67649d3d0630d316b Mon Sep 17 00:00:00 2001
+From 2f850a740d8990f6b1c66f0c1f915e862582fbc3 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 15 Jan 2021 21:30:16 +0200
 Subject: [PATCH 006/119] arm64: dts: ti: k3: mmc: fix dtbs_check warnings
@@ -48,7 +48,7 @@ index 116818912ba2..29c647f35464 100644
  		reg = <0x0 0x4fa0000 0x0 0x260>, <0x0 0x4fb0000 0x0 0x134>;
  		power-domains = <&k3_pds 48 TI_SCI_PD_EXCLUSIVE>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 5832ad830ed1..4a3eec9a8b1d 100644
+index 1ab9f9604af6..0eabd6223df0 100644
 --- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 @@ -387,8 +387,8 @@ main_sdhci0: mmc@4f80000 {
@@ -74,7 +74,7 @@ index 5832ad830ed1..4a3eec9a8b1d 100644
  		ti,otap-del-sel-sd-hs = <0x0>;
  		ti,otap-del-sel-sdr12 = <0xf>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index d386b38b5b0b..4f8bbad8731c 100644
+index 98009d3aa25d..d0dae7c0ad23 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -1069,13 +1069,13 @@ main_gpio7: gpio@631000 {

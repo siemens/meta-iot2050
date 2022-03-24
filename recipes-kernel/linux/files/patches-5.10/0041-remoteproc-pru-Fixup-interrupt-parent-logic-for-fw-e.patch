@@ -1,4 +1,4 @@
-From 6bf4f199019674b565fd2e4bcd03945871bde936 Mon Sep 17 00:00:00 2001
+From 366ef06c912ce1a62ff01ed9973df1240d42c4b4 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:39 -0500
 Subject: [PATCH 041/119] remoteproc: pru: Fixup interrupt-parent logic for fw

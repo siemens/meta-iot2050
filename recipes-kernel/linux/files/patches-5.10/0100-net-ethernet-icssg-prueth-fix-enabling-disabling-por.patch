@@ -1,0 +1,63 @@
+From 23a6caf4122fba5d041ec979eab1744569894537 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Wed, 7 Jul 2021 14:43:13 +0300
+Subject: [PATCH 100/119] net: ethernet: icssg-prueth: fix enabling/disabling
+ port in emac_adjust_link()
+
+The port state is set to FORWARD in emac_ndo_open() and never changed, but
+the correct behavior is to enable port (FORWARD) on link up and disable
+(DISABLE) on link down events.
+
+Hence fix emac_adjust_link() to set correct port state depending on link
+status. Also, reduce spinlock section to only icssg_config_ipg() which is
+the only one need protection between interfaces.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index f212e5904afc..abd062bedebb 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -1274,17 +1274,23 @@ static void emac_adjust_link(struct net_device *ndev)
+ 		/* update RGMII and MII configuration based on PHY negotiated
+ 		 * values
+ 		 */
+-		spin_lock_irqsave(&emac->lock, flags);
+ 		if (emac->link) {
+ 			/* Set the RGMII cfg for gig en and full duplex */
+ 			icssg_update_rgmii_cfg(prueth->miig_rt, emac->speed,
+ 					       emac->duplex, slice);
+ 
+ 			/* update the Tx IPG based on 100M/1G speed */
++			spin_lock_irqsave(&emac->lock, flags);
+ 			icssg_config_ipg(prueth, emac->speed, slice);
++			spin_unlock_irqrestore(&emac->lock, flags);
+ 			icssg_config_set_speed(emac);
++			if (!emac->is_sr1)
++				emac_set_port_state(emac, ICSSG_EMAC_PORT_FORWARD);
++
++		} else {
++			if (!emac->is_sr1)
++				emac_set_port_state(emac, ICSSG_EMAC_PORT_DISABLE);
+ 		}
+-		spin_unlock_irqrestore(&emac->lock, flags);
+ 
+ 		/* send command to firmware to change speed and duplex
+ 		 * setting when link is up.
+@@ -1684,9 +1690,6 @@ static int emac_ndo_open(struct net_device *ndev)
+ 	if (netif_msg_drv(emac))
+ 		dev_notice(&ndev->dev, "started\n");
+ 
+-	if (!emac->is_sr1)
+-		emac_set_port_state(emac, ICSSG_EMAC_PORT_FORWARD);
+-
+ 	return 0;
+ 
+ reset_tx_chan:
+-- 
+2.34.1
+

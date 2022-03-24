@@ -1,4 +1,4 @@
-From ea9cb6a950b09bd9d01d616119027a6861a09ffa Mon Sep 17 00:00:00 2001
+From c7b85ed2b4896dc1e7fd59988460b9a2a46df726 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:05 -0700
 Subject: [PATCH 023/119] firmware: ti_sci: rm: Add support for

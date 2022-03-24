@@ -10,15 +10,6 @@
 
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-# Pluseaudio service
-mkdir -p /etc/systemd/user/default.target.wants/
-mkdir -p /etc/systemd/user/sockets.target.wants/
-ln -s /usr/lib/systemd/user/pulseaudio.service /etc/systemd/user/default.target.wants/pulseaudio.service
-ln -s /usr/lib/systemd/user/pulseaudio.sockets /etc/systemd/user/sockets.target.wants/pulseaudio.sockets
-
-# TCF service
-ln -s /etc/systemd/system/tcf-agent.service  /etc/systemd/system/multi-user.target.wants/tcf-agent.service
-
 # Networkmanager service
 systemctl disable systemd-networkd.service
 systemctl enable NetworkManager.service
@@ -36,6 +27,3 @@ systemctl enable board-configuration.service
 
 # Force user to change the password of root upon first login
 passwd --expire root
-
-# node-red
-systemctl enable node-red.service

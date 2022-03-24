@@ -1,25 +1,25 @@
 {
-  "name": "node-red-contrib-s7",
+  "name": "root",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "dependencies": {
-        "node-red-contrib-s7": "3.0.0"
+        "node-red-contrib-s7": "^3.1.0"
       }
     },
     "node_modules/node-red-contrib-s7": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.0.0.tgz",
-      "integrity": "sha512-nZGS0atEuEr9JmBeCiiVXWWVs1oKuChSVZqpq6wI6faUhf4lNRLRKxA7+Np/en0RW1p76WpUNYDU28DRyU66nQ==",
+      "version": "3.1.0",
+      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.1.0.tgz",
+      "integrity": "sha512-5ETqfO7bEVZQZ9IJ85INGU6fIfh/BnQL7vx1PYz1Uk/Z/wF4+9PLabOI3SN3UEudjnbJyCU5PlgVcm0DwLhhZg==",
       "dependencies": {
-        "@st-one-io/nodes7": "^1.0.0-beta.1"
+        "@st-one-io/nodes7": "1.1.0"
       }
     },
     "node_modules/node-red-contrib-s7/node_modules/@st-one-io/nodes7": {
-      "version": "1.0.1",
-      "resolved": "https://registry.npmjs.org/@st-one-io/nodes7/-/nodes7-1.0.1.tgz",
-      "integrity": "sha512-EFzhMkfYnUOdqna2Bf3CSpRprPbm/2TfOSZNRxCTv4mq/viqhHmfDX/v2phukh55t/i2daU+2x9HEukf2LcONg==",
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/@st-one-io/nodes7/-/nodes7-1.1.0.tgz",
+      "integrity": "sha512-Ds5srgWRWgBTEfIxBSCjaKt87w3EOqAGdjaRmnJpflg9Ah0WafjsqOC3cwX074Fuo16398l3JCxdJqXGkk2LQQ==",
       "dependencies": {
         "iso-on-tcp": "^0.1.0"
       }
@@ -32,17 +32,17 @@
   },
   "dependencies": {
     "node-red-contrib-s7": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.0.0.tgz",
-      "integrity": "sha512-nZGS0atEuEr9JmBeCiiVXWWVs1oKuChSVZqpq6wI6faUhf4lNRLRKxA7+Np/en0RW1p76WpUNYDU28DRyU66nQ==",
+      "version": "3.1.0",
+      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.1.0.tgz",
+      "integrity": "sha512-5ETqfO7bEVZQZ9IJ85INGU6fIfh/BnQL7vx1PYz1Uk/Z/wF4+9PLabOI3SN3UEudjnbJyCU5PlgVcm0DwLhhZg==",
       "requires": {
-        "@st-one-io/nodes7": "^1.0.0-beta.1"
+        "@st-one-io/nodes7": "1.1.0"
       },
       "dependencies": {
         "@st-one-io/nodes7": {
-          "version": "1.0.1",
-          "resolved": "https://registry.npmjs.org/@st-one-io/nodes7/-/nodes7-1.0.1.tgz",
-          "integrity": "sha512-EFzhMkfYnUOdqna2Bf3CSpRprPbm/2TfOSZNRxCTv4mq/viqhHmfDX/v2phukh55t/i2daU+2x9HEukf2LcONg==",
+          "version": "1.1.0",
+          "resolved": "https://registry.npmjs.org/@st-one-io/nodes7/-/nodes7-1.1.0.tgz",
+          "integrity": "sha512-Ds5srgWRWgBTEfIxBSCjaKt87w3EOqAGdjaRmnJpflg9Ah0WafjsqOC3cwX074Fuo16398l3JCxdJqXGkk2LQQ==",
           "requires": {
             "iso-on-tcp": "^0.1.0"
           }

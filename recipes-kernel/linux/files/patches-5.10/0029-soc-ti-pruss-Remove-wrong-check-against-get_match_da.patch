@@ -1,4 +1,4 @@
-From f9d7760e5e4da7f5656f6fff424b80aa9f0b9597 Mon Sep 17 00:00:00 2001
+From ddc79889dead59d19c16511a19bfe9a65099d86d Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
 Subject: [PATCH 029/119] soc: ti: pruss: Remove wrong check against
@@ -19,7 +19,7 @@ Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
  1 file changed, 6 deletions(-)
 
 diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
-index cc0b4ad7a3d3..5d6e7132a5c4 100644
+index 30695172a508..aa3aba80dbc6 100644
 --- a/drivers/soc/ti/pruss.c
 +++ b/drivers/soc/ti/pruss.c
 @@ -126,8 +126,6 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)

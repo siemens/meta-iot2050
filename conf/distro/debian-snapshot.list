@@ -1,8 +1,8 @@
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210902T000000Z/ bullseye main contrib non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210902T000000Z/ bullseye main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20220222T214253Z/ bullseye main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20220222T214253Z/ bullseye main contrib non-free
 
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20210902T000000Z/ bullseye-security/updates main contrib non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20210902T000000Z/ bullseye-security/updates main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20220222T214253Z/ bullseye-security/updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20220222T214253Z/ bullseye-security/updates main contrib non-free
 
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210902T000000Z/ bullseye-updates main contrib non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20210902T000000Z/ bullseye-updates main contrib non-free
+deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20220222T214253Z/ bullseye-updates main contrib non-free
+deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20220222T214253Z/ bullseye-updates main contrib non-free

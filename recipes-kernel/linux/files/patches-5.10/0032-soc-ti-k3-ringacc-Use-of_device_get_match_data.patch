@@ -1,4 +1,4 @@
-From 4ae941e095393c63738be485c5efa9b2b64523c9 Mon Sep 17 00:00:00 2001
+From 8de1f67b66fd62878bd3eb36443db811a40918e7 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:58:49 -0800
 Subject: [PATCH 032/119] soc: ti: k3-ringacc: Use of_device_get_match_data()

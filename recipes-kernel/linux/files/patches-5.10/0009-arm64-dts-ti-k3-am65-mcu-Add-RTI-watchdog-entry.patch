@@ -1,4 +1,4 @@
-From 258543f44587124e0f84f8152e233e613a57e24b Mon Sep 17 00:00:00 2001
+From c51768d2d0929cdfbbc8a59936284b5f5da146b5 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 20 Feb 2021 13:49:51 +0100
 Subject: [PATCH 009/119] arm64: dts: ti: k3-am65-mcu: Add RTI watchdog entry

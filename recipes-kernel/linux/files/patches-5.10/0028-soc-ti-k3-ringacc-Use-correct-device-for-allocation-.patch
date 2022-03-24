@@ -1,4 +1,4 @@
-From aced7f7f91159d1e6106e31f5b923dbca5f8efe1 Mon Sep 17 00:00:00 2001
+From e8faee4e82158478a8afc41aeb48d1bdc1b5e31a Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:22 -0700
 Subject: [PATCH 028/119] soc: ti: k3-ringacc: Use correct device for

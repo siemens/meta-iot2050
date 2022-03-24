@@ -1,4 +1,4 @@
-From 837bb3f0f6799a9389bc4914af3f1efcc6929d00 Mon Sep 17 00:00:00 2001
+From eebf0be3283f4929c5a0e75e5dc3ad4c37d9d90e Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
 Subject: [PATCH 013/119] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to

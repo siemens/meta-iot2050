@@ -1,4 +1,4 @@
-From 72d60c59aa0dfd9d00f56a9a49f5b8890a8f813e Mon Sep 17 00:00:00 2001
+From a2b58d9db8c38f115cf46f859a8a786240edc14d Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Mar 2021 15:33:43 +0100
 Subject: [PATCH 010/119] arm64: dts: ti: Add support for Siemens IOT2050

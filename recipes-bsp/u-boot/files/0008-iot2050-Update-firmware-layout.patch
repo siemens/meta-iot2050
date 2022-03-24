@@ -1,0 +1,146 @@
+From 8ac656f1938066903a8affc64f83e8b467d1c099 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 14 Jan 2022 18:52:06 +0100
+Subject: [PATCH 8/8] iot2050: Update firmware layout
+
+The latest version of the binary-only firmware parts come in a combined
+form of FSBL and sysfw containers. This implies some layout changes to
+the generated firmware image but also makes handling of artifacts much
+simpler (4 files less). The env locations will not change, just the
+space reserved for U-Boot will shrink from 4 to 3 MB - still plenty of
+space left in practice.
+
+Adjust configuration and documentation accordingly.
+
+Along this change, add a new reservation for update commands of the
+user-controlled OTP part. A specific userspace tool will fill it, and
+the FSBL will evaluate it during boot. This reservation will use 64K of
+the former sysfw section.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 30 ++++++--------------
+ configs/iot2050_pg1_defconfig                |  2 +-
+ configs/iot2050_pg2_defconfig                |  2 +-
+ doc/board/siemens/iot2050.rst                |  4 ---
+ tools/binman/missing-blob-help               |  8 +-----
+ 5 files changed, 11 insertions(+), 35 deletions(-)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 46669576864..3ee0842e993 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -25,15 +25,15 @@
+ 			missing-msg = "iot2050-seboot";
+ 		};
+ 
+-		blob@0x080000 {
+-			offset = <0x080000>;
++		blob@0x180000 {
++			offset = <0x180000>;
+ 			filename = "tispl.bin";
+ 		};
+ 
+-		fit@0x280000 {
++		fit@0x380000 {
+ 			description = "U-Boot for IOT2050";
+ 			fit,fdt-list = "of-list";
+-			offset = <0x280000>;
++			offset = <0x380000>;
+ 			images {
+ 				u-boot {
+ 					description = "U-Boot";
+@@ -94,25 +94,11 @@
+ 			fill-byte = [00];
+ 		};
+ 
+-		/* sysfw, basic variant */
+-		blob-ext@0x6c0000 {
++		/* OTP update command block */
++		fill@0x6c0000 {
+ 			offset = <0x6c0000>;
+-#ifdef CONFIG_TARGET_IOT2050_A53_PG1
+-			filename = "sysfw_sr1.itb";
+-#else
+-			filename = "sysfw_sr2.itb";
+-#endif
+-			missing-msg = "iot2050-sysfw";
+-		};
+-		/* sysfw, advanced variant */
+-		blob-ext@0x740000 {
+-			offset = <0x740000>;
+-#ifdef CONFIG_TARGET_IOT2050_A53_PG1
+-			filename = "sysfw_sr1.itb_HS";
+-#else
+-			filename = "sysfw_sr2.itb_HS";
+-#endif
+-			missing-msg = "iot2050-sysfw";
++			size   = <0x010000>;
++			fill-byte = [ff];
+ 		};
+ 	};
+ };
+diff --git a/configs/iot2050_pg1_defconfig b/configs/iot2050_pg1_defconfig
+index bdec46c1638..826367ea779 100644
+--- a/configs/iot2050_pg1_defconfig
++++ b/configs/iot2050_pg1_defconfig
+@@ -44,7 +44,7 @@ CONFIG_SPL_POWER_DOMAIN=y
+ # CONFIG_SPL_SPI_FLASH_TINY is not set
+ CONFIG_SPL_SPI_FLASH_SFDP_SUPPORT=y
+ CONFIG_SPL_SPI_LOAD=y
+-CONFIG_SYS_SPI_U_BOOT_OFFS=0x280000
++CONFIG_SYS_SPI_U_BOOT_OFFS=0x380000
+ CONFIG_SYS_PROMPT="IOT2050> "
+ CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_DFU=y
+diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
+index c8c21f71e25..83866af4c68 100644
+--- a/configs/iot2050_pg2_defconfig
++++ b/configs/iot2050_pg2_defconfig
+@@ -44,7 +44,7 @@ CONFIG_SPL_POWER_DOMAIN=y
+ # CONFIG_SPL_SPI_FLASH_TINY is not set
+ CONFIG_SPL_SPI_FLASH_SFDP_SUPPORT=y
+ CONFIG_SPL_SPI_LOAD=y
+-CONFIG_SYS_SPI_U_BOOT_OFFS=0x280000
++CONFIG_SYS_SPI_U_BOOT_OFFS=0x380000
+ CONFIG_SYS_PROMPT="IOT2050> "
+ CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_DFU=y
+diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
+index fd3431fa3f8..26972e20ae9 100644
+--- a/doc/board/siemens/iot2050.rst
++++ b/doc/board/siemens/iot2050.rst
+@@ -25,11 +25,7 @@ https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/pre
+ The following binaries from that source need to be present in the build folder:
+ 
+  - seboot_pg1.bin
+- - sysfw_sr1.itb
+- - sysfw_sr1.itb_HS
+  - seboot_pg2.bin
+- - sysfw_sr2.itb
+- - sysfw_sr2.itb_HS
+ 
+ Building
+ --------
+diff --git a/tools/binman/missing-blob-help b/tools/binman/missing-blob-help
+index 551ca87f6cb..38371ef8b39 100644
+--- a/tools/binman/missing-blob-help
++++ b/tools/binman/missing-blob-help
+@@ -21,13 +21,7 @@ Please read the section on SCP firmware in board/sunxi/README.sunxi64
+ iot2050-seboot:
+ See the documentation for IOT2050 board. Your image is missing SEBoot
+ which is mandatory for board startup. Prebuilt SEBoot located at
+-meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/tiboot3.bin.
+-
+-iot2050-sysfw:
+-See the documentation for IOT2050 board. Your image is missing system
+-firmware which is mandatory for board startup. Prebuilt system firmware
+-located at meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/
+-with sysfw prefix.
++meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/seboot_pg*.bin.
+ 
+ k3-rti-wdt-firmware:
+ If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
+-- 
+2.34.1
+

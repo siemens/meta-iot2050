@@ -1,4 +1,4 @@
-From 957e51e66f17e9078f496880be1a1dc8eacac8fc Mon Sep 17 00:00:00 2001
+From 882bce9215c59fcf76fcce1fddc05dc5cedd52d1 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Tue, 11 May 2021 14:48:21 -0500
 Subject: [PATCH 012/119] arm64: dts: ti: k3*: Introduce reg definition for
@@ -80,7 +80,7 @@ index ed42f13e7663..62a18b110c52 100644
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 4a3eec9a8b1d..93936671a69d 100644
+index 0eabd6223df0..3cc4d08ec53c 100644
 --- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 @@ -61,8 +61,9 @@ gic_its: msi-controller@1820000 {
@@ -121,7 +121,7 @@ index eb2a78a53512..c4e63272fbdb 100644
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index fc09e424db36..74c26cc94545 100644
+index 10ed3716d1c6..5bbb5a2eb22d 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -122,8 +122,9 @@ gic_its: msi-controller@1820000 {

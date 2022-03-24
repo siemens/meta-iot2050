@@ -1,4 +1,4 @@
-From f4e51edaa1af45928c241279e566fca23a26dc5f Mon Sep 17 00:00:00 2001
+From f45dd753585c3296694885aa0ee5401f77194d03 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Mon, 10 May 2021 09:54:29 -0500
 Subject: [PATCH 011/119] arm64: dts: ti: k3-am65|j721e|am64: Map the dma /
@@ -66,7 +66,7 @@ index 0388c02c2203..f5b8ef2f5f77 100644
  		dma-ranges;
  
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 4f8bbad8731c..fc09e424db36 100644
+index d0dae7c0ad23..10ed3716d1c6 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -133,11 +133,11 @@ main_gpio_intr: interrupt-controller0 {

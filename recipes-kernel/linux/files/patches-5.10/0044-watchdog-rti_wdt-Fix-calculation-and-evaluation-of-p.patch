@@ -1,0 +1,50 @@
+From 61a367dd6764ae64df88939a28c9e7c5bea1e1ca Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 21 Feb 2022 15:33:54 +0100
+Subject: [PATCH 044/119] watchdog: rti_wdt: Fix calculation and evaluation of
+ preset heartbeat
+
+This ensures that the same value is read back as was eventually
+programmed when using seconds as accuracy. Even then, comparing the more
+precise heartbeat_ms against heartbeat in seconds will almost never
+provide a match and will needlessly raise a warning. Fix by comparing
+apples to apples.
+
+Tested in combination with U-Boot as watchdog starter.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/watchdog/rti_wdt.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 359302f71f7e..40696a260534 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -254,6 +254,7 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (readl(wdt->base + RTIDWDCTRL) == WDENABLE_KEY) {
++		int preset_heartbeat;
+ 		u32 time_left_ms;
+ 		u64 heartbeat_ms;
+ 		u32 wsize;
+@@ -264,11 +265,12 @@ static int rti_wdt_probe(struct platform_device *pdev)
+ 		heartbeat_ms <<= WDT_PRELOAD_SHIFT;
+ 		heartbeat_ms *= 1000;
+ 		do_div(heartbeat_ms, wdt->freq);
+-		if (heartbeat_ms != heartbeat * 1000)
++		preset_heartbeat = heartbeat_ms + 500;
++		preset_heartbeat /= 1000;
++		if (preset_heartbeat != heartbeat)
+ 			dev_warn(dev, "watchdog already running, ignoring heartbeat config!\n");
+ 
+-		heartbeat = heartbeat_ms;
+-		heartbeat /= 1000;
++		heartbeat = preset_heartbeat;
+ 
+ 		wsize = readl(wdt->base + RTIWWDSIZECTRL);
+ 		ret = rti_wdt_setup_hw_hb(wdd, wsize);
+-- 
+2.34.1
+

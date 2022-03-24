@@ -1,0 +1,20 @@
+#
+# Copyright (c) Siemens AG, 2021
+#
+# Authors:
+#  Quirin Gylstorff <quirin.gylstorff@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=update u-boot environment for swupdate
+Conflicts=shutdown.target
+Before=swupdate.service shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/share/u-boot-env/patch-u-boot-env.sh sysselect /usr/share/u-boot-env/patch-u-boot-env.config
+ExecStartPost=-/bin/systemctl disable patch-u-boot-env.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+#
+# Copyright (c) Siemens AG, 2022
+#
+# Authors:
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 10
+
+local_conf_header:
+  add-lxde: |
+    IMAGE_INSTALL += "lxde-touch"

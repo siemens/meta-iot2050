@@ -1,4 +1,4 @@
-From 1d1d75b27ffac979973888266704897cc27a52d0 Mon Sep 17 00:00:00 2001
+From 78c3fb87aff6b7eb72f39ee671af923ef7e31408 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 24 Jan 2021 20:51:37 -0800
 Subject: [PATCH 030/119] soc: ti: pruss: Correct the pruss_clk_init error
@@ -15,7 +15,7 @@ Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
-index 5d6e7132a5c4..1d6890134312 100644
+index aa3aba80dbc6..dc94335fc351 100644
 --- a/drivers/soc/ti/pruss.c
 +++ b/drivers/soc/ti/pruss.c
 @@ -273,7 +273,7 @@ static int pruss_probe(struct platform_device *pdev)

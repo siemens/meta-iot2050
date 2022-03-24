@@ -1,0 +1,76 @@
+From d44c56d6848176a3946644665a4101ab4f02cf9f Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 21 Mar 2022 15:53:15 +0100
+Subject: [PATCH 050/119] arm64: dts: ti: iot2050: Add layout of OSPI flash
+
+Describe the layout of the OSPI flash as the latest firmware uses it.
+Specifically the location of the U-Boot envs is important for userspace
+in order to access it.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 48 ++++++++++++++++++-
+ 1 file changed, 46 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+index 65da226847f4..d8661096f2de 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+@@ -603,8 +603,52 @@ flash@0 {
+ 		cdns,tchsh-ns = <60>;
+ 		cdns,tslch-ns = <60>;
+ 		cdns,read-delay = <2>;
+-		#address-cells = <1>;
+-		#size-cells = <1>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			seboot@0 {
++				label = "seboot";
++				reg = <0x0 0x180000>; /* 1.5M */
++			};
++
++			tispl@180000 {
++				label = "tispl";
++				reg = <0x180000 0x200000>; /* 2M */
++			};
++
++			u-boot@380000 {
++				label = "u-boot";
++				reg = <0x380000 0x300000>; /* 3M */
++			};
++
++			env@680000 {
++				label = "env";
++				reg = <0x680000 0x20000>; /* 128K */
++			};
++
++			env-backup@6a0000 {
++				label = "env.backup";
++				reg = <0x6a0000 0x20000>; /* 128K */
++			};
++
++			otpcmd@6c0000 {
++				label = "otpcmd";
++				reg = <0x6c0000 0x10000>; /* 64K */
++			};
++
++			unused@6d0000 {
++				label = "unused";
++				reg = <0x6d0000 0x7b0000>; /* 7872K */
++			};
++
++			seboot-backup@e80000 {
++				label = "seboot.backup";
++				reg = <0xe80000 0x180000>; /* 1.5M */
++			};
++		};
+ 	};
+ };
+ 
+-- 
+2.34.1
+

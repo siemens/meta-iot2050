@@ -1,0 +1,64 @@
+From faf44e3f81f5f297d42f3b387b57a12a7680b1fa Mon Sep 17 00:00:00 2001
+From: Lokesh Vutla <lokeshvutla@ti.com>
+Date: Thu, 29 Apr 2021 18:13:36 +0300
+Subject: [PATCH 080/119] net: ethernet: ti: icss_iep: Update compare registers
+ after changing ptp clock time
+
+Consider the scenario where PPS is enabled, then iep set_time or adjust_time is
+called with time deviation that is > PPS period. In this scenario there
+is a possibility that PPS stopped as IEP compare registers are not
+updated but the counter registers are updated and counter value can
+never be matched with compare value.
+
+To avoid this scenario, update the compare registers when set/adjust
+time is called.
+
+Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index c0497b448d68..8bad9c86775a 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -187,18 +187,33 @@ EXPORT_SYMBOL_GPL(icss_iep_get_ptp_clock_idx);
+ static void icss_iep_set_counter(struct icss_iep *iep, u64 ns)
+ {
+ 	if (iep->plat_data->flags & ICSS_IEP_64BIT_COUNTER_SUPPORT)
+-		regmap_write(iep->map, ICSS_IEP_COUNT_REG1, upper_32_bits(ns));
+-	regmap_write(iep->map, ICSS_IEP_COUNT_REG0, lower_32_bits(ns));
++		icss_iep_writel(iep, ICSS_IEP_COUNT_REG1, upper_32_bits(ns));
++	icss_iep_writel(iep, ICSS_IEP_COUNT_REG0, lower_32_bits(ns));
+ }
+ 
++static void icss_iep_update_to_next_boundary(struct icss_iep *iep, u64 start_ns);
++
+ static void icss_iep_settime(struct icss_iep *iep, u64 ns)
+ {
++	unsigned long flags;
++
+ 	if (iep->ops && iep->ops->settime) {
+ 		iep->ops->settime(iep->clockops_data, ns);
+ 		return;
+ 	}
+ 
++	spin_lock_irqsave(&iep->irq_lock, flags);
++	if (iep->pps_enabled || iep->perout_enabled)
++		icss_iep_writel(iep, ICSS_IEP_SYNC_CTRL_REG, 0);
++
+ 	icss_iep_set_counter(iep, ns);
++
++	if (iep->pps_enabled || iep->perout_enabled) {
++		icss_iep_update_to_next_boundary(iep, ns);
++		icss_iep_writel(iep, ICSS_IEP_SYNC_CTRL_REG,
++			     IEP_SYNC_CTRL_SYNC_N_EN(0) | IEP_SYNC_CTRL_SYNC_EN);
++	}
++	spin_unlock_irqrestore(&iep->irq_lock, flags);
+ }
+ 
+ static u64 icss_iep_gettime(struct icss_iep *iep,
+-- 
+2.34.1
+

@@ -1,0 +1,75 @@
+From 5756207d9c5584f3ee5bf22f2a215e2c906287fc Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Sat, 27 Mar 2021 09:24:51 -0500
+Subject: [PATCH 068/119] soc: ti: pruss: Add helper functions to get/set
+ PRUSS_CFG_GPMUX
+
+Add two new helper functions pruss_cfg_get_gpmux() & pruss_cfg_set_gpmux()
+to get and set the GP MUX mode for programming the PRUSS internal wrapper
+mux functionality as needed by usecases.
+
+Co-developed-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Co-developed-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+Signed-off-by: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
+---
+ include/linux/pruss_driver.h | 44 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
+
+diff --git a/include/linux/pruss_driver.h b/include/linux/pruss_driver.h
+index f1d1197fd91a..d6abfdd17631 100644
+--- a/include/linux/pruss_driver.h
++++ b/include/linux/pruss_driver.h
+@@ -35,4 +35,48 @@ struct pruss {
+ 	struct clk *iep_clk_mux;
+ };
+ 
++/**
++ * pruss_cfg_get_gpmux() - get the current GPMUX value for a PRU device
++ * @pruss: pruss instance
++ * @pru_id: PRU identifier (0-1)
++ * @mux: pointer to store the current mux value into
++ *
++ * Return: 0 on success, or an error code otherwise
++ */
++static inline int pruss_cfg_get_gpmux(struct pruss *pruss,
++				      enum pruss_pru_id pru_id, u8 *mux)
++{
++	int ret = 0;
++	u32 val;
++
++	if (pru_id < 0 || pru_id >= PRUSS_NUM_PRUS)
++		return -EINVAL;
++
++	ret = pruss_cfg_read(pruss, PRUSS_CFG_GPCFG(pru_id), &val);
++	if (!ret)
++		*mux = (u8)((val & PRUSS_GPCFG_PRU_MUX_SEL_MASK) >>
++			    PRUSS_GPCFG_PRU_MUX_SEL_SHIFT);
++	return ret;
++}
++
++/**
++ * pruss_cfg_set_gpmux() - set the GPMUX value for a PRU device
++ * @pruss: pruss instance
++ * @pru_id: PRU identifier (0-1)
++ * @mux: new mux value for PRU
++ *
++ * Return: 0 on success, or an error code otherwise
++ */
++static inline int pruss_cfg_set_gpmux(struct pruss *pruss,
++				      enum pruss_pru_id pru_id, u8 mux)
++{
++	if (mux >= PRUSS_GP_MUX_SEL_MAX ||
++	    pru_id < 0 || pru_id >= PRUSS_NUM_PRUS)
++		return -EINVAL;
++
++	return pruss_cfg_update(pruss, PRUSS_CFG_GPCFG(pru_id),
++				PRUSS_GPCFG_PRU_MUX_SEL_MASK,
++				(u32)mux << PRUSS_GPCFG_PRU_MUX_SEL_SHIFT);
++}
++
+ #endif	/* _PRUSS_DRIVER_H_ */
+-- 
+2.34.1
+

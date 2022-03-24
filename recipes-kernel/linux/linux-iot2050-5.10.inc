@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2018-2021
+# Copyright (c) Siemens AG, 2018-2022
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -18,9 +18,11 @@ def get_patches(d, patchdir):
     return ' '.join(['file://' + patch[len(files_dir)+1:] for patch in patches])
 
 SRC_URI += " \
-    ${KERNEL_SOURCE} \
+    https://gitlab.com/cip-project/cip-kernel/linux-cip/-/archive/v${PV}/linux-cip-v${PV}.tar.gz \
     ${@get_patches(d, 'patches-5.10')} \
     file://${KERNEL_DEFCONFIG} \
     file://iot2050_defconfig_extra.cfg"
+
+S = "${WORKDIR}/linux-cip-v${PV}"
 
 KERNEL_DEFCONFIG = "iot2050_defconfig_base"

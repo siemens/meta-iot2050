@@ -108,3 +108,11 @@ IMAGE_INSTALL += " \
     node-red-gpio \
     node-red-preinstalled-nodes \
     "
+
+IOT2050_CORAL_SUPPORT ?= "1"
+
+IMAGE_INSTALL += "${@ ' \
+    python3-pycoral \
+    pycoral-examples \
+    gasket-module-${KERNEL_NAME} \
+    ' if d.getVar('IOT2050_CORAL_SUPPORT') == '1' else ''}"

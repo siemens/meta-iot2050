@@ -1,4 +1,4 @@
-From 4985c5c2e7897851743097725e63473c2a8bc7cf Mon Sep 17 00:00:00 2001
+From 03ff1932e3a0edebc3d59c50c55dc7d74a503573 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:07 -0700
 Subject: [PATCH 027/119] firmware: ti_sci: rm: Remove unused config() from

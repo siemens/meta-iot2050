@@ -24,11 +24,11 @@ config IMAGE_EXAMPLE
 	  This is the official example image with several tools as well as
 	  Node-RED preinstalled. It comes without a graphical user interface.
 
-config IMAGE_LXDE
-	bool "LXDE example image"
+config IMAGE_SWUPDATE
+	bool "Example image with SWUpdate support"
 	help
-	  Based on the example image, this adds an LXDE-based graphical user
-	  interface.
+	  Based on the example image, this adds SWUpdate and changes the
+	  partition layout to an A/B rootfs.
 
 config IMAGE_BOOT_PG1
 	bool "Firmware image for PG1 devices"
@@ -55,11 +55,11 @@ endchoice
 config KAS_INCLUDE_MAIN
 	string
 	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
-	default "kas-iot2050-lxde.yml" if IMAGE_LXDE
+	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
 	default "kas-iot2050-boot-pg1.yml" if IMAGE_BOOT_PG1
 	default "kas-iot2050-boot-pg2.yml" if IMAGE_BOOT_PG2
 
-if IMAGE_EXAMPLE || IMAGE_LXDE
+if IMAGE_EXAMPLE || IMAGE_SWUPDATE
 
 comment "Image features"
 
@@ -75,10 +75,35 @@ config KAS_INCLUDE_RT
 	default "kas/opt/preempt-rt.yml"
 	depends on PREEMPT_RT
 
+config CORAL
+	bool "Google Coral Edge TPU support"
+	default y
+	help
+	  Add driver and libraries to use a Google Coral Edge TPU accelerator
+	  card if it is installed in the IOT2050 extension slot.
+
+config KAS_INCLUDE_NO_CORAL
+	string
+	default "kas/opt/no-coral.yml"
+	depends on !CORAL
+
+config LXDE
+	bool "LXDE graphical user interface"
+	help
+	  This adds an LXDE-based graphical user interface.
+
+config KAS_INCLUDE_LXDE
+	string
+	default "kas/opt/lxde.yml"
+	depends on LXDE
+
+endif
+
 comment "Build options"
 
 config SDK
 	bool "Build SDK"
+	depends on IMAGE_EXAMPLE || IMAGE_SWUPDATE
 	help
 	  Generate an SDK consisting of a cross-compiler and library headers
 	  needed to build applications for the device.
@@ -117,5 +142,3 @@ config KAS_INCLUDE_DEBIAN_MIRROR
 	string
 	default "kas/opt/debian-mirror.yml"
 	depends on DEBIAN_MIRROR
-
-endif

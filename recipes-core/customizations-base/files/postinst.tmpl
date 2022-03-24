@@ -8,7 +8,8 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-echo "${HOSTNAME}" > /etc/hostname
+echo $HOSTNAME > /etc/hostname
+echo "127.0.0.1	${HOSTNAME}" >> /etc/hosts
 
 # set nodejs environment for module searching
 echo "NODE_PATH=\"/usr/lib/node_modules/:/usr/local/lib/node_modules/\"" >> /etc/environment

@@ -1,4 +1,4 @@
-From 3a5b04fa54dd05cf16c13511c09cac02e70d6f08 Mon Sep 17 00:00:00 2001
+From 207ac70f8e0ee0b096ec4e28a84135ebaf38c228 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Tue, 8 Dec 2020 15:09:59 +0100
 Subject: [PATCH 036/119] remoteproc: pru: Add support for PRU specific

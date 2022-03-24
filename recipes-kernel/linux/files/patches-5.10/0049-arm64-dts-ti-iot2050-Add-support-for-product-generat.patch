@@ -1,4 +1,4 @@
-From c75a69f45ffac2272d3d8a8ea267db78b32c7f50 Mon Sep 17 00:00:00 2001
+From a27432478d49d14a328e4c68cc921bc1dbec5147 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Jun 2021 11:04:56 +0200
 Subject: [PATCH 049/119] arm64: dts: ti: iot2050: Add support for product
