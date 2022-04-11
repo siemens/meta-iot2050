@@ -81,16 +81,25 @@ IOT2050_DEBIAN_BT_PACKAGES = " \
     bluez \
     pulseaudio-module-bluetooth \
     "
+
 # alsa support
 IOT2050_DEBIAN_ALSA_PACKAGES = " \
     alsa-utils \
     alsa-tools \
     "
+
+# multiarch support
+IOT2050_DEBIAN_MULTIARCH_PACKAGES = " \
+    libc6:armhf \
+    libstdc++6:armhf \
+    "
+
 IMAGE_PREINSTALL += " \
     ${IOT2050_DEBIAN_DEBUG_PACKAGES} \
     ${IOT2050_DEBIAN_WIFI_PACKAGES} \
     ${IOT2050_DEBIAN_BT_PACKAGES} \
     ${IOT2050_DEBIAN_ALSA_PACKAGES} \
+    ${IOT2050_DEBIAN_MULTIARCH_PACKAGES} \
     "
 
 IMAGE_INSTALL += " \
