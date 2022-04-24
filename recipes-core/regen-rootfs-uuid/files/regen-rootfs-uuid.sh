@@ -16,7 +16,12 @@ if [ "${ROOT_DEV}" = "${BOOT_DEV}" ]; then
 	exit 1
 fi
 
-OLD_UUID=$(sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART})
+if [ $# -lt 1 ];then
+	OLD_UUID=$(sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART})
+else
+	OLD_UUID="$1"
+fi
+
 NEW_UUID=$(uuidgen)
 
 sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART} ${NEW_UUID}
