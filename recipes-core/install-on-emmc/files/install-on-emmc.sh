@@ -69,6 +69,7 @@ blink()
 
 ROOT_DEV="$(findmnt / -o source -n)"
 BOOT_DEV="$(echo "${ROOT_DEV}" | sed 's/p\?[0-9]*$//')"
+ROOT_PART="$(echo "${ROOT_DEV}" | sed 's/.*[^0-9]\([0-9]*\)$/\1/')"
 EMMC_DEV="$(ls /dev/mmcblk*boot0 2>/dev/null | sed 's/boot0//')"
 
 trap terminate 0
@@ -137,13 +138,16 @@ if ! test -b ${EMMC_DEV}p1; then
 		sleep 1
 	done
 fi
+
+BOOT_DEV_UUID=$(sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART})
+
 mount ${EMMC_DEV}p1 /mnt
 mount -o bind /dev /mnt/dev
 mount -t proc proc /mnt/proc
-chroot /mnt sh -c ' \
-    /usr/share/regen-rootfs-uuid/regen-rootfs-uuid.sh
+chroot /mnt sh -c " \
+    /usr/share/regen-rootfs-uuid/regen-rootfs-uuid.sh $BOOT_DEV_UUID
     /bin/systemctl disable regen-rootfs-uuid-on-first-boot.service
-    /bin/systemctl disable install-on-emmc-on-first-boot.service'
+    /bin/systemctl disable install-on-emmc-on-first-boot.service"
 umount /mnt/dev /mnt/proc /mnt
 
 reboot
