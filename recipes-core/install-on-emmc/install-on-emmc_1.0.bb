@@ -11,7 +11,7 @@ inherit dpkg-raw
 DESCRIPTION = "This service provides the option to install on eMMC during first boot"
 
 DEPENDS = "regen-rootfs-uuid"
-DEBIAN_DEPENDS = "systemd, fdisk, util-linux, regen-rootfs-uuid"
+DEBIAN_DEPENDS = "systemd, fdisk, util-linux, regen-rootfs-uuid, parted"
 
 SRC_URI = " \
     file://install-on-emmc-on-first-boot.service \
