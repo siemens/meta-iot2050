@@ -99,6 +99,7 @@ config KAS_INCLUDE_LXDE
 
 endif
 
+# Provide two entries so that the help text can be adjusted to the image.
 config SECURE_BOOT
 	bool "Secure boot"
 	depends on IMAGE_SWUPDATE
@@ -111,6 +112,18 @@ config SECURE_BOOT
 	  use this key in production, it is for demonstration purposes only.
 
 	  Note: The persistent /var and /home partitions are not yet protected!
+
+config SECURE_BOOT
+	bool "Secure boot"
+	depends on IMAGE_BOOT_PG2
+	help
+	  Enable signing of all customizable firmware artifacts, enforce UEFI
+	  Secure Boot mode, protect sensitive U-Boot environment variables and
+	  prevent interactive access to U-Boot during boot and also on boot
+	  failures.
+
+	  This uses the public custMpk.key and certificate by default. Do not
+	  use this key in production, it is for demonstration purposes only.
 
 config KAS_INCLUDE_SECURE_BOOT
 	string
