@@ -59,6 +59,15 @@ apt-get install flashrom
 
 Attach the grabber to the flash chip, then run the following on the host machine:
 
+If the the size of the uboot file doesn't match the flash chip's size (16M)
+execute this command:
+
+```shell
+truncate -s 16M iot2050-image-boot.bin
+```
+
+Then upgrade the firmware:
+
 ```shell
 flashrom -p ch341a_spi -c W25Q128.V -w iot2050-image-boot.bin
 ```
