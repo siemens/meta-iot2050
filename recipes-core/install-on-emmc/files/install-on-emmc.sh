@@ -124,8 +124,8 @@ blink ${LED_GREEN} 0.25
 SECTORS="$(($(sfdisk -d ${BOOT_DEV} 2>/dev/null | tail -1 | sed 's/.*start=[[:space:]]*\([^,]*\), size=[[:space:]]*\([^,]*\).*/\1+\2/')))"
 
 echo "Writing ${SECTORS} sectors to eMMC ${EMMC_DEV}..."
-dd if=${BOOT_DEV} of=${EMMC_DEV} count=${SECTORS}
-sync
+dd if=${BOOT_DEV} of=${EMMC_DEV} count=${SECTORS} conv=fsync
+partprobe ${EMMC_DEV}
 
 echo "Updating partition UUID of eMMC rootfs"
 partx -a ${EMMC_DEV}
