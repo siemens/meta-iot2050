@@ -1,7 +1,8 @@
 From 706a83f6facf0e1069cfc71c182761becf0c5154 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 15:05:27 +0800
-Subject: [PATCH 6/8] board: siemens: iot2050: Split the build for PG1 and PG2
+Subject: [PATCH 06/23] board: siemens: iot2050: Split the build for PG1 and
+ PG2
 
 Due to different signature keys, the PG1 and the PG2 boards can no
 longer use the same FSBL (tiboot3). This makes it impossible anyway to

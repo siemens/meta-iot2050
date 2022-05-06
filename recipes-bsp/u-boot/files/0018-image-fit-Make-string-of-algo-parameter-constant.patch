@@ -1,0 +1,103 @@
+From 939af9ed4a524376fde8f4387bd16311b67e210b Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 14 Jan 2022 10:21:17 +0100
+Subject: [PATCH 18/23] image-fit: Make string of algo parameter constant
+
+Modifications would be invalid.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ boot/image-fit-sig.c | 2 +-
+ boot/image-fit.c     | 8 ++++----
+ include/image.h      | 2 +-
+ tools/image-host.c   | 4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/boot/image-fit-sig.c b/boot/image-fit-sig.c
+index 63e5423c925..47d76335685 100644
+--- a/boot/image-fit-sig.c
++++ b/boot/image-fit-sig.c
+@@ -67,7 +67,7 @@ static int fit_image_setup_verify(struct image_sign_info *info,
+ 				  const void *fit, int noffset,
+ 				  int required_keynode, char **err_msgp)
+ {
+-	char *algo_name;
++	const char *algo_name;
+ 	const char *padding_name;
+ 
+ 	if (fdt_totalsize(fit) > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)) {
+diff --git a/boot/image-fit.c b/boot/image-fit.c
+index 33b4a46028b..3be6fe6eb93 100644
+--- a/boot/image-fit.c
++++ b/boot/image-fit.c
+@@ -191,7 +191,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
+ 	const char *keyname;
+ 	uint8_t *value;
+ 	int value_len;
+-	char *algo;
++	const char *algo;
+ 	const char *padding;
+ 	bool required;
+ 	int ret, i;
+@@ -1063,11 +1063,11 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
+  *     0, on success
+  *     -1, on failure
+  */
+-int fit_image_hash_get_algo(const void *fit, int noffset, char **algo)
++int fit_image_hash_get_algo(const void *fit, int noffset, const char **algo)
+ {
+ 	int len;
+ 
+-	*algo = (char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
++	*algo = (const char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
+ 	if (*algo == NULL) {
+ 		fit_get_debug(fit, noffset, FIT_ALGO_PROP, len);
+ 		return -1;
+@@ -1265,7 +1265,7 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
+ {
+ 	uint8_t value[FIT_MAX_HASH_LEN];
+ 	int value_len;
+-	char *algo;
++	const char *algo;
+ 	uint8_t *fit_value;
+ 	int fit_value_len;
+ 	int ignore;
+diff --git a/include/image.h b/include/image.h
+index fd662e74b41..16ccc5b10f6 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -1011,7 +1011,7 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
+ int fit_image_get_data_and_size(const void *fit, int noffset,
+ 				const void **data, size_t *size);
+ 
+-int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
++int fit_image_hash_get_algo(const void *fit, int noffset, const char **algo);
+ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
+ 				int *value_len);
+ 
+diff --git a/tools/image-host.c b/tools/image-host.c
+index a6b0a944205..a027155f3c7 100644
+--- a/tools/image-host.c
++++ b/tools/image-host.c
+@@ -63,7 +63,7 @@ static int fit_image_process_hash(void *fit, const char *image_name,
+ 	uint8_t value[FIT_MAX_HASH_LEN];
+ 	const char *node_name;
+ 	int value_len;
+-	char *algo;
++	const char *algo;
+ 	int ret;
+ 
+ 	node_name = fit_get_name(fit, noffset, NULL);
+@@ -160,7 +160,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
+ 		const char *engine_id)
+ {
+ 	const char *node_name;
+-	char *algo_name;
++	const char *algo_name;
+ 	const char *padding_name;
+ 
+ 	node_name = fit_get_name(fit, noffset, NULL);
+-- 
+2.34.1
+

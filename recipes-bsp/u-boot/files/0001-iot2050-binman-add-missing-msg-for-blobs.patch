@@ -1,7 +1,7 @@
 From 4415d5cba8301616ba5fbd304f14425b787e830e Mon Sep 17 00:00:00 2001
 From: Ivan Mikhaylov <ivan.mikhaylov@siemens.com>
 Date: Thu, 9 Dec 2021 16:10:53 +0000
-Subject: [PATCH 1/8] iot2050: binman: add missing-msg for blobs
+Subject: [PATCH 01/23] iot2050: binman: add missing-msg for blobs
 
 Add the 'missing-msg' for blobs for more detailed output on missing system
 firmware and SEBoot blobs.

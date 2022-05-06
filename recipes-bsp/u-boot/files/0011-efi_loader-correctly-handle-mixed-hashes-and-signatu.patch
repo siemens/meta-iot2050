@@ -1,0 +1,187 @@
+From 6ebe907c6793745a476d0984a7b30c2b456b6bbb Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Sat, 29 Jan 2022 00:20:31 +0200
+Subject: [PATCH 11/23] efi_loader: correctly handle mixed hashes and
+ signatures in db
+
+A mix of signatures and hashes in db doesn't always work as intended.
+Currently if the digest algorithm is not explicitly set to sha256 we
+stop walking the security database and reject the image.
+
+That's problematic in case we find and try to check a signature before
+inspecting the sha256 hash.  If the image is unsigned we will reject it
+even if the digest matches.
+
+Since we no longer reject the image on unknown algorithms add an explicit
+check and reject the image if any other hash algorithm apart from sha256
+is detected on dbx.
+
+Suggested-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+---
+ include/efi_api.h                 | 12 ++++++++
+ include/efi_loader.h              |  3 +-
+ lib/efi_loader/efi_image_loader.c |  8 ++---
+ lib/efi_loader/efi_signature.c    | 49 ++++++++++++++++++++++++++-----
+ 4 files changed, 60 insertions(+), 12 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 80109f012bc..dc71dc4bf95 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1833,9 +1833,21 @@ struct efi_system_resource_table {
+ #define LAST_ATTEMPT_STATUS_ERROR_UNSUCCESSFUL_VENDOR_RANGE_MAX 0x00004000
+ 
+ /* Certificate types in signature database */
++#define EFI_CERT_SHA1_GUID \
++	EFI_GUID(0x826ca512, 0xcf10, 0x4ac9, 0xb1, 0x87, \
++		 0xbe, 0x01, 0x49, 0x66, 0x31, 0xbd)
++#define EFI_CERT_SHA224_GUID \
++	EFI_GUID(0xb6e5233, 0xa65c, 0x44c9, 0x94, 0x07, \
++		 0xd9, 0xab, 0x83, 0xbf, 0xc8, 0xbd)
+ #define EFI_CERT_SHA256_GUID \
+ 	EFI_GUID(0xc1c41626, 0x504c, 0x4092, 0xac, 0xa9, \
+ 		 0x41, 0xf9, 0x36, 0x93, 0x43, 0x28)
++#define EFI_CERT_SHA384_GUID \
++	EFI_GUID(0xff3e5307, 0x9fd0, 0x48c9, 0x85, 0xf1, \
++		 0x8a, 0xd5, 0x6c, 0x70, 0x1e, 0x01)
++#define EFI_CERT_SHA512_GUID \
++	EFI_GUID(0x93e0fae, 0xa6c4, 0x4f50, 0x9f, 0x1b, \
++		 0xd4, 0x1e, 0x2b, 0x89, 0xc1, 0x9a)
+ #define EFI_CERT_RSA2048_GUID \
+ 	EFI_GUID(0x3c5766e8, 0x269c, 0x4e34, 0xaa, 0x14, \
+ 		 0xed, 0x77, 0x6e, 0x85, 0xb3, 0xb6)
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index f4860e87fc1..2c73fe3781d 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -908,7 +908,8 @@ struct x509_certificate;
+ struct pkcs7_message;
+ 
+ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
+-				 struct efi_signature_store *db);
++				 struct efi_signature_store *db,
++				 bool dbx);
+ bool efi_signature_verify(struct efi_image_regions *regs,
+ 			  struct pkcs7_message *msg,
+ 			  struct efi_signature_store *db,
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 255613eb72b..f43dfb3d57e 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -545,13 +545,13 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
+ 	}
+ 
+ 	/* try black-list first */
+-	if (efi_signature_lookup_digest(regs, dbx)) {
++	if (efi_signature_lookup_digest(regs, dbx, true)) {
+ 		EFI_PRINT("Image is not signed and its digest found in \"dbx\"\n");
+ 		goto out;
+ 	}
+ 
+ 	/* try white-list */
+-	if (efi_signature_lookup_digest(regs, db))
++	if (efi_signature_lookup_digest(regs, db, false))
+ 		ret = true;
+ 	else
+ 		EFI_PRINT("Image is not signed and its digest not found in \"db\" or \"dbx\"\n");
+@@ -633,7 +633,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
+ 		goto err;
+ 	}
+ 
+-	if (efi_signature_lookup_digest(regs, dbx)) {
++	if (efi_signature_lookup_digest(regs, dbx, true)) {
+ 		EFI_PRINT("Image's digest was found in \"dbx\"\n");
+ 		goto err;
+ 	}
+@@ -734,7 +734,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
+ 
+ 		EFI_PRINT("Signature was not verified by \"db\"\n");
+ 
+-		if (efi_signature_lookup_digest(regs, db)) {
++		if (efi_signature_lookup_digest(regs, db, false)) {
+ 			ret = true;
+ 			break;
+ 		}
+diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
+index 3243e2c60de..eb6886cdccd 100644
+--- a/lib/efi_loader/efi_signature.c
++++ b/lib/efi_loader/efi_signature.c
+@@ -146,10 +146,35 @@ static bool efi_hash_regions(struct image_region *regs, int count,
+ 	return true;
+ }
+ 
++/**
++ * hash_algo_supported - check if the requested hash algorithm is supported
++ * @guid: guid of the algorithm
++ *
++ * Return: true if supported false otherwise
++ */
++static bool hash_algo_supported(const efi_guid_t guid)
++{
++	int i;
++	const efi_guid_t unsupported_hashes[] = {
++		 EFI_CERT_SHA1_GUID,
++		 EFI_CERT_SHA224_GUID,
++		 EFI_CERT_SHA384_GUID,
++		 EFI_CERT_SHA512_GUID,
++	};
++
++	for (i = 0; i < ARRAY_SIZE(unsupported_hashes); i++) {
++		if (!guidcmp(&unsupported_hashes[i], &guid))
++			return false;
++	}
++
++	return true;
++}
++
+ /**
+  * efi_signature_lookup_digest - search for an image's digest in sigdb
+  * @regs:	List of regions to be authenticated
+  * @db:		Signature database for trusted certificates
++ * @dbx		Caller needs to set this to true if he is searching dbx
+  *
+  * A message digest of image pointed to by @regs is calculated and
+  * its hash value is compared to entries in signature database pointed
+@@ -158,7 +183,9 @@ static bool efi_hash_regions(struct image_region *regs, int count,
+  * Return:	true if found, false if not
+  */
+ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
+-				 struct efi_signature_store *db)
++				 struct efi_signature_store *db,
++				 bool dbx)
++
+ {
+ 	struct efi_signature_store *siglist;
+ 	struct efi_sig_data *sig_data;
+@@ -172,12 +199,20 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
+ 		goto out;
+ 
+ 	for (siglist = db; siglist; siglist = siglist->next) {
+-		/* TODO: support other hash algorithms */
+-		if (guidcmp(&siglist->sig_type, &efi_guid_sha256)) {
+-			EFI_PRINT("Digest algorithm is not supported: %pUs\n",
+-				  &siglist->sig_type);
+-			break;
+-		}
++		/*
++		 * if the hash algorithm is unsupported and we get an entry in
++		 * dbx reject the image
++		 */
++		if (dbx && !hash_algo_supported(siglist->sig_type)) {
++			found = true;
++			continue;
++		};
++		/*
++		 * Only support sha256 for now, that's what
++		 * hash-to-efi-sig-list produces
++		 */
++		if (guidcmp(&siglist->sig_type, &efi_guid_sha256))
++			continue;
+ 
+ 		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
+ 			EFI_PRINT("Digesting an image failed\n");
+-- 
+2.34.1
+

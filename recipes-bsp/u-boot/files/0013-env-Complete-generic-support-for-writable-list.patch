@@ -1,0 +1,80 @@
+From 95f3b5df5a31bff877fb07e5e0697353684aaaec Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 28 Feb 2022 12:00:14 +0100
+Subject: [PATCH 13/23] env: Complete generic support for writable list
+
+This completes what 890feecaab72 started by selecting ENV_APPEND and
+ENV_IS_NOWHERE and by moving this driver to top if the list. This
+ensures that load operations pick up both the default env and the
+permitted parts of the next-prio location. When writing though, we must
+not use NOWHERE and rather need to forward directly to the first
+external location.
+
+With this change, boards only need to define the list of writable
+variables but no longer have to provide a custom env_get_location
+implementation.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ env/Kconfig |  2 ++
+ env/env.c   | 17 ++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/env/Kconfig b/env/Kconfig
+index 06d72bad1dc..c13136351a4 100644
+--- a/env/Kconfig
++++ b/env/Kconfig
+@@ -698,6 +698,8 @@ config ENV_APPEND
+ 
+ config ENV_WRITEABLE_LIST
+ 	bool "Permit write access only to listed variables"
++	select ENV_IS_NOWHERE
++	select ENV_APPEND
+ 	help
+ 	  If defined, only environment variables which explicitly set the 'w'
+ 	  writeable flag can be written and modified at runtime. No variables
+diff --git a/env/env.c b/env/env.c
+index e4dfb92e154..049c34069dd 100644
+--- a/env/env.c
++++ b/env/env.c
+@@ -54,6 +54,13 @@ static struct env_driver *_env_driver_lookup(enum env_location loc)
+ }
+ 
+ static enum env_location env_locations[] = {
++#if defined(CONFIG_ENV_IS_NOWHERE) && defined(CONFIG_ENV_WRITEABLE_LIST)
++	/*
++	 * In writeable-list mode, the built-in env must have highest prio
++	 * while loading. This is achieved by moving ENVL_NOWHERE to the front.
++	 */
++	ENVL_NOWHERE,
++#endif
+ #ifdef CONFIG_ENV_IS_IN_EEPROM
+ 	ENVL_EEPROM,
+ #endif
+@@ -87,7 +94,7 @@ static enum env_location env_locations[] = {
+ #ifdef CONFIG_ENV_IS_IN_UBI
+ 	ENVL_UBI,
+ #endif
+-#ifdef CONFIG_ENV_IS_NOWHERE
++#if defined(CONFIG_ENV_IS_NOWHERE) && !defined(CONFIG_ENV_WRITEABLE_LIST)
+ 	ENVL_NOWHERE,
+ #endif
+ };
+@@ -132,6 +139,14 @@ __weak enum env_location env_get_location(enum env_operation op, int prio)
+ 	if (prio >= ARRAY_SIZE(env_locations))
+ 		return ENVL_UNKNOWN;
+ 
++#ifdef CONFIG_ENV_WRITEABLE_LIST
++	/*
++	 * In writeable-list mode, ENVL_NOWHERE gains highest prio. This blocks
++	 * writing, though. So return the location of the next prio instead.
++	 */
++	if ((op == ENVOP_SAVE || op == ENVOP_ERASE) && prio == 0)
++		prio++;
++#endif
+ 	return env_locations[prio];
+ }
+ 
+-- 
+2.34.1
+
