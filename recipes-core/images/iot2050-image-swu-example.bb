@@ -18,6 +18,7 @@ WKS_FILE = "iot2050-swu.wks.in"
 # not compatible with SWUpdate images
 IMAGE_INSTALL_remove = "regen-rootfs-uuid"
 IMAGE_INSTALL_remove = "install-on-emmc"
+IMAGE_INSTALL_remove = "node-red-preinstalled-nodes"
 
 IMAGE_INSTALL += "swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
