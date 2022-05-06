@@ -1,0 +1,20 @@
+#
+# Copyright (c) Siemens AG, 2021-2022
+#
+# Authors:
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+include ebg-signed-sysparts.inc
+
+part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.${VERITY_IMAGE_TYPE}.verity.img" --align 1024 --fixed-size 4G --uuid "fedcba98-7654-3210-cafe-5e0710000001"
+part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.${VERITY_IMAGE_TYPE}.verity.img" --align 1024 --fixed-size 4G --uuid "fedcba98-7654-3210-cafe-5e0710000002"
+
+# persistent partitions
+part /var --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/var --label var --fstype=ext4 --mkfs-extraopts "-T default" --align 1024  --size 512M
+part /home --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/home --label home --fstype=ext4 --mkfs-extraopts "-T default" --align 1024  --size 512M
+
+bootloader --ptable gpt --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 rootwait panic=5 ${EXTRA_KERNEL_PARAMS}"

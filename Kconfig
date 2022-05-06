@@ -59,9 +59,9 @@ config KAS_INCLUDE_MAIN
 	default "kas-iot2050-boot-pg1.yml" if IMAGE_BOOT_PG1
 	default "kas-iot2050-boot-pg2.yml" if IMAGE_BOOT_PG2
 
-if IMAGE_EXAMPLE || IMAGE_SWUPDATE
-
 comment "Image features"
+
+if IMAGE_EXAMPLE || IMAGE_SWUPDATE
 
 config PREEMPT_RT
 	bool "Preempt-RT kernel"
@@ -98,6 +98,24 @@ config KAS_INCLUDE_LXDE
 	depends on LXDE
 
 endif
+
+config SECURE_BOOT
+	bool "Secure boot"
+	depends on IMAGE_SWUPDATE
+	help
+	  Enable signing of boot artifacts (boot loader, unified kernel image).
+	  Furthermore activate dm-verity integrity protection for the read-only
+	  root filesystem.
+
+	  This uses the public custMpk.key and certificate by default. Do not
+	  use this key in production, it is for demonstration purposes only.
+
+	  Note: The persistent /var and /home partitions are not yet protected!
+
+config KAS_INCLUDE_SECURE_BOOT
+	string
+	default "kas/opt/secure-boot.yml"
+	depends on SECURE_BOOT
 
 comment "Build options"
 
