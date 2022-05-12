@@ -36,6 +36,7 @@ SRC_URI += " \
     file://0021-iot2050-Add-CONFIG_ENV_FLAGS_LIST_STATIC.patch \
     file://0022-arm-dts-iot2050-Allow-verifying-U-Boot-proper-by-SPL.patch \
     file://0023-iot2050-Add-script-for-signing-artifacts.patch \
+    file://0024-arm-dts-iot2050-Optionally-embed-OTP-programming-dat.patch \
     "
 
 SRC_URI[sha256sum] = "81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413"

@@ -1,7 +1,7 @@
-From 0f5a560dbbaeb3d63ea0a20dd63c99468bc8ff51 Mon Sep 17 00:00:00 2001
+From 2b7db3af33c46b67340425b7b22fc985f81314a8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 Date: Sun, 16 Jan 2022 14:15:31 +0100
-Subject: [PATCH 10/23] efi_loader: use %pUs for printing GUIDs
+Subject: [PATCH 10/24] efi_loader: use %pUs for printing GUIDs
 
 For printing GUIDs with macro EFI_ENTRY use %pUs instead of %pUl to provide
 readable debug output.
@@ -21,7 +21,7 @@ Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
  10 files changed, 35 insertions(+), 35 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 20b69699fe9..37b9c68b6e9 100644
+index 20b69699fe..37b9c68b6e 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -747,7 +747,7 @@ efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
@@ -142,7 +142,7 @@ index 20b69699fe9..37b9c68b6e9 100644
  
  	/* Uninstall protocol but do not delete handle */
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index 8301eed6317..4463ae00fd0 100644
+index 8301eed631..4463ae00fd 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
 @@ -453,7 +453,7 @@ static efi_status_t efi_capsule_update_firmware(
@@ -171,7 +171,7 @@ index 8301eed6317..4463ae00fd0 100644
  			ret = EFI_UNSUPPORTED;
  		}
 diff --git a/lib/efi_loader/efi_esrt.c b/lib/efi_loader/efi_esrt.c
-index 3ca55ce23a2..dcc08a6d3a2 100644
+index 3ca55ce23a..dcc08a6d3a 100644
 --- a/lib/efi_loader/efi_esrt.c
 +++ b/lib/efi_loader/efi_esrt.c
 @@ -180,7 +180,7 @@ struct efi_system_resource_entry *esrt_find_entry(efi_guid_t *img_fw_class)
@@ -202,7 +202,7 @@ index 3ca55ce23a2..dcc08a6d3a2 100644
  			continue;
  		}
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 6299fcbbf4e..9aa003096c6 100644
+index 6299fcbbf4..9aa003096c 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -824,7 +824,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
@@ -224,7 +224,7 @@ index 6299fcbbf4e..9aa003096c6 100644
  	if (!guidcmp(info_type, &efi_file_info_guid)) {
  		struct efi_file_info *info = (struct efi_file_info *)buffer;
 diff --git a/lib/efi_loader/efi_hii.c b/lib/efi_loader/efi_hii.c
-index 77e330285a7..9f87e95e32d 100644
+index 77e330285a..9f87e95e32 100644
 --- a/lib/efi_loader/efi_hii.c
 +++ b/lib/efi_loader/efi_hii.c
 @@ -372,7 +372,7 @@ add_packages(struct efi_hii_packagelist *hii,
@@ -291,7 +291,7 @@ index 77e330285a7..9f87e95e32d 100644
  	return EFI_EXIT(EFI_NOT_FOUND);
  }
 diff --git a/lib/efi_loader/efi_hii_config.c b/lib/efi_loader/efi_hii_config.c
-index 237e8acf840..31b0c97eb28 100644
+index 237e8acf84..31b0c97eb2 100644
 --- a/lib/efi_loader/efi_hii_config.c
 +++ b/lib/efi_loader/efi_hii_config.c
 @@ -88,7 +88,7 @@ get_alt_config(const struct efi_hii_config_routing_protocol *this,
@@ -304,7 +304,7 @@ index 237e8acf840..31b0c97eb28 100644
  		  alt_cfg_id, alt_cfg_resp);
  
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 773bd0677c0..255613eb72b 100644
+index 773bd0677c..255613eb72 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -676,7 +676,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
@@ -317,7 +317,7 @@ index 773bd0677c0..255613eb72b 100644
  				continue;
  			}
 diff --git a/lib/efi_loader/efi_rng.c b/lib/efi_loader/efi_rng.c
-index 0e065468562..bb11d8d0e0c 100644
+index 0e06546856..bb11d8d0e0 100644
 --- a/lib/efi_loader/efi_rng.c
 +++ b/lib/efi_loader/efi_rng.c
 @@ -122,7 +122,7 @@ static efi_status_t EFIAPI getrng(struct efi_rng_protocol *this,
@@ -330,7 +330,7 @@ index 0e065468562..bb11d8d0e0c 100644
  			status = EFI_UNSUPPORTED;
  			goto back;
 diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
-index 6e3ee3c0c00..3243e2c60de 100644
+index 6e3ee3c0c0..3243e2c60d 100644
 --- a/lib/efi_loader/efi_signature.c
 +++ b/lib/efi_loader/efi_signature.c
 @@ -174,7 +174,7 @@ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
@@ -343,7 +343,7 @@ index 6e3ee3c0c00..3243e2c60de 100644
  			break;
  		}
 diff --git a/lib/efi_loader/efi_var_common.c b/lib/efi_loader/efi_var_common.c
-index 3cbb7c96c2e..9f1dd74f36c 100644
+index 3cbb7c96c2..9f1dd74f36 100644
 --- a/lib/efi_loader/efi_var_common.c
 +++ b/lib/efi_loader/efi_var_common.c
 @@ -62,7 +62,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
@@ -374,5 +374,5 @@ index 3cbb7c96c2e..9f1dd74f36c 100644
  	ret = efi_get_next_variable_name_int(variable_name_size, variable_name,
  					     vendor);
 -- 
-2.34.1
+2.30.2
 

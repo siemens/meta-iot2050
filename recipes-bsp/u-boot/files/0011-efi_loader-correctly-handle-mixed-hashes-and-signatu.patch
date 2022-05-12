@@ -1,7 +1,7 @@
-From 6ebe907c6793745a476d0984a7b30c2b456b6bbb Mon Sep 17 00:00:00 2001
+From 0db676205061ddea633e90d519546b1951459f56 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Date: Sat, 29 Jan 2022 00:20:31 +0200
-Subject: [PATCH 11/23] efi_loader: correctly handle mixed hashes and
+Subject: [PATCH 11/24] efi_loader: correctly handle mixed hashes and
  signatures in db
 
 A mix of signatures and hashes in db doesn't always work as intended.
@@ -27,7 +27,7 @@ Reviewed-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
  4 files changed, 60 insertions(+), 12 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 80109f012bc..dc71dc4bf95 100644
+index 80109f012b..dc71dc4bf9 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -1833,9 +1833,21 @@ struct efi_system_resource_table {
@@ -53,7 +53,7 @@ index 80109f012bc..dc71dc4bf95 100644
  	EFI_GUID(0x3c5766e8, 0x269c, 0x4e34, 0xaa, 0x14, \
  		 0xed, 0x77, 0x6e, 0x85, 0xb3, 0xb6)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index f4860e87fc1..2c73fe3781d 100644
+index f4860e87fc..2c73fe3781 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -908,7 +908,8 @@ struct x509_certificate;
@@ -67,7 +67,7 @@ index f4860e87fc1..2c73fe3781d 100644
  			  struct pkcs7_message *msg,
  			  struct efi_signature_store *db,
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 255613eb72b..f43dfb3d57e 100644
+index 255613eb72..f43dfb3d57 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -545,13 +545,13 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
@@ -105,7 +105,7 @@ index 255613eb72b..f43dfb3d57e 100644
  			break;
  		}
 diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
-index 3243e2c60de..eb6886cdccd 100644
+index 3243e2c60d..eb6886cdcc 100644
 --- a/lib/efi_loader/efi_signature.c
 +++ b/lib/efi_loader/efi_signature.c
 @@ -146,10 +146,35 @@ static bool efi_hash_regions(struct image_region *regs, int count,
@@ -183,5 +183,5 @@ index 3243e2c60de..eb6886cdccd 100644
  		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
  			EFI_PRINT("Digesting an image failed\n");
 -- 
-2.34.1
+2.30.2
 

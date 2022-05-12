@@ -1,0 +1,101 @@
+From 4244cdd4d3d6a292ab087ba16b0c62421f0e5263 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 27 May 2022 11:29:20 +0200
+Subject: [PATCH 24/24] arm: dts: iot2050: Optionally embed  OTP programming
+ data into image
+
+Use external blob otpcmd.bin to replace the 0xff filled OTP programming
+command block to create a firmware image that provisions the OTP on
+first boot. This otpcmd.bin is generated from the customer keys using
+steps described in the meta-iot2050 integration layer for the device.
+
+Based on original patch by Baocheng Su.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 8 ++++++++
+ board/siemens/iot2050/Kconfig                | 7 +++++++
+ doc/board/siemens/iot2050.rst                | 8 ++++++++
+ tools/binman/missing-blob-help               | 8 ++++++++
+ 4 files changed, 31 insertions(+)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 9082a79a03..25a22a7b7b 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -111,10 +111,18 @@
+ 		};
+ 
+ 		/* OTP update command block */
++#if CONFIG_IOT2050_EMBED_OTPCMD
++		blob-ext@0x6c0000 {
++			offset = <0x6c0000>;
++			size   = <0x010000>;
++			filename = "otpcmd.bin";
++			missing-msg = "iot2050-otpcmd";
++#else
+ 		fill@0x6c0000 {
+ 			offset = <0x6c0000>;
+ 			size   = <0x010000>;
+ 			fill-byte = [ff];
++#endif
+ 		};
+ 	};
+ };
+diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
+index e264bec2d4..09b47257bb 100644
+--- a/board/siemens/iot2050/Kconfig
++++ b/board/siemens/iot2050/Kconfig
+@@ -49,4 +49,11 @@ config IOT2050_BOOT_SWITCH
+ 	bool "Disable eMMC boot via USER button (Advanced version only)"
+ 	default y
+ 
++config IOT2050_EMBED_OTPCMD
++	bool "Embed OTP programming data"
++	help
++	  Embed signed OTP programming data 'otpcmd.bin' into the firmware
++	  image. This data will be evaluated and executed on first boot of the
++	  device.
++
+ endif
+diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
+index 4e0925c72c..cb49a0e36b 100644
+--- a/doc/board/siemens/iot2050.rst
++++ b/doc/board/siemens/iot2050.rst
+@@ -27,6 +27,14 @@ The following binaries from that source need to be present in the build folder:
+  - seboot_pg1.bin
+  - seboot_pg2.bin
+ 
++For building an image containing the OTP key provisioning data, below binary
++needs to be present in the build folder:
++
++ - otpcmd.bin
++
++Regarding how to generating this otpcmd.bin, please refer to:
++https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/secure-boot-otp-provisioning/files/make-otpcmd.sh
++
+ Building
+ --------
+ 
+diff --git a/tools/binman/missing-blob-help b/tools/binman/missing-blob-help
+index 38371ef8b3..b0c290b0fc 100644
+--- a/tools/binman/missing-blob-help
++++ b/tools/binman/missing-blob-help
+@@ -23,6 +23,14 @@ See the documentation for IOT2050 board. Your image is missing SEBoot
+ which is mandatory for board startup. Prebuilt SEBoot located at
+ meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/seboot_pg*.bin.
+ 
++iot2050-otpcmd:
++See the documentation for IOT2050 board. Your image is missing OTP command data
++block which is used for provisioning the customer keys to the board.
++Please refer to
++meta-iot2050/tree/master/recipes-bsp/secure-boot-otp-provisioning/files/make-otpcmd.sh
++for how to generate this binary. If you are not using secure boot or do not
++intend to provision the keys, disable CONFIG_IOT2050_EMBED_OTPCMD.
++
+ k3-rti-wdt-firmware:
+ If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
+ the R5F core(s) to trigger the system reset. One possible source is
+-- 
+2.30.2
+

@@ -1,7 +1,7 @@
-From 349de8fcae8c720cd842d45eb60d613588294ea0 Mon Sep 17 00:00:00 2001
+From 405c9549a0281392e092d3f685a9514c2c2f0ceb Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 10:33:15 +0200
-Subject: [PATCH 12/23] efi_loader: Improve console screen clearing and reset
+Subject: [PATCH 12/24] efi_loader: Improve console screen clearing and reset
 
 Ensure that the default colors are set when clearing the screen so that
 the background is properly filled and succeeding colored outputs will
@@ -17,7 +17,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 3b012e1a669..eab187efd20 100644
+index 3b012e1a66..eab187efd2 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -461,8 +461,18 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
@@ -55,5 +55,5 @@ index 3b012e1a669..eab187efd20 100644
  	return EFI_EXIT(EFI_SUCCESS);
  }
 -- 
-2.34.1
+2.30.2
 

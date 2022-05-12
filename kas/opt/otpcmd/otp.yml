@@ -1,0 +1,16 @@
+#
+# Copyright (c) Siemens AG, 2022
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 10
+
+local_conf_header:
+  otpcmd_override: |
+    OVERRIDES .= ":otpcmd"
