@@ -40,7 +40,7 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img.bmap
 
   debian-swupdate-image:
-    name: Debian SWUpdate image
+    name: Debian secure boot SWUpdate image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,7 +48,7 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
-        run: ./kas-container build kas-iot2050-swupdate.yml
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml
       - name: Upload image
         uses: actions/upload-artifact@v2
         with:

@@ -13,7 +13,7 @@ Before=swupdate.service shutdown.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/share/u-boot-env/patch-u-boot-env.sh sysselect /usr/share/u-boot-env/patch-u-boot-env.config
+ExecStart=sh -c '/usr/share/u-boot-env/patch-u-boot-env.sh watchdog_timeout_ms /usr/share/u-boot-env/patch-u-boot-env.config; fw_setenv watchdog_timeout_ms 60000'
 ExecStartPost=-/bin/systemctl disable patch-u-boot-env.service
 
 [Install]

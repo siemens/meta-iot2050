@@ -1,7 +1,7 @@
 From 95d5104cdcf2e804fc5eb846245a5a85cfbafdba Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Feb 2022 17:09:08 +0100
-Subject: [PATCH 2/8] watchdog: rti_wdt: Add 10% safety margin to clock
+Subject: [PATCH 02/23] watchdog: rti_wdt: Add 10% safety margin to clock
  frequency
 
 When running against RC_OSC_32k, the watchdog may suffer from running

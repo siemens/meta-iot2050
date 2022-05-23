@@ -1,7 +1,7 @@
 From e1b6f8688c998fc23e1f44fb3f98f86d439609a8 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 14:52:01 +0800
-Subject: [PATCH 7/8] arm: dts: iot2050: Use the auto generator nodes for fdt
+Subject: [PATCH 07/23] arm: dts: iot2050: Use the auto generator nodes for fdt
 
 Refactor according to the entry `fit: Entry containing a FIT` of
 document tools/binman/README.entries.
