@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -16,11 +16,11 @@ if [ "${ROOT_DEV}" = "${BOOT_DEV}" ]; then
 	exit 1
 fi
 
-OLD_UUID=$(sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART})
 NEW_UUID=$(uuidgen)
 
 sfdisk --part-uuid ${BOOT_DEV} ${ROOT_PART} ${NEW_UUID}
 
-sed -i 's/'${OLD_UUID}'/'${NEW_UUID}'/i' /etc/default/u-boot-script
+sed -i 's/PARTUUID=[^ ]*/PARTUUID='${NEW_UUID}'/i' /etc/default/u-boot-script
+
 update-u-boot-script
 sync
