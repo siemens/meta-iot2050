@@ -92,7 +92,7 @@ index 00000000000..5ccb4e8fb02
 +
 +REVISION=${2:-0}
 +SHA_VAL=$(openssl dgst -sha512 -hex tispl.bin | sed -e "s/^.*= //g")
-+BIN_SIZE=$(filesize tispl.bin)
++BIN_SIZE=$(stat -c %s tispl.bin)
 +
 +cat <<EOF >$TEMP_X509
 +[ req ]
