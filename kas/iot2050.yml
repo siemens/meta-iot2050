@@ -36,6 +36,8 @@ repos:
         path: patches/isar/0001-Fix-permissions-when-splitting-rootfs-folders-across.patch
       expand-with-dm:
         path: isar-patches/0001-expand-on-first-boot-Add-support-for-devicemapper.patch
+      fix-expand-with-dm:
+        path: isar-patches/0001-expand-on-first-boot-Resolve-errors-in-helper-script.patch
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
