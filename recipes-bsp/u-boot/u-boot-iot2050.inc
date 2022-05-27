@@ -78,6 +78,10 @@ dpkg_runbuild_prepend() {
     export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
 }
 
+dpkg_runbuild_prepend_secureboot() {
+    export FIRMWARE_SECURE_VER="${FIRMWARE_SECURE_VER}"
+}
+
 dpkg_build_sstate_prepare_append() {
     ln -f ${S}/${SPI_FLASH_IMG} -t ${DPKG_SSTATE}
 }
