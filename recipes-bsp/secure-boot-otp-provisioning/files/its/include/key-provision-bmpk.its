@@ -1,0 +1,22 @@
+/ {
+    creator = "IOT2050 secure boot OTP provisioning tool";
+
+    images {
+        custBmpkHash {
+            description = "Backup master public key hash";
+            data = /incbin/("../../key3.sha256");
+            type = "script";
+            compression = "none";
+        };
+    };
+
+    options {
+        version = <1>;
+        option-3 {
+            cmd = "setup-customer-key-hash";
+            key-hash = "custBmpkHash";
+            key-hash-id = <2>;
+            key-hash-type = "sha256";
+        };
+    };
+};

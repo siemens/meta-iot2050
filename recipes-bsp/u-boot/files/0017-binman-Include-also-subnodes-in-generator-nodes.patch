@@ -1,7 +1,7 @@
-From 2d4d3d2b67fd5761c24b1fd2adc8707e5372b016 Mon Sep 17 00:00:00 2001
+From a0082a8dd8e1c54fe355e8eda6064bc34a6946c9 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 28 Feb 2022 17:06:20 +0100
-Subject: [PATCH 17/23] binman: Include also subnodes in generator nodes
+Subject: [PATCH 17/24] binman: Include also subnodes in generator nodes
 
 This allows to prefill fdt and config nodes with hash and signature
 subnodes. It's just important to place the child nodes last so that
@@ -17,7 +17,7 @@ Reviewed-by: Simon Glass <sjg@chromium.org>
  3 files changed, 7 insertions(+)
 
 diff --git a/tools/binman/etype/fit.py b/tools/binman/etype/fit.py
-index 6936f5736a6..a7c6b870bd8 100644
+index 6936f5736a..a7c6b870bd 100644
 --- a/tools/binman/etype/fit.py
 +++ b/tools/binman/etype/fit.py
 @@ -212,6 +212,9 @@ class Entry_fit(Entry):
@@ -31,7 +31,7 @@ index 6936f5736a6..a7c6b870bd8 100644
                          if self._fdts is None:
                              if self._fit_list_prop:
 diff --git a/tools/binman/ftest.py b/tools/binman/ftest.py
-index 2a98d810288..194ab0dca1b 100644
+index 2a98d81028..194ab0dca1 100644
 --- a/tools/binman/ftest.py
 +++ b/tools/binman/ftest.py
 @@ -3823,6 +3823,7 @@ class TestFunctional(unittest.TestCase):
@@ -43,7 +43,7 @@ index 2a98d810288..194ab0dca1b 100644
          def _CheckConfig(seq, expected_data):
              """Check the configuration nodes
 diff --git a/tools/binman/test/170_fit_fdt.dts b/tools/binman/test/170_fit_fdt.dts
-index 99d710c57e9..0197ffd1597 100644
+index 99d710c57e..0197ffd159 100644
 --- a/tools/binman/test/170_fit_fdt.dts
 +++ b/tools/binman/test/170_fit_fdt.dts
 @@ -36,6 +36,9 @@
@@ -57,5 +57,5 @@ index 99d710c57e9..0197ffd1597 100644
  			};
  
 -- 
-2.34.1
+2.30.2
 

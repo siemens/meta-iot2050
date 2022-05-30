@@ -20,6 +20,8 @@ SRC_URI += " \
 SRC_URI_append_secureboot = " \
     file://keys \
     file://secure-boot.cfg"
+SRC_URI_append_otpcmd = " \
+    file://otpcmd.cfg"
 
 U_BOOT_BIN = "flash.bin"
 
@@ -36,6 +38,9 @@ DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
     swig, python3-dev:native, python3-pkg-resources,"
 DEBIAN_BUILD_DEPENDS_append_secureboot = ", python3-pycryptodome:native, \
     pesign, python3-openssl:native"
+
+DEPENDS_append_otpcmd = " secure-boot-otp-provisioning"
+DEBIAN_BUILD_DEPENDS_append_otpcmd = ", secure-boot-otp-provisioning"
 
 U_BOOT_CONFIG_PACKAGE = "1"
 
@@ -59,9 +64,22 @@ do_prepare_build_append_secureboot() {
     cat ${WORKDIR}/secure-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
 }
 
+do_prepare_build_append_otpcmd() {
+    if [ "${PRODUCT_GENERATION}" = "pg1" ]; then
+        bbwarn "PG1 devices are not supported in booting securely"
+    fi
+    ln -sf /usr/lib/secure-boot-otp-provisioning/otpcmd.bin ${S}
+    sed -ni '/### OTP command config/q;p' ${S}/configs/${U_BOOT_CONFIG}
+    cat ${WORKDIR}/otpcmd.cfg >> ${S}/configs/${U_BOOT_CONFIG}
+}
+
 dpkg_runbuild_prepend() {
     export ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin
     export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
+}
+
+dpkg_runbuild_prepend_secureboot() {
+    export FIRMWARE_SECURE_VER="${FIRMWARE_SECURE_VER}"
 }
 
 dpkg_build_sstate_prepare_append() {

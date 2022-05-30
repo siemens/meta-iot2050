@@ -1,0 +1,15 @@
+/dts-v1/;
+
+/include/ "include/key-provision-mpk-smpk.its"
+/include/ "include/key-provision-bmpk.its"
+
+/ {
+    description = "IOT2050 secure boot OTP command data - MPK, SMPK, BMPK & Enabling";
+
+    options {
+        version = <1>;
+        option-4 {
+            cmd = "enable-secure-boot";
+        };
+    };
+};

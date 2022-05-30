@@ -1,0 +1,16 @@
+/dts-v1/;
+
+/ {
+    description = "IOT2050 secure boot OTP command data - Key Switching";
+    creator = "IOT2050 secure boot OTP provisioning tool";
+
+    images {
+    };
+
+    options {
+        version = <1>;
+        option-1 {
+            cmd = "switch-customer-key-hash";
+        };
+    };
+};

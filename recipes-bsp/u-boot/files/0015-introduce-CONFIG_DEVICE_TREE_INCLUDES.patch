@@ -1,7 +1,7 @@
-From a744f23efe0bf6191d225bf4c0d8ae24171d5e1f Mon Sep 17 00:00:00 2001
+From d12ee079ae6acffab918093bc7eab86276ff567a Mon Sep 17 00:00:00 2001
 From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 Date: Sun, 21 Nov 2021 14:52:51 +0100
-Subject: [PATCH 15/23] introduce CONFIG_DEVICE_TREE_INCLUDES
+Subject: [PATCH 15/24] introduce CONFIG_DEVICE_TREE_INCLUDES
 
 The build system already automatically looks for and includes an
 in-tree *-u-boot.dtsi when building the control .dtb. However, there
@@ -52,7 +52,7 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
  3 files changed, 30 insertions(+)
 
 diff --git a/doc/develop/devicetree/control.rst b/doc/develop/devicetree/control.rst
-index 0e6f85d5af1..c71570d64b4 100644
+index 0e6f85d5af..c71570d64b 100644
 --- a/doc/develop/devicetree/control.rst
 +++ b/doc/develop/devicetree/control.rst
 @@ -182,6 +182,24 @@ main file, in this order::
@@ -81,7 +81,7 @@ index 0e6f85d5af1..c71570d64b4 100644
  -----------------------
  
 diff --git a/dts/Kconfig b/dts/Kconfig
-index b7c4a2fec03..1f8debf1a81 100644
+index b7c4a2fec0..1f8debf1a8 100644
 --- a/dts/Kconfig
 +++ b/dts/Kconfig
 @@ -131,6 +131,15 @@ config DEFAULT_DEVICE_TREE
@@ -101,7 +101,7 @@ index b7c4a2fec03..1f8debf1a81 100644
  	string "List of device tree files to include for DT control"
  	depends on SPL_LOAD_FIT || MULTI_DTB_FIT
 diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 39f03398ed8..4ab422c231f 100644
+index 39f03398ed..4ab422c231 100644
 --- a/scripts/Makefile.lib
 +++ b/scripts/Makefile.lib
 @@ -318,8 +318,11 @@ endif
@@ -117,5 +117,5 @@ index 39f03398ed8..4ab422c231f 100644
  	$(DTC) -O dtb -o $@ -b 0 \
  		-i $(dir $<) $(DTC_FLAGS) \
 -- 
-2.34.1
+2.30.2
 

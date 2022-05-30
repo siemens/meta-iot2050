@@ -173,3 +173,11 @@ config KAS_INCLUDE_DEBIAN_MIRROR
 	string
 	default "kas/opt/debian-mirror.yml"
 	depends on DEBIAN_MIRROR
+
+config FIRMWARE_SECURE_VER
+	string "Use specific firmware secure version"
+	default "0"
+	depends on SECURE_BOOT && IMAGE_BOOT_PG2
+	help
+	  Use specific anti-rollback secure version rather than the default 0.
+	  Range 0 - 127.

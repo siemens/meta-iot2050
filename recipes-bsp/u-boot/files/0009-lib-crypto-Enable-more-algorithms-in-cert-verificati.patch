@@ -1,7 +1,7 @@
-From 34fcc303db3d5498ea0eb4fb7c0c04a6ab23eab3 Mon Sep 17 00:00:00 2001
+From 12bf2335aacef08b1737a64b118569b23327bd70 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Date: Wed, 19 Jan 2022 13:54:41 +0200
-Subject: [PATCH 09/23] lib/crypto: Enable more algorithms in cert verification
+Subject: [PATCH 09/24] lib/crypto: Enable more algorithms in cert verification
 
 Right now the code explicitly limits us to sha1,256 hashes with RSA2048
 encryption.  But the limitation is artificial since U-Boot supports
@@ -18,7 +18,7 @@ Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
  1 file changed, 16 insertions(+), 19 deletions(-)
 
 diff --git a/lib/crypto/public_key.c b/lib/crypto/public_key.c
-index df6033cdb49..3671ed13855 100644
+index df6033cdb4..3671ed1385 100644
 --- a/lib/crypto/public_key.c
 +++ b/lib/crypto/public_key.c
 @@ -97,6 +97,7 @@ int public_key_verify_signature(const struct public_key *pkey,
@@ -76,5 +76,5 @@ index df6033cdb49..3671ed13855 100644
  	info.key = pkey->key;
  	info.keylen = pkey->keylen;
 -- 
-2.34.1
+2.30.2
 

@@ -1,7 +1,7 @@
-From 95f3b5df5a31bff877fb07e5e0697353684aaaec Mon Sep 17 00:00:00 2001
+From cb1602322075752c53ba2417708374fc5cb7b321 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 28 Feb 2022 12:00:14 +0100
-Subject: [PATCH 13/23] env: Complete generic support for writable list
+Subject: [PATCH 13/24] env: Complete generic support for writable list
 
 This completes what 890feecaab72 started by selecting ENV_APPEND and
 ENV_IS_NOWHERE and by moving this driver to top if the list. This
@@ -21,7 +21,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  2 files changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/env/Kconfig b/env/Kconfig
-index 06d72bad1dc..c13136351a4 100644
+index 06d72bad1d..c13136351a 100644
 --- a/env/Kconfig
 +++ b/env/Kconfig
 @@ -698,6 +698,8 @@ config ENV_APPEND
@@ -34,7 +34,7 @@ index 06d72bad1dc..c13136351a4 100644
  	  If defined, only environment variables which explicitly set the 'w'
  	  writeable flag can be written and modified at runtime. No variables
 diff --git a/env/env.c b/env/env.c
-index e4dfb92e154..049c34069dd 100644
+index e4dfb92e15..049c34069d 100644
 --- a/env/env.c
 +++ b/env/env.c
 @@ -54,6 +54,13 @@ static struct env_driver *_env_driver_lookup(enum env_location loc)
@@ -76,5 +76,5 @@ index e4dfb92e154..049c34069dd 100644
  }
  
 -- 
-2.34.1
+2.30.2
 
