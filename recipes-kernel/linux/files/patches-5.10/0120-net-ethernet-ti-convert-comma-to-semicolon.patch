@@ -1,0 +1,33 @@
+From b2db8eebf6759e6eea777699351850628b3a77e0 Mon Sep 17 00:00:00 2001
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
+Date: Wed, 9 Dec 2020 21:37:16 +0800
+Subject: [PATCH 120/120] net: ethernet: ti: convert comma to semicolon
+
+Replace a comma between expression statements by a semicolon.
+
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ drivers/net/ethernet/ti/davinci_mdio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
+index 702fdc393da0..cfff3d48807a 100644
+--- a/drivers/net/ethernet/ti/davinci_mdio.c
++++ b/drivers/net/ethernet/ti/davinci_mdio.c
+@@ -381,9 +381,9 @@ static int davinci_mdio_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	data->bus->name		= dev_name(dev);
+-	data->bus->read		= davinci_mdio_read,
+-	data->bus->write	= davinci_mdio_write,
+-	data->bus->reset	= davinci_mdio_reset,
++	data->bus->read		= davinci_mdio_read;
++	data->bus->write	= davinci_mdio_write;
++	data->bus->reset	= davinci_mdio_reset;
+ 	data->bus->parent	= dev;
+ 	data->bus->priv		= data;
+ 
+-- 
+2.34.1
+

@@ -1,7 +1,7 @@
-From 93ba7712b682959bec591dd51ff74447c7e9e2e8 Mon Sep 17 00:00:00 2001
+From a65052e05c23fe67e4eade0acf41732ad9b14503 Mon Sep 17 00:00:00 2001
 From: Wang Sheng Long <shenglong.wang.ext@siemens.com>
 Date: Mon, 18 Jan 2021 12:13:26 +0100
-Subject: [PATCH 116/119] USB: serial: cp210x: add support for software flow
+Subject: [PATCH 116/120] USB: serial: cp210x: add support for software flow
  control
 
 When data is transmitted between two serial ports, the phenomenon of

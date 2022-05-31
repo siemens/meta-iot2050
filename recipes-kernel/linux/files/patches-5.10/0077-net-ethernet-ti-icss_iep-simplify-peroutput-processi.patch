@@ -1,7 +1,7 @@
-From 1f423abd7979b0d741b114673d229a95837c15ac Mon Sep 17 00:00:00 2001
+From 177b28f51d4950f578acf8c5d2838ebf87d40dec Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:33 +0300
-Subject: [PATCH 077/119] net: ethernet: ti: icss_iep: simplify peroutput
+Subject: [PATCH 077/120] net: ethernet: ti: icss_iep: simplify peroutput
  processing
 
 simplify peroutput processing

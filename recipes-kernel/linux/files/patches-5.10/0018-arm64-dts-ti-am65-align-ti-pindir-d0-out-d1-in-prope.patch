@@ -1,7 +1,7 @@
-From 712e10e46c0bd4d38c6d3d8fe31dfb32f970efd3 Mon Sep 17 00:00:00 2001
+From 70a893e097bb9e359aad602fe386678b6ebb0b1b Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Tue, 8 Jun 2021 10:44:13 +0530
-Subject: [PATCH 018/119] arm64: dts: ti: am65: align ti,pindir-d0-out-d1-in
+Subject: [PATCH 018/120] arm64: dts: ti: am65: align ti,pindir-d0-out-d1-in
  property with dt-shema
 
 ti,pindir-d0-out-d1-in property is expected to be of type boolean.

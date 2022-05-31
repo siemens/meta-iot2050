@@ -1,7 +1,7 @@
-From 968f5de6acc042bccf7b4ef8801a375ab1520043 Mon Sep 17 00:00:00 2001
+From 7c8f982282ca19b97ee4a5567d50cd8b49336328 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Tue, 22 Dec 2020 15:05:56 +0800
-Subject: [PATCH 103/119] WIP: feat:extend led panic-indicator on and off
+Subject: [PATCH 103/120] WIP: feat:extend led panic-indicator on and off
 
 WIP because upstream strategy is still under discussion.
 

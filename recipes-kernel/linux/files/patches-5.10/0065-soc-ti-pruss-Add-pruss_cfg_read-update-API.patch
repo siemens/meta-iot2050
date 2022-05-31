@@ -1,7 +1,7 @@
-From 5f799496298cd8b51949a5d0050506144ccc63f0 Mon Sep 17 00:00:00 2001
+From bc5a1ffd09db696fcbffaa36b2f5726a1ed613d6 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 16:27:34 -0500
-Subject: [PATCH 065/119] soc: ti: pruss: Add pruss_cfg_read()/update() API
+Subject: [PATCH 065/120] soc: ti: pruss: Add pruss_cfg_read()/update() API
 
 Add two new generic API pruss_cfg_read() and pruss_cfg_update() to
 the PRUSS platform driver to allow other drivers to read and program

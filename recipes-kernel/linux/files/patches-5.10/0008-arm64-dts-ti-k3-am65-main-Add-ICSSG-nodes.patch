@@ -1,7 +1,7 @@
-From d7f21987ca42b198dde945dfcbc6903738ad0808 Mon Sep 17 00:00:00 2001
+From 7cc4fb8ebdf9691b38533802be1ae7a46c0c321a Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Thu, 4 Mar 2021 10:07:11 -0600
-Subject: [PATCH 008/119] arm64: dts: ti: k3-am65-main: Add ICSSG nodes
+Subject: [PATCH 008/120] arm64: dts: ti: k3-am65-main: Add ICSSG nodes
 
 Add the DT nodes for the ICSSG0, ICSSG1 and ICSSG2 processor subsystems
 that are present on the K3 AM65x SoCs. The three ICSSGs are identical

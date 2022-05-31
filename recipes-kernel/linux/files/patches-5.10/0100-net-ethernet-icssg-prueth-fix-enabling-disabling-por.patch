@@ -1,7 +1,7 @@
-From 23a6caf4122fba5d041ec979eab1744569894537 Mon Sep 17 00:00:00 2001
+From c1151752fff37fa73c89cd9fb9e7cc0def4a22e3 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 7 Jul 2021 14:43:13 +0300
-Subject: [PATCH 100/119] net: ethernet: icssg-prueth: fix enabling/disabling
+Subject: [PATCH 100/120] net: ethernet: icssg-prueth: fix enabling/disabling
  port in emac_adjust_link()
 
 The port state is set to FORWARD in emac_ndo_open() and never changed, but

@@ -1,7 +1,7 @@
-From 72b9e0dc7386fdff79a9f9fb4bc755ff0592487c Mon Sep 17 00:00:00 2001
+From 02143e10e8b5781153fddd4cf64b6df3600051df Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 16 Dec 2020 17:52:37 +0100
-Subject: [PATCH 060/119] remoteproc: pru: Deny rproc sysfs ops for PRU client
+Subject: [PATCH 060/120] remoteproc: pru: Deny rproc sysfs ops for PRU client
  driven boots
 
 The PRU remoteproc driver is not configured for 'auto-boot' by default,
