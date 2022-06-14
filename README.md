@@ -13,6 +13,14 @@ For example under Debian Linux
 sudo apt install docker.io
 ```
 
+If you want to run docker as non-root user then you need to add your user to the docker group:
+
+```shell
+sudo usermod -aG docker $USER
+```
+
+You may need to re-login or issue newgrp.
+
 Then open the menu to select the desired image and options:
 
 ```shell
