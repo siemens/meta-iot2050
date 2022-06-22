@@ -1,4 +1,4 @@
-From 03f27bff237021159536e5e5ea9e4e5d3421d521 Mon Sep 17 00:00:00 2001
+From 58e98769cdbf92fc4de9721fceb099b2e4129808 Mon Sep 17 00:00:00 2001
 From: Ivan Mikhaylov <ivan.mikhaylov@siemens.com>
 Date: Tue, 2 Nov 2021 17:20:04 +0000
 Subject: [PATCH] node-red-gpio: Add support for initial message from digital
@@ -12,8 +12,8 @@ Based on siemens/meta-iot2000@5fc2bbe patch 0003.
 Signed-off-by: Ivan Mikhaylov <ivan.mikhaylov@siemens.com>
 ---
  hardware/intel/mraa-gpio-din.html |  8 +++++++-
- hardware/intel/mraa-gpio-din.js   | 20 ++++++++++++++++----
- 2 files changed, 23 insertions(+), 5 deletions(-)
+ hardware/intel/mraa-gpio-din.js   | 24 ++++++++++++++++++++----
+ 2 files changed, 27 insertions(+), 5 deletions(-)
 
 diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
 index 58a1363..1c2903d 100644
@@ -42,16 +42,17 @@ index 58a1363..1c2903d 100644
          <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
          <input type="text" id="node-input-name" placeholder="Name" style="width: 250px;">
 diff --git a/hardware/intel/mraa-gpio-din.js b/hardware/intel/mraa-gpio-din.js
-index 9fc3a12..a8f6a83 100644
+index 9fc3a12..cfb7961 100644
 --- a/hardware/intel/mraa-gpio-din.js
 +++ b/hardware/intel/mraa-gpio-din.js
-@@ -8,13 +8,14 @@ module.exports = function(RED) {
+@@ -8,13 +8,15 @@ module.exports = function(RED) {
          this.pin = n.pin;
          this.interrupt = n.interrupt;
          this.mode = n.mode;
 +        this.initialMsg = n.initial;
          this.x = new m.Gpio(parseInt(this.pin));
          this.board = m.getPlatformName();
++        this.defaultTimeout = 100;
          var node = this;
          node.x.mode(parseInt(this.mode));
          node.x.dir(m.DIR_IN);
@@ -62,7 +63,7 @@ index 9fc3a12..a8f6a83 100644
              var msg = { payload:g, topic:node.board+"/D"+node.pin };
              switch (g) {
                  case 0: {
-@@ -35,8 +36,15 @@ module.exports = function(RED) {
+@@ -35,8 +37,15 @@ module.exports = function(RED) {
                      node.status({fill:"grey",shape:"ring",text:"unknown"});
                  }
              }
@@ -80,16 +81,20 @@ index 9fc3a12..a8f6a83 100644
              case 0: {
                  node.status({fill:"green",shape:"ring",text:"low"});
                  break;
-@@ -49,6 +57,10 @@ module.exports = function(RED) {
+@@ -49,6 +58,13 @@ module.exports = function(RED) {
                  node.status({});
              }
          }
 +
-+        if (this.initialMsg)
-+            eventHandler(initialState);
++        if (this.initialMsg) {
++            setTimeout(() => {
++                node.send( { payload: node.x.read(), topic:node.board+"/D"+node.pin } );
++            }, this.defaultTimeout);
++        }
 +
          this.on('close', function() {
              node.x.isr(m.EDGE_BOTH, null);
              node.x.isrExit();
 -- 
-2.33.1
+2.36.1
+
