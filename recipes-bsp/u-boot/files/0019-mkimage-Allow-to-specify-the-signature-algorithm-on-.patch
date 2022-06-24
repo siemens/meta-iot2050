@@ -1,7 +1,7 @@
 From 15e2a7c91bf904da8727c6f105ac3c4bec8cdf7c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 10:21:19 +0100
-Subject: [PATCH 19/27] mkimage: Allow to specify the signature algorithm on
+Subject: [PATCH 19/28] mkimage: Allow to specify the signature algorithm on
  the command line
 
 This permits to prepare FIT image description that do not hard-code the

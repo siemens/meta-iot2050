@@ -1,7 +1,7 @@
 From 3e13f8babfcb3010897f6a57f0437f510b439780 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 14 Feb 2022 07:05:15 +0100
-Subject: [PATCH 16/27] tools: Add script for converting public key into device
+Subject: [PATCH 16/28] tools: Add script for converting public key into device
  tree include
 
 Allows to create a public key device tree dtsi for inclusion into U-Boot

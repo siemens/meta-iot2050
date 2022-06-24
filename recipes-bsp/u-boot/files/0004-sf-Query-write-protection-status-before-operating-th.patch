@@ -1,7 +1,7 @@
 From 669c37097752c6f28f7ebadcf260f0ee087bf3f7 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 2 Feb 2022 07:20:43 +0100
-Subject: [PATCH 04/27] sf: Query write-protection status before operating the
+Subject: [PATCH 04/28] sf: Query write-protection status before operating the
  flash
 
 Do not suggest successful operation if a flash area to be changed is
