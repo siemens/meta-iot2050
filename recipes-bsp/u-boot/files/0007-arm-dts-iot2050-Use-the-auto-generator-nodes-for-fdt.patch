@@ -1,7 +1,7 @@
-From b69ba6b529bf975f9a8d9d734f3feb2af73fb1b4 Mon Sep 17 00:00:00 2001
+From c470652def87f8a6e08f741a3a8cae180c505cf0 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 14:52:01 +0800
-Subject: [PATCH 07/24] arm: dts: iot2050: Use the auto generator nodes for fdt
+Subject: [PATCH 07/26] arm: dts: iot2050: Use the auto generator nodes for fdt
 
 Refactor according to the entry `fit: Entry containing a FIT` of
 document tools/binman/README.entries.
@@ -118,5 +118,5 @@ index 1bee7c4617..c8c21f71e2 100644
  CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
  CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 -- 
-2.30.2
+2.32.0
 

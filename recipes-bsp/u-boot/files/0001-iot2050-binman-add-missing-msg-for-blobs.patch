@@ -1,7 +1,7 @@
-From a4b131e0be7b5770fe40a939f64d8aba0b160d81 Mon Sep 17 00:00:00 2001
+From cdbc2c04484a4b75a9224682e82775e2e12f8cc8 Mon Sep 17 00:00:00 2001
 From: Ivan Mikhaylov <ivan.mikhaylov@siemens.com>
 Date: Thu, 9 Dec 2021 16:10:53 +0000
-Subject: [PATCH 01/24] iot2050: binman: add missing-msg for blobs
+Subject: [PATCH 01/26] iot2050: binman: add missing-msg for blobs
 
 Add the 'missing-msg' for blobs for more detailed output on missing system
 firmware and SEBoot blobs.
@@ -76,5 +76,5 @@ index dc2d9c9811..551ca87f6c 100644
  If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
  the R5F core(s) to trigger the system reset. One possible source is
 -- 
-2.30.2
+2.32.0
 

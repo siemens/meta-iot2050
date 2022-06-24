@@ -1,7 +1,7 @@
-From 98dab52485f16ac7e7eaef7cc3b9cf794db5c908 Mon Sep 17 00:00:00 2001
+From 803acbdead674a74f5c8ba35d35ff6ddb737c040 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 18 Nov 2021 10:56:22 +0100
-Subject: [PATCH 23/24] iot2050: Add script for signing artifacts
+Subject: [PATCH 23/26] iot2050: Add script for signing artifacts
 
 There are many ways to get a signed firmware for the IOT2050 devices,
 namely for the parts under user-control. This script documents one way
@@ -133,5 +133,5 @@ index 0000000000..4d1d79498c
 +#source/tools/binman/binman replace -i flash.bin -f fit@0x380000.fit fit@0x380000
 +dd if=fit@0x380000.fit of=flash.bin bs=$((0x1000)) seek=$((0x380000/0x1000)) conv=notrunc
 -- 
-2.30.2
+2.32.0
 

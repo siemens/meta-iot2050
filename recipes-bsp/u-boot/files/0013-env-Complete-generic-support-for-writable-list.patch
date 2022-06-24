@@ -1,7 +1,7 @@
-From cb1602322075752c53ba2417708374fc5cb7b321 Mon Sep 17 00:00:00 2001
+From c7c389ff272b44bae8ea2b5293b88275bed49c5d Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 28 Feb 2022 12:00:14 +0100
-Subject: [PATCH 13/24] env: Complete generic support for writable list
+Subject: [PATCH 13/26] env: Complete generic support for writable list
 
 This completes what 890feecaab72 started by selecting ENV_APPEND and
 ENV_IS_NOWHERE and by moving this driver to top if the list. This
@@ -76,5 +76,5 @@ index e4dfb92e15..049c34069d 100644
  }
  
 -- 
-2.30.2
+2.32.0
 

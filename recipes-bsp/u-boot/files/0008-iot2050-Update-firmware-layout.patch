@@ -1,7 +1,7 @@
-From 08b080e98d7e22049830f28a6bfb9790d11ab619 Mon Sep 17 00:00:00 2001
+From 82719ac2bd58773480c728841143c8295c15bbed Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 18:52:06 +0100
-Subject: [PATCH 08/24] iot2050: Update firmware layout
+Subject: [PATCH 08/26] iot2050: Update firmware layout
 
 The latest version of the binary-only firmware parts come in a combined
 form of FSBL and sysfw containers. This implies some layout changes to
@@ -142,5 +142,5 @@ index 551ca87f6c..38371ef8b3 100644
  k3-rti-wdt-firmware:
  If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
 -- 
-2.30.2
+2.32.0
 

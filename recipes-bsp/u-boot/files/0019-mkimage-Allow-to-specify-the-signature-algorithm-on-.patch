@@ -1,7 +1,7 @@
-From c22697cc4a5df9bfe7642f277ebc7c200382acdd Mon Sep 17 00:00:00 2001
+From 15e2a7c91bf904da8727c6f105ac3c4bec8cdf7c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 10:21:19 +0100
-Subject: [PATCH 19/24] mkimage: Allow to specify the signature algorithm on
+Subject: [PATCH 19/26] mkimage: Allow to specify the signature algorithm on
  the command line
 
 This permits to prepare FIT image description that do not hard-code the
@@ -278,5 +278,5 @@ index fbe883ce36..31738f218b 100644
  			params.os = genimg_get_os_id(optarg);
  			if (params.os < 0) {
 -- 
-2.30.2
+2.32.0
 

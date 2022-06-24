@@ -1,7 +1,7 @@
-From 03e8a87e35b9e042e59cee72057df74102b4a9ea Mon Sep 17 00:00:00 2001
+From 669c37097752c6f28f7ebadcf260f0ee087bf3f7 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 2 Feb 2022 07:20:43 +0100
-Subject: [PATCH 04/24] sf: Query write-protection status before operating the
+Subject: [PATCH 04/26] sf: Query write-protection status before operating the
  flash
 
 Do not suggest successful operation if a flash area to be changed is
@@ -47,5 +47,5 @@ index eac27ed2d7..d4b70d26c4 100644
  	printf("SF: %zu bytes @ %#x Erased: ", (size_t)size, (u32)offset);
  	if (ret)
 -- 
-2.30.2
+2.32.0
 
