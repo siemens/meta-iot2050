@@ -1,7 +1,7 @@
 From 6c328c33eb676ebf9030452577103b2702446f45 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 10:42:25 +0200
-Subject: [PATCH 21/26] iot2050: Add CONFIG_ENV_FLAGS_LIST_STATIC
+Subject: [PATCH 21/27] iot2050: Add CONFIG_ENV_FLAGS_LIST_STATIC
 
 Will be needed when CONFIG_ENV_WRITEABLE_LIST is enabled. The listed
 variables shall remain writable, for informational purposes - they have

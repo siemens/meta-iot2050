@@ -1,7 +1,7 @@
 From 1110df4ece3c69aa41abf73903c7567c27dcf53a Mon Sep 17 00:00:00 2001
 From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 Date: Sun, 21 Nov 2021 14:52:51 +0100
-Subject: [PATCH 15/26] introduce CONFIG_DEVICE_TREE_INCLUDES
+Subject: [PATCH 15/27] introduce CONFIG_DEVICE_TREE_INCLUDES
 
 The build system already automatically looks for and includes an
 in-tree *-u-boot.dtsi when building the control .dtb. However, there

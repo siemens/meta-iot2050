@@ -1,7 +1,7 @@
 From 93fb91b1789694ea6dde905d900000491c7b12c0 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 May 2022 11:29:20 +0200
-Subject: [PATCH 24/26] arm: dts: iot2050: Optionally embed OTP programming
+Subject: [PATCH 24/27] arm: dts: iot2050: Optionally embed OTP programming
  data into image
 
 Use external blob otpcmd.bin to replace the 0xff filled OTP programming

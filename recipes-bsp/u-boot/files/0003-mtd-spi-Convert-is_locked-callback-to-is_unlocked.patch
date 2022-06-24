@@ -1,7 +1,7 @@
 From 06e9d143faab7b5d11547bb8243551aa28242812 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 23 Feb 2022 10:26:16 +0100
-Subject: [PATCH 03/26] mtd: spi: Convert is_locked callback to is_unlocked
+Subject: [PATCH 03/27] mtd: spi: Convert is_locked callback to is_unlocked
 
 There was no user of this callback after 5b66fdb29dc3 anymore, and its
 semantic as now inconsistent between stm and sst26. What we need for the
