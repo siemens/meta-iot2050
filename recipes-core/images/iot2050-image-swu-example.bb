@@ -8,10 +8,10 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-IMAGE_UUID = "image_uuid"
-IMAGE_UUID_secureboot = ""
+USE_IMAGE_UUID = "image_uuid"
+USE_IMAGE_UUID_secureboot = ""
 
-inherit ${IMAGE_UUID}
+inherit ${USE_IMAGE_UUID}
 
 # generate a swu image for a/b updating via swupdate
 IMAGE_FSTYPES = "wic-swu-img"
