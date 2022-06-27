@@ -149,6 +149,15 @@ config OTP_PROVISIONING
 	  WARNING: This uses the dummy keys by default. Do not use these keys
 	  in production, they are for demonstration purposes only.
 
+config RPMB_SETUP
+	bool "OPTEE RPMB setup for OTP key write"
+	depends on IMAGE_BOOT_PG2 && !SECURE_BOOT
+	help
+	   Enable one-time pairing between processor and secure storage
+	   (RPMB on eMMC). Do not sign and distribute this version. Run it
+	   only in a secure environment on the target device, then replace it
+	   with signed production firmware and enable secure boot.
+
 config KAS_INCLUDE_SECURE_BOOT
 	string
 	default "kas/opt/secure-boot.yml"
@@ -163,6 +172,11 @@ config KAS_INCLUDE_OTP_PROVISIONING
 	default "kas/opt/otpcmd/key-switch.yml" if OTP_PROVISIONING_KEY_SWITCHING_1TO2
 	default "kas/opt/otpcmd/key-switch-2to3.yml" if OTP_PROVISIONING_KEY_SWITCHING_2TO3
 	depends on OTP_PROVISIONING
+
+config KAS_INCLUDE_RPMB_SETUP
+	string
+	default "kas/opt/rpmb-setup.yml"
+	depends on RPMB_SETUP
 
 comment "Build options"
 
