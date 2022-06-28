@@ -1,1 +1,1 @@
-../../../recipes-bsp/u-boot/files/keys/custMpk.crt
+../../../recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.crt

@@ -14,7 +14,12 @@ DEBIAN_BUILD_DEPENDS = "openssl, u-boot-tools, device-tree-compiler"
 
 SRC_URI = " \
     file://its \
-    file://keys/* \
+    file://keys/custMpk.crt \
+    file://keys/custMpk.pem \
+    file://keys/custSmpk.crt \
+    file://keys/custSmpk.pem \
+    file://keys/custBmpk.crt \
+    file://keys/custBmpk.pem \
     file://make-otpcmd.sh \
     file://rules.tmpl"
 
