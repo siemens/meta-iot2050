@@ -103,13 +103,34 @@ esac
 [ -f "$KEY2" ] || { echo "KEY2 [$KEY2] does not exist!"; exit 1; }
 [ -z "$KEY3" ] || [ -f "$KEY3" ] || { echo "KEY3 [$KEY3] does not exist!"; exit 1; }
 
+gen_pubkey_hash()
+{
+	PRIKEY=$1
+	KEYHASH=$2
+	DUMMY_KEY_HASHES=" \
+	fb337ffb16be62fc4a97e62bf80faab1506b5f6e4231d6fec1dd01429ba016e3 \
+	1e436ba092a4a134102ac68489cf64d5978fb28813d348b94331c98194dd7a09 \
+	fcdf0f123e9a4eba4c8fd4f7b375e110c10fe4c4b916bb800c7a27466c5d791a"
+
+	openssl rsa -in $PRIKEY -pubout -outform der 2>/dev/null | \
+		openssl dgst -sha256 -binary -out $KEYHASH
+
+	HASHSTR=`hexdump -ve '1/1 "%.2x"' $KEYHASH`
+
+	for dummy in $DUMMY_KEY_HASHES; do
+		if [ "$dummy" = "$HASHSTR" ]; then
+			echo "Warning: Dummy key $PRIKEY is used for OTP provisioning!" 1>&2;
+		fi
+	done
+}
+
 if [ -z "$KEY_SWITCH" ]; then
 	KEY1_HASH=key1.sha256
 	KEY2_HASH=key2.sha256
 	KEY3_HASH=key3.sha256
-	openssl rsa -in $KEY1 -pubout -outform der | openssl dgst -sha256 -binary -out $KEY1_HASH
-	openssl rsa -in $KEY2 -pubout -outform der | openssl dgst -sha256 -binary -out $KEY2_HASH
-	[ -f "$KEY3" ] && openssl rsa -in $KEY3 -pubout -outform der | openssl dgst -sha256 -binary -out $KEY3_HASH
+	gen_pubkey_hash $KEY1 $KEY1_HASH
+	gen_pubkey_hash $KEY2 $KEY2_HASH
+	[ -f "$KEY3" ] && gen_pubkey_hash $KEY3 $KEY3_HASH
 fi
 
 FIT_IMAGE=target.fit
