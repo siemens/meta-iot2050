@@ -1,7 +1,7 @@
-From d44c56d6848176a3946644665a4101ab4f02cf9f Mon Sep 17 00:00:00 2001
+From 546008a453a2ccdc50a6724ba1ac1ee66696bbef Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Mar 2022 15:53:15 +0100
-Subject: [PATCH 050/119] arm64: dts: ti: iot2050: Add layout of OSPI flash
+Subject: [PATCH 050/120] arm64: dts: ti: iot2050: Add layout of OSPI flash
 
 Describe the layout of the OSPI flash as the latest firmware uses it.
 Specifically the location of the U-Boot envs is important for userspace
@@ -72,5 +72,5 @@ index 65da226847f4..d8661096f2de 100644
  };
  
 -- 
-2.34.1
+2.32.0
 

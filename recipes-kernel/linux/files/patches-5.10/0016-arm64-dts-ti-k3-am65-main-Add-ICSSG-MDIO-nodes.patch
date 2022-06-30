@@ -1,7 +1,7 @@
-From c574f9a0a5966bf04cf584b28b0f992ffef60e7b Mon Sep 17 00:00:00 2001
+From 892cf819d45e0a184f054b18c3f86110886cfdd3 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 1 Jun 2021 10:00:31 -0500
-Subject: [PATCH 016/119] arm64: dts: ti: k3-am65-main: Add ICSSG MDIO nodes
+Subject: [PATCH 016/120] arm64: dts: ti: k3-am65-main: Add ICSSG MDIO nodes
 
 The ICSSGs on K3 AM65x SoCs contain an MDIO controller that can
 be used to control external PHYs associated with the Industrial
@@ -125,5 +125,5 @@ index fea6a8243d75..b47fc2a1e59d 100644
 +	status = "disabled";
 +};
 -- 
-2.34.1
+2.32.0
 

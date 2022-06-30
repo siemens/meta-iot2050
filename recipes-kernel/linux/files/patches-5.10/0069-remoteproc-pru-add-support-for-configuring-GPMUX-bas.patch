@@ -1,7 +1,7 @@
-From b08c03532e5cd80dd9b0377a28ed8b090903ebf4 Mon Sep 17 00:00:00 2001
+From 6e3a004dfcab9f6cfb5d6c808c91b6faf5f6aef1 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Sat, 27 Mar 2021 10:11:42 -0500
-Subject: [PATCH 069/119] remoteproc/pru: add support for configuring GPMUX
+Subject: [PATCH 069/120] remoteproc/pru: add support for configuring GPMUX
  based on client setup
 
 Client device node property ti,pruss-gp-mux-sel can now be used to
@@ -75,5 +75,5 @@ index c346899d5e3b..7ef176170b18 100644
  
  	mutex_lock(&pru->lock);
 -- 
-2.34.1
+2.32.0
 
