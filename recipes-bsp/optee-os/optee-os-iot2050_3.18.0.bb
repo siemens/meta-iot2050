@@ -27,6 +27,14 @@ OPTEE_EXTRA_BUILDARGS = " \
 
 OPTEE_EXTRA_BUILDARGS_append_rpmb-setup = " CFG_RPMB_WRITE_KEY=y"
 
+python do_patch_prepend() {
+    import re
+
+    overrides = d.getVar('OVERRIDES')
+    if re.search("rpmb-setup", overrides) and re.search("secureboot", overrides):
+        bb.fatal("Not possible to use Secure Boot and RPMB setup for OPTEE")
+}
+
 dpkg_runbuild_prepend() {
     export TEE_IMPL_VERSION=${PV}
 }
