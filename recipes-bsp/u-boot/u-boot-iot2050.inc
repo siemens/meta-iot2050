@@ -18,7 +18,10 @@ SRC_URI += " \
     file://prebuild \
     file://fw_env.config"
 SRC_URI_append_secureboot = " \
-    file://keys \
+    file://keys/custMpk.crt \
+    file://keys/custMpk.key \
+    file://keys/custMpk.pem \
+    file://keys/x509-sysfw-template.txt \
     file://secure-boot.cfg"
 SRC_URI_append_otpcmd = " \
     file://otpcmd.cfg"

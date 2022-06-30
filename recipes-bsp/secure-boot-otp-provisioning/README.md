@@ -145,6 +145,22 @@ If the key switching is from SMPK to BMPK:
 ./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-switch-2to3.yml
 ```
 
+### Use TUI alternative
+
+Above options could also be achieved by:
+
+```bash
+./kas-container menu
+```
+
+Then 
+
+- select `Firmware image for PG2 devices` as the `Image type`
+- check `Secure boot` and `OTP provisioning` in `Image features`
+- select among `OTP provisioning command type`
+
+You can double confirm your selection in generated `.config.yaml`.
+
 ## Security Notice
 
 Please securely take care of the generated keys, for example, storing it in a

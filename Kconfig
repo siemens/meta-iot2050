@@ -125,10 +125,32 @@ config SECURE_BOOT
 	  This uses the public custMpk.key and certificate by default. Do not
 	  use this key in production, it is for demonstration purposes only.
 
+config OTP_PROVISIONING
+	bool "OTP Provisioning"
+	depends on IMAGE_BOOT_PG2
+	help
+	  Integrate OTP provisioning data into the firmware artifacts. Various
+	  options are avaiable. By default, this will integrate the OTP command
+	  data for provision two public key hashes and enable secure boot in
+	  OTP. 
+
+	  WARNING: This uses the dummy keys by default. Do not use these keys
+	  in production, they are for demonstration purposes only.
+
 config KAS_INCLUDE_SECURE_BOOT
 	string
 	default "kas/opt/secure-boot.yml"
 	depends on SECURE_BOOT
+
+config KAS_INCLUDE_OTP_PROVISIONING
+	string
+	default "kas/opt/otpcmd/key-provision.yml" if OTP_PROVISIONING_2KEYS_ENABLE
+	default "kas/opt/otpcmd/key-provision-keys-only.yml" if OTP_PROVISIONING_2KEYS
+	default "kas/opt/otpcmd/key-provision-3keys.yml" if OTP_PROVISIONING_3KEYS_ENABLE
+	default "kas/opt/otpcmd/key-provision-enabling-only.yml" if OTP_PROVISIONING_ENABLING_ONLY
+	default "kas/opt/otpcmd/key-switch.yml" if OTP_PROVISIONING_KEY_SWITCHING_1TO2
+	default "kas/opt/otpcmd/key-switch-2to3.yml" if OTP_PROVISIONING_KEY_SWITCHING_2TO3
+	depends on OTP_PROVISIONING
 
 comment "Build options"
 
@@ -181,3 +203,53 @@ config FIRMWARE_SECURE_VER
 	help
 	  Use specific anti-rollback secure version rather than the default 0.
 	  Range 0 - 127.
+
+choice
+	prompt "*** OTP provisioning command type ***"
+	depends on OTP_PROVISIONING
+	default OTP_PROVISIONING_2KEYS_ENABLE
+
+config OTP_PROVISIONING_2KEYS_ENABLE
+	bool "2 keys & enabling secure boot"
+	help
+	  OTP provisioning command data contains the public key hashes of 
+	  below keys and enabling secure boot:
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
+
+
+config OTP_PROVISIONING_2KEYS
+	bool "2 keys only"
+	help
+	  OTP provisioning command data contains the public key hashes of 
+	  below keys but without enabling secure boot:
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
+
+config OTP_PROVISIONING_3KEYS_ENABLE
+	bool "3 keys & enabling secure boot"
+	help
+	  OTP provisioning command data contains the public key hashes of 
+	  below keys and enabling secure boot:
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
+	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custBmpk.pem
+
+config OTP_PROVISIONING_ENABLING_ONLY
+	bool "Enabling secure boot only"
+	help
+	  OTP provisioning command data only contains enabling secure boot.
+
+config OTP_PROVISIONING_KEY_SWITCHING_1TO2
+	bool "Key switching from key 1 to key 2"
+	help
+	  OTP provisioning command data contains key switching from key 1
+	  to key 2.
+
+config OTP_PROVISIONING_KEY_SWITCHING_2TO3
+	bool "Key switching from key 2 to key 3"
+	help
+	  OTP provisioning command data contains key switching from key 2
+	  to key 3.
+
+endchoice
