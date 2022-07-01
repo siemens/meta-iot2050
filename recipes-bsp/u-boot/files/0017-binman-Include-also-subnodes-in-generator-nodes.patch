@@ -1,7 +1,7 @@
-From a0082a8dd8e1c54fe355e8eda6064bc34a6946c9 Mon Sep 17 00:00:00 2001
+From ea3b67fe9c7d397de6aac21cdf667199225aa83c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 28 Feb 2022 17:06:20 +0100
-Subject: [PATCH 17/24] binman: Include also subnodes in generator nodes
+Subject: [PATCH 17/28] binman: Include also subnodes in generator nodes
 
 This allows to prefill fdt and config nodes with hash and signature
 subnodes. It's just important to place the child nodes last so that
@@ -57,5 +57,5 @@ index 99d710c57e..0197ffd159 100644
  			};
  
 -- 
-2.30.2
+2.32.0
 

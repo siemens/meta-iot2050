@@ -1,7 +1,7 @@
-From 155d1a988b39ce8a85ada36635ca9c0cafade164 Mon Sep 17 00:00:00 2001
+From 5bd99f9dee8c791147c70ea7b687d8c85165afb2 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:38:07 +0530
-Subject: [PATCH 056/119] arm64: dts: ti: k3-am65-main: Add properties to
+Subject: [PATCH 056/120] arm64: dts: ti: k3-am65-main: Add properties to
  support legacy interrupts
 
 Add DT properties in PCIe DT node to support legacy interrupts.
@@ -82,5 +82,5 @@ index 9b1a016162b2..b786daed9639 100644
  
  	pcie1_ep: pcie-ep@5600000 {
 -- 
-2.34.1
+2.32.0
 

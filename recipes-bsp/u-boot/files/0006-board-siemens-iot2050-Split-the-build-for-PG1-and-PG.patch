@@ -1,7 +1,7 @@
-From 92cfd752058a56bbfa5b99e4b250021ee9743136 Mon Sep 17 00:00:00 2001
+From 7f8f57bef286330079bc012116afcea493db6c2c Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 15:05:27 +0800
-Subject: [PATCH 06/24] board: siemens: iot2050: Split the build for PG1 and
+Subject: [PATCH 06/28] board: siemens: iot2050: Split the build for PG1 and
  PG2
 
 Due to different signature keys, the PG1 and the PG2 boards can no
@@ -343,5 +343,5 @@ index 7e97f817ce..fd3431fa3f 100644
  
  Flashing
 -- 
-2.30.2
+2.32.0
 

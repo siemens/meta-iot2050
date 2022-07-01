@@ -1,7 +1,7 @@
-From 2b7db3af33c46b67340425b7b22fc985f81314a8 Mon Sep 17 00:00:00 2001
+From bba9f7a42eacd852ab06f3170944888b43938202 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 Date: Sun, 16 Jan 2022 14:15:31 +0100
-Subject: [PATCH 10/24] efi_loader: use %pUs for printing GUIDs
+Subject: [PATCH 10/28] efi_loader: use %pUs for printing GUIDs
 
 For printing GUIDs with macro EFI_ENTRY use %pUs instead of %pUl to provide
 readable debug output.
@@ -374,5 +374,5 @@ index 3cbb7c96c2..9f1dd74f36 100644
  	ret = efi_get_next_variable_name_int(variable_name_size, variable_name,
  					     vendor);
 -- 
-2.30.2
+2.32.0
 

@@ -1,0 +1,42 @@
+From 1f0870ea76a92eca47c63385f0893d3bab6aa8c8 Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Fri, 7 Jan 2022 11:26:24 +0800
+Subject: [PATCH 25/26] gpio: da8xx_gpio: Fix gpio name with address
+
+The GPIO bank numbers do not appear in the device tree,
+so make the gpio name based on the address
+(ie gpio@42110000_25 vs 25)
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ drivers/gpio/da8xx_gpio.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/gpio/da8xx_gpio.c b/drivers/gpio/da8xx_gpio.c
+index d106e9846d..b310f2dbf6 100644
+--- a/drivers/gpio/da8xx_gpio.c
++++ b/drivers/gpio/da8xx_gpio.c
+@@ -545,12 +545,20 @@ static int davinci_gpio_of_to_plat(struct udevice *dev)
+ {
+ 	struct davinci_gpio_plat *plat = dev_get_plat(dev);
+ 	fdt_addr_t addr;
++	char name[18], *str;
+ 
+ 	addr = dev_read_addr(dev);
+ 	if (addr == FDT_ADDR_T_NONE)
+ 		return -EINVAL;
+ 
+ 	plat->base = addr;
++
++	sprintf(name, "gpio@%4x_", (unsigned int)plat->base);
++	str = strdup(name);
++	if (!str)
++		return -ENOMEM;
++	plat->port_name = str;
++
+ 	return 0;
+ }
+ 
+-- 
+2.32.0
+

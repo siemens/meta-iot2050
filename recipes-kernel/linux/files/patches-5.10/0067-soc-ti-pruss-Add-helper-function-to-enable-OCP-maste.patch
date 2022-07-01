@@ -1,7 +1,7 @@
-From 349313a3c6e898066e6c57ddae9b2008117a1acd Mon Sep 17 00:00:00 2001
+From 61b974c00c96df9ee4f7b3144e536cd91e339058 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 16:38:11 -0500
-Subject: [PATCH 067/119] soc: ti: pruss: Add helper function to enable OCP
+Subject: [PATCH 067/120] soc: ti: pruss: Add helper function to enable OCP
  master ports
 
 The PRU-ICSS subsystem on OMAP-architecture based SoCS (AM33xx, AM437x
@@ -178,5 +178,5 @@ index ba5b728d5015..5fdd6f03446d 100644
  
  #if IS_ENABLED(CONFIG_PRU_REMOTEPROC)
 -- 
-2.34.1
+2.32.0
 

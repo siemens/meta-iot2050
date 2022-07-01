@@ -50,6 +50,17 @@ config IMAGE_BOOT_PG2
 	  that it fits AND you have an external flash programmer at hand that
 	  allows to recover. Otherwise you risk to BRICK THE IOT2050!
 
+config IMAGE_BOOT_M2
+	bool "Firmware image for M2 devices"
+	help
+	  Build the firmware image that is responsible for booting Product
+	  Generation 2 (PG2) devices.
+	  It's the same as IMAGE_BOOT_PG2 option
+
+	  WARNING: Do not flash this image onto your device unless you know
+	  that it fits AND you have an external flash programmer at hand that
+	  allows to recover. Otherwise you risk to BRICK THE IOT2050!
+
 endchoice
 
 config KAS_INCLUDE_MAIN
@@ -58,6 +69,7 @@ config KAS_INCLUDE_MAIN
 	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
 	default "kas-iot2050-boot-pg1.yml" if IMAGE_BOOT_PG1
 	default "kas-iot2050-boot-pg2.yml" if IMAGE_BOOT_PG2
+	default "kas-iot2050-boot-m2.yml" if IMAGE_BOOT_M2
 
 comment "Image features"
 
@@ -115,7 +127,7 @@ config SECURE_BOOT
 
 config SECURE_BOOT
 	bool "Secure boot"
-	depends on IMAGE_BOOT_PG2
+	depends on IMAGE_BOOT_PG2 || IMAGE_BOOT_M2
 	help
 	  Enable signing of all customizable firmware artifacts, enforce UEFI
 	  Secure Boot mode, protect sensitive U-Boot environment variables and

@@ -1,7 +1,7 @@
-From 3ecc4c774d95d8620ae78bf2b94cd978d4d60159 Mon Sep 17 00:00:00 2001
+From ba696f0562f5d10e2b032c178cb5cdaa246af3a6 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 7 Nov 2021 17:59:17 +0100
-Subject: [PATCH 22/24] arm: dts: iot2050: Allow verifying U-Boot proper by SPL
+Subject: [PATCH 22/28] arm: dts: iot2050: Allow verifying U-Boot proper by SPL
 
 Add hashes and configuration signature stubs to prepare verified boot
 of main U-Boot by SPL.
@@ -71,5 +71,5 @@ index 3ee0842e99..9082a79a03 100644
  		fill@0x680000 {
  			offset = <0x680000>;
 -- 
-2.30.2
+2.32.0
 

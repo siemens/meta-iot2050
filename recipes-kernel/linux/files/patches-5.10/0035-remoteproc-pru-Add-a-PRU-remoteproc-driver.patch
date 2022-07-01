@@ -1,7 +1,7 @@
-From 51cb30ce64cb75005071a77a525240d2cf1322c1 Mon Sep 17 00:00:00 2001
+From 47be87d5c32ba318ba854b190299600e98608888 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:09:58 +0100
-Subject: [PATCH 035/119] remoteproc: pru: Add a PRU remoteproc driver
+Subject: [PATCH 035/120] remoteproc: pru: Add a PRU remoteproc driver
 
 The Programmable Real-Time Unit Subsystem (PRUSS) consists of
 dual 32-bit RISC cores (Programmable Real-Time Units, or PRUs)
@@ -524,5 +524,5 @@ index 000000000000..d33392bbd8af
 +MODULE_DESCRIPTION("PRU-ICSS Remote Processor Driver");
 +MODULE_LICENSE("GPL v2");
 -- 
-2.34.1
+2.32.0
 

@@ -37,6 +37,10 @@ SRC_URI += " \
     file://0022-arm-dts-iot2050-Allow-verifying-U-Boot-proper-by-SPL.patch \
     file://0023-iot2050-Add-script-for-signing-artifacts.patch \
     file://0024-arm-dts-iot2050-Optionally-embed-OTP-programming-dat.patch \
+    file://0025-gpio-da8xx_gpio-Fix-gpio-name-with-address.patch \
+    file://0026-board-siemens-iot2050-use-the-named-gpio-to-control-.patch \
+    file://0027-arm-dts-add-the-m.2-support.patch \
+    file://0028-board-siemens-iot2050-add-the-support-for-m2-variant.patch \
     "
 
 SRC_URI[sha256sum] = "81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413"
