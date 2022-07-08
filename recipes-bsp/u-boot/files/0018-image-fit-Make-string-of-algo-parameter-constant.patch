@@ -1,7 +1,7 @@
-From cb56539ab9f31826af334f17fade71e39d83010a Mon Sep 17 00:00:00 2001
+From 5a0239c41af9a4fa342950784ba8c8e6ca924a95 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 10:21:17 +0100
-Subject: [PATCH 18/28] image-fit: Make string of algo parameter constant
+Subject: [PATCH 18/31] image-fit: Make string of algo parameter constant
 
 Modifications would be invalid.
 
@@ -99,5 +99,5 @@ index a6b0a94420..a027155f3c 100644
  
  	node_name = fit_get_name(fit, noffset, NULL);
 -- 
-2.32.0
+2.30.2
 

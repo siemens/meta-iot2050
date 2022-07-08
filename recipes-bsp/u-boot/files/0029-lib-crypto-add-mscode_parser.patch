@@ -1,0 +1,295 @@
+From 65ef2c27edb8c2d37d0f92bbed68fa9ed34397d5 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 5 Jul 2022 14:48:11 +0900
+Subject: [PATCH 29/31] lib: crypto: add mscode_parser
+
+In MS authenticode, pkcs7 should have data in its contentInfo field.
+This data is tagged with SpcIndirectData type and, for a signed PE image,
+provides a image's message digest as SpcPeImageData.
+
+This parser is used in image authentication to parse the field and
+retrieve a message digest.
+
+Imported from linux v5.19-rc, crypto/asymmetric_keys/mscode*.
+Checkpatch.pl generates tones of warnings, but those are not fixed
+for the sake of maintainability (importing from another source).
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+(Backported 20220705054815.30318-2-takahiro.akashi@linaro.org to v2022.01)
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ include/crypto/mscode.h    |  43 ++++++++++++
+ lib/crypto/Kconfig         |   9 +++
+ lib/crypto/Makefile        |  12 ++++
+ lib/crypto/mscode.asn1     |  28 ++++++++
+ lib/crypto/mscode_parser.c | 135 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 227 insertions(+)
+ create mode 100644 include/crypto/mscode.h
+ create mode 100644 lib/crypto/mscode.asn1
+ create mode 100644 lib/crypto/mscode_parser.c
+
+diff --git a/include/crypto/mscode.h b/include/crypto/mscode.h
+new file mode 100644
+index 0000000000..551058b96e
+--- /dev/null
++++ b/include/crypto/mscode.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* PE Binary parser bits
++ *
++ * Copyright (C) 2014 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
++
++#include <crypto/pkcs7.h>
++#ifndef __UBOOT__
++#include <crypto/hash_info.h>
++#endif
++
++struct pefile_context {
++#ifndef __UBOOT__
++	unsigned	header_size;
++	unsigned	image_checksum_offset;
++	unsigned	cert_dirent_offset;
++	unsigned	n_data_dirents;
++	unsigned	n_sections;
++	unsigned	certs_size;
++	unsigned	sig_offset;
++	unsigned	sig_len;
++	const struct section_header *secs;
++#endif
++
++	/* PKCS#7 MS Individual Code Signing content */
++	const void	*digest;		/* Digest */
++	unsigned	digest_len;		/* Digest length */
++	const char	*digest_algo;		/* Digest algorithm */
++};
++
++#ifndef __UBOOT__
++#define kenter(FMT, ...)					\
++	pr_devel("==> %s("FMT")\n", __func__, ##__VA_ARGS__)
++#define kleave(FMT, ...) \
++	pr_devel("<== %s()"FMT"\n", __func__, ##__VA_ARGS__)
++#endif
++
++/*
++ * mscode_parser.c
++ */
++extern int mscode_parse(void *_ctx, const void *content_data, size_t data_len,
++			size_t asn1hdrlen);
+diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
+index 6369bafac0..92fe5cd0b0 100644
+--- a/lib/crypto/Kconfig
++++ b/lib/crypto/Kconfig
+@@ -52,4 +52,13 @@ config PKCS7_MESSAGE_PARSER
+ config PKCS7_VERIFY
+ 	bool
+ 
++config MSCODE_PARSER
++	bool "MS authenticode parser"
++	select ASN1_DECODER
++	select ASN1_COMPILER
++	select OID_REGISTRY
++	help
++	  This option provides support for parsing MicroSoft's Authenticode
++	  in pkcs7 message.
++
+ endif # ASYMMETRIC_KEY_TYPE
+diff --git a/lib/crypto/Makefile b/lib/crypto/Makefile
+index f3a414525d..b86529da5e 100644
+--- a/lib/crypto/Makefile
++++ b/lib/crypto/Makefile
+@@ -48,3 +48,15 @@ obj-$(CONFIG_PKCS7_VERIFY) += pkcs7_verify.o
+ 
+ $(obj)/pkcs7_parser.o: $(obj)/pkcs7.asn1.h
+ $(obj)/pkcs7.asn1.o: $(obj)/pkcs7.asn1.c $(obj)/pkcs7.asn1.h
++
++#
++# Signed PE binary-wrapped key handling
++#
++obj-$(CONFIG_$(SPL_)MSCODE_PARSER) += mscode.o
++
++mscode-y := \
++	mscode_parser.o \
++	mscode.asn1.o
++
++$(obj)/mscode_parser.o: $(obj)/mscode.asn1.h $(obj)/mscode.asn1.h
++$(obj)/mscode.asn1.o: $(obj)/mscode.asn1.c $(obj)/mscode.asn1.h
+diff --git a/lib/crypto/mscode.asn1 b/lib/crypto/mscode.asn1
+new file mode 100644
+index 0000000000..6d09ba48c4
+--- /dev/null
++++ b/lib/crypto/mscode.asn1
+@@ -0,0 +1,28 @@
++--- Microsoft individual code signing data blob parser
++---
++--- Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
++--- Written by David Howells (dhowells@redhat.com)
++---
++--- This program is free software; you can redistribute it and/or
++--- modify it under the terms of the GNU General Public Licence
++--- as published by the Free Software Foundation; either version
++--- 2 of the Licence, or (at your option) any later version.
++---
++
++MSCode ::= SEQUENCE {
++	type			SEQUENCE {
++		contentType	ContentType,
++		parameters	ANY
++	},
++	content			SEQUENCE {
++		digestAlgorithm	DigestAlgorithmIdentifier,
++		digest		OCTET STRING ({ mscode_note_digest })
++	}
++}
++
++ContentType ::= OBJECT IDENTIFIER ({ mscode_note_content_type })
++
++DigestAlgorithmIdentifier ::= SEQUENCE {
++	algorithm   OBJECT IDENTIFIER ({ mscode_note_digest_algo }),
++	parameters  ANY OPTIONAL
++}
+diff --git a/lib/crypto/mscode_parser.c b/lib/crypto/mscode_parser.c
+new file mode 100644
+index 0000000000..90d5b37a6c
+--- /dev/null
++++ b/lib/crypto/mscode_parser.c
+@@ -0,0 +1,135 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/* Parse a Microsoft Individual Code Signing blob
++ *
++ * Copyright (C) 2014 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
++
++#define pr_fmt(fmt) "MSCODE: "fmt
++#include <linux/kernel.h>
++#ifndef __UBOOT__
++#include <linux/slab.h>
++#endif
++#include <linux/err.h>
++#include <linux/oid_registry.h>
++#include <crypto/pkcs7.h>
++#ifdef __UBOOT__
++#include <crypto/mscode.h>
++#else
++#include "verify_pefile.h"
++#endif
++#include "mscode.asn1.h"
++
++/*
++ * Parse a Microsoft Individual Code Signing blob
++ */
++int mscode_parse(void *_ctx, const void *content_data, size_t data_len,
++		 size_t asn1hdrlen)
++{
++	struct pefile_context *ctx = _ctx;
++
++	content_data -= asn1hdrlen;
++	data_len += asn1hdrlen;
++	pr_devel("Data: %zu [%*ph]\n", data_len, (unsigned)(data_len),
++		 content_data);
++
++	return asn1_ber_decoder(&mscode_decoder, ctx, content_data, data_len);
++}
++
++/*
++ * Check the content type OID
++ */
++int mscode_note_content_type(void *context, size_t hdrlen,
++			     unsigned char tag,
++			     const void *value, size_t vlen)
++{
++	enum OID oid;
++
++	oid = look_up_OID(value, vlen);
++	if (oid == OID__NR) {
++		char buffer[50];
++
++		sprint_oid(value, vlen, buffer, sizeof(buffer));
++		pr_err("Unknown OID: %s\n", buffer);
++		return -EBADMSG;
++	}
++
++	/*
++	 * pesign utility had a bug where it was putting
++	 * OID_msIndividualSPKeyPurpose instead of OID_msPeImageDataObjId
++	 * So allow both OIDs.
++	 */
++	if (oid != OID_msPeImageDataObjId &&
++	    oid != OID_msIndividualSPKeyPurpose) {
++		pr_err("Unexpected content type OID %u\n", oid);
++		return -EBADMSG;
++	}
++
++	return 0;
++}
++
++/*
++ * Note the digest algorithm OID
++ */
++int mscode_note_digest_algo(void *context, size_t hdrlen,
++			    unsigned char tag,
++			    const void *value, size_t vlen)
++{
++	struct pefile_context *ctx = context;
++	char buffer[50];
++	enum OID oid;
++
++	oid = look_up_OID(value, vlen);
++	switch (oid) {
++	case OID_md4:
++		ctx->digest_algo = "md4";
++		break;
++	case OID_md5:
++		ctx->digest_algo = "md5";
++		break;
++	case OID_sha1:
++		ctx->digest_algo = "sha1";
++		break;
++	case OID_sha256:
++		ctx->digest_algo = "sha256";
++		break;
++	case OID_sha384:
++		ctx->digest_algo = "sha384";
++		break;
++	case OID_sha512:
++		ctx->digest_algo = "sha512";
++		break;
++	case OID_sha224:
++		ctx->digest_algo = "sha224";
++		break;
++
++	case OID__NR:
++		sprint_oid(value, vlen, buffer, sizeof(buffer));
++		pr_err("Unknown OID: %s\n", buffer);
++		return -EBADMSG;
++
++	default:
++		pr_err("Unsupported content type: %u\n", oid);
++		return -ENOPKG;
++	}
++
++	return 0;
++}
++
++/*
++ * Note the digest we're guaranteeing with this certificate
++ */
++int mscode_note_digest(void *context, size_t hdrlen,
++		       unsigned char tag,
++		       const void *value, size_t vlen)
++{
++	struct pefile_context *ctx = context;
++
++	ctx->digest = kmemdup(value, vlen, GFP_KERNEL);
++	if (!ctx->digest)
++		return -ENOMEM;
++
++	ctx->digest_len = vlen;
++
++	return 0;
++}
+-- 
+2.30.2
+

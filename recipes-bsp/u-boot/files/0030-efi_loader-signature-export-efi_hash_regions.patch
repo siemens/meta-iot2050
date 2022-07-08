@@ -1,0 +1,45 @@
+From 2539ab52e25b9be783bef68f91118a9fdcb2e283 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 5 Jul 2022 14:48:12 +0900
+Subject: [PATCH 30/31] efi_loader: signature: export efi_hash_regions()
+
+This function is used to calculate a message digest as part of
+authentication process in a later patch.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+(Backported 20220705054815.30318-3-takahiro.akashi@linaro.org to v2022.01)
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ include/efi_loader.h           | 2 ++
+ lib/efi_loader/efi_signature.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 2c73fe3781..c46f6c8878 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -907,6 +907,8 @@ struct efi_signature_store {
+ struct x509_certificate;
+ struct pkcs7_message;
+ 
++bool efi_hash_regions(struct image_region *regs, int count,
++		      void **hash, size_t *size);
+ bool efi_signature_lookup_digest(struct efi_image_regions *regs,
+ 				 struct efi_signature_store *db,
+ 				 bool dbx);
+diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
+index eb6886cdcc..04820b811f 100644
+--- a/lib/efi_loader/efi_signature.c
++++ b/lib/efi_loader/efi_signature.c
+@@ -123,7 +123,7 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
+  *
+  * Return:	true on success, false on error
+  */
+-static bool efi_hash_regions(struct image_region *regs, int count,
++bool efi_hash_regions(struct image_region *regs, int count,
+ 			     void **hash, size_t *size)
+ {
+ 	if (!*hash) {
+-- 
+2.30.2
+

@@ -1,7 +1,7 @@
-From 6e2210aebf96e0278d98cc3383c5fd1b1c8ae288 Mon Sep 17 00:00:00 2001
+From ac356fe052006b5bd9abfe1e95d03f2820082da7 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 7 Jan 2022 10:18:07 +0800
-Subject: [PATCH 27/28] arm: dts: add the m.2 support
+Subject: [PATCH 27/31] arm: dts: add the m.2 support
 
 Add the support for the m.2 board based on the iot2050 advanced board
 The board has two m.2 connector,one is B-KEY,the other is E-KEY.
@@ -170,5 +170,5 @@ index cb49a0e36b..3475aee482 100644
  
  Flashing
 -- 
-2.34.1
+2.30.2
 
