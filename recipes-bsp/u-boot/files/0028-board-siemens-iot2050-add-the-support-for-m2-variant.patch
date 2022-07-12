@@ -1,7 +1,7 @@
-From 80304e691a662efd1015134141582fa92de5f2d6 Mon Sep 17 00:00:00 2001
+From 36f67ae7d6029319bcf8e56fa565b0e6c9fde6bc Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Thu, 30 Jun 2022 10:53:05 +0800
-Subject: [PATCH 28/28] board: siemens: iot2050: add the support for m2 variant
+Subject: [PATCH 28/31] board: siemens: iot2050: add the support for m2 variant
 
 For normal boot, load and configure m.2 device through boot.scr
 For securey boot enable, go through UEFI, fixup the compatible
@@ -350,5 +350,5 @@ index be30b9c4d1..18d606ff31 100644
  }
  #endif
 -- 
-2.34.1
+2.30.2
 

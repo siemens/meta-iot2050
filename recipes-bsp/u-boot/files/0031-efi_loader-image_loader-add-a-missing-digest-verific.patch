@@ -1,0 +1,133 @@
+From d5ab85366136770b55fda9e4db6db18b48a92e4d Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 5 Jul 2022 14:48:14 +0900
+Subject: [PATCH 31/31] efi_loader: image_loader: add a missing digest
+ verification for signed PE image
+
+At the last step of PE image authentication, an image's hash value must be
+compared with a message digest stored as the content (of SpcPeImageData type)
+of pkcs7's contentInfo.
+
+Fixes: commit 4540dabdcaca ("efi_loader: image_loader: support image authentication")
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+(Backported 20220705054815.30318-5-takahiro.akashi@linaro.org to v2022.01)
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ lib/efi_loader/Kconfig            |  1 +
+ lib/efi_loader/efi_image_loader.c | 64 +++++++++++++++++++++++++++++--
+ 2 files changed, 62 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 24f9a2bb75..4013044f47 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -352,6 +352,7 @@ config EFI_SECURE_BOOT
+ 	select X509_CERTIFICATE_PARSER
+ 	select PKCS7_MESSAGE_PARSER
+ 	select PKCS7_VERIFY
++	select MSCODE_PARSER
+ 	select EFI_SIGNATURE_SUPPORT
+ 	help
+ 	  Select this option to enable EFI secure boot support.
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index f43dfb3d57..1a8a7744b6 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -16,6 +16,7 @@
+ #include <malloc.h>
+ #include <pe.h>
+ #include <sort.h>
++#include <crypto/mscode.h>
+ #include <crypto/pkcs7_parser.h>
+ #include <linux/err.h>
+ 
+@@ -516,6 +517,51 @@ err:
+ }
+ 
+ #ifdef CONFIG_EFI_SECURE_BOOT
++/**
++ * efi_image_verify_digest - verify image's message digest
++ * @regs:	Array of memory regions to digest
++ * @msg:	Signature in pkcs7 structure
++ *
++ * @regs contains all the data in a PE image to digest. Calculate
++ * a hash value based on @regs and compare it with a messaged digest
++ * in the content (SpcPeImageData) of @msg's contentInfo.
++ *
++ * Return:	true if verified, false if not
++ */
++static bool efi_image_verify_digest(struct efi_image_regions *regs,
++				    struct pkcs7_message *msg)
++{
++	struct pefile_context ctx;
++	void *hash;
++	size_t hash_len;
++	int ret;
++
++	const void *data;
++	size_t data_len;
++	size_t asn1hdrlen;
++
++	/* get pkcs7's contentInfo */
++	ret = pkcs7_get_content_data(msg, &data, &data_len, &asn1hdrlen);
++	if (ret < 0 || !data)
++		return false;
++
++	/* parse data and retrieve a message digest into ctx */
++	ret = mscode_parse(&ctx, data, data_len, asn1hdrlen);
++	if (ret < 0)
++		return false;
++
++	/* calculate a hash value of PE image */
++	hash = NULL;
++	if (!efi_hash_regions(regs->reg, regs->num, &hash, &hash_len))
++		return false;
++
++	/* match the digest */
++	if (ctx.digest_len != hash_len || memcmp(ctx.digest, hash, hash_len))
++		return false;
++
++	return true;
++}
++
+ /**
+  * efi_image_unsigned_authenticate() - authenticate unsigned image with
+  * SHA256 hash
+@@ -697,6 +743,9 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
+ 		}
+ 
+ 		/*
++		 * verify signatures in pkcs7's signedInfos which are
++		 * to authenticate the integrity of pkcs7's contentInfo.
++		 *
+ 		 * NOTE:
+ 		 * UEFI specification defines two signature types possible
+ 		 * in signature database:
+@@ -727,12 +776,21 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
+ 		}
+ 
+ 		/* try white-list */
+-		if (efi_signature_verify(regs, msg, db, dbx)) {
++		if (!efi_signature_verify(regs, msg, db, dbx)) {
++			EFI_PRINT("Signature was not verified by \"db\"\n");
++			continue;
++		}
++
++		/*
++		 * now calculate an image's hash value and compare it with
++		 * a messaged digest embedded in pkcs7's contentInfo
++		 */
++		if (efi_image_verify_digest(regs, msg)) {
+ 			ret = true;
+-			break;
++			continue;
+ 		}
+ 
+-		EFI_PRINT("Signature was not verified by \"db\"\n");
++		EFI_PRINT("Message digest doesn't match\n");
+ 
+ 		if (efi_signature_lookup_digest(regs, db, false)) {
+ 			ret = true;
+-- 
+2.30.2
+

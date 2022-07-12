@@ -46,6 +46,9 @@ repos:
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
     refspec: cf5d588527c315b4f16e8b3b3677e62a295b73f2
+    patches:
+      bump-efibootguard:
+        path: isar-patches/0001-efibootguard-Update-to-release-0.12.patch
 
 bblayers_conf_header:
   standard: |

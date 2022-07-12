@@ -1,7 +1,7 @@
-From 5aba47578fc03aed9b2c2aee1c7d6e06648f6f6a Mon Sep 17 00:00:00 2001
+From df674ede84b14db3367eb38f8fd4674b7b725eb8 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Date: Sat, 29 Jan 2022 00:20:31 +0200
-Subject: [PATCH 11/28] efi_loader: correctly handle mixed hashes and
+Subject: [PATCH 11/31] efi_loader: correctly handle mixed hashes and
  signatures in db
 
 A mix of signatures and hashes in db doesn't always work as intended.
@@ -183,5 +183,5 @@ index 3243e2c60d..eb6886cdcc 100644
  		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
  			EFI_PRINT("Digesting an image failed\n");
 -- 
-2.32.0
+2.30.2
 
