@@ -139,7 +139,7 @@ config SECURE_BOOT
 
 config OTP_PROVISIONING
 	bool "OTP Provisioning"
-	depends on IMAGE_BOOT_PG2
+	depends on IMAGE_BOOT_PG2 || IMAGE_BOOT_M2
 	help
 	  Integrate OTP provisioning data into the firmware artifacts. Various
 	  options are avaiable. By default, this will integrate the OTP command
@@ -211,7 +211,7 @@ config KAS_INCLUDE_DEBIAN_MIRROR
 config FIRMWARE_SECURE_VER
 	string "Use specific firmware secure version"
 	default "0"
-	depends on SECURE_BOOT && IMAGE_BOOT_PG2
+	depends on SECURE_BOOT && (IMAGE_BOOT_PG2 || IMAGE_BOOT_M2)
 	help
 	  Use specific anti-rollback secure version rather than the default 0.
 	  Range 0 - 127.
