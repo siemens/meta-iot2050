@@ -58,7 +58,7 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img.bmap
 
   bootloaders:
-    name: Bootloaders for both PG1 and PG2
+    name: Bootloaders
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -67,7 +67,7 @@ jobs:
         uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image for PG1
         run: ./kas-container build kas-iot2050-boot-pg1.yml
-      - name: Build bootloader image for PG2
+      - name: Build bootloader image for PG2 & m.2
         run: ./kas-container build kas-iot2050-boot-pg2.yml
       - name: Archive bootloaders
         uses: actions/upload-artifact@v2
