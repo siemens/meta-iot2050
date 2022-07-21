@@ -61,12 +61,12 @@
 # 		 "boot_targets",
 # 	]
 # }
-# 
+#
 # There are one or more `firmware` node, each node represents one firmware file
-# in the tarball and its update control fields, such as which board and which OS 
+# in the tarball and its update control fields, such as which board and which OS
 # it could be updated upon.
-# 
-# To indicate which board or boards the firmware could be updated upon, use the 
+#
+# To indicate which board or boards the firmware could be updated upon, use the
 # mandatory `target_boards` inside the `firmware` node. Possible target boards:
 #   - PG1 Basic:
 #       "SIMATIC IOT2050-BASIC", "SIMATIC IOT2050 Basic"
@@ -79,15 +79,15 @@
 #   - M2 Variant:
 #       "SIMATIC IOT2050 Advanced M2"
 #
-# To indicate which OS the firmware could be updated upon, use either the 
-# `target_os` inside the `firmware` node as a local configuration, or use 
-# a global `target_os` outside the `firmware` node as the global configuration. 
+# To indicate which OS the firmware could be updated upon, use either the
+# `target_os` inside the `firmware` node as a local configuration, or use
+# a global `target_os` outside the `firmware` node as the global configuration.
 # If both exists, the local one will overwrite the global one.
 #
-# Either global or local `target_os` is optional, if none exists, the updater 
+# Either global or local `target_os` is optional, if none exists, the updater
 # will not check against the OS information.
 #
-# The `key` and `min_version` field within the `target_os` node will be compared 
+# The `key` and `min_version` field within the `target_os` node will be compared
 # to the value from `/etc/os-release` on the board. The `key` matches exactly, and
 # the `min_version` matches the minimal version number.
 #
@@ -145,7 +145,8 @@ class FirmwareUpdate(object):
         if os.path.exists(ospi_dev_path + "/spi_master"):
             # kernel 5.9 and later
             spi_dev = os.listdir(ospi_dev_path + "/spi_master")[0]
-            mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(ospi_dev_path, spi_dev, spi_dev)
+            mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(
+                ospi_dev_path, spi_dev, spi_dev)
         else:
             # kernel 5.8 and earlier
             mtd_base_path = "{}/mtd".format(ospi_dev_path)
@@ -232,7 +233,7 @@ class BoardInformation(object):
         """
         with open('/proc/device-tree/model') as f_model:
             board_name = f_model.read().strip('\0')
-        
+
         return board_name
 
     @staticmethod
@@ -243,7 +244,7 @@ class BoardInformation(object):
         Returned is a dict that converted from /etc/os-release, for example:
             NAME="debian"
             VERSION_ID="3.1.1" 
-        
+
         => 
             {
                 "NAME": "debian"
@@ -251,13 +252,14 @@ class BoardInformation(object):
             }
         '''
         with open('/etc/os-release') as f:
-            return {l.split('=')[0]:l.strip().split('=')[-1].strip('"') for l in f.readlines()}
+            return {l.split('=')[0]: l.strip().split('=')[-1].strip('"') for l in f.readlines()}
 
 
 class UpdateConfiguration(object):
     def __init__(self, json_fileobj):
         # Deserialize the json file to an object so that we can use dot operator to access the fields.
-        self._jsonobj = json.load(json_fileobj, object_hook=lambda d: Namespace(**d))
+        self._jsonobj = json.load(
+            json_fileobj, object_hook=lambda d: Namespace(**d))
 
     def _check_os(self, target_os, os_info) -> bool:
         for tos in target_os:
@@ -287,7 +289,7 @@ class UpdateConfiguration(object):
                 except AttributeError:
                     pass
 
-                # Only choose the firmware that have the target_os configuration identifying with current 
+                # Only choose the firmware that have the target_os configuration identifying with current
                 # OS info, or the firmware w/o target_os node which means it doesn't care the OS info.
                 if len(target_os) == 0 or self._check_os(target_os, os_info):
                     res.append(firmware.name)
@@ -299,6 +301,7 @@ class UpdateConfiguration(object):
             return self._jsonobj.suggest_preserved_uboot_env
         except Exception as e:
             return None
+
 
 class ManagedFirmwareUpdate(FirmwareUpdate):
     '''
@@ -324,8 +327,9 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
     def update_firmware(self):
         # Get available firmwares by checking the board name and the os information
-        firmware_names = self._update_conf.firmware_filter(self._board_info.board_name, self._board_info.os_info)
-        
+        firmware_names = self._update_conf.firmware_filter(
+            self._board_info.board_name, self._board_info.os_info)
+
         if len(firmware_names) <= 0:
             print("No firmware image could be updated on this board")
             exit(1)
@@ -342,7 +346,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
             while choice > len(firmware_names) or choice < 1:
                 print("Out of range, please reinput your choice:")
                 choice = int(input("-> "))
-            
+
             firmware_name = firmware_names[choice - 1]
 
         print("Will write {} to the SPI flash".format(firmware_name))
@@ -350,7 +354,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         self.firmware.seek(0)
         with tarfile.open(fileobj=self.firmware) as f:
             self.firmware = f.extractfile(firmware_name)
-            f.extract(member=self.uboot_default_env_file_name, path=self.extract_path)
+            f.extract(member=self.uboot_default_env_file_name,
+                      path=self.extract_path)
             super().update_firmware()
 
     def update_uboot_env(self, env_list):
@@ -362,8 +367,10 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         import shutil
         # /dev/mtd3     /dev/mtd4
         env_partition_list = [3, 4]
-        uboot_default_env_file = os.path.join(self.extract_path, self.uboot_default_env_file_name)
-        uboot_env_assemble_file =  os.path.join(self.extract_path, "env_assemble_file")
+        uboot_default_env_file = os.path.join(
+            self.extract_path, self.uboot_default_env_file_name)
+        uboot_env_assemble_file = os.path.join(
+            self.extract_path, "env_assemble_file")
         assert os.path.isfile(uboot_default_env_file)
         # assemble the env
         shutil.copy(uboot_default_env_file, uboot_env_assemble_file)
@@ -394,7 +401,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
     def get_preserved_uboot_env(self, preserve_list):
         if preserve_list:
-            preserved_uboot_env_name = [item for item in preserve_list.split(',')]
+            preserved_uboot_env_name = [
+                item for item in preserve_list.split(',')]
         else:
             preserved_uboot_env_name = self._update_conf.preserved_uboot_env()
 
@@ -442,7 +450,8 @@ def main(argv):
         sys.exit(1)
 
     if args.force:
-        force_update_input = input("\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
+        force_update_input = input(
+            "\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
         if not force_update_input == "y":
             sys.exit(1)
 
@@ -459,6 +468,7 @@ def main(argv):
         updater.update_uboot_env(envlist)
 
     print("\nCompleted. Please reboot the device\n")
+
 
 if __name__ == '__main__':
     main(sys.argv)
