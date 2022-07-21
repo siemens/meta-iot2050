@@ -15,6 +15,7 @@
 # The <firmware-update-package>.tar.xz should contain:
 #   - firmware.bin: The firmware to update, could be more than one.
 #   - update.conf.json: The update criteria.
+#   - u-boot-initial-env: Builtin environment
 #
 # Example of update.conf.json:
 # {
@@ -55,6 +56,9 @@
 # 			"key": "VERSION_ID",
 # 			"min_version": "2.1.1"
 # 		}
+# 	],
+# 	"suggest_preserved_uboot_env": [
+# 		 "boot_targets",
 # 	]
 # }
 # 
@@ -72,6 +76,8 @@
 #       "SIMATIC IOT2050 Basic PG2"
 #   - PG2 Advanced:
 #       "SIMATIC IOT2050 Advanced PG2"
+#   - M2 Variant:
+#       "SIMATIC IOT2050 Advanced M2"
 #
 # To indicate which OS the firmware could be updated upon, use either the 
 # `target_os` inside the `firmware` node as a local configuration, or use 
@@ -84,7 +90,12 @@
 # The `key` and `min_version` field within the `target_os` node will be compared 
 # to the value from `/etc/os-release` on the board. The `key` matches exactly, and
 # the `min_version` matches the minimal version number.
-# 
+#
+# There are one `suggest_preserved_uboot_env` node, this filed in this node represent
+# the env variable need to be preserved. there could be multiple fileds in this node.
+# Besides, there is a control parameter "-p" to add the preserved list from cli, this would not
+# use the preserved env variable in the `suggest_preserved_uboot_env` node.
+#
 
 import sys
 import os
@@ -95,6 +106,8 @@ import argparse
 import tarfile
 import json
 from types import SimpleNamespace as Namespace
+import subprocess
+import tempfile
 
 
 class FirmwareUpdate(object):
@@ -281,6 +294,11 @@ class UpdateConfiguration(object):
 
         return res
 
+    def preserved_uboot_env(self):
+        try:
+            return self._jsonobj.suggest_preserved_uboot_env
+        except Exception as e:
+            return None
 
 class ManagedFirmwareUpdate(FirmwareUpdate):
     '''
@@ -289,6 +307,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
     the SPI flash.
     '''
     _update_conf_json = 'update.conf.json'
+    uboot_default_env_file_name = 'u-boot-initial-env'
 
     def __init__(self, firmware):
         self.firmware = firmware
@@ -299,6 +318,9 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         # Parse the update configuration from the json file within the tarball
         self._update_conf = UpdateConfiguration(
             tarfile.open(fileobj=self.firmware).extractfile(self._update_conf_json))
+
+        # extract file path
+        self.extract_path = "/tmp"
 
     def update_firmware(self):
         # Get available firmwares by checking the board name and the os information
@@ -326,8 +348,72 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         print("Will write {} to the SPI flash".format(firmware_name))
 
         self.firmware.seek(0)
-        self.firmware = tarfile.open(fileobj=self.firmware).extractfile(firmware_name)
-        super().update_firmware()
+        with tarfile.open(fileobj=self.firmware) as f:
+            self.firmware = f.extractfile(firmware_name)
+            f.extract(member=self.uboot_default_env_file_name, path=self.extract_path)
+            super().update_firmware()
+
+    def update_uboot_env(self, env_list):
+        '''
+        restore uboot env
+        retrive the uboot default env file belong to the upgrade firmware.
+        makeup the restore env binary and flash to the env mtd partition
+        '''
+        import shutil
+        # /dev/mtd3     /dev/mtd4
+        env_partition_list = [3, 4]
+        uboot_default_env_file = os.path.join(self.extract_path, self.uboot_default_env_file_name)
+        uboot_env_assemble_file =  os.path.join(self.extract_path, "env_assemble_file")
+        assert os.path.isfile(uboot_default_env_file)
+        # assemble the env
+        shutil.copy(uboot_default_env_file, uboot_env_assemble_file)
+        with open(uboot_env_assemble_file, encoding="utf-8", mode="a") as file:
+            for value in env_list:
+                file.write(value)
+                file.write("\n")
+
+        with tempfile.NamedTemporaryFile() as env_default_binary:
+            for mtd_num in env_partition_list:
+                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
+                    mtd_num)
+                try:
+                    subprocess.run('mkenvimage -s {} -r -o {} {}'.format(mtd_size,
+                                env_default_binary.name, uboot_env_assemble_file), check=True, shell=True)
+                except subprocess.CalledProcessError as error:
+                    print(error.stdout)
+                    sys.exit(1)
+
+                firmware_size = os.path.getsize(env_default_binary.name)
+
+                while True:
+                    if firmware_size <= 0:
+                        break
+                    print("Updating %-20s" % mtd_name, end="")
+                    firmware_size = self.flash_operate(
+                        mtd_dev_path, mtd_size, mtd_erasesize, env_default_binary, firmware_size)
+
+    def get_preserved_uboot_env(self, preserve_list):
+        if preserve_list:
+            preserved_uboot_env_name = [item for item in preserve_list.split(',')]
+        else:
+            preserved_uboot_env_name = self._update_conf.preserved_uboot_env()
+
+        preserved_uboot_env_value = []
+
+        if not preserved_uboot_env_name:
+            return None
+
+        for env_name in preserved_uboot_env_name:
+            try:
+                env_value = subprocess.run(
+                    'fw_printenv %s' % env_name, shell=True, stdout=subprocess.PIPE, check=True) \
+                    .stdout.decode('utf-8').lstrip().rstrip()
+                preserved_uboot_env_value.append(env_value)
+            except subprocess.CalledProcessError as error:
+                print(error.stdout)
+                sys.exit(1)
+
+        return preserved_uboot_env_value
 
 
 def main(argv):
@@ -338,6 +424,9 @@ def main(argv):
     parser.add_argument('-f', '--force',
                         help='Force update, ignore all the checking',
                         action='store_true')
+    parser.add_argument('-p', '--preserve_list',
+                        type=str,
+                        help='env preserve list')
 
     try:
         args = parser.parse_args()
@@ -345,7 +434,10 @@ def main(argv):
         print(e.strerror, file=sys.stderr)
         exit(1)
 
-    erase_env_input = input("\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
+    erase_env_input = input(
+        "\nWarning: All U-Boot environment variables will be reset to factory settings.\n"
+        "Unless preserve env in the update.conf.json or using -p argument.Continue(y/N)?")
+
     if not erase_env_input == "y":
         sys.exit(1)
 
@@ -360,8 +452,13 @@ def main(argv):
     else:
         updater = ManagedFirmwareUpdate(args.firmware)
 
+    envlist = updater.get_preserved_uboot_env(args.preserve_list)
     updater.update_firmware()
+    if envlist:
+        print("\nRestore preserved uboot env")
+        updater.update_uboot_env(envlist)
 
+    print("\nCompleted. Please reboot the device\n")
 
 if __name__ == '__main__':
     main(sys.argv)
