@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2022
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
@@ -15,6 +15,7 @@
 # The <firmware-update-package>.tar.xz should contain:
 #   - firmware.bin: The firmware to update, could be more than one.
 #   - update.conf.json: The update criteria.
+#   - u-boot-initial-env: Builtin environment
 #
 # Example of update.conf.json:
 # {
@@ -55,14 +56,17 @@
 # 			"key": "VERSION_ID",
 # 			"min_version": "2.1.1"
 # 		}
+# 	],
+# 	"suggest_preserved_uboot_env": [
+# 		 "boot_targets",
 # 	]
 # }
-# 
+#
 # There are one or more `firmware` node, each node represents one firmware file
-# in the tarball and its update control fields, such as which board and which OS 
+# in the tarball and its update control fields, such as which board and which OS
 # it could be updated upon.
-# 
-# To indicate which board or boards the firmware could be updated upon, use the 
+#
+# To indicate which board or boards the firmware could be updated upon, use the
 # mandatory `target_boards` inside the `firmware` node. Possible target boards:
 #   - PG1 Basic:
 #       "SIMATIC IOT2050-BASIC", "SIMATIC IOT2050 Basic"
@@ -72,19 +76,26 @@
 #       "SIMATIC IOT2050 Basic PG2"
 #   - PG2 Advanced:
 #       "SIMATIC IOT2050 Advanced PG2"
+#   - M2 Variant:
+#       "SIMATIC IOT2050 Advanced M2"
 #
-# To indicate which OS the firmware could be updated upon, use either the 
-# `target_os` inside the `firmware` node as a local configuration, or use 
-# a global `target_os` outside the `firmware` node as the global configuration. 
+# To indicate which OS the firmware could be updated upon, use either the
+# `target_os` inside the `firmware` node as a local configuration, or use
+# a global `target_os` outside the `firmware` node as the global configuration.
 # If both exists, the local one will overwrite the global one.
 #
-# Either global or local `target_os` is optional, if none exists, the updater 
+# Either global or local `target_os` is optional, if none exists, the updater
 # will not check against the OS information.
 #
-# The `key` and `min_version` field within the `target_os` node will be compared 
+# The `key` and `min_version` field within the `target_os` node will be compared
 # to the value from `/etc/os-release` on the board. The `key` matches exactly, and
 # the `min_version` matches the minimal version number.
-# 
+#
+# There are one `suggest_preserved_uboot_env` node, this filed in this node represent
+# the env variable need to be preserved. there could be multiple fileds in this node.
+# Besides, there is a control parameter "-p" to add the preserved list from cli, this would not
+# use the preserved env variable in the `suggest_preserved_uboot_env` node.
+#
 
 import sys
 import os
@@ -95,6 +106,8 @@ import argparse
 import tarfile
 import json
 from types import SimpleNamespace as Namespace
+import subprocess
+import tempfile
 
 
 class FirmwareUpdate(object):
@@ -127,6 +140,58 @@ class FirmwareUpdate(object):
             print("ioctl failed")
             sys.exit(1)
 
+    def get_mtd_info(self, mtd_num):
+        ospi_dev_path = "/sys/bus/platform/devices/47040000.spi"
+        if os.path.exists(ospi_dev_path + "/spi_master"):
+            # kernel 5.9 and later
+            spi_dev = os.listdir(ospi_dev_path + "/spi_master")[0]
+            mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(
+                ospi_dev_path, spi_dev, spi_dev)
+        else:
+            # kernel 5.8 and earlier
+            mtd_base_path = "{}/mtd".format(ospi_dev_path)
+
+        mtd_sys_path = "{}/mtd{}".format(mtd_base_path, mtd_num)
+        mtd_name_path = "{}/name".format(mtd_sys_path)
+        mtd_size_path = "{}/size".format(mtd_sys_path)
+        mtd_erasesize_path = "{}/erasesize".format(mtd_sys_path)
+
+        mtd_dev_path = "/dev/mtd{}".format(mtd_num)
+        mtd_size = int(self.get_path_type_value(mtd_size_path))
+        mtd_erasesize = int(self.get_path_type_value(mtd_erasesize_path))
+        mtd_name = self.get_path_type_value(mtd_name_path).strip()
+
+        return mtd_dev_path, mtd_size, mtd_erasesize, mtd_name
+
+    def flash_operate(self, mtd_dev_path, mtd_size, mtd_erasesize, file_obj, file_size):
+        mtd_pos = 0
+        try:
+            mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
+        except IOError as e:
+            print("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
+            sys.exit(1)
+
+        while mtd_pos < mtd_size and file_size > 0:
+            mtd_content = os.read(mtd_dev, mtd_erasesize)
+            firmware_content = file_obj.read(mtd_erasesize)
+            padsize = mtd_erasesize - len(firmware_content)
+            firmware_content += bytearray([0xff] * padsize)
+
+            if not mtd_content == firmware_content:
+                print("U", end="")
+                sys.stdout.flush()
+                self.flash_erase(mtd_dev, mtd_pos, mtd_erasesize)
+                os.lseek(mtd_dev, mtd_pos, os.SEEK_SET)
+                os.write(mtd_dev, firmware_content)
+            else:
+                print(".", end="")
+                sys.stdout.flush()
+            mtd_pos += mtd_erasesize
+            file_size -= mtd_erasesize
+        print()
+        os.close(mtd_dev)
+        return file_size
+
     def update_firmware(self):
         """Update Firmware"""
         mtd_num = 0
@@ -135,63 +200,20 @@ class FirmwareUpdate(object):
         print("IOT2050 firmware update started - DO NOT INTERRUPT!")
         print("===================================================")
 
-        ospi_dev_path = "/sys/bus/platform/devices/47040000.spi"
-        if os.path.exists(ospi_dev_path + "/spi_master"):
-            # kernel 5.9 and later
-            spi_dev = os.listdir(ospi_dev_path + "/spi_master")[0]
-            mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(ospi_dev_path, spi_dev, spi_dev)
-        else:
-            # kernel 5.8 and earlier
-            mtd_base_path = "{}/mtd".format(ospi_dev_path)
-
         self.firmware.seek(0)
         self.firmware.seek(0, os.SEEK_END)
-        firmware_size = self.firmware.tell() 
+        firmware_size = self.firmware.tell()
         self.firmware.seek(0)
 
         while True:
             if firmware_size <= 0:
-                print("\nCompleted. Please reboot the device\n")
-                sys.exit(0)
+                break
 
-            mtd_sys_path = "{}/mtd{}".format(mtd_base_path, mtd_num)
-            mtd_name_path = "{}/name".format(mtd_sys_path)
-            mtd_size_path = "{}/size".format(mtd_sys_path)
-            mtd_erasesize_path = "{}/erasesize".format(mtd_sys_path)
-            mtd_dev_path = "/dev/mtd{}".format(mtd_num)
-
-            mtd_size = int(self.get_path_type_value(mtd_size_path))
-            mtd_erasesize = int(self.get_path_type_value(mtd_erasesize_path))
-            mtd_name = self.get_path_type_value(mtd_name_path).strip()
-            mtd_pos = 0
-
+            mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
+                mtd_num)
             print("Updating %-20s" % mtd_name, end="")
-
-            try:
-                mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
-            except IOError as e:
-                print("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
-                sys.exit(1)
-
-            while mtd_pos < mtd_size and firmware_size > 0:
-                mtd_content = os.read(mtd_dev, mtd_erasesize)
-                firmware_content = self.firmware.read(mtd_erasesize)
-                padsize = mtd_erasesize - len(firmware_content)
-                firmware_content += bytearray([0xff] * padsize)
-
-                if not mtd_content == firmware_content:
-                    print("U", end="")
-                    sys.stdout.flush()
-                    self.flash_erase(mtd_dev, mtd_pos, mtd_erasesize)
-                    os.lseek(mtd_dev, mtd_pos, os.SEEK_SET)
-                    os.write(mtd_dev, firmware_content)
-                else:
-                    print(".", end="")
-                    sys.stdout.flush()
-                mtd_pos += mtd_erasesize
-                firmware_size -= mtd_erasesize
-            print()
-            os.close(mtd_dev)
+            firmware_size = self.flash_operate(
+                mtd_dev_path, mtd_size, mtd_erasesize, self.firmware, firmware_size)
 
             mtd_num += 1
 
@@ -211,7 +233,7 @@ class BoardInformation(object):
         """
         with open('/proc/device-tree/model') as f_model:
             board_name = f_model.read().strip('\0')
-        
+
         return board_name
 
     @staticmethod
@@ -222,7 +244,7 @@ class BoardInformation(object):
         Returned is a dict that converted from /etc/os-release, for example:
             NAME="debian"
             VERSION_ID="3.1.1" 
-        
+
         => 
             {
                 "NAME": "debian"
@@ -230,13 +252,14 @@ class BoardInformation(object):
             }
         '''
         with open('/etc/os-release') as f:
-            return {l.split('=')[0]:l.strip().split('=')[-1].strip('"') for l in f.readlines()}
+            return {l.split('=')[0]: l.strip().split('=')[-1].strip('"') for l in f.readlines()}
 
 
 class UpdateConfiguration(object):
     def __init__(self, json_fileobj):
         # Deserialize the json file to an object so that we can use dot operator to access the fields.
-        self._jsonobj = json.load(json_fileobj, object_hook=lambda d: Namespace(**d))
+        self._jsonobj = json.load(
+            json_fileobj, object_hook=lambda d: Namespace(**d))
 
     def _check_os(self, target_os, os_info) -> bool:
         for tos in target_os:
@@ -266,12 +289,18 @@ class UpdateConfiguration(object):
                 except AttributeError:
                     pass
 
-                # Only choose the firmware that have the target_os configuration identifying with current 
+                # Only choose the firmware that have the target_os configuration identifying with current
                 # OS info, or the firmware w/o target_os node which means it doesn't care the OS info.
                 if len(target_os) == 0 or self._check_os(target_os, os_info):
                     res.append(firmware.name)
 
         return res
+
+    def preserved_uboot_env(self):
+        try:
+            return self._jsonobj.suggest_preserved_uboot_env
+        except Exception as e:
+            return None
 
 
 class ManagedFirmwareUpdate(FirmwareUpdate):
@@ -281,6 +310,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
     the SPI flash.
     '''
     _update_conf_json = 'update.conf.json'
+    uboot_default_env_file_name = 'u-boot-initial-env'
 
     def __init__(self, firmware):
         self.firmware = firmware
@@ -292,10 +322,14 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         self._update_conf = UpdateConfiguration(
             tarfile.open(fileobj=self.firmware).extractfile(self._update_conf_json))
 
+        # extract file path
+        self.extract_path = "/tmp"
+
     def update_firmware(self):
         # Get available firmwares by checking the board name and the os information
-        firmware_names = self._update_conf.firmware_filter(self._board_info.board_name, self._board_info.os_info)
-        
+        firmware_names = self._update_conf.firmware_filter(
+            self._board_info.board_name, self._board_info.os_info)
+
         if len(firmware_names) <= 0:
             print("No firmware image could be updated on this board")
             exit(1)
@@ -312,14 +346,82 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
             while choice > len(firmware_names) or choice < 1:
                 print("Out of range, please reinput your choice:")
                 choice = int(input("-> "))
-            
+
             firmware_name = firmware_names[choice - 1]
 
         print("Will write {} to the SPI flash".format(firmware_name))
 
         self.firmware.seek(0)
-        self.firmware = tarfile.open(fileobj=self.firmware).extractfile(firmware_name)
-        super().update_firmware()
+        with tarfile.open(fileobj=self.firmware) as f:
+            self.firmware = f.extractfile(firmware_name)
+            f.extract(member=self.uboot_default_env_file_name,
+                      path=self.extract_path)
+            super().update_firmware()
+
+    def update_uboot_env(self, env_list):
+        '''
+        restore uboot env
+        retrive the uboot default env file belong to the upgrade firmware.
+        makeup the restore env binary and flash to the env mtd partition
+        '''
+        import shutil
+        # /dev/mtd3     /dev/mtd4
+        env_partition_list = [3, 4]
+        uboot_default_env_file = os.path.join(
+            self.extract_path, self.uboot_default_env_file_name)
+        uboot_env_assemble_file = os.path.join(
+            self.extract_path, "env_assemble_file")
+        assert os.path.isfile(uboot_default_env_file)
+        # assemble the env
+        shutil.copy(uboot_default_env_file, uboot_env_assemble_file)
+        with open(uboot_env_assemble_file, encoding="utf-8", mode="a") as file:
+            for value in env_list:
+                file.write(value)
+                file.write("\n")
+
+        with tempfile.NamedTemporaryFile() as env_default_binary:
+            for mtd_num in env_partition_list:
+                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
+                    mtd_num)
+                try:
+                    subprocess.run('mkenvimage -s {} -r -o {} {}'.format(mtd_size,
+                                env_default_binary.name, uboot_env_assemble_file), check=True, shell=True)
+                except subprocess.CalledProcessError as error:
+                    print(error.stdout)
+                    sys.exit(1)
+
+                firmware_size = os.path.getsize(env_default_binary.name)
+
+                while True:
+                    if firmware_size <= 0:
+                        break
+                    print("Updating %-20s" % mtd_name, end="")
+                    firmware_size = self.flash_operate(
+                        mtd_dev_path, mtd_size, mtd_erasesize, env_default_binary, firmware_size)
+
+    def get_preserved_uboot_env(self, preserve_list):
+        if preserve_list:
+            preserved_uboot_env_name = [
+                item for item in preserve_list.split(',')]
+        else:
+            preserved_uboot_env_name = self._update_conf.preserved_uboot_env()
+
+        preserved_uboot_env_value = []
+
+        if not preserved_uboot_env_name:
+            return None
+
+        for env_name in preserved_uboot_env_name:
+            try:
+                env_value = subprocess.run(
+                    'fw_printenv %s' % env_name, shell=True, stdout=subprocess.PIPE, check=True) \
+                    .stdout.decode('utf-8').lstrip().rstrip()
+                preserved_uboot_env_value.append(env_value)
+            except subprocess.CalledProcessError as error:
+                print(error.stdout)
+                sys.exit(1)
+
+        return preserved_uboot_env_value
 
 
 def main(argv):
@@ -330,6 +432,9 @@ def main(argv):
     parser.add_argument('-f', '--force',
                         help='Force update, ignore all the checking',
                         action='store_true')
+    parser.add_argument('-p', '--preserve_list',
+                        type=str,
+                        help='env preserve list')
 
     try:
         args = parser.parse_args()
@@ -337,12 +442,16 @@ def main(argv):
         print(e.strerror, file=sys.stderr)
         exit(1)
 
-    erase_env_input = input("\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
+    erase_env_input = input(
+        "\nWarning: All U-Boot environment variables will be reset to factory settings.\n"
+        "Unless preserve env in the update.conf.json or using -p argument.Continue(y/N)?")
+
     if not erase_env_input == "y":
         sys.exit(1)
 
     if args.force:
-        force_update_input = input("\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
+        force_update_input = input(
+            "\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
         if not force_update_input == "y":
             sys.exit(1)
 
@@ -352,7 +461,13 @@ def main(argv):
     else:
         updater = ManagedFirmwareUpdate(args.firmware)
 
+    envlist = updater.get_preserved_uboot_env(args.preserve_list)
     updater.update_firmware()
+    if envlist:
+        print("\nRestore preserved uboot env")
+        updater.update_uboot_env(envlist)
+
+    print("\nCompleted. Please reboot the device\n")
 
 
 if __name__ == '__main__':
