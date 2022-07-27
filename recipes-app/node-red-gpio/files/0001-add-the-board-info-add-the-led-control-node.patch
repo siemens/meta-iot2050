@@ -1,7 +1,7 @@
-From 0a041464931b7d7d6ae8bfffd615a199e9625d0f Mon Sep 17 00:00:00 2001
-From: zengchao <chao.zeng@siemens.com>
-Date: Tue, 12 Nov 2019 09:37:47 +0800
-Subject: [PATCH 1/4] add the board info add the led control node
+From 291115a1ce254f12d9f8ba7eb3909a37771ff659 Mon Sep 17 00:00:00 2001
+From: Ivan Mikhaylov <ivan.mikhaylov@siemens.com>
+Date: Wed, 27 Jul 2022 18:27:23 -0400
+Subject: [PATCH 1/3] add the board info add the led control node
 
 Upstreaming TODOs:
  - factor out generic changes
@@ -11,18 +11,18 @@ Upstreaming TODOs:
 Signed-off-by: zengchao <chao.zeng@siemens.com>
 [Jan: Fix LEDs]
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Ivan Mikhaylov <ivan.mikhaylov@siemens.com>
 ---
- hardware/intel/mraa-gpio-ain.html             |  5 +-
- hardware/intel/mraa-gpio-ain.js               |  1 +
- hardware/intel/mraa-gpio-din.html             |  5 +-
- hardware/intel/mraa-gpio-din.js               |  1 +
- hardware/intel/mraa-gpio-dout.html            |  5 +-
- ...{mraa-gpio-pwm.html => mraa-gpio-led.html} | 47 +++++------
- hardware/intel/mraa-gpio-led.js               | 78 +++++++++++++++++++
- hardware/intel/mraa-gpio-pwm.html             | 13 ++--
- hardware/intel/package.json                   |  7 +-
- 9 files changed, 118 insertions(+), 44 deletions(-)
- copy hardware/intel/{mraa-gpio-pwm.html => mraa-gpio-led.html} (58%)
+ hardware/intel/mraa-gpio-ain.html  |  5 +-
+ hardware/intel/mraa-gpio-ain.js    |  1 +
+ hardware/intel/mraa-gpio-din.html  |  2 +-
+ hardware/intel/mraa-gpio-dout.html |  5 +-
+ hardware/intel/mraa-gpio-led.html  | 77 +++++++++++++++++++++++++++++
+ hardware/intel/mraa-gpio-led.js    | 78 ++++++++++++++++++++++++++++++
+ hardware/intel/mraa-gpio-pwm.html  | 13 ++---
+ hardware/intel/package.json        |  3 +-
+ 8 files changed, 172 insertions(+), 12 deletions(-)
+ create mode 100644 hardware/intel/mraa-gpio-led.html
  create mode 100644 hardware/intel/mraa-gpio-led.js
 
 diff --git a/hardware/intel/mraa-gpio-ain.html b/hardware/intel/mraa-gpio-ain.html
@@ -68,47 +68,18 @@ index 4122551..65df93b 100644
              msg.payload = node.x.read();
              if (msg.payload !== old) {
 diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
-index fdbcfc4..a60a84c 100644
+index 88e256b..0a775cb 100644
 --- a/hardware/intel/mraa-gpio-din.html
 +++ b/hardware/intel/mraa-gpio-din.html
 @@ -1,7 +1,7 @@
  
  <script type="text/javascript">
      RED.nodes.registerType('mraa-gpio-din',{
--        category: 'Intel gpio',
+-        category: 'GPIO',
 +        category: 'IOT2050 gpio',
          color: '#a6bbcf',
          paletteLabel: 'digital',
          defaults: {
-@@ -30,6 +30,7 @@
-                 if (data === 5) { t = "Raspberry Pi"; }
-                 if (data === 6) { t = "Beaglebone"; }
-                 if (data === 7) { t = "Banana"; }
-+                if (data === 25) { t = "IOT2050"; }
-                 $('#type-tip').text(t);
-                 $('#node-input-pin').val(pinnow);
-             });
-@@ -78,7 +79,7 @@
- </script>
- 
- <script type="text/x-red" data-help-name="mraa-gpio-din">
--    <p>A digital input pin for an Intel Galileo or Edison board.</p>
-+    <p>A digital input pin for an IOT2050 board.</p>
-     <p>The <code>msg.payload</code> contains the value (0 or 1), and <code>msg.topic</code>
-     contains "{the_board_name}/D{the pin number}".</p>
- </script>
-diff --git a/hardware/intel/mraa-gpio-din.js b/hardware/intel/mraa-gpio-din.js
-index 5966e44..4ac983f 100644
---- a/hardware/intel/mraa-gpio-din.js
-+++ b/hardware/intel/mraa-gpio-din.js
-@@ -50,6 +50,7 @@ module.exports = function(RED) {
-         }
-         this.on('close', function() {
-             node.x.isr(m.EDGE_BOTH, null);
-+            node.x.isrExit();
-         });
-     }
-     RED.nodes.registerType("mraa-gpio-din", gpioDin);
 diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
 index ed0289a..2ed3619 100644
 --- a/hardware/intel/mraa-gpio-dout.html
@@ -138,99 +109,89 @@ index ed0289a..2ed3619 100644
 +    <p>A digital output pin for an IOT2050 board.</p>
      <p>The <code>msg.payload</code> should contain the value 0 or 1.</p>
  </script>
-diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-led.html
-similarity index 58%
-copy from hardware/intel/mraa-gpio-pwm.html
-copy to hardware/intel/mraa-gpio-led.html
-index 2dfb95e..967b464 100644
---- a/hardware/intel/mraa-gpio-pwm.html
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+new file mode 100644
+index 0000000..967b464
+--- /dev/null
 +++ b/hardware/intel/mraa-gpio-led.html
-@@ -1,24 +1,19 @@
- 
- <script type="text/javascript">
--    RED.nodes.registerType('mraa-gpio-pwm',{
--        category: 'Intel gpio',
+@@ -0,0 +1,77 @@
++
++<script type="text/javascript">
 +    RED.nodes.registerType('mraa-gpio-led',{
 +        category: 'IOT2050 gpio',
-         color: '#a6bbcf',
--        paletteLabel: 'pwm',
++        color: '#a6bbcf',
 +        paletteLabel: 'led',
-         defaults: {
-             name: {value:""},
-             pin:  {value:"", required: true},
--            period: { value:"100", required: true }
-         },
-         inputs:1,
-         outputs:0,
-         icon: "arrow.png",
-         align: "right",
-         label: function() {
--            if (this.pin === "14") {
--                return "LED";
--            } else {
--                return this.name||"PWM D"+this.pin;
--            }
++        defaults: {
++            name: {value:""},
++            pin:  {value:"", required: true},
++        },
++        inputs:1,
++        outputs:0,
++        icon: "arrow.png",
++        align: "right",
++        label: function() {
 +            return this.name || "led";
-         },
-         labelStyle: function() {
-             return this.name?"node_label_italic":"";
-@@ -35,7 +30,8 @@
-                 if (data === 5) { t = "Raspberry Pi"; }
-                 if (data === 6) { t = "Beaglebone"; }
-                 if (data === 7) { t = "Banana"; }
--                $('#type-tip').text(t);
++        },
++        labelStyle: function() {
++            return this.name?"node_label_italic":"";
++        },
++        oneditprepare: function() {
++            var pinnow = this.pin;
++            $.getJSON('mraa-gpio/'+this.id,function(data) {
++                var t = "unknown";
++                if (data === 0) { t = "Galileo v1"; }
++                if (data === 1) { t = "Galileo v2"; }
++                if (data === 2) { t = "Edison Fab C"; }
++                if (data === 3) { t = "DE3813 Baytrail"; }
++                if (data === 4) { t = "Minnow Max"; }
++                if (data === 5) { t = "Raspberry Pi"; }
++                if (data === 6) { t = "Beaglebone"; }
++                if (data === 7) { t = "Banana"; }
 +                if (data === 25) { t = "IOT2050"; }
 +                $('#btype').text(t);
-                 $('#node-input-pin').val(pinnow);
-             });
-             $.getJSON('mraa-version/'+this.id,function(data) {
-@@ -55,34 +51,27 @@
-     });
- </script>
- 
--<script type="text/x-red" data-template-name="mraa-gpio-pwm">
++                $('#node-input-pin').val(pinnow);
++            });
++            $.getJSON('mraa-version/'+this.id,function(data) {
++                $('#ver-tip').text(data);
++            });
++
++            var setstate = function () {
++                if ($('#node-input-set').is(":checked")) {
++                    $("#node-set-state").show();
++                } else {
++                    $("#node-set-state").hide();
++                }
++            };
++            $("#node-input-set").change(function () { setstate(); });
++            setstate();
++        }
++    });
++</script>
++
 +<script type="text/x-red" data-template-name="mraa-gpio-led">
-     <div class="form-row">
--        <label for="node-input-pin"><i class="fa fa-circle"></i> Pin</label>
++    <div class="form-row">
 +        <label for="node-input-pin"><i class="fa fa-circle"></i> Led</label>
-         <select type="text" id="node-input-pin" style="width: 250px;">
-             <option value='' disabled selected style='display:none;'><span data-i18n="rpi-gpio.label.selectpin"></span></option>
--            <option value="3">D3</option>
--            <option value="5">D5</option>
--            <option value="6">D6</option>
--            <option value="9">D9</option>
--            <option value="10">D10</option>
--            <option value="11">D11</option>
++        <select type="text" id="node-input-pin" style="width: 250px;">
++            <option value='' disabled selected style='display:none;'><span data-i18n="rpi-gpio.label.selectpin"></span></option>
 +            <option value="0">User1 Led Green</option>
 +            <option value="1">User1 Led Red</option>
 +            <option value="2">User1 Led Orange</option>
 +            <option value="3">User2 Led Green</option>
 +            <option value="4">User2 Led Red</option>
 +            <option value="5">User2 Led Orange</option>
-         </select>
-     </div>
--    <div class="form-row">
--        <label for="node-input-period"><i class="fa fa-clock-o"></i> Period</label>
--        <input type="text" id="node-input-period" placeholder="number" style="width: 250px;"> mS
--    </div>
-     <div class="form-row">
-         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-         <input type="text" id="node-input-name" placeholder="Name" style="width: 250px;">
-     </div>
--    <div class="form-tips">Board : <span id="type-tip">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
++        </select>
++    </div>
++    <div class="form-row">
++        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
++        <input type="text" id="node-input-name" placeholder="Name" style="width: 250px;">
++    </div>
 +    <div class="form-tips">Board : <span id="btype">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
- </script>
- 
--<script type="text/x-red" data-help-name="mraa-gpio-pwm">
--    <p>A pulse width modulation (PWM) output pin for an Intel Galileo or Edison board.</p>
--    <p>The <code>msg.payload</code> should contain a floating point number value
--    between 0 and 1, (or a string representation thereof.)</p>
--    <p>For servo control set the period to 20mS and vary the input between 0.05 and 0.10</p>
--    <p><b>Note</b> : Only pins 3, 5, 6, 9, 10 & 11 support PWM output.</p>
++</script>
++
 +<script type="text/x-red" data-help-name="mraa-gpio-led">
 +    <p>Led Control for an IOT2050 board.</p>
 +    <p>The <code>msg.payload</code> should contain the value 0 or 1.</p>
- </script>
++</script>
 diff --git a/hardware/intel/mraa-gpio-led.js b/hardware/intel/mraa-gpio-led.js
 new file mode 100644
 index 0000000..c5e45c6
@@ -365,20 +326,10 @@ index 2dfb95e..bb4f8a6 100644
 +    <p><b>Note</b> : Only pins 4, 5, 6, 7, 8 & 9 support PWM output.</p>
  </script>
 diff --git a/hardware/intel/package.json b/hardware/intel/package.json
-index 6f66fe4..57b6f1f 100644
+index 0d1c7d5..5608009 100644
 --- a/hardware/intel/package.json
 +++ b/hardware/intel/package.json
-@@ -1,7 +1,7 @@
- {
-     "name"          : "node-red-node-intel-gpio",
--    "version"       : "0.0.6",
--    "description"   : "A Node-RED node to talk to an Intel Galileo or Edison using mraa",
-+    "version"       : "0.0.6-IOT2050",
-+    "description"   : "A Node-RED node to talk to an IOT2050 using mraa",
-     "dependencies"  : {
-     },
-     "repository" : {
-@@ -15,7 +15,8 @@
+@@ -16,7 +16,8 @@
              "mraa-gpio-ain": "mraa-gpio-ain.js",
              "mraa-gpio-din": "mraa-gpio-din.js",
              "mraa-gpio-dout": "mraa-gpio-dout.js",
@@ -389,5 +340,5 @@ index 6f66fe4..57b6f1f 100644
      },
      "author": {
 -- 
-2.26.2
+2.31.1
 
