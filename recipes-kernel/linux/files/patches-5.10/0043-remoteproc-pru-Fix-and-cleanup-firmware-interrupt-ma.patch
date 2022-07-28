@@ -1,7 +1,7 @@
-From 35b51d64545bdaa7d9f610cecef666c934926f0e Mon Sep 17 00:00:00 2001
+From ffe4258b7d3c2c587ec4f338bbbf466e36225bae Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:41 -0500
-Subject: [PATCH 043/120] remoteproc: pru: Fix and cleanup firmware interrupt
+Subject: [PATCH 043/121] remoteproc: pru: Fix and cleanup firmware interrupt
  mapping logic
 
 The PRU firmware interrupt mappings are configured and unconfigured in

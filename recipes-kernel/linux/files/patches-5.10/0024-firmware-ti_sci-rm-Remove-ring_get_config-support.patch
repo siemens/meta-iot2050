@@ -1,7 +1,7 @@
-From a348bb6695e788f2f06784f4b97f015f050eda3a Mon Sep 17 00:00:00 2001
+From a38450e4d899c7cf4c0a98918bde50db57c28a26 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:05 -0700
-Subject: [PATCH 024/120] firmware: ti_sci: rm: Remove ring_get_config support
+Subject: [PATCH 024/121] firmware: ti_sci: rm: Remove ring_get_config support
 
 The ring_get_cfg (0x1111 message) is not used and it is not supported by
 sysfw for a long time.

@@ -1,7 +1,7 @@
-From ef102966ed880b4c35a4d53b277546773bcd2062 Mon Sep 17 00:00:00 2001
+From 895ac8abba2a9fe5ed8c8c1646fc7c9d1e3b3f10 Mon Sep 17 00:00:00 2001
 From: Arnd Bergmann <arnd@arndb.de>
 Date: Mon, 26 Oct 2020 17:05:23 +0100
-Subject: [PATCH 033/120] remoteproc: ti_k3: fix -Wcast-function-type warning
+Subject: [PATCH 033/121] remoteproc: ti_k3: fix -Wcast-function-type warning
 
 The function cast causes a warning with "make W=1"
 

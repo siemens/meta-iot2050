@@ -1,7 +1,7 @@
-From 79d5ebf6ae15af2433d076b6a234ddfdba010f93 Mon Sep 17 00:00:00 2001
+From a0e51403d73e4cd2ae571374f1234ded798786ed Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Tue, 12 Oct 2021 13:54:41 +0300
-Subject: [PATCH 106/120] dt-bindings: net: ti, icssg-prueth: Add documentation
+Subject: [PATCH 106/121] dt-bindings: net: ti, icssg-prueth: Add documentation
  for half duplex
 
 In order to support half-duplex operation at 10M and 100M link speeds, the

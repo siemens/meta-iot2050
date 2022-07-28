@@ -1,7 +1,7 @@
-From ab940579d4b7bb7a68ff983ece9861588d91b04e Mon Sep 17 00:00:00 2001
+From dedc9fa8aeccd46a7d99a5054d220202e5a67606 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 15 Jan 2021 21:30:16 +0200
-Subject: [PATCH 006/120] arm64: dts: ti: k3: mmc: fix dtbs_check warnings
+Subject: [PATCH 006/121] arm64: dts: ti: k3: mmc: fix dtbs_check warnings
 
 Now the dtbs_check produces below warnings
  sdhci@4f80000: clock-names:0: 'clk_ahb' was expected

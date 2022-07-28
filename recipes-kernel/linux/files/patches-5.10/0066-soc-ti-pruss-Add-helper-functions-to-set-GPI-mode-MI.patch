@@ -1,7 +1,7 @@
-From 02acf31d06b1fcd7457c4955aaa77734ad55865f Mon Sep 17 00:00:00 2001
+From 07f33e4c2129a2d447cd34f436cbedd62058432b Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 11 Dec 2020 19:48:09 +0100
-Subject: [PATCH 066/120] soc: ti: pruss: Add helper functions to set GPI mode,
+Subject: [PATCH 066/121] soc: ti: pruss: Add helper functions to set GPI mode,
  MII_RT_event and XFR
 
 The PRUSS CFG module is represented as a syscon node and is currently

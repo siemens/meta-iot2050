@@ -1,7 +1,7 @@
-From a464ef31ceb4e8b8f5f10cb8e17fe3c15011a4eb Mon Sep 17 00:00:00 2001
+From b3cd789f5f09e8df7c20739c37604e773cbcc665 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Tue, 11 Jan 2022 11:28:24 +0800
-Subject: [PATCH 120/120] arm64: dts :ti: iot2050: add the support for the m.2
+Subject: [PATCH 120/121] arm64: dts :ti: iot2050: add the support for the m.2
  variant
 
 Configure the m2 board dts based on the pg2 advanced variant

@@ -1,7 +1,7 @@
-From 73e89fe42ce14e3783073a7787af1d273a2fd67d Mon Sep 17 00:00:00 2001
+From c5da533a85b4af4d38407c4d31d66dfa252e5178 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:25 +0300
-Subject: [PATCH 088/120] net: ethernet: ti: icssg_prueth: Use DMA device for
+Subject: [PATCH 088/121] net: ethernet: ti: icssg_prueth: Use DMA device for
  DMA API
 
 For DMA API the DMA device should be used as cpsw does not accesses to

@@ -1,7 +1,7 @@
-From 692a4ad2beab3e0b9b5318070fea0701dd0d7e6c Mon Sep 17 00:00:00 2001
+From 4510c08d9f4062957276526dfe1817b1591f9b76 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Feb 2021 20:32:56 +0100
-Subject: [PATCH 007/120] arm64: dts: ti: k3-am65-main: Add device_type to
+Subject: [PATCH 007/121] arm64: dts: ti: k3-am65-main: Add device_type to
  pcie*_rc nodes
 
 This is demanded by the parent binding of ti,am654-pcie-rc, see

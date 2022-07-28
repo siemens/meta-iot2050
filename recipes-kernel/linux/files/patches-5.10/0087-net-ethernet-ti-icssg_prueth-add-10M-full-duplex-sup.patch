@@ -1,7 +1,7 @@
-From 6f4cd608a33e1220d75d0cf40ab203ef82bcf4b5 Mon Sep 17 00:00:00 2001
+From 3d3c480a062c24ed0c15f7796da864f2811339d0 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:24 +0300
-Subject: [PATCH 087/120] net: ethernet: ti: icssg_prueth: add 10M full duplex
+Subject: [PATCH 087/121] net: ethernet: ti: icssg_prueth: add 10M full duplex
  support
 
 For 10M support RGMII need to be configured in inband mode and FW has to be

@@ -1,7 +1,7 @@
-From a93dff5f75843d0fc9b307254d3da9afdfde76f9 Mon Sep 17 00:00:00 2001
+From 2e65dee01b098b9b62ae2785cf471612079a6043 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:49 +0530
-Subject: [PATCH 055/120] PCI: keystone: Add workaround for Errata #i2037
+Subject: [PATCH 055/121] PCI: keystone: Add workaround for Errata #i2037
  (AM65x SR 1.0)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

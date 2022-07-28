@@ -1,7 +1,7 @@
-From 16a55eff60ec1f282d32a3fa94f13fba7a0475ae Mon Sep 17 00:00:00 2001
+From 54574ed7b31747927e3e545e2bccf4e7c08ddeda Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 5 Jul 2021 10:20:10 +0200
-Subject: [PATCH 117/120] USB: serial: cp210x: fix control-characters error
+Subject: [PATCH 117/121] USB: serial: cp210x: fix control-characters error
  handling
 
 In the unlikely event that setting the software flow-control characters
