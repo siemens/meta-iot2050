@@ -506,7 +506,7 @@ class PeripheralsMenu:
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
-        if self.topmenu.boardType == 'IOT2050 Advanced PG2':
+        if not self.topmenu.boardType.startswith('IOT2050 Basic') and self.topmenu.boardType != 'IOT2050 Advanced':
             subprocess.call('switchserialmode -r', shell=True)
 
     def currentMode(self):
@@ -534,7 +534,7 @@ class PeripheralsMenu:
         self.saveConfig(self.config)
         if mode == 'RS485':
             self.setRS485SetupHoldTime()
-        if self.topmenu.boardType != 'IOT2050 Advanced PG2':
+        if self.topmenu.boardType == 'IOT2050 Advanced':
             ButtonChoiceWindow(screen=self.topmenu.gscreen,
                             title='Note',
                             text='You need to power cycle the device for the changes to take effect',
