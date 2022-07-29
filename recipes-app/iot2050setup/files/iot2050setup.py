@@ -643,7 +643,7 @@ class PeripheralsMenu:
                                 ('4    | PCIEx2 | ---- | SSD',        self.m2_select_pciex2)]
 
             action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
-                                title="M2 Advaced Configure",
+                                title="M2 Advanced Configure",
                                 text=m2Info,
                                 items=m2Capabililty,
                                 buttons=[('Ok', 'ok'),('Back', 'back', 'ESC')],
