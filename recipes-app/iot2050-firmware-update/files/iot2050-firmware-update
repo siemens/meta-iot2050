@@ -461,8 +461,12 @@ def main(argv):
     else:
         updater = ManagedFirmwareUpdate(args.firmware)
 
-    envlist = updater.get_preserved_uboot_env(args.preserve_list)
+    envlist = None
+    if not args.force:
+        envlist = updater.get_preserved_uboot_env(args.preserve_list)
+
     updater.update_firmware()
+
     if envlist:
         print("\nRestore preserved uboot env")
         updater.update_uboot_env(envlist)
