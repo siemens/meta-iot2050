@@ -1,7 +1,7 @@
-From 681d10e48b1e655fff6930ef1dd642c581781f27 Mon Sep 17 00:00:00 2001
+From f650f7254c236d96d0363db826e3f6b40d6aa68c Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Mon, 10 May 2021 09:54:29 -0500
-Subject: [PATCH 011/120] arm64: dts: ti: k3-am65|j721e|am64: Map the dma /
+Subject: [PATCH 011/121] arm64: dts: ti: k3-am65|j721e|am64: Map the dma /
  navigator subsystem via explicit ranges
 
 Instead of using empty ranges property, lets map explicitly the address

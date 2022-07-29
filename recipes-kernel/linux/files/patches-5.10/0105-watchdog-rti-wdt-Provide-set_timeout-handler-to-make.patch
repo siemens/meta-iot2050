@@ -1,7 +1,7 @@
-From e974f8d99bd400af15b77795ded58d0f05e3a759 Mon Sep 17 00:00:00 2001
+From 350f982c0a11b0661f637ef553bd3de880c2a80f Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 13 Sep 2021 12:27:17 +0200
-Subject: [PATCH 105/120] watchdog: rti-wdt: Provide set_timeout handler to
+Subject: [PATCH 105/121] watchdog: rti-wdt: Provide set_timeout handler to
  make existing userspace happy
 
 Prominent userspace - systemd - cannot handle watchdogs without

@@ -1,7 +1,7 @@
-From 5f795c7d4c1ff053b1179f1786eb532bd2dafa3f Mon Sep 17 00:00:00 2001
+From 6e605f236b4d487b274eac613c0dbf12c777c54b Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 7 Sep 2021 17:49:55 +0200
-Subject: [PATCH 048/120] arm64: dts: ti: iot2050: Prepare for adding
+Subject: [PATCH 048/121] arm64: dts: ti: iot2050: Prepare for adding
  2nd-generation boards
 
 The current IOT2050 devices are Product Generation 1 (PG1), using SR1.0

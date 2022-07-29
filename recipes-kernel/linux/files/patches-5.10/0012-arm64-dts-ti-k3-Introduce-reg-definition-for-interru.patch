@@ -1,7 +1,7 @@
-From 30a9d560bc9b43633e8e5979213326fa7d161ea5 Mon Sep 17 00:00:00 2001
+From 59f999b6bbd4f8f8ef1530db703ad8aefc71ff70 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Tue, 11 May 2021 14:48:21 -0500
-Subject: [PATCH 012/120] arm64: dts: ti: k3*: Introduce reg definition for
+Subject: [PATCH 012/121] arm64: dts: ti: k3*: Introduce reg definition for
  interrupt routers
 
 Interrupt routers are memory mapped peripherals, that are organized

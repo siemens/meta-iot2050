@@ -1,7 +1,7 @@
-From ab501f34992f045ad7da8c1e5e9a519452536966 Mon Sep 17 00:00:00 2001
+From 3a0a1ebb22e6ddbab043620bd0f2b713e838c788 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:24 +0100
-Subject: [PATCH 113/120] USB: serial: cp210x: drop flow-control debugging
+Subject: [PATCH 113/121] USB: serial: cp210x: drop flow-control debugging
 
 Drop some unnecessary flow-control debugging.
 

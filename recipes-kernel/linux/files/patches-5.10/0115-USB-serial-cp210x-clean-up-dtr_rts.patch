@@ -1,7 +1,7 @@
-From 3b27a7057b12f83dde32702033cf78f6d6d91357 Mon Sep 17 00:00:00 2001
+From a8122069c50c0a557f0fc20eccb51f67d394957b Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:26 +0100
-Subject: [PATCH 115/120] USB: serial: cp210x: clean up dtr_rts()
+Subject: [PATCH 115/121] USB: serial: cp210x: clean up dtr_rts()
 
 Clean up dtr_rts() by renaming the port parameter and adding missing
 whitespace.

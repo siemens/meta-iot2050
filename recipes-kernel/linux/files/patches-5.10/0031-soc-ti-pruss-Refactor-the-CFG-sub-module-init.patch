@@ -1,7 +1,7 @@
-From 5596289c30e144726dca2767f11c43e67523cd9e Mon Sep 17 00:00:00 2001
+From 4e6f555502f1dda2a0a43a32fe004bdbad9c2e07 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:53:43 -0800
-Subject: [PATCH 031/120] soc: ti: pruss: Refactor the CFG sub-module init
+Subject: [PATCH 031/121] soc: ti: pruss: Refactor the CFG sub-module init
 
 The CFG sub-module is not present on some earlier SoCs like the
 DA850/OMAPL-138 in the TI Davinci family. Refactor out the CFG

@@ -1,7 +1,7 @@
-From e888895d9dcbca5f18714a1d2efc305f08cb9504 Mon Sep 17 00:00:00 2001
+From a9bc9bf62d5a2a411e76769cb0c52a03782a6ea9 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 28 Oct 2020 22:37:55 -0500
-Subject: [PATCH 003/120] arm64: dts: ti: k3-am65-mcu: Add MCU domain R5F
+Subject: [PATCH 003/121] arm64: dts: ti: k3-am65-mcu: Add MCU domain R5F
  cluster node
 
 The AM65x SoCs have a single dual-core Arm Cortex-R5F processor (R5FSS)
