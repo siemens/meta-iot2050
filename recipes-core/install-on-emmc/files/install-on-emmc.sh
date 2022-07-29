@@ -119,18 +119,23 @@ fi
 
 blink ${LED_GREEN} 0.25
 
+echo "Destroying the old GPT of eMMC ${EMMC_DEV}..."
+sgdisk -Z ${EMMC_DEV}
+
 # Calculate number of sectors to write:
 # Start of boot partition + sectors in that partition
 SECTORS="$(($(sfdisk -d ${BOOT_DEV} 2>/dev/null | tail -1 | sed 's/.*start=[[:space:]]*\([^,]*\), size=[[:space:]]*\([^,]*\).*/\1+\2/')))"
 
 echo "Writing ${SECTORS} sectors to eMMC ${EMMC_DEV}..."
 dd if=${BOOT_DEV} of=${EMMC_DEV} count=${SECTORS} conv=fsync
-partprobe ${EMMC_DEV}
+# fix the possible GPT header problem if BOOT_DEV is bigger than EMMC_DEV
+sgdisk -e ${EMMC_DEV}
 
 echo "Updating partition UUID of eMMC rootfs"
-partx -a ${EMMC_DEV}
-udevadm settle
 if ! test -b ${EMMC_DEV}p1; then
+	partprobe ${EMMC_DEV}
+	partx -a ${EMMC_DEV}
+	udevadm settle
 	echo "Waiting for ${EMMC_DEV}p1 to appear"
 	while ! test -b ${EMMC_DEV}p1; do
 		echo -n "."
