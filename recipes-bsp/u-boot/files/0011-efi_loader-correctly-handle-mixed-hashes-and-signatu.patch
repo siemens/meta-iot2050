@@ -1,7 +1,7 @@
-From df674ede84b14db3367eb38f8fd4674b7b725eb8 Mon Sep 17 00:00:00 2001
+From 13f3fccd5b269c17c6918609beb588b3978988a3 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Date: Sat, 29 Jan 2022 00:20:31 +0200
-Subject: [PATCH 11/31] efi_loader: correctly handle mixed hashes and
+Subject: [PATCH 11/32] efi_loader: correctly handle mixed hashes and
  signatures in db
 
 A mix of signatures and hashes in db doesn't always work as intended.

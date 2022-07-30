@@ -1,7 +1,7 @@
-From 1fa4f3489d94829b3aec1e2641f3550553ab837c Mon Sep 17 00:00:00 2001
+From f6dc3a3db9ee2db36ca1e553713ee8367e67274f Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 15 Feb 2022 22:15:40 +0100
-Subject: [PATCH 05/31] arm: dts: iot2050: Add cfg register space for ringacc
+Subject: [PATCH 05/32] arm: dts: iot2050: Add cfg register space for ringacc
  and udmap
 
 Recent unrelated fixes (9876ae7db6da) revealed that we were missing bits

@@ -1,7 +1,7 @@
-From 2539ab52e25b9be783bef68f91118a9fdcb2e283 Mon Sep 17 00:00:00 2001
+From 1e9ae380a44aa71c69cc3938e6f96f7c320cb30f Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Tue, 5 Jul 2022 14:48:12 +0900
-Subject: [PATCH 30/31] efi_loader: signature: export efi_hash_regions()
+Subject: [PATCH 30/32] efi_loader: signature: export efi_hash_regions()
 
 This function is used to calculate a message digest as part of
 authentication process in a later patch.
