@@ -1,7 +1,7 @@
-From 68da91ce946282c3ca78435fc892e99a4cc9ef99 Mon Sep 17 00:00:00 2001
+From 3d2699d74e7980d20f2a3f825ce558ad974e1dbe Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 18 Nov 2021 10:56:22 +0100
-Subject: [PATCH 23/31] iot2050: Add script for signing artifacts
+Subject: [PATCH 23/32] iot2050: Add script for signing artifacts
 
 There are many ways to get a signed firmware for the IOT2050 devices,
 namely for the parts under user-control. This script documents one way

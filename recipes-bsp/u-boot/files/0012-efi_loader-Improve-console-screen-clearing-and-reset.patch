@@ -1,7 +1,7 @@
-From e550c609227c52b05c3993f96c56c4b24fceb5ed Mon Sep 17 00:00:00 2001
+From 2b2b35a240e7c5da668a972d4b936553d4f399d9 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 10:33:15 +0200
-Subject: [PATCH 12/31] efi_loader: Improve console screen clearing and reset
+Subject: [PATCH 12/32] efi_loader: Improve console screen clearing and reset
 
 Ensure that the default colors are set when clearing the screen so that
 the background is properly filled and succeeding colored outputs will

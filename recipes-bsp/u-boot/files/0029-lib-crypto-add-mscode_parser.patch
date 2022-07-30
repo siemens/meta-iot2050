@@ -1,7 +1,7 @@
-From 65ef2c27edb8c2d37d0f92bbed68fa9ed34397d5 Mon Sep 17 00:00:00 2001
+From d9ca309d31f9bfc98bde5a5f7503fc57dc76fd37 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Tue, 5 Jul 2022 14:48:11 +0900
-Subject: [PATCH 29/31] lib: crypto: add mscode_parser
+Subject: [PATCH 29/32] lib: crypto: add mscode_parser
 
 In MS authenticode, pkcs7 should have data in its contentInfo field.
 This data is tagged with SpcIndirectData type and, for a signed PE image,

@@ -1,7 +1,7 @@
-From d5ab85366136770b55fda9e4db6db18b48a92e4d Mon Sep 17 00:00:00 2001
+From 663d795a4376b1942ceb24622d90d7b4802a6008 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Tue, 5 Jul 2022 14:48:14 +0900
-Subject: [PATCH 31/31] efi_loader: image_loader: add a missing digest
+Subject: [PATCH 31/32] efi_loader: image_loader: add a missing digest
  verification for signed PE image
 
 At the last step of PE image authentication, an image's hash value must be

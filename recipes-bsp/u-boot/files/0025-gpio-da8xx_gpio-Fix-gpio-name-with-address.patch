@@ -1,7 +1,7 @@
-From 960874d0986851e090df2828e746326b4c8f722b Mon Sep 17 00:00:00 2001
+From d36f6167cf7579502ee7562c91d347610261af82 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 7 Jan 2022 11:26:24 +0800
-Subject: [PATCH 25/31] gpio: da8xx_gpio: Fix gpio name with address
+Subject: [PATCH 25/32] gpio: da8xx_gpio: Fix gpio name with address
 
 The GPIO bank numbers do not appear in the device tree,
 so make the gpio name based on the address
