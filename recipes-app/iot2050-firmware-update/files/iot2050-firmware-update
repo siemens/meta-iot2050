@@ -442,17 +442,14 @@ def main(argv):
         print(e.strerror, file=sys.stderr)
         exit(1)
 
-    erase_env_input = input(
-        "\nWarning: All U-Boot environment variables will be reset to factory settings.\n"
-        "Unless preserve env in the update.conf.json or using -p argument.Continue(y/N)?")
-
-    if not erase_env_input == "y":
+    update_input = input(
+        "\nWarning: Update may render device unbootable. Continue (y/N)? ")
+    if not update_input == "y":
         sys.exit(1)
 
-    if args.force:
-        force_update_input = input(
-            "\nWarning: Enforced update may render device unbootable. Continue (y/N)? ")
-        if not force_update_input == "y":
+    if args.force or not args.preserve_list:
+        erase_env_input = input("\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
+        if not erase_env_input == "y":
             sys.exit(1)
 
     if args.force:
@@ -461,14 +458,21 @@ def main(argv):
     else:
         updater = ManagedFirmwareUpdate(args.firmware)
 
-    envlist = updater.get_preserved_uboot_env(args.preserve_list)
+    envlist = None
+    if not args.force:
+        envlist = updater.get_preserved_uboot_env(args.preserve_list)
+
     updater.update_firmware()
+
     if envlist:
         print("\nRestore preserved uboot env")
         updater.update_uboot_env(envlist)
 
-    print("\nCompleted. Please reboot the device\n")
-
+    reboot_input = input(
+        "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
+    if not reboot_input == "y":
+        sys.exit(1)
+    os.system('reboot')
 
 if __name__ == '__main__':
     main(sys.argv)
