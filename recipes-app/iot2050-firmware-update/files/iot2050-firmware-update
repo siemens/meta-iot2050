@@ -354,8 +354,10 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         self.firmware.seek(0)
         with tarfile.open(fileobj=self.firmware) as f:
             self.firmware = f.extractfile(firmware_name)
-            f.extract(member=self.uboot_default_env_file_name,
-                      path=self.extract_path)
+            file_tarfileinfo = f.getmember(name=self.uboot_default_env_file_name)
+            file_tarfileinfo.uid = os.getuid()
+            file_tarfileinfo.gid = os.getgid()
+            f.extract(file_tarfileinfo, path=self.extract_path)
             super().update_firmware()
 
     def update_uboot_env(self, env_list):
