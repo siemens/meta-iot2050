@@ -354,8 +354,10 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         self.firmware.seek(0)
         with tarfile.open(fileobj=self.firmware) as f:
             self.firmware = f.extractfile(firmware_name)
-            f.extract(member=self.uboot_default_env_file_name,
-                      path=self.extract_path)
+            file_tarfileinfo = f.getmember(name=self.uboot_default_env_file_name)
+            file_tarfileinfo.uid = os.getuid()
+            file_tarfileinfo.gid = os.getgid()
+            f.extract(file_tarfileinfo, path=self.extract_path)
             super().update_firmware()
 
     def update_uboot_env(self, env_list):
@@ -426,15 +428,19 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Update OSPI firmware.')
+    group = parser.add_mutually_exclusive_group()
     parser.add_argument('firmware', metavar='FIRMWARE',
                         type=argparse.FileType('rb'),
                         help='firmware image or package')
-    parser.add_argument('-f', '--force',
+    group.add_argument('-f', '--force',
                         help='Force update, ignore all the checking',
                         action='store_true')
-    parser.add_argument('-p', '--preserve_list',
+    group.add_argument('-p', '--preserve_list',
                         type=str,
-                        help='env preserve list')
+                        help='env preserve list,using comma to separate env')
+    group.add_argument('-r', '--reset',
+                        help='reset env to default value',
+                        action='store_true')
 
     try:
         args = parser.parse_args()
@@ -447,7 +453,7 @@ def main(argv):
     if not update_input == "y":
         sys.exit(1)
 
-    if args.force or not args.preserve_list:
+    if args.force or args.reset:
         erase_env_input = input("\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
         if not erase_env_input == "y":
             sys.exit(1)
@@ -459,14 +465,19 @@ def main(argv):
         updater = ManagedFirmwareUpdate(args.firmware)
 
     envlist = None
-    if not args.force:
+    if not args.force and not args.reset:
         envlist = updater.get_preserved_uboot_env(args.preserve_list)
 
     updater.update_firmware()
 
     if envlist:
-        print("\nRestore preserved uboot env")
-        updater.update_uboot_env(envlist)
+        print("\n")
+        for env in envlist:
+            print(env)
+        preserved_env_input = input(
+            "\nWarning: Preserve the above env variables. Confirm(n/Y)? ")
+        if not preserved_env_input == "n":
+            updater.update_uboot_env(envlist)
 
     reboot_input = input(
         "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
