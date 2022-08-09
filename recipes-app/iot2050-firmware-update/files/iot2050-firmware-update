@@ -105,6 +105,7 @@ import mmap
 import argparse
 import tarfile
 import json
+import textwrap
 from types import SimpleNamespace as Namespace
 import subprocess
 import tempfile
@@ -427,7 +428,20 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='Update OSPI firmware.')
+    description=textwrap.dedent('''\
+        Update OSPI firmware.
+        Examples:
+        1. %(prog)s -f file.bin
+             using binary format firmware
+        2. %(prog)s  file.tar.xz
+             using tarball format firmware
+        3. %(prog)s -p "env1,env2" file.tar.xz
+             using tarball format firmware, preserve environment follow -p
+        4. %(prog)s -r file.tar.xz
+             using tarball format firmware, reset environment
+         ''')
+    parser = argparse.ArgumentParser(description=description,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     group = parser.add_mutually_exclusive_group()
     parser.add_argument('firmware', metavar='FIRMWARE',
                         type=argparse.FileType('rb'),
