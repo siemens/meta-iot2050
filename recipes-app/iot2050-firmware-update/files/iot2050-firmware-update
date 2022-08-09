@@ -58,7 +58,7 @@
 # 		}
 # 	],
 # 	"suggest_preserved_uboot_env": [
-# 		 "boot_targets",
+# 		 "boot_targets"
 # 	]
 # }
 #
@@ -451,7 +451,7 @@ def main(argv):
                         action='store_true')
     group.add_argument('-p', '--preserve_list',
                         type=str,
-                        help='env preserve list,using comma to separate env')
+                        help='env preserve list, using comma to separate env')
     group.add_argument('-r', '--reset',
                         help='reset env to default value',
                         action='store_true')
@@ -489,7 +489,7 @@ def main(argv):
         for env in envlist:
             print(env)
         preserved_env_input = input(
-            "\nWarning: Preserve the above env variables. Confirm(n/Y)? ")
+            "\nWarning: Preserve the above env variables. Confirm(Y/n)? ")
         if not preserved_env_input == "n":
             updater.update_uboot_env(envlist)
 
