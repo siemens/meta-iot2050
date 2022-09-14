@@ -1,0 +1,30 @@
+From 053068913f3876b0aafa281e704dd189592cd75a Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 14 Sep 2022 13:18:00 +0800
+Subject: [PATCH] python-absl: Use mirror repo
+
+Tag `debian/0.15.0-1` is removed from upstream repo, this will make the
+released V01.03.01 of meta-iot2050 un-reproducible. Use the mirror repo
+to hold the removed tag.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ recipes-python/python-absl/python-absl_0.15.0-1.bb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/recipes-python/python-absl/python-absl_0.15.0-1.bb b/recipes-python/python-absl/python-absl_0.15.0-1.bb
+index adbf5c4..f900316 100644
+--- a/recipes-python/python-absl/python-absl_0.15.0-1.bb
++++ b/recipes-python/python-absl/python-absl_0.15.0-1.bb
+@@ -12,7 +12,7 @@
+ inherit dpkg-gbp
+ 
+ SRC_URI = " \
+-    git://salsa.debian.org/python-team/packages/python-absl.git;protocol=https;branch=debian/latest \
++    git://github.com/BaochengSu/python-absl.git;protocol=https;branch=debian/latest \
+     file://0001-add-support-to-cross-compile-the-package.patch"
+ SRCREV = "debian/${PV}"
+ 
+-- 
+2.30.2
+
