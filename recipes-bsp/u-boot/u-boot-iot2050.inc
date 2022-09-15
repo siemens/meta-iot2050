@@ -95,6 +95,7 @@ dpkg_build_sstate_finalize_append() {
 
 do_deploy() {
     cp -f "${S}/${SPI_FLASH_IMG}" "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
+    cp -f "${S}/u-boot-initial-env" "${DEPLOY_DIR_IMAGE}/"
 }
 
 addtask deploy after do_dpkg_build before do_build
