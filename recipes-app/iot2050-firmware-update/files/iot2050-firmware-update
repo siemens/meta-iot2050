@@ -112,6 +112,15 @@ import tempfile
 import hashlib
 
 
+class UpgradeError(Exception):
+    def __init__(self, ErrorInfo):
+        super().__init__(self)
+        self.erroinfo = ErrorInfo
+
+    def __str__(self):
+        return self.erroinfo
+
+
 class FirmwareUpdate(object):
     def __init__(self, firmware):
         self.firmware = firmware
@@ -122,8 +131,7 @@ class FirmwareUpdate(object):
             with open(path, "r") as f:
                 return f.read()
         except IOError as e:
-            print("Reading {} failed: {}".format(path, e.strerror))
-            sys.exit(1)
+            raise UpgradeError("Reading {} failed: {}".format(path, e.strerror))
 
     @staticmethod
     def flash_erase(dev, start, nbytes):
@@ -139,8 +147,7 @@ class FirmwareUpdate(object):
         try:
             fcntl.ioctl(dev, MEMERASE, ioctl_data)
         except IOError:
-            print("ioctl failed")
-            sys.exit(1)
+            raise UpgradeError("Flash erasing failed")
 
     def get_mtd_info(self, mtd_num):
         ospi_dev_path = "/sys/bus/platform/devices/47040000.spi"
@@ -170,8 +177,7 @@ class FirmwareUpdate(object):
         try:
             mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
         except IOError as e:
-            print("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
-            sys.exit(1)
+            raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
 
         while mtd_pos < mtd_size and file_size > 0:
             mtd_content = os.read(mtd_dev, mtd_erasesize)
@@ -236,8 +242,7 @@ class FirmwareUpdate(object):
             try:
                 mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
             except IOError as e:
-                print("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
-                sys.exit(1)
+                raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
 
             while mtd_pos < mtd_size and firmware_len > 0:
                 mtd_content = os.read(mtd_dev, mtd_erasesize)
@@ -266,7 +271,7 @@ class FirmwareUpdate(object):
         firmware_flash_md5_digest = self.flash_md5_digest(self.firmware_len)
 
         if firmware_md5_digest != firmware_flash_md5_digest:
-            raise Exception('Upgrade Failed! Please do not reboot. Please try updating firmware again!\n')
+            raise UpgradeError("Firmware digest verification failed")
 
 
 class BoardInformation(object):
@@ -309,8 +314,11 @@ class BoardInformation(object):
 class UpdateConfiguration(object):
     def __init__(self, json_fileobj):
         # Deserialize the json file to an object so that we can use dot operator to access the fields.
-        self._jsonobj = json.load(
-            json_fileobj, object_hook=lambda d: Namespace(**d))
+        try:
+            self._jsonobj = json.load(
+                json_fileobj, object_hook=lambda d: Namespace(**d))
+        except ValueError:
+            raise UpgradeError("Decoding JSON has failed")
 
     def _check_os(self, target_os, os_info) -> bool:
         for tos in target_os:
@@ -350,8 +358,8 @@ class UpdateConfiguration(object):
     def preserved_uboot_env(self):
         try:
             return self._jsonobj.suggest_preserved_uboot_env
-        except Exception as e:
-            return None
+        except Exception:
+            raise UpgradeError("Get suggested preserved uboot env failed")
 
 
 class ManagedFirmwareUpdate(FirmwareUpdate):
@@ -382,8 +390,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
             self._board_info.board_name, self._board_info.os_info)
 
         if len(firmware_names) <= 0:
-            print("No firmware image could be updated on this board")
-            exit(1)
+            raise UpgradeError("No firmware image could be updated on this board")
 
         if len(firmware_names) == 1:
             firmware_name = firmware_names[0]
@@ -441,7 +448,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
                                 env_default_binary.name, uboot_env_assemble_file), check=True, shell=True)
                 except subprocess.CalledProcessError as error:
                     print(error.stdout)
-                    sys.exit(1)
+                    raise UpgradeError("Run mkenvimage failed")
 
                 firmware_size = os.path.getsize(env_default_binary.name)
 
@@ -465,7 +472,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         env_flash_md5_digest = self.flash_md5_digest(env_file_size, mtd_num=3)
 
         if env_file_md5_digest != env_flash_md5_digest:
-            raise Exception('Upgrade Failed! Please do not reboot. Please try updating firmware again!\n')
+            raise UpgradeError("Env digest verification failed")
 
     def get_preserved_uboot_env(self, preserve_list):
         if preserve_list:
@@ -487,11 +494,13 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
                 preserved_uboot_env_value.append(env_value)
             except subprocess.CalledProcessError as error:
                 print(error.stdout)
-                sys.exit(1)
+                raise UpgradeError("Run fw_printenv failed")
 
         return preserved_uboot_env_value
 
+
 __version__ = "0.2"
+
 
 def main(argv):
     description=textwrap.dedent('''\
@@ -540,27 +549,39 @@ def main(argv):
         erase_env_input = input("\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
         if not erase_env_input == "y":
             sys.exit(1)
+    try:
+        if args.force:
+            # When forced, ignore all the checking and call the underlying updater directly
+            updater = FirmwareUpdate(args.firmware)
+        else:
+            updater = ManagedFirmwareUpdate(args.firmware)
 
-    if args.force:
-        # When forced, ignore all the checking and call the underlying updater directly
-        updater = FirmwareUpdate(args.firmware)
-    else:
-        updater = ManagedFirmwareUpdate(args.firmware)
+        envlist = None
+        if not args.force and not args.reset:
+            envlist = updater.get_preserved_uboot_env(args.preserve_list)
 
-    envlist = None
-    if not args.force and not args.reset:
-        envlist = updater.get_preserved_uboot_env(args.preserve_list)
+        updater.update_firmware()
 
-    updater.update_firmware()
-
-    if envlist:
-        print("\n")
-        for env in envlist:
-            print(env)
-        preserved_env_input = input(
-            "\nWarning: Preserve the above env variables. Confirm(Y/n)? ")
-        if not preserved_env_input == "n":
-            updater.update_uboot_env(envlist)
+        if envlist:
+            print("\n")
+            for env in envlist:
+                print(env)
+            preserved_env_input = input(
+                "\nWarning: Preserve the above env variables. Confirm(Y/n)? ")
+            if not preserved_env_input == "n":
+                updater.update_uboot_env(envlist)
+    except UpgradeError as e:
+        print(e)
+        intput_reminder = '''
+        ====================================
+        Upgrade Failed! Please do not reboot!!
+        The Device may become brick.
+        Please try to upgrade firmware again!
+        ====================================
+Hit any Key to Exit:
+        '''
+        input(intput_reminder)
+        sys.exit(1)
 
     reboot_input = input(
         "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
