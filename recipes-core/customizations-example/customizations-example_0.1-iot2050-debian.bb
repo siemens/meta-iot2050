@@ -25,7 +25,8 @@ SRC_URI = " \
     file://10-globally-managed-devices.conf \
     file://cellular-4g \
     file://eno1-default \
-    file://20-assign-ethernet-names.rules"
+    file://20-assign-ethernet-names.rules \
+    file://20-create-symbolic-link-for-serial-port.rules"
 
 do_install() {
     # add board status led service
@@ -53,4 +54,6 @@ do_install() {
     # swap ethernet port
     install -v -d  ${D}/etc/udev/rules.d/
     install -v -m 644 ${WORKDIR}/20-assign-ethernet-names.rules ${D}/etc/udev/rules.d/
+    # create a symbolic link for serial port
+    install -v -m 644 ${WORKDIR}/20-create-symbolic-link-for-serial-port.rules ${D}/etc/udev/rules.d/
 }
