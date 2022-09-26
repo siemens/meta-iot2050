@@ -111,7 +111,6 @@ import subprocess
 import tempfile
 import hashlib
 
-
 class UpgradeError(Exception):
     def __init__(self, ErrorInfo):
         super().__init__(self)
@@ -418,6 +417,27 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
             f.extract(file_tarfileinfo, path=self.extract_path)
             super().update_firmware()
 
+    def get_default_env_list(self, fname):
+        with open(fname, 'r', encoding='utf-8') as f:
+            default_env_list = [i.split('=')[0] for i in f.readlines()]
+        return default_env_list
+
+    def remove_line_by_index(self, file, index):
+        with open(file, 'r+') as fp:
+            lines = fp.readlines()
+            fp.seek(0)
+            fp.truncate()
+            for number, line in enumerate(lines):
+                if number != index:
+                    fp.write(line)
+
+    def remove_duplicate_default_env(self, uboot_env_file, env_list):
+        default_env_list = self.get_default_env_list(uboot_env_file)
+        for value in env_list:
+            if value.split('=')[0] in default_env_list:
+                value_index = default_env_list.index(value.split('=')[0])
+                self.remove_line_by_index(uboot_env_file, value_index)
+
     def update_uboot_env(self, env_list):
         '''
         restore uboot env
@@ -434,6 +454,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         assert os.path.isfile(uboot_default_env_file)
         # assemble the env
         shutil.copy(uboot_default_env_file, uboot_env_assemble_file)
+        self.remove_duplicate_default_env(uboot_env_assemble_file, env_list)
+
         with open(uboot_env_assemble_file, encoding="utf-8", mode="a") as file:
             for value in env_list:
                 file.write(value)
@@ -492,9 +514,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
                     'fw_printenv %s' % env_name, shell=True, stdout=subprocess.PIPE, check=True) \
                     .stdout.decode('utf-8').lstrip().rstrip()
                 preserved_uboot_env_value.append(env_value)
-            except subprocess.CalledProcessError as error:
-                print(error.stdout)
-                raise UpgradeError("Run fw_printenv failed")
+            except subprocess.CalledProcessError:
+                pass
 
         return preserved_uboot_env_value
 
