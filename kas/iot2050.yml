@@ -41,7 +41,10 @@ repos:
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
-    refspec: 3fc1c86726e72f693f5b7e1791eabc156015459d
+    refspec: 7ed502f0221147d0aa366853b11a5ceb17f34728
+    patches:
+      fix-bazel-build:
+        path: isar-patches/0001-fix-adapt-bazel-bootstrap-to-recent-upstream-changes.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
