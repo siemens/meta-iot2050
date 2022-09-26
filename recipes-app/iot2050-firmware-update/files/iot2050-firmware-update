@@ -514,9 +514,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
                     'fw_printenv %s' % env_name, shell=True, stdout=subprocess.PIPE, check=True) \
                     .stdout.decode('utf-8').lstrip().rstrip()
                 preserved_uboot_env_value.append(env_value)
-            except subprocess.CalledProcessError as error:
-                print(error.stdout)
-                raise UpgradeError("Run fw_printenv failed")
+            except subprocess.CalledProcessError:
+                pass
 
         return preserved_uboot_env_value
 
