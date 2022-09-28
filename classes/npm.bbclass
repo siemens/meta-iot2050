@@ -12,6 +12,7 @@ inherit dpkg-raw
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json"
 NPM_LOCAL_INSTALL_DIR ?= ""
+NPM_INSTALL_FLAGS ?= ""
 
 NPM_REBUILD ?= "1"
 
@@ -234,7 +235,7 @@ do_install() {
     export CHDIR INSTALL_FLAGS
     sudo -E chroot --userspec=$(id -u):$(id -g) ${BUILDCHROOT_DIR} sh -c ' \
         cd $CHDIR
-        npm install $INSTALL_FLAGS /downloads/${@get_npm_bundled_tgz(d)}
+        npm install $INSTALL_FLAGS ${NPM_INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
     '
 
     # this is left behind by npm, despite --no-package-lock and --no-save
