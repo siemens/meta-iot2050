@@ -1,4 +1,4 @@
-From f650f7254c236d96d0363db826e3f6b40d6aa68c Mon Sep 17 00:00:00 2001
+From f45dd753585c3296694885aa0ee5401f77194d03 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Mon, 10 May 2021 09:54:29 -0500
 Subject: [PATCH 011/121] arm64: dts: ti: k3-am65|j721e|am64: Map the dma /
@@ -102,5 +102,5 @@ index e581cb1d87ee..d766c7fe02af 100644
  		dma-ranges;
  
 -- 
-2.32.0
+2.35.3
 

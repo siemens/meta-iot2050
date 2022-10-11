@@ -1,4 +1,4 @@
-From dbf9c30e1db8aac2cbbb64da3da11f4bd84be852 Mon Sep 17 00:00:00 2001
+From b3c96e1246411fa212983e6bb2a29c003541a7d0 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 18 May 2021 23:37:33 +0300
 Subject: [PATCH 094/121] net: ethernet: ti: icssg_prueth: add am64x icssg
@@ -120,5 +120,5 @@ index 156716bf0a76..b536ac5ec0bf 100644
  
  struct emac_tx_ts_response_sr1 {
 -- 
-2.32.0
+2.35.3
 

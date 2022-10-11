@@ -1,4 +1,4 @@
-From e7ce009697d0716f15abcd4b215a1f07bcb93481 Mon Sep 17 00:00:00 2001
+From 5756207d9c5584f3ee5bf22f2a215e2c906287fc Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Sat, 27 Mar 2021 09:24:51 -0500
 Subject: [PATCH 068/121] soc: ti: pruss: Add helper functions to get/set
@@ -71,5 +71,5 @@ index f1d1197fd91a..d6abfdd17631 100644
 +
  #endif	/* _PRUSS_DRIVER_H_ */
 -- 
-2.32.0
+2.35.3
 

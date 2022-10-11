@@ -1,4 +1,4 @@
-From 34efa3d75d9aecea1c623bb4f4422df5ef64ca14 Mon Sep 17 00:00:00 2001
+From 119a740cedf16e66f9045985aa0306e689df5418 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:07 -0700
 Subject: [PATCH 026/121] soc: ti: k3-ringacc: Use the ti_sci set_cfg callback
@@ -142,5 +142,5 @@ index 1147dc4c1d59..9ddd77113c5a 100644
  	return ret;
  }
 -- 
-2.32.0
+2.35.3
 

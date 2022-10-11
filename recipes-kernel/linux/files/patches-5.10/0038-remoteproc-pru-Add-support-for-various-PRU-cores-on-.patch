@@ -1,4 +1,4 @@
-From a5f08f84de79933decee3988ccba05a9eeabee0f Mon Sep 17 00:00:00 2001
+From 792558f2d1f9a7cc64cb9f1a5b03f6746d3a6a02 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:10:01 +0100
 Subject: [PATCH 038/121] remoteproc: pru: Add support for various PRU cores on
@@ -294,5 +294,5 @@ index 59240fd82f56..421ebbc1c02d 100644
  };
  MODULE_DEVICE_TABLE(of, pru_rproc_match);
 -- 
-2.32.0
+2.35.3
 
