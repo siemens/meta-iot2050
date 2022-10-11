@@ -1,4 +1,4 @@
-From ffe4258b7d3c2c587ec4f338bbbf466e36225bae Mon Sep 17 00:00:00 2001
+From ef0c176d51d580e2c0e379f41650bb53d1c47cb8 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:41 -0500
 Subject: [PATCH 043/121] remoteproc: pru: Fix and cleanup firmware interrupt
@@ -95,5 +95,5 @@ index e0c5fce8bccd..d8597027a93e 100644
  	return 0;
  }
 -- 
-2.32.0
+2.35.3
 

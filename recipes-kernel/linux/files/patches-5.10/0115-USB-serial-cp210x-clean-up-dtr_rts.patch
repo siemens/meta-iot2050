@@ -1,4 +1,4 @@
-From a8122069c50c0a557f0fc20eccb51f67d394957b Mon Sep 17 00:00:00 2001
+From 003f0e82a11d35e3c1145e115ad707e2f6275c55 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:26 +0100
 Subject: [PATCH 115/121] USB: serial: cp210x: clean up dtr_rts()
@@ -41,5 +41,5 @@ index cad6ad5f53a6..4aceeaa380f6 100644
  
  static int cp210x_tiocmget(struct tty_struct *tty)
 -- 
-2.32.0
+2.35.3
 

@@ -1,4 +1,4 @@
-From 30de3e23de06b6c5aa83e8f7b6b01434b44501f0 Mon Sep 17 00:00:00 2001
+From 114318e3acc7cf82fc3c1141d1f52bcabd10142f Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 18 May 2021 23:37:22 +0300
 Subject: [PATCH 085/121] dt-bindings: net: Add binding for ti,icssg-prueth
@@ -149,5 +149,5 @@ index 000000000000..67609e26afa5
 +		};
 +	};
 -- 
-2.32.0
+2.35.3
 
