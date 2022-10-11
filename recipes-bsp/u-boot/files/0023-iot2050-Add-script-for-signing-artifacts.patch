@@ -1,4 +1,4 @@
-From 3d2699d74e7980d20f2a3f825ce558ad974e1dbe Mon Sep 17 00:00:00 2001
+From a0b25824bc8b9bb562ec0e977aa9c918ce7e9449 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 18 Nov 2021 10:56:22 +0100
 Subject: [PATCH 23/32] iot2050: Add script for signing artifacts
@@ -16,7 +16,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  create mode 100755 tools/iot2050-sign-fw.sh
 
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index 26972e20ae..4e0925c72c 100644
+index 26972e20ae9..4e0925c72c9 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -79,3 +79,55 @@ Via external programmer Dediprog SF100 or SF600:
@@ -77,7 +77,7 @@ index 26972e20ae..4e0925c72c 100644
 +described above.
 diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
 new file mode 100755
-index 0000000000..4d1d79498c
+index 00000000000..4d1d79498c2
 --- /dev/null
 +++ b/tools/iot2050-sign-fw.sh
 @@ -0,0 +1,51 @@
@@ -133,5 +133,5 @@ index 0000000000..4d1d79498c
 +#source/tools/binman/binman replace -i flash.bin -f fit@0x380000.fit fit@0x380000
 +dd if=fit@0x380000.fit of=flash.bin bs=$((0x1000)) seek=$((0x380000/0x1000)) conv=notrunc
 -- 
-2.30.2
+2.35.3
 

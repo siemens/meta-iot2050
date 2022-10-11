@@ -1,4 +1,4 @@
-From 85e7b5221acf9851dfd0b0a75ae49add36c6c164 Mon Sep 17 00:00:00 2001
+From 1c8cd41763a15eb0645aca8496cca2e687b0b020 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 20 Mar 2022 15:00:34 +0100
 Subject: [PATCH 20/32] iot2050: Add watchdog start to bootcmd
@@ -17,7 +17,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  3 files changed, 13 insertions(+)
 
 diff --git a/configs/iot2050_pg1_defconfig b/configs/iot2050_pg1_defconfig
-index 826367ea77..0b9b3270f8 100644
+index 826367ea779..0b9b3270f8c 100644
 --- a/configs/iot2050_pg1_defconfig
 +++ b/configs/iot2050_pg1_defconfig
 @@ -29,6 +29,7 @@ CONFIG_OF_BOARD_SETUP=y
@@ -37,7 +37,7 @@ index 826367ea77..0b9b3270f8 100644
  CONFIG_WDT_K3_RTI=y
  CONFIG_WDT_K3_RTI_LOAD_FW=y
 diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
-index 83866af4c6..d5ed53c40d 100644
+index 83866af4c68..d5ed53c40d5 100644
 --- a/configs/iot2050_pg2_defconfig
 +++ b/configs/iot2050_pg2_defconfig
 @@ -29,6 +29,7 @@ CONFIG_OF_BOARD_SETUP=y
@@ -57,7 +57,7 @@ index 83866af4c6..d5ed53c40d 100644
  CONFIG_WDT_K3_RTI=y
  CONFIG_WDT_K3_RTI_LOAD_FW=y
 diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
-index 91ed76bb40..26875afdea 100644
+index 91ed76bb40b..26875afdeaf 100644
 --- a/include/configs/iot2050.h
 +++ b/include/configs/iot2050.h
 @@ -21,6 +21,14 @@
@@ -84,5 +84,5 @@ index 91ed76bb40..26875afdea 100644
  
  #include <configs/ti_armv7_common.h>
 -- 
-2.30.2
+2.35.3
 
