@@ -1,4 +1,4 @@
-From 95b2aeed092e8fe83806a8894fb11dc60822f6d2 Mon Sep 17 00:00:00 2001
+From e1b6f8688c998fc23e1f44fb3f98f86d439609a8 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 14:52:01 +0800
 Subject: [PATCH 07/32] arm: dts: iot2050: Use the auto generator nodes for fdt
@@ -19,7 +19,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  3 files changed, 11 insertions(+), 37 deletions(-)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 3135ad0471..4666957686 100644
+index 3135ad04715..46669576864 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -32,6 +32,7 @@
@@ -92,7 +92,7 @@ index 3135ad0471..4666957686 100644
  					loadables = "k3-rti-wdt-firmware";
  #endif
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index 050ddb5899..2be5d1eefc 100644
+index 050ddb5899b..2be5d1eefc3 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
 @@ -154,6 +154,9 @@ int board_fit_config_name_match(const char *name)
@@ -106,7 +106,7 @@ index 050ddb5899..2be5d1eefc 100644
  	    strlen(name) >= sizeof(upper_name))
  		return -1;
 diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
-index 1bee7c4617..c8c21f71e2 100644
+index 1bee7c46175..c8c21f71e25 100644
 --- a/configs/iot2050_pg2_defconfig
 +++ b/configs/iot2050_pg2_defconfig
 @@ -60,6 +60,7 @@ CONFIG_CMD_TIME=y
@@ -118,5 +118,5 @@ index 1bee7c4617..c8c21f71e2 100644
  CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
  CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 -- 
-2.30.2
+2.35.3
 

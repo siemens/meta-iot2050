@@ -1,4 +1,4 @@
-From 1e9ae380a44aa71c69cc3938e6f96f7c320cb30f Mon Sep 17 00:00:00 2001
+From b36b32c6d6cc9c2898f7366e9335bca762e51e4d Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Tue, 5 Jul 2022 14:48:12 +0900
 Subject: [PATCH 30/32] efi_loader: signature: export efi_hash_regions()
@@ -15,7 +15,7 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 2c73fe3781..c46f6c8878 100644
+index 2c73fe3781d..c46f6c88785 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -907,6 +907,8 @@ struct efi_signature_store {
@@ -28,7 +28,7 @@ index 2c73fe3781..c46f6c8878 100644
  				 struct efi_signature_store *db,
  				 bool dbx);
 diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
-index eb6886cdcc..04820b811f 100644
+index eb6886cdccd..04820b811ff 100644
 --- a/lib/efi_loader/efi_signature.c
 +++ b/lib/efi_loader/efi_signature.c
 @@ -123,7 +123,7 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
@@ -41,5 +41,5 @@ index eb6886cdcc..04820b811f 100644
  {
  	if (!*hash) {
 -- 
-2.30.2
+2.35.3
 

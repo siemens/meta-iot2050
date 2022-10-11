@@ -1,4 +1,4 @@
-From 29277dc9c8d7bbb5c1ea8de6a684e749a5c6477c Mon Sep 17 00:00:00 2001
+From 511aa0ade270ee52b6e7d17dd43f3f2babda377f Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 10:21:19 +0100
 Subject: [PATCH 19/32] mkimage: Allow to specify the signature algorithm on
@@ -23,7 +23,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  6 files changed, 42 insertions(+), 23 deletions(-)
 
 diff --git a/doc/mkimage.1 b/doc/mkimage.1
-index fea5288784..0734bd36a1 100644
+index fea52887846..0734bd36a11 100644
 --- a/doc/mkimage.1
 +++ b/doc/mkimage.1
 @@ -155,6 +155,11 @@ the corresponding public key is written into this file for for run-time
@@ -39,7 +39,7 @@ index fea5288784..0734bd36a1 100644
  .BI "\-p [" "external position" "]"
  Place external data at a static external position. See \-E. Instead of writing
 diff --git a/include/image.h b/include/image.h
-index 16ccc5b10f..4a7e9bc9a1 100644
+index 16ccc5b10f6..4a7e9bc9a10 100644
 --- a/include/image.h
 +++ b/include/image.h
 @@ -1031,6 +1031,7 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
@@ -60,7 +60,7 @@ index 16ccc5b10f..4a7e9bc9a1 100644
  int fit_image_verify_with_data(const void *fit, int image_noffset,
  			       const void *data, size_t size);
 diff --git a/tools/fit_image.c b/tools/fit_image.c
-index f4f372ba62..428ddcf881 100644
+index f4f372ba62f..428ddcf8814 100644
 --- a/tools/fit_image.c
 +++ b/tools/fit_image.c
 @@ -73,7 +73,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
@@ -74,7 +74,7 @@ index f4f372ba62..428ddcf881 100644
  
  	if (dest_blob) {
 diff --git a/tools/image-host.c b/tools/image-host.c
-index a027155f3c..d2e67a06aa 100644
+index a027155f3c7..d2e67a06aa1 100644
 --- a/tools/image-host.c
 +++ b/tools/image-host.c
 @@ -107,7 +107,7 @@ static int fit_image_process_hash(void *fit, const char *image_name,
@@ -243,7 +243,7 @@ index a027155f3c..d2e67a06aa 100644
  			return ret;
  	}
 diff --git a/tools/imagetool.h b/tools/imagetool.h
-index e229a34ffc..d71027317f 100644
+index e229a34ffc5..d71027317f6 100644
 --- a/tools/imagetool.h
 +++ b/tools/imagetool.h
 @@ -69,6 +69,7 @@ struct image_tool_params {
@@ -255,7 +255,7 @@ index e229a34ffc..d71027317f 100644
  	int file_size;		/* Total size of output file */
  	int orig_file_size;	/* Original size for file before padding */
 diff --git a/tools/mkimage.c b/tools/mkimage.c
-index fbe883ce36..31738f218b 100644
+index fbe883ce362..31738f218b4 100644
 --- a/tools/mkimage.c
 +++ b/tools/mkimage.c
 @@ -155,7 +155,7 @@ static void process_args(int argc, char **argv)
@@ -278,5 +278,5 @@ index fbe883ce36..31738f218b 100644
  			params.os = genimg_get_os_id(optarg);
  			if (params.os < 0) {
 -- 
-2.30.2
+2.35.3
 

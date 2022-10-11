@@ -1,4 +1,4 @@
-From f6dc3a3db9ee2db36ca1e553713ee8367e67274f Mon Sep 17 00:00:00 2001
+From 7c7ad3d0988cfa5f2e569f1016bbb8036816fd9b Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 15 Feb 2022 22:15:40 +0100
 Subject: [PATCH 05/32] arm: dts: iot2050: Add cfg register space for ringacc
@@ -14,7 +14,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 24 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
-index 286e25f379..d80c5501d2 100644
+index 286e25f3794..d80c5501d2f 100644
 --- a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
 @@ -1,6 +1,6 @@
@@ -56,5 +56,5 @@ index 286e25f379..d80c5501d2 100644
  
  &cbass_wakeup {
 -- 
-2.30.2
+2.35.3
 
