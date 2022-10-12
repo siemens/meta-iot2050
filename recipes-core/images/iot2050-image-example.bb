@@ -118,6 +118,7 @@ IMAGE_INSTALL += " \
     node-red \
     node-red-gpio \
     node-red-preinstalled-nodes \
+    k3conf \
     "
 
 IOT2050_CORAL_SUPPORT ?= "1"
