@@ -1,4 +1,4 @@
-From 0bbcb0f651f168d5130196df1aeb23db96652eb1 Mon Sep 17 00:00:00 2001
+From 33dfade65c21f7b9210a86cd805ba2d249e267d8 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
 Subject: [PATCH 114/121] USB: serial: cp210x: refactor flow-control handling
@@ -152,5 +152,5 @@ index 5df54500019e..cad6ad5f53a6 100644
  	/*
  	 * Enable event-insertion mode only if input parity checking is
 -- 
-2.32.0
+2.35.3
 

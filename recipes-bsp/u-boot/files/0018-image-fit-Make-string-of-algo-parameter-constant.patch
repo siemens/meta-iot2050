@@ -1,4 +1,4 @@
-From 008ca4348dce2ba508f9ab91aa727e23e3bc97fb Mon Sep 17 00:00:00 2001
+From 939af9ed4a524376fde8f4387bd16311b67e210b Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 10:21:17 +0100
 Subject: [PATCH 18/32] image-fit: Make string of algo parameter constant
@@ -15,7 +15,7 @@ Reviewed-by: Simon Glass <sjg@chromium.org>
  4 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/boot/image-fit-sig.c b/boot/image-fit-sig.c
-index 63e5423c92..47d7633568 100644
+index 63e5423c925..47d76335685 100644
 --- a/boot/image-fit-sig.c
 +++ b/boot/image-fit-sig.c
 @@ -67,7 +67,7 @@ static int fit_image_setup_verify(struct image_sign_info *info,
@@ -28,7 +28,7 @@ index 63e5423c92..47d7633568 100644
  
  	if (fdt_totalsize(fit) > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)) {
 diff --git a/boot/image-fit.c b/boot/image-fit.c
-index 33b4a46028..3be6fe6eb9 100644
+index 33b4a46028b..3be6fe6eb93 100644
 --- a/boot/image-fit.c
 +++ b/boot/image-fit.c
 @@ -191,7 +191,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
@@ -64,7 +64,7 @@ index 33b4a46028..3be6fe6eb9 100644
  	int fit_value_len;
  	int ignore;
 diff --git a/include/image.h b/include/image.h
-index fd662e74b4..16ccc5b10f 100644
+index fd662e74b41..16ccc5b10f6 100644
 --- a/include/image.h
 +++ b/include/image.h
 @@ -1011,7 +1011,7 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
@@ -77,7 +77,7 @@ index fd662e74b4..16ccc5b10f 100644
  				int *value_len);
  
 diff --git a/tools/image-host.c b/tools/image-host.c
-index a6b0a94420..a027155f3c 100644
+index a6b0a944205..a027155f3c7 100644
 --- a/tools/image-host.c
 +++ b/tools/image-host.c
 @@ -63,7 +63,7 @@ static int fit_image_process_hash(void *fit, const char *image_name,
@@ -99,5 +99,5 @@ index a6b0a94420..a027155f3c 100644
  
  	node_name = fit_get_name(fit, noffset, NULL);
 -- 
-2.30.2
+2.35.3
 

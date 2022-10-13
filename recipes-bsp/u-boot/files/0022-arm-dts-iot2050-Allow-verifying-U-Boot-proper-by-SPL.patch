@@ -1,4 +1,4 @@
-From 8b531450e86a316e5d1d47c2cbf04120d675cf72 Mon Sep 17 00:00:00 2001
+From b490119ffdba6030b2d6cdeaed6291dd8204eeed Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 7 Nov 2021 17:59:17 +0100
 Subject: [PATCH 22/32] arm: dts: iot2050: Allow verifying U-Boot proper by SPL
@@ -12,7 +12,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 16 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 3ee0842e99..9082a79a03 100644
+index 3ee0842e993..9082a79a034 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -14,6 +14,7 @@
@@ -71,5 +71,5 @@ index 3ee0842e99..9082a79a03 100644
  		fill@0x680000 {
  			offset = <0x680000>;
 -- 
-2.30.2
+2.35.3
 

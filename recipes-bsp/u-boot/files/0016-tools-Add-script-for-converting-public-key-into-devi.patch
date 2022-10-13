@@ -1,4 +1,4 @@
-From 1f90f8cb1c28a1f4867c9cf0596e5fab94b8f59a Mon Sep 17 00:00:00 2001
+From e4b73170dfafedae8dff4fb919ceef087c82a032 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 14 Feb 2022 07:05:15 +0100
 Subject: [PATCH 16/32] tools: Add script for converting public key into device
@@ -16,7 +16,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 
 diff --git a/tools/key2dtsi.py b/tools/key2dtsi.py
 new file mode 100755
-index 0000000000..1dbb2cc94b
+index 00000000000..1dbb2cc94bf
 --- /dev/null
 +++ b/tools/key2dtsi.py
 @@ -0,0 +1,64 @@
@@ -85,5 +85,5 @@ index 0000000000..1dbb2cc94b
 +out.write('\t};\n')
 +out.write('};\n')
 -- 
-2.30.2
+2.35.3
 

@@ -1,4 +1,4 @@
-From d9ca309d31f9bfc98bde5a5f7503fc57dc76fd37 Mon Sep 17 00:00:00 2001
+From ffffb9eed9d0dae2cefe7cff518ade2b32c7c2ad Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Tue, 5 Jul 2022 14:48:11 +0900
 Subject: [PATCH 29/32] lib: crypto: add mscode_parser
@@ -30,7 +30,7 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
 
 diff --git a/include/crypto/mscode.h b/include/crypto/mscode.h
 new file mode 100644
-index 0000000000..551058b96e
+index 00000000000..551058b96e6
 --- /dev/null
 +++ b/include/crypto/mscode.h
 @@ -0,0 +1,43 @@
@@ -78,7 +78,7 @@ index 0000000000..551058b96e
 +extern int mscode_parse(void *_ctx, const void *content_data, size_t data_len,
 +			size_t asn1hdrlen);
 diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
-index 6369bafac0..92fe5cd0b0 100644
+index 6369bafac07..92fe5cd0b0b 100644
 --- a/lib/crypto/Kconfig
 +++ b/lib/crypto/Kconfig
 @@ -52,4 +52,13 @@ config PKCS7_MESSAGE_PARSER
@@ -96,7 +96,7 @@ index 6369bafac0..92fe5cd0b0 100644
 +
  endif # ASYMMETRIC_KEY_TYPE
 diff --git a/lib/crypto/Makefile b/lib/crypto/Makefile
-index f3a414525d..b86529da5e 100644
+index f3a414525d2..b86529da5e2 100644
 --- a/lib/crypto/Makefile
 +++ b/lib/crypto/Makefile
 @@ -48,3 +48,15 @@ obj-$(CONFIG_PKCS7_VERIFY) += pkcs7_verify.o
@@ -117,7 +117,7 @@ index f3a414525d..b86529da5e 100644
 +$(obj)/mscode.asn1.o: $(obj)/mscode.asn1.c $(obj)/mscode.asn1.h
 diff --git a/lib/crypto/mscode.asn1 b/lib/crypto/mscode.asn1
 new file mode 100644
-index 0000000000..6d09ba48c4
+index 00000000000..6d09ba48c41
 --- /dev/null
 +++ b/lib/crypto/mscode.asn1
 @@ -0,0 +1,28 @@
@@ -151,7 +151,7 @@ index 0000000000..6d09ba48c4
 +}
 diff --git a/lib/crypto/mscode_parser.c b/lib/crypto/mscode_parser.c
 new file mode 100644
-index 0000000000..90d5b37a6c
+index 00000000000..90d5b37a6cf
 --- /dev/null
 +++ b/lib/crypto/mscode_parser.c
 @@ -0,0 +1,135 @@
@@ -291,5 +291,5 @@ index 0000000000..90d5b37a6c
 +	return 0;
 +}
 -- 
-2.30.2
+2.35.3
 

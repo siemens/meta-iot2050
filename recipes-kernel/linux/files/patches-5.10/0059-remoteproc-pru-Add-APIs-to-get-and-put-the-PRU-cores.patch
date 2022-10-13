@@ -1,4 +1,4 @@
-From d528180b848ee9d75394c56143ec1a7403e90ce2 Mon Sep 17 00:00:00 2001
+From 5f4b52b9093370481f9fc989cb7bf323d1b26b9a Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:32:29 -0500
 Subject: [PATCH 059/121] remoteproc: pru: Add APIs to get and put the PRU
@@ -279,5 +279,5 @@ index 000000000000..1a97856b463a
 +
 +#endif /* __LINUX_PRUSS_H */
 -- 
-2.32.0
+2.35.3
 

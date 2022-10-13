@@ -1,4 +1,4 @@
-From f92785a0964a6ac750b6608878ec71b536ce8c1b Mon Sep 17 00:00:00 2001
+From fb8c19671c4b1c4303abeccd49d053cb39ce447a Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 2 Feb 2022 07:20:43 +0100
 Subject: [PATCH 04/32] sf: Query write-protection status before operating the
@@ -17,7 +17,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 12 insertions(+)
 
 diff --git a/cmd/sf.c b/cmd/sf.c
-index eac27ed2d7..d4b70d26c4 100644
+index eac27ed2d77..d4b70d26c48 100644
 --- a/cmd/sf.c
 +++ b/cmd/sf.c
 @@ -287,6 +287,12 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
@@ -47,5 +47,5 @@ index eac27ed2d7..d4b70d26c4 100644
  	printf("SF: %zu bytes @ %#x Erased: ", (size_t)size, (u32)offset);
  	if (ret)
 -- 
-2.30.2
+2.35.3
 

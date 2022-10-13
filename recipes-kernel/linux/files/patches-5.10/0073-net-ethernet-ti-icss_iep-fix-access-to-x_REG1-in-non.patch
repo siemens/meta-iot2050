@@ -1,4 +1,4 @@
-From dfb173913d735a2f7c689df44ab63ca8058d1f5b Mon Sep 17 00:00:00 2001
+From 2ee7c50a4949d6331a3bcbb3de768153923b4ad4 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:29 +0300
 Subject: [PATCH 073/121] net: ethernet: ti: icss_iep: fix access to x_REG1 in
@@ -93,5 +93,5 @@ index 60a284c6c0c9..73c0a31e8245 100644
  			pevent.type = PTP_CLOCK_EXTTS;
  			pevent.index = i;
 -- 
-2.32.0
+2.35.3
 

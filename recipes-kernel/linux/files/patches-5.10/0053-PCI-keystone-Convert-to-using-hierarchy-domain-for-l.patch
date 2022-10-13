@@ -1,4 +1,4 @@
-From cc768e66ee5d1c4d53f74cb06c84f7e8765f4c82 Mon Sep 17 00:00:00 2001
+From ba72cca14498248e7963f36a146d098a91d2aefa Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:47 +0530
 Subject: [PATCH 053/121] PCI: keystone: Convert to using hierarchy domain for
@@ -318,5 +318,5 @@ index 90482d5246ff..0493e43ba416 100644
  err:
  	of_node_put(intc_np);
 -- 
-2.32.0
+2.35.3
 

@@ -1,4 +1,4 @@
-From 54a05a25803666ff573d827468cee0498a977066 Mon Sep 17 00:00:00 2001
+From d7f21987ca42b198dde945dfcbc6903738ad0808 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Thu, 4 Mar 2021 10:07:11 -0600
 Subject: [PATCH 008/121] arm64: dts: ti: k3-am65-main: Add ICSSG nodes
@@ -475,5 +475,5 @@ index 00cd06ff98ee..67047f108130 100644
 +	};
  };
 -- 
-2.32.0
+2.35.3
 

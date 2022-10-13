@@ -1,4 +1,4 @@
-From 5e28a749e163f94987471ec9a7c6189c626697f1 Mon Sep 17 00:00:00 2001
+From c7b85ed2b4896dc1e7fd59988460b9a2a46df726 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:05 -0700
 Subject: [PATCH 023/121] firmware: ti_sci: rm: Add support for
@@ -91,5 +91,5 @@ index 9699b260de59..6978afc00823 100644
  
  /**
 -- 
-2.32.0
+2.35.3
 

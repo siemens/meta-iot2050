@@ -1,4 +1,4 @@
-From 41509301679c86621d79e4d59055e7b22755e94c Mon Sep 17 00:00:00 2001
+From c6728086d6262783adeca7425f667948e391bf8f Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:21 +0100
 Subject: [PATCH 110/121] USB: serial: cp210x: return early on unchanged
@@ -46,5 +46,5 @@ index 7ac668023da8..363232b6e4b2 100644
  	old_cflag = old_termios->c_cflag;
  
 -- 
-2.32.0
+2.35.3
 

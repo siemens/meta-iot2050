@@ -1,4 +1,4 @@
-From 6667dce845ffb1503ea39ec81a3b03dad60c8f2c Mon Sep 17 00:00:00 2001
+From ddc79889dead59d19c16511a19bfe9a65099d86d Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
 Subject: [PATCH 029/121] soc: ti: pruss: Remove wrong check against
@@ -43,5 +43,5 @@ index 30695172a508..aa3aba80dbc6 100644
  	ret = dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
  	if (ret) {
 -- 
-2.32.0
+2.35.3
 

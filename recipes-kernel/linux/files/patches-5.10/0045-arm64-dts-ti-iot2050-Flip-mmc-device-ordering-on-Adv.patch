@@ -1,4 +1,4 @@
-From b9ba7d0572b81aefa7a4308ce12b6005630cf8f0 Mon Sep 17 00:00:00 2001
+From de881f4556e65b3b76ef37f203dd1e02a0916e01 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 1 Sep 2021 21:52:11 +0200
 Subject: [PATCH 045/121] arm64: dts: ti: iot2050: Flip mmc device ordering on
@@ -27,5 +27,5 @@ index 1008e9162ba2..6261ca8ee2d8 100644
  
  	chosen {
 -- 
-2.32.0
+2.35.3
 

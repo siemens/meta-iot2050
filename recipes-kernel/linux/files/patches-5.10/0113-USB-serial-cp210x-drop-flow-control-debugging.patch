@@ -1,4 +1,4 @@
-From 3a0a1ebb22e6ddbab043620bd0f2b713e838c788 Mon Sep 17 00:00:00 2001
+From 7bc0f335b4cec655ae14d94324076301af7af40a Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:24 +0100
 Subject: [PATCH 113/121] USB: serial: cp210x: drop flow-control debugging
@@ -43,5 +43,5 @@ index 9915a1beb775..5df54500019e 100644
  		flow_ctl.ulControlHandshake = cpu_to_le32(ctl_hs);
  		flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
 -- 
-2.32.0
+2.35.3
 

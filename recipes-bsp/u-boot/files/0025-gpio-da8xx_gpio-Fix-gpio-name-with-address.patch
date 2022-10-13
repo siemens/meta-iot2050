@@ -1,4 +1,4 @@
-From d36f6167cf7579502ee7562c91d347610261af82 Mon Sep 17 00:00:00 2001
+From acdebe0ff0b3d8c1056bf74bc5c6418b35d67b2b Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 7 Jan 2022 11:26:24 +0800
 Subject: [PATCH 25/32] gpio: da8xx_gpio: Fix gpio name with address
@@ -13,7 +13,7 @@ Signed-off-by: chao zeng <chao.zeng@siemens.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/drivers/gpio/da8xx_gpio.c b/drivers/gpio/da8xx_gpio.c
-index d106e9846d..b310f2dbf6 100644
+index d106e9846df..b310f2dbf65 100644
 --- a/drivers/gpio/da8xx_gpio.c
 +++ b/drivers/gpio/da8xx_gpio.c
 @@ -545,12 +545,20 @@ static int davinci_gpio_of_to_plat(struct udevice *dev)
@@ -38,5 +38,5 @@ index d106e9846d..b310f2dbf6 100644
  }
  
 -- 
-2.30.2
+2.35.3
 
