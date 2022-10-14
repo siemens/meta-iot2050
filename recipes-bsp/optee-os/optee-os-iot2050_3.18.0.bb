@@ -21,6 +21,7 @@ OPTEE_NAME = "iot2050"
 
 OPTEE_PLATFORM = "k3-am65x"
 OPTEE_EXTRA_BUILDARGS = " \
+    TEE_IMPL_VERSION=${PV} \
     CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_USER_TA_TARGETS=ta_arm64 \
     CFG_CONSOLE_UART=1 CFG_RPMB_FS=y CFG_RPMB_FS_DEV_ID=1 CFG_CORE_DYN_SHM=y \
     CFG_IN_TREE_EARLY_TAS=avb/023f8f1a-292a-432b-8fc4-de8471358067"
@@ -33,8 +34,4 @@ python do_patch_prepend() {
     overrides = d.getVar('OVERRIDES')
     if re.search("rpmb-setup", overrides) and re.search("secureboot", overrides):
         bb.fatal("Not possible to use Secure Boot and RPMB setup for OPTEE")
-}
-
-dpkg_runbuild_prepend() {
-    export TEE_IMPL_VERSION=${PV}
 }
