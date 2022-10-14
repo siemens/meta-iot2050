@@ -1,7 +1,7 @@
-From b148afa67b4a10db91585e404b03eccdb439c0d7 Mon Sep 17 00:00:00 2001
+From 2d9ecc4326b94c22dc4e71b359b4e0528e768aa7 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Tue, 11 Jan 2022 11:28:24 +0800
-Subject: [PATCH 120/121] arm64: dts: ti: iot2050: Add support for M.2 variant
+Subject: [PATCH 120/120] arm64: dts: ti: iot2050: Add support for M.2 variant
 
 The M.2 variant comes with 2 slots, one B-keyed and another one E-keyed.
 They are configured by the firmware during startup. Also the device tree

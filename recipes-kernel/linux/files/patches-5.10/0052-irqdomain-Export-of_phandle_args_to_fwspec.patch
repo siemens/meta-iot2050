@@ -1,7 +1,7 @@
-From 0d0739e07bb48f6d78c6fa6c71b54c6e7fd8c81c Mon Sep 17 00:00:00 2001
+From cf1a1afb303707c2622d6ffa47cc0aae96b040dd Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:46 +0530
-Subject: [PATCH 052/121] irqdomain: Export of_phandle_args_to_fwspec()
+Subject: [PATCH 052/120] irqdomain: Export of_phandle_args_to_fwspec()
 
 Export of_phandle_args_to_fwspec() to be used by drivers.
 of_phandle_args_to_fwspec() can be used by drivers to get irq specifier

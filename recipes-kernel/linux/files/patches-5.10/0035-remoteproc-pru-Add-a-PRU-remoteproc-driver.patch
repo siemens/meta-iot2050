@@ -1,7 +1,7 @@
-From 51cb30ce64cb75005071a77a525240d2cf1322c1 Mon Sep 17 00:00:00 2001
+From 611679084e60663843add5e78ec616d90ecb9eca Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:09:58 +0100
-Subject: [PATCH 035/121] remoteproc: pru: Add a PRU remoteproc driver
+Subject: [PATCH 035/120] remoteproc: pru: Add a PRU remoteproc driver
 
 The Programmable Real-Time Unit Subsystem (PRUSS) consists of
 dual 32-bit RISC cores (Programmable Real-Time Units, or PRUs)

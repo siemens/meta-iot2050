@@ -1,7 +1,7 @@
-From c574f9a0a5966bf04cf584b28b0f992ffef60e7b Mon Sep 17 00:00:00 2001
+From e63f46cb1df73aaf268e1d9d2b4467e16ad5c5fa Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 1 Jun 2021 10:00:31 -0500
-Subject: [PATCH 016/121] arm64: dts: ti: k3-am65-main: Add ICSSG MDIO nodes
+Subject: [PATCH 016/120] arm64: dts: ti: k3-am65-main: Add ICSSG MDIO nodes
 
 The ICSSGs on K3 AM65x SoCs contain an MDIO controller that can
 be used to control external PHYs associated with the Industrial
@@ -51,10 +51,10 @@ index d90abda1de84..8c6b538c53f3 100644
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index e92e34a017eb..9338f1042232 100644
+index c288d03da908..a506a24bd9c2 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -1051,6 +1051,16 @@ tx_pru0_1: txpru@c000 {
+@@ -1054,6 +1054,16 @@ tx_pru0_1: txpru@c000 {
  			reg-names = "iram", "control", "debug";
  			firmware-name = "am65x-txpru0_1-fw";
  		};
@@ -71,7 +71,7 @@ index e92e34a017eb..9338f1042232 100644
  	};
  
  	icssg1: icssg@b100000 {
-@@ -1182,6 +1192,16 @@ tx_pru1_1: txpru@c000 {
+@@ -1185,6 +1195,16 @@ tx_pru1_1: txpru@c000 {
  			reg-names = "iram", "control", "debug";
  			firmware-name = "am65x-txpru1_1-fw";
  		};
@@ -88,7 +88,7 @@ index e92e34a017eb..9338f1042232 100644
  	};
  
  	icssg2: icssg@b200000 {
-@@ -1313,5 +1333,15 @@ tx_pru2_1: txpru@c000 {
+@@ -1316,5 +1336,15 @@ tx_pru2_1: txpru@c000 {
  			reg-names = "iram", "control", "debug";
  			firmware-name = "am65x-txpru2_1-fw";
  		};

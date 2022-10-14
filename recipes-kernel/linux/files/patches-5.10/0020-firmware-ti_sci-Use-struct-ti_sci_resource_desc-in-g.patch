@@ -1,7 +1,7 @@
-From cf89b4e8c8703ddfbcb037e7fd66b022c952abf2 Mon Sep 17 00:00:00 2001
+From 5c9d2975642f9a2ff42b94dbff9240f74f2ed619 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
-Subject: [PATCH 020/121] firmware: ti_sci: Use struct ti_sci_resource_desc in
+Subject: [PATCH 020/120] firmware: ti_sci: Use struct ti_sci_resource_desc in
  get_range ops
 
 Use the ti_sci_resource_desc directly and update it's start and num members
@@ -115,7 +115,7 @@ index 65a8c2e82093..7a777e91ce3e 100644
  			dev_dbg(dev, "dev = %d subtype %d not allocated for this host\n",
  				dev_id, sub_types[i]);
 diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
-index d254d99fd45b..6cd537db4d33 100644
+index fece890e1635..19b90545edd8 100644
 --- a/include/linux/soc/ti/ti_sci_protocol.h
 +++ b/include/linux/soc/ti/ti_sci_protocol.h
 @@ -195,6 +195,18 @@ struct ti_sci_clk_ops {

@@ -1,7 +1,7 @@
-From 0f2d109aefdc0affd798635813b480a662670455 Mon Sep 17 00:00:00 2001
+From fe70c79c6a590eec9e741bec2deb4d6aad7d84f6 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 5 Jul 2021 10:20:10 +0200
-Subject: [PATCH 117/121] USB: serial: cp210x: fix control-characters error
+Subject: [PATCH 117/120] USB: serial: cp210x: fix control-characters error
  handling
 
 In the unlikely event that setting the software flow-control characters
@@ -20,10 +20,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 815e8589f877..d39e28805ec7 100644
+index aff686b50251..ce930037c6ea 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1123,10 +1123,8 @@ static int cp210x_set_chars(struct usb_serial_port *port,
+@@ -1126,10 +1126,8 @@ static int cp210x_set_chars(struct usb_serial_port *port,
  
  	kfree(dmabuf);
  
@@ -35,7 +35,7 @@ index 815e8589f877..d39e28805ec7 100644
  
  	return 0;
  }
-@@ -1163,8 +1161,10 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+@@ -1166,8 +1164,10 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
  		chars.bXoffChar = STOP_CHAR(tty);
  
  		ret = cp210x_set_chars(port, &chars);

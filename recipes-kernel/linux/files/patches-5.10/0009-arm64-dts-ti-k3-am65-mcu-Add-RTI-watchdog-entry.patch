@@ -1,7 +1,7 @@
-From c51768d2d0929cdfbbc8a59936284b5f5da146b5 Mon Sep 17 00:00:00 2001
+From b8b3bb649dc158f159daf0a0bff3be5a908ec1a9 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 20 Feb 2021 13:49:51 +0100
-Subject: [PATCH 009/121] arm64: dts: ti: k3-am65-mcu: Add RTI watchdog entry
+Subject: [PATCH 009/120] arm64: dts: ti: k3-am65-mcu: Add RTI watchdog entry
 
 Add the DT entry for a watchdog based on RTI1.
 

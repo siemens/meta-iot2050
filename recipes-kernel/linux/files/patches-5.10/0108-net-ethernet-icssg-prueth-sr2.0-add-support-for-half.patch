@@ -1,7 +1,7 @@
-From 019973e597f0fde5bfb0fba3052dfddf64ab4874 Mon Sep 17 00:00:00 2001
+From 255b78d8ccb6a1b9f426fe4ffdb0c1ba3bc342d6 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 12 Oct 2021 13:54:43 +0300
-Subject: [PATCH 108/121] net: ethernet: icssg-prueth: sr2.0: add support for
+Subject: [PATCH 108/120] net: ethernet: icssg-prueth: sr2.0: add support for
  half duplex operation
 
 This patch adds support for half duplex operation at 10M and 100M link

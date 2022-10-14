@@ -1,7 +1,7 @@
-From eebf0be3283f4929c5a0e75e5dc3ad4c37d9d90e Mon Sep 17 00:00:00 2001
+From 00565d0cc745cb56d7fe5665e2ea8a458dcc32ae Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
-Subject: [PATCH 013/121] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
+Subject: [PATCH 013/120] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
  replace open coding
 
 use pm_runtime_resume_and_get() to replace pm_runtime_get_sync and
@@ -16,10 +16,10 @@ Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index a64ea143d185..c4799a16a61f 100644
+index 7cab9d831afb..9c3a37d94f53 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -781,11 +781,9 @@ static int sdhci_am654_probe(struct platform_device *pdev)
+@@ -802,11 +802,9 @@ static int sdhci_am654_probe(struct platform_device *pdev)
  
  	/* Clocks are enabled using pm_runtime */
  	pm_runtime_enable(dev);

@@ -1,7 +1,7 @@
-From 821bf34ea9f55d4e2ba4d8bf6694d0e89b72eb92 Mon Sep 17 00:00:00 2001
+From b2069ec9290b6b0c130751b457d5872bbbb7be9a Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:06 -0700
-Subject: [PATCH 025/121] firmware: ti_sci: rm: Add new ops for ring
+Subject: [PATCH 025/120] firmware: ti_sci: rm: Add new ops for ring
  configuration
 
 The sysfw ring configuration message has been extended to include virtid
@@ -139,7 +139,7 @@ index 1cdf918be861..ef3a8214d002 100644
  
  /**
 diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
-index 6710d7ac7a72..d1711050cd9d 100644
+index 7727ec954f62..d7f0dcf98861 100644
 --- a/include/linux/soc/ti/ti_sci_protocol.h
 +++ b/include/linux/soc/ti/ti_sci_protocol.h
 @@ -275,17 +275,44 @@ struct ti_sci_rm_irq_ops {

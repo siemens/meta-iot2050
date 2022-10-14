@@ -1,7 +1,7 @@
-From fff53d4451319c60dd1287467363efe63d51dd91 Mon Sep 17 00:00:00 2001
+From 24dfafe1339618f30d85f4a26694b5bdbb8fcf2c Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 16 Mar 2021 18:00:25 -0500
-Subject: [PATCH 084/121] arm64: dts: ti: k3-am65-main: Add ICSSG IEP nodes
+Subject: [PATCH 084/120] arm64: dts: ti: k3-am65-main: Add ICSSG IEP nodes
 
 The ICSSG IP on AM65x SoCs have two Industrial Ethernet Peripherals (IEPs)
 to manage/generate Industrial Ethernet functions such as time stamping.
@@ -16,10 +16,10 @@ Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
  1 file changed, 36 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index b786daed9639..d0e565fb5e12 100644
+index 2911b4286c97..351183c116c5 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -995,6 +995,18 @@ icssg0_iepclk_mux: iepclk-mux@30 {
+@@ -998,6 +998,18 @@ icssg0_iepclk_mux: iepclk-mux@30 {
  			};
  		};
  
@@ -38,7 +38,7 @@ index b786daed9639..d0e565fb5e12 100644
  		icssg0_mii_rt: mii-rt@32000 {
  			compatible = "ti,pruss-mii", "syscon";
  			reg = <0x32000 0x100>;
-@@ -1136,6 +1148,18 @@ icssg1_iepclk_mux: iepclk-mux@30 {
+@@ -1139,6 +1151,18 @@ icssg1_iepclk_mux: iepclk-mux@30 {
  			};
  		};
  
@@ -57,7 +57,7 @@ index b786daed9639..d0e565fb5e12 100644
  		icssg1_mii_rt: mii-rt@32000 {
  			compatible = "ti,pruss-mii", "syscon";
  			reg = <0x32000 0x100>;
-@@ -1277,6 +1301,18 @@ icssg2_iepclk_mux: iepclk-mux@30 {
+@@ -1280,6 +1304,18 @@ icssg2_iepclk_mux: iepclk-mux@30 {
  			};
  		};
  

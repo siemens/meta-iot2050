@@ -7,6 +7,6 @@
 
 require linux-iot2050-5.10.inc
 
-SRC_URI[sha256sum] = "5455a0270bc098c82ee6a9b759db9fe1fb4f43a5fa9c8275bf129dbe2c38c91c"
+SRC_URI[sha256sum] = "a5598f7f673b3ef819d6ed24f08d539eecb6febd11673a1d4752a1c05d4ee289"
 
 SRC_URI += "file://iot2050-rt.cfg"

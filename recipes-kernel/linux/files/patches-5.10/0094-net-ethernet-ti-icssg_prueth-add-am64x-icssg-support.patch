@@ -1,7 +1,7 @@
-From b3c96e1246411fa212983e6bb2a29c003541a7d0 Mon Sep 17 00:00:00 2001
+From 7ccc80ed87e1110e25ac3d6e5e7a0e146e382a19 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 18 May 2021 23:37:33 +0300
-Subject: [PATCH 094/121] net: ethernet: ti: icssg_prueth: add am64x icssg
+Subject: [PATCH 094/120] net: ethernet: ti: icssg_prueth: add am64x icssg
  support
 
 Add AM64x ICSSG support which is similar to am65x SR2.0, but required:

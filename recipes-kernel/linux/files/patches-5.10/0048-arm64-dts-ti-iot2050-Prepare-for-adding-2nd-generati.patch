@@ -1,7 +1,7 @@
-From e88761215bedf40a3035b1b1844f2090d91b7438 Mon Sep 17 00:00:00 2001
+From 2b10be6eb723b040c696c3922f4d1b40b213e1ec Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Tue, 7 Sep 2021 17:49:55 +0200
-Subject: [PATCH 048/121] arm64: dts: ti: iot2050: Prepare for adding
+Date: Sun, 26 Sep 2021 14:05:16 +0200
+Subject: [PATCH 048/120] arm64: dts: ti: iot2050: Prepare for adding
  2nd-generation boards
 
 The current IOT2050 devices are Product Generation 1 (PG1), using SR1.0
@@ -10,9 +10,11 @@ therefore need separate device trees. Prepare for that by factoring out
 common bits that will be shared across both generations.
 
 At this chance, drop a link to the product homepage to in the top-level
-dts files.
+dts files. Also fix a typo in my email address in some headers.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/31fece05f9728a852c0632985c4fa537cced4ece.1632657917.git.jan.kiszka@web.de
 ---
  .../dts/ti/k3-am65-iot2050-common-pg1.dtsi    | 46 +++++++++++++++
  .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 35 +-----------

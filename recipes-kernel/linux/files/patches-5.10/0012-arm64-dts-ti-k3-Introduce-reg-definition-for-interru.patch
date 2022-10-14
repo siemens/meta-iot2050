@@ -1,7 +1,7 @@
-From 882bce9215c59fcf76fcce1fddc05dc5cedd52d1 Mon Sep 17 00:00:00 2001
+From 5a0359f7ef324fbf45676c9228f8ac81b0e6cca9 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Tue, 11 May 2021 14:48:21 -0500
-Subject: [PATCH 012/121] arm64: dts: ti: k3*: Introduce reg definition for
+Subject: [PATCH 012/120] arm64: dts: ti: k3*: Introduce reg definition for
  interrupt routers
 
 Interrupt routers are memory mapped peripherals, that are organized
@@ -39,10 +39,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  6 files changed, 18 insertions(+), 9 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index f10a46fd426a..ac3c2093603b 100644
+index 92f55840a08d..75afafdcee6f 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -433,8 +433,9 @@ usb1_phy: phy@4110000 {
+@@ -436,8 +436,9 @@ usb1_phy: phy@4110000 {
  		#phy-cells = <0>;
  	};
  
@@ -53,7 +53,7 @@ index f10a46fd426a..ac3c2093603b 100644
  		ti,intr-trigger-type = <1>;
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
-@@ -454,8 +455,9 @@ main_navss: bus@30800000 {
+@@ -457,8 +458,9 @@ main_navss: bus@30800000 {
  
  		ti,sci-dev-id = <118>;
  
@@ -80,10 +80,10 @@ index ed42f13e7663..62a18b110c52 100644
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 0eabd6223df0..3cc4d08ec53c 100644
+index cb22e65d61ab..a0365890571e 100644
 --- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -61,8 +61,9 @@ gic_its: msi-controller@1820000 {
+@@ -64,8 +64,9 @@ gic_its: msi-controller@1820000 {
  		};
  	};
  
@@ -94,7 +94,7 @@ index 0eabd6223df0..3cc4d08ec53c 100644
  		ti,intr-trigger-type = <1>;
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
-@@ -81,8 +82,9 @@ main_navss: bus@30000000 {
+@@ -84,8 +85,9 @@ main_navss: bus@30000000 {
  		dma-coherent;
  		dma-ranges;
  
@@ -121,10 +121,10 @@ index eb2a78a53512..c4e63272fbdb 100644
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 10ed3716d1c6..5bbb5a2eb22d 100644
+index b85889ae50e1..6b377d93b121 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -122,8 +122,9 @@ gic_its: msi-controller@1820000 {
+@@ -125,8 +125,9 @@ gic_its: msi-controller@1820000 {
  		};
  	};
  
@@ -135,7 +135,7 @@ index 10ed3716d1c6..5bbb5a2eb22d 100644
  		ti,intr-trigger-type = <1>;
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
-@@ -143,8 +144,9 @@ main_navss: bus@30000000 {
+@@ -146,8 +147,9 @@ main_navss: bus@30000000 {
  
  		ti,sci-dev-id = <199>;
  

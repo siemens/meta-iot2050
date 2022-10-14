@@ -1,7 +1,7 @@
-From 2f850a740d8990f6b1c66f0c1f915e862582fbc3 Mon Sep 17 00:00:00 2001
+From 47f9403b812e345194b95615bb1e9ce826e92213 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 15 Jan 2021 21:30:16 +0200
-Subject: [PATCH 006/121] arm64: dts: ti: k3: mmc: fix dtbs_check warnings
+Subject: [PATCH 006/120] arm64: dts: ti: k3: mmc: fix dtbs_check warnings
 
 Now the dtbs_check produces below warnings
  sdhci@4f80000: clock-names:0: 'clk_ahb' was expected
@@ -26,10 +26,10 @@ Link: https://lore.kernel.org/r/20210115193016.5581-1-grygorii.strashko@ti.com
  3 files changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 116818912ba2..29c647f35464 100644
+index ba1529436128..cf7656cf650e 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -256,7 +256,7 @@ main_spi4: spi@2140000 {
+@@ -259,7 +259,7 @@ main_spi4: spi@2140000 {
  		#size-cells = <0>;
  	};
  
@@ -38,7 +38,7 @@ index 116818912ba2..29c647f35464 100644
  		compatible = "ti,am654-sdhci-5.1";
  		reg = <0x0 0x4f80000 0x0 0x260>, <0x0 0x4f90000 0x0 0x134>;
  		power-domains = <&k3_pds 47 TI_SCI_PD_EXCLUSIVE>;
-@@ -280,7 +280,7 @@ sdhci0: sdhci@4f80000 {
+@@ -283,7 +283,7 @@ sdhci0: sdhci@4f80000 {
  		dma-coherent;
  	};
  
@@ -48,10 +48,10 @@ index 116818912ba2..29c647f35464 100644
  		reg = <0x0 0x4fa0000 0x0 0x260>, <0x0 0x4fb0000 0x0 0x134>;
  		power-domains = <&k3_pds 48 TI_SCI_PD_EXCLUSIVE>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 1ab9f9604af6..0eabd6223df0 100644
+index bef47f96376d..cb22e65d61ab 100644
 --- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -387,8 +387,8 @@ main_sdhci0: mmc@4f80000 {
+@@ -390,8 +390,8 @@ main_sdhci0: mmc@4f80000 {
  		reg = <0x00 0x04f80000 0x00 0x260>, <0x00 0x4f88000 0x00 0x134>;
  		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
  		power-domains = <&k3_pds 91 TI_SCI_PD_EXCLUSIVE>;
@@ -62,7 +62,7 @@ index 1ab9f9604af6..0eabd6223df0 100644
  		ti,otap-del-sel-legacy = <0x0>;
  		ti,otap-del-sel-mmc-hs = <0x0>;
  		ti,otap-del-sel-ddr52 = <0x6>;
-@@ -406,8 +406,8 @@ main_sdhci1: mmc@4fb0000 {
+@@ -409,8 +409,8 @@ main_sdhci1: mmc@4fb0000 {
  		reg = <0x00 0x04fb0000 0x00 0x260>, <0x00 0x4fb8000 0x00 0x134>;
  		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
  		power-domains = <&k3_pds 92 TI_SCI_PD_EXCLUSIVE>;
@@ -74,10 +74,10 @@ index 1ab9f9604af6..0eabd6223df0 100644
  		ti,otap-del-sel-sd-hs = <0x0>;
  		ti,otap-del-sel-sdr12 = <0xf>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 98009d3aa25d..d0dae7c0ad23 100644
+index b8ca6e03de36..81fddd145b86 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -1069,13 +1069,13 @@ main_gpio7: gpio@631000 {
+@@ -1072,13 +1072,13 @@ main_gpio7: gpio@631000 {
  		clock-names = "gpio";
  	};
  
@@ -94,7 +94,7 @@ index 98009d3aa25d..d0dae7c0ad23 100644
  		assigned-clocks = <&k3_clks 91 1>;
  		assigned-clock-parents = <&k3_clks 91 2>;
  		bus-width = <8>;
-@@ -1087,13 +1087,13 @@ main_sdhci0: sdhci@4f80000 {
+@@ -1090,13 +1090,13 @@ main_sdhci0: sdhci@4f80000 {
  		dma-coherent;
  	};
  
@@ -111,7 +111,7 @@ index 98009d3aa25d..d0dae7c0ad23 100644
  		assigned-clocks = <&k3_clks 92 0>;
  		assigned-clock-parents = <&k3_clks 92 1>;
  		ti,otap-del-sel = <0x2>;
-@@ -1103,13 +1103,13 @@ main_sdhci1: sdhci@4fb0000 {
+@@ -1106,13 +1106,13 @@ main_sdhci1: sdhci@4fb0000 {
  		no-1-8-v;
  	};
  

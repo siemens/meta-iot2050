@@ -1,7 +1,7 @@
-From b572b77143b88f82fa595adc0982d01d4ef1c696 Mon Sep 17 00:00:00 2001
+From 52278738c3ca3b6a7e3f6a6e26c85a244b897d72 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Wed, 2 Jun 2021 08:56:15 +0200
-Subject: [PATCH 017/121] arm64: dts: ti: iot2050: Configure r5f cluster on
+Subject: [PATCH 017/120] arm64: dts: ti: iot2050: Configure r5f cluster on
  basic variant in split mode
 
 Lockstep mode is not supported here. So turn it off to avoid warnings
