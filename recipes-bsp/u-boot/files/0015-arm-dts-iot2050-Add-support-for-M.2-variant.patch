@@ -1,7 +1,7 @@
-From c27f2eeb4523753296f1808d0384b98ba1c92508 Mon Sep 17 00:00:00 2001
+From b62e5d489b1ca85d825d3ed54e6d6b5f02a1ef3f Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 7 Jan 2022 10:18:07 +0800
-Subject: [PATCH 27/32] arm: dts: iot2050: Add support for M.2 variant
+Subject: [PATCH 15/18] arm: dts: iot2050: Add support for M.2 variant
 
 Add support for the M.2 board based on the iot2050 advanced board.
 The board has two m.2 connectors, one is B-keyed, the other E-keyed.
@@ -22,10 +22,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  create mode 100644 arch/arm/dts/k3-am6548-iot2050-advanced-m2.dts
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index b3e2a9c9d77..9ea395dd917 100644
+index 965895bc2a3..d0ce6c97542 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -1119,7 +1119,9 @@ dtb-$(CONFIG_SOC_K3_AM6) += \
+@@ -1210,7 +1210,9 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
  	k3-am6528-iot2050-basic.dtb \
  	k3-am6528-iot2050-basic-pg2.dtb \
  	k3-am6548-iot2050-advanced.dtb \
@@ -160,10 +160,10 @@ index 00000000000..cb0f3a87292
 +	/delete-property/ snps,dis-u2-entry-quirk;
 +};
 diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
-index d5ed53c40d5..b5c2b10033f 100644
+index 43410160c8a..a31691a1d18 100644
 --- a/configs/iot2050_pg2_defconfig
 +++ b/configs/iot2050_pg2_defconfig
-@@ -61,7 +61,7 @@ CONFIG_CMD_TIME=y
+@@ -70,7 +70,7 @@ CONFIG_CMD_TIME=y
  # CONFIG_ISO_PARTITION is not set
  CONFIG_OF_CONTROL=y
  CONFIG_SPL_OF_CONTROL=y
@@ -173,7 +173,7 @@ index d5ed53c40d5..b5c2b10033f 100644
  CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
  CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index cb49a0e36bf..0ec14ba7b95 100644
+index efe94a448a9..442d2cac216 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -6,7 +6,9 @@ SIMATIC IOT2050 BASIC and ADVANCED
@@ -187,7 +187,7 @@ index cb49a0e36bf..0ec14ba7b95 100644
  
  The IOT2050 starts only from OSPI. It loads a Siemens-provided bootloader
  called SE-Boot for the MCU domain (R5F cores), then hands over to ATF and
-@@ -66,7 +68,7 @@ U-Boot:
+@@ -70,7 +72,7 @@ U-Boot:
   # configure for PG1
   $ make iot2050_pg1_defconfig
  

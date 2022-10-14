@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require u-boot-iot2050_2022.01.inc
+require u-boot-iot2050_2022.10.inc
 
 U_BOOT_CONFIG = "iot2050_${PRODUCT_GENERATION}_defconfig"
 

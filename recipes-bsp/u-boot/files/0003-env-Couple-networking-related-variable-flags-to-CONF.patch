@@ -1,12 +1,13 @@
-From b5f31bb6d847d72168ef2f5e719435c3043a8b7c Mon Sep 17 00:00:00 2001
+From af80648540a9625fd03c8dbebfb17901bb2317c8 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 11:15:36 +0200
-Subject: [PATCH 14/32] env: Couple networking-related variable flags to
+Subject: [PATCH 03/18] env: Couple networking-related variable flags to
  CONFIG_NET
 
 Boards may set networking variables programmatically, thus may have
 CONFIG_NET on but CONFIG_CMD_NET off. The IOT2050 is an example.
 
+CC: Joe Hershberger <joe.hershberger@ni.com>
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  env/flags.c         | 10 +++++-----

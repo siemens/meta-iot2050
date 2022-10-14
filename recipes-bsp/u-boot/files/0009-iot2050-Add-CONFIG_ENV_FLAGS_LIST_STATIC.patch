@@ -1,7 +1,7 @@
-From 9854c8bc04bcaaff16c4f59cb3f2025c817a1268 Mon Sep 17 00:00:00 2001
+From b7d0346c54bfe7aa00cce0a9f520f232cb0ff6f8 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 10:42:25 +0200
-Subject: [PATCH 21/32] iot2050: Add CONFIG_ENV_FLAGS_LIST_STATIC
+Subject: [PATCH 09/18] iot2050: Add CONFIG_ENV_FLAGS_LIST_STATIC
 
 Will be needed when CONFIG_ENV_WRITEABLE_LIST is enabled. The listed
 variables shall remain writable, for informational purposes - they have
@@ -14,10 +14,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
-index 26875afdeaf..097fca5e3b3 100644
+index dc4b5f90595..d2cba5acfdd 100644
 --- a/include/configs/iot2050.h
 +++ b/include/configs/iot2050.h
-@@ -66,4 +66,12 @@
+@@ -56,4 +56,12 @@
  
  #include <configs/ti_armv7_common.h>
  

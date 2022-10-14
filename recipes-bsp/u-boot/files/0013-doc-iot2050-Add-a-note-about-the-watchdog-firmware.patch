@@ -1,0 +1,30 @@
+From ec6807dabf1d924395d2e25840549e72e42ae031 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 27 May 2022 11:35:45 +0200
+Subject: [PATCH 13/18] doc: iot2050: Add a note about the watchdog firmware
+
+This is enabled by default, thus should be described as well.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ doc/board/siemens/iot2050.rst | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
+index cb49a0e36bf..efe94a448a9 100644
+--- a/doc/board/siemens/iot2050.rst
++++ b/doc/board/siemens/iot2050.rst
+@@ -27,6 +27,10 @@ The following binaries from that source need to be present in the build folder:
+  - seboot_pg1.bin
+  - seboot_pg2.bin
+ 
++When using the watchdog, a related firmware for the R5 core(s) is needed, e.g.
++https://github.com/siemens/k3-rti-wdt. The name and location of the image is
++configured via CONFIG_WDT_K3_RTI_FW_FILE.
++
+ For building an image containing the OTP key provisioning data, below binary
+ needs to be present in the build folder:
+ 
+-- 
+2.35.3
+

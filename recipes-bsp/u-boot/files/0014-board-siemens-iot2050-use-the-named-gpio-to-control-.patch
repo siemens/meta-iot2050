@@ -1,7 +1,7 @@
-From 5bec813b324f85598d31149984b4ab382e1e7c94 Mon Sep 17 00:00:00 2001
+From afd4d6088638924fd2a6d60689d7e91394d3a7ac Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Wed, 12 Jan 2022 10:34:18 +0800
-Subject: [PATCH 26/32] board: siemens: iot2050: use the named gpio to control
+Subject: [PATCH 14/18] board: siemens: iot2050: use the named gpio to control
  the user-button
 
 User-button is controlled by the mcu domain gpio number 25.

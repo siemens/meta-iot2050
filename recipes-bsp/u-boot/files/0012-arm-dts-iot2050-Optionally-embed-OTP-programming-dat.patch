@@ -1,7 +1,7 @@
-From 49db79db4eb818976de20ca5fb41bf63ab34278a Mon Sep 17 00:00:00 2001
+From 413f69e83b345e994bbe26a58213ba20896e9517 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 May 2022 11:29:20 +0200
-Subject: [PATCH 24/32] arm: dts: iot2050: Optionally embed  OTP programming
+Subject: [PATCH 12/18] arm: dts: iot2050: Optionally embed  OTP programming
  data into image
 
 Use external blob otpcmd.bin to replace the 0xff filled OTP programming
@@ -43,7 +43,7 @@ index 9082a79a034..25a22a7b7b8 100644
  	};
  };
 diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
-index e264bec2d44..09b47257bbf 100644
+index a2b40881d11..e66b2427d95 100644
 --- a/board/siemens/iot2050/Kconfig
 +++ b/board/siemens/iot2050/Kconfig
 @@ -49,4 +49,11 @@ config IOT2050_BOOT_SWITCH
@@ -78,7 +78,7 @@ index 4e0925c72c9..cb49a0e36bf 100644
  --------
  
 diff --git a/tools/binman/missing-blob-help b/tools/binman/missing-blob-help
-index 38371ef8b39..b0c290b0fcd 100644
+index 5bb8961ce03..7e88cd03954 100644
 --- a/tools/binman/missing-blob-help
 +++ b/tools/binman/missing-blob-help
 @@ -23,6 +23,14 @@ See the documentation for IOT2050 board. Your image is missing SEBoot
