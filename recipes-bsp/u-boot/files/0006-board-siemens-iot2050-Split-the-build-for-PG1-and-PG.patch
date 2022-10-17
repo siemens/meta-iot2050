@@ -1,4 +1,4 @@
-From 6ea8352936055e8427d866fb6f081417c4a27c36 Mon Sep 17 00:00:00 2001
+From 706a83f6facf0e1069cfc71c182761becf0c5154 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 15:05:27 +0800
 Subject: [PATCH 06/32] board: siemens: iot2050: Split the build for PG1 and
@@ -33,7 +33,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  rename configs/{iot2050_defconfig => iot2050_pg2_defconfig} (95%)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 27058370cc..3135ad0471 100644
+index 27058370ccc..3135ad04715 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -1,6 +1,6 @@
@@ -180,7 +180,7 @@ index 27058370cc..3135ad0471 100644
  		};
  	};
 diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
-index 8f634c172c..e264bec2d4 100644
+index 8f634c172c1..e264bec2d44 100644
 --- a/board/siemens/iot2050/Kconfig
 +++ b/board/siemens/iot2050/Kconfig
 @@ -1,20 +1,40 @@
@@ -229,7 +229,7 @@ index 8f634c172c..e264bec2d4 100644
  config SYS_BOARD
  	default "iot2050"
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index b965ae9fa4..050ddb5899 100644
+index b965ae9fa49..050ddb5899b 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
 @@ -55,14 +55,6 @@ static bool board_is_advanced(void)
@@ -266,7 +266,7 @@ diff --git a/configs/iot2050_defconfig b/configs/iot2050_pg1_defconfig
 similarity index 99%
 copy from configs/iot2050_defconfig
 copy to configs/iot2050_pg1_defconfig
-index 4a87a3394d..bdec46c163 100644
+index 4a87a3394de..bdec46c1638 100644
 --- a/configs/iot2050_defconfig
 +++ b/configs/iot2050_pg1_defconfig
 @@ -8,7 +8,7 @@ CONFIG_SPL_LIBCOMMON_SUPPORT=y
@@ -282,7 +282,7 @@ diff --git a/configs/iot2050_defconfig b/configs/iot2050_pg2_defconfig
 similarity index 95%
 rename from configs/iot2050_defconfig
 rename to configs/iot2050_pg2_defconfig
-index 4a87a3394d..1bee7c4617 100644
+index 4a87a3394de..1bee7c46175 100644
 --- a/configs/iot2050_defconfig
 +++ b/configs/iot2050_pg2_defconfig
 @@ -8,13 +8,13 @@ CONFIG_SPL_LIBCOMMON_SUPPORT=y
@@ -310,7 +310,7 @@ index 4a87a3394d..1bee7c4617 100644
  CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
  CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index 7e97f817ce..fd3431fa3f 100644
+index 7e97f817ce4..fd3431fa3f8 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -24,9 +24,10 @@ Binary dependencies can be found in
@@ -343,5 +343,5 @@ index 7e97f817ce..fd3431fa3f 100644
  
  Flashing
 -- 
-2.30.2
+2.35.3
 

@@ -1,4 +1,4 @@
-From d85c7251b2730bdafdb6c4653f190aedca411d31 Mon Sep 17 00:00:00 2001
+From c574f9a0a5966bf04cf584b28b0f992ffef60e7b Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 1 Jun 2021 10:00:31 -0500
 Subject: [PATCH 016/121] arm64: dts: ti: k3-am65-main: Add ICSSG MDIO nodes
@@ -125,5 +125,5 @@ index fea6a8243d75..b47fc2a1e59d 100644
 +	status = "disabled";
 +};
 -- 
-2.32.0
+2.35.3
 

@@ -1,4 +1,4 @@
-From a4c54ea813b95c7494638b9d7a5c130a40f8e5e9 Mon Sep 17 00:00:00 2001
+From f543f972187efb6d1fddc7a7e45ea1855e966c09 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Mon, 15 Mar 2021 15:58:59 -0500
 Subject: [PATCH 040/121] remoteproc: pru: Fix firmware loading crashes on K3
@@ -36,5 +36,5 @@ index a113e150d5d5..21105592a83d 100644
  					       filesz);
  			if (ret) {
 -- 
-2.32.0
+2.35.3
 

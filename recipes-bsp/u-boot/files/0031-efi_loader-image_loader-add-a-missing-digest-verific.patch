@@ -1,4 +1,4 @@
-From 663d795a4376b1942ceb24622d90d7b4802a6008 Mon Sep 17 00:00:00 2001
+From 73547b045d3b473cdc2b528b61ead12890fa0b3c Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Tue, 5 Jul 2022 14:48:14 +0900
 Subject: [PATCH 31/32] efi_loader: image_loader: add a missing digest
@@ -18,7 +18,7 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  2 files changed, 62 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 24f9a2bb75..4013044f47 100644
+index 24f9a2bb757..4013044f47d 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -352,6 +352,7 @@ config EFI_SECURE_BOOT
@@ -30,7 +30,7 @@ index 24f9a2bb75..4013044f47 100644
  	help
  	  Select this option to enable EFI secure boot support.
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index f43dfb3d57..1a8a7744b6 100644
+index f43dfb3d57e..1a8a7744b65 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -16,6 +16,7 @@
@@ -129,5 +129,5 @@ index f43dfb3d57..1a8a7744b6 100644
  		if (efi_signature_lookup_digest(regs, db, false)) {
  			ret = true;
 -- 
-2.30.2
+2.35.3
 

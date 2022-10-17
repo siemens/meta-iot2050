@@ -1,4 +1,4 @@
-From dedc9fa8aeccd46a7d99a5054d220202e5a67606 Mon Sep 17 00:00:00 2001
+From 2f850a740d8990f6b1c66f0c1f915e862582fbc3 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 15 Jan 2021 21:30:16 +0200
 Subject: [PATCH 006/121] arm64: dts: ti: k3: mmc: fix dtbs_check warnings
@@ -129,5 +129,5 @@ index 98009d3aa25d..d0dae7c0ad23 100644
  		assigned-clock-parents = <&k3_clks 93 1>;
  		ti,otap-del-sel = <0x2>;
 -- 
-2.32.0
+2.35.3
 

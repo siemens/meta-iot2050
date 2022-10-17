@@ -1,4 +1,4 @@
-From 455cbe79cac9ec192cc44427cfa0782ee64753f5 Mon Sep 17 00:00:00 2001
+From 0d1cfeb23e7bb8165e0e4708ccc7d7f9178b61f8 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:24 +0200
 Subject: [PATCH 001/121] dmaengine: ti: k3-udma-glue: Add function to get
@@ -99,5 +99,5 @@ index 5eb34ad973a7..d7c12f31377c 100644
  
  #endif /* K3_UDMA_GLUE_H_ */
 -- 
-2.32.0
+2.35.3
 

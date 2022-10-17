@@ -1,4 +1,4 @@
-From 975f5ab786bb9129d153fda8965b29b22de2edef Mon Sep 17 00:00:00 2001
+From 9e6c116daa9fe0028afd5ddef2a95e36a79eba4f Mon Sep 17 00:00:00 2001
 From: "Andrew F. Davis" <afd@ti.com>
 Date: Fri, 26 Mar 2021 16:11:42 -0500
 Subject: [PATCH 064/121] soc: ti: pruss: Add
@@ -236,5 +236,5 @@ index 4d1321f0d326..f1d1197fd91a 100644
  	struct clk *iep_clk_mux;
  };
 -- 
-2.32.0
+2.35.3
 

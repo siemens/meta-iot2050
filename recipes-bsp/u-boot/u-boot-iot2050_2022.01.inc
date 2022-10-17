@@ -39,8 +39,8 @@ SRC_URI += " \
     file://0024-arm-dts-iot2050-Optionally-embed-OTP-programming-dat.patch \
     file://0025-gpio-da8xx_gpio-Fix-gpio-name-with-address.patch \
     file://0026-board-siemens-iot2050-use-the-named-gpio-to-control-.patch \
-    file://0027-arm-dts-add-the-m.2-support.patch \
-    file://0028-board-siemens-iot2050-add-the-support-for-m2-variant.patch \
+    file://0027-arm-dts-iot2050-Add-support-for-M.2-variant.patch \
+    file://0028-iot2050-Add-support-for-configuring-M.2-connector.patch \
     file://0029-lib-crypto-add-mscode_parser.patch \
     file://0030-efi_loader-signature-export-efi_hash_regions.patch \
     file://0031-efi_loader-image_loader-add-a-missing-digest-verific.patch \

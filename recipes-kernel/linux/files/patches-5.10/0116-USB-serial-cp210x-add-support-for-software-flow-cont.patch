@@ -1,4 +1,4 @@
-From 23599eea7f593a5478d0dba07211862233c841d1 Mon Sep 17 00:00:00 2001
+From 93ba7712b682959bec591dd51ff74447c7e9e2e8 Mon Sep 17 00:00:00 2001
 From: Wang Sheng Long <shenglong.wang.ext@siemens.com>
 Date: Mon, 18 Jan 2021 12:13:26 +0100
 Subject: [PATCH 116/121] USB: serial: cp210x: add support for software flow
@@ -139,5 +139,5 @@ index 4aceeaa380f6..815e8589f877 100644
  			__func__, ctl_hs, flow_repl);
  
 -- 
-2.32.0
+2.35.3
 

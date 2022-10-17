@@ -1,4 +1,4 @@
-From 11387634688afc712d3ddd3c06d6f27692aa003d Mon Sep 17 00:00:00 2001
+From f5f116a011a493ce5e23f1449bd42774ec946a30 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:40 -0500
 Subject: [PATCH 042/121] remoteproc: pru: Fix wrong success return value for
@@ -41,5 +41,5 @@ index 773c09d01958..e0c5fce8bccd 100644
  		}
  	}
 -- 
-2.32.0
+2.35.3
 
