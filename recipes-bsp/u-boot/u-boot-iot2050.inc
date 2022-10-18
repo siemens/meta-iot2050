@@ -14,7 +14,7 @@ require recipes-bsp/u-boot/u-boot-custom.inc
 PRODUCT_GENERATION = "${@d.getVar('PN').split('-')[3]}"
 
 SRC_URI += " \
-    file://rules \
+    file://rules.tmpl \
     file://prebuild \
     file://fw_env.config"
 SRC_URI_append_secureboot = " \
@@ -46,26 +46,36 @@ DEBIAN_BUILD_DEPENDS_append_secureboot = ", python3-pycryptodome:native, \
 DEPENDS_append_otpcmd = " secure-boot-otp-provisioning"
 DEBIAN_BUILD_DEPENDS_append_otpcmd = ", secure-boot-otp-provisioning"
 
+TEMPLATE_FILES += "rules.tmpl"
+TEMPLATE_VARS += "FIRMWARE_SECURE_VER"
+
 U_BOOT_CONFIG_PACKAGE = "1"
 
 do_prepare_build_append() {
-    cd ${S}
-    ln -sf ../prebuild/* ${S}
+    ln -f ${WORKDIR}/prebuild/* ${S}
     ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     echo -$(${ISAR_RELEASE_CMD}) > ${S}/.scmversion
     cp ${WORKDIR}/rules ${S}/debian/rules
-    rm -f ${S}/keys
+    rm -rf ${S}/keys
 }
 
 do_prepare_build_append_secureboot() {
     if [ "${PRODUCT_GENERATION}" = "pg1" ]; then
         bbwarn "PG1 devices are not supported in booting securely"
     fi
-    ln -s ../keys ${S}
+    mkdir -p ${S}/keys
+    ln -f ${WORKDIR}/keys/* ${S}/keys/
     sed -ni '/### Secure boot config/q;p' ${S}/configs/${U_BOOT_CONFIG}
     cat ${WORKDIR}/secure-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
+}
+
+dpkg_runbuild_append_secureboot() {
+    # remove private keys from source archive
+    gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
+    tar --delete -f ${WORKDIR}/${PN}_${PV}.tar u-boot-${PV}/keys/custMpk.key u-boot-${PV}/keys/custMpk.pem
+    gzip ${WORKDIR}/${PN}_${PV}.tar
 }
 
 do_prepare_build_append_otpcmd() {
@@ -77,28 +87,13 @@ do_prepare_build_append_otpcmd() {
     cat ${WORKDIR}/otpcmd.cfg >> ${S}/configs/${U_BOOT_CONFIG}
 }
 
-dpkg_runbuild_prepend() {
-    export ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin
-    export TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
-}
-
-dpkg_runbuild_prepend_secureboot() {
-    export FIRMWARE_SECURE_VER="${FIRMWARE_SECURE_VER}"
-}
-
-dpkg_build_sstate_prepare_append() {
-    ln -f ${S}/${SPI_FLASH_IMG} -t ${DPKG_SSTATE}
-    ln -f ${S}/${U_BOOT_ENV} -t ${DPKG_SSTATE}
-}
-
-dpkg_build_sstate_finalize_append() {
-    ln -f ${DPKG_SSTATE}/${SPI_FLASH_IMG} -t ${S}
-    ln -f ${DPKG_SSTATE}/${U_BOOT_ENV} -t ${S}
-}
-
 do_deploy() {
-    cp -f "${S}/${SPI_FLASH_IMG}" "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
-    cp -f "${S}/${U_BOOT_ENV}" "${DEPLOY_DIR_IMAGE}/"
+    dpkg --fsys-tarfile ${WORKDIR}/u-boot-${MACHINE}_${PV}*.deb | \
+        tar xOf - "./usr/lib/u-boot/${MACHINE}/${U_BOOT_BIN}" \
+        > "${DEPLOY_DIR_IMAGE}/${SPI_FLASH_DEPLOY_IMG}"
+    dpkg --fsys-tarfile ${WORKDIR}/u-boot-${MACHINE}-config_${PV}*.deb | \
+        tar xOf - "./etc/${U_BOOT_ENV}" \
+        > "${DEPLOY_DIR_IMAGE}/${U_BOOT_ENV}"
 }
 
 addtask deploy after do_dpkg_build before do_build

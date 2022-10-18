@@ -20,8 +20,10 @@ override_dh_auto_build:
 		tools/efivar.py set -i ubootefi.var -n KEK -d custMpk.esl -t file; \
 		tools/efivar.py set -i ubootefi.var -n db -d custMpk.esl -t file; \
 	fi
-	$(MAKE) $(PARALLEL_MAKE) $(U_BOOT_CONFIG)
-	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_BIN}
+	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_CONFIG}
+	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_BIN} \
+		ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin \
+		TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
 	$(MAKE) -n u-boot-initial-env >/dev/null 2>&1; if [ $$? -ne 2 ]; then \
 		$(MAKE) $(PARALLEL_MAKE) u-boot-initial-env; \
 	else \
