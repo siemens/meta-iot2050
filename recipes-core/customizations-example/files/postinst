@@ -25,9 +25,6 @@ systemctl enable status-led.service
 # Board configuration service
 systemctl enable board-configuration.service
 
-# Force user to change the password of root upon first login
-passwd --expire root
-
 # Relocate /root under /home
 mv /root /home/
 ln -s /home/root /root

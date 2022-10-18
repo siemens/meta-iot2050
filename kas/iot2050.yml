@@ -27,28 +27,17 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: cf3f18a649ff42726677a58b224b9bb58ea4ba46
+    refspec: ea8a17426634f4cb85437d8ebfa7f1a73533be2a
     layers:
       meta:
-    patches:
-      fix-pseudo:
-        repo: cip-core
-        path: patches/isar/0001-Fix-permissions-when-splitting-rootfs-folders-across.patch
-      expand-with-dm:
-        path: isar-patches/0001-expand-on-first-boot-Add-support-for-devicemapper.patch
-      fix-expand-with-dm:
-        path: isar-patches/0001-expand-on-first-boot-Resolve-errors-in-helper-script.patch
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
-    refspec: 3df2710e9f577860d44c1430aaea321a35ca6f77
+    refspec: 04057698ad106fb996c3d4029e69c6c6467534ec
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    refspec: cf5d588527c315b4f16e8b3b3677e62a295b73f2
-    patches:
-      bump-efibootguard:
-        path: isar-patches/0001-efibootguard-Update-to-release-0.12.patch
+    refspec: 8a42c75bd85b10884926d59a364982dba4d3be5e
 
 bblayers_conf_header:
   standard: |
