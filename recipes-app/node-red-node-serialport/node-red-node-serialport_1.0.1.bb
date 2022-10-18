@@ -14,6 +14,7 @@ DESCRIPTION = "Node-RED nodes to talk to serial ports"
 
 NPM_LOCAL_INSTALL_DIR = "/root/.node-red"
 
-do_install_append() {
-    rm -rf $(find ${D} -name prebuilds -type d)
+do_prepare_build_append() {
+    sed -i '/override_dh_install:/a\\trm -r ${PP}/image/root/.node-red/node_modules/node-red-node-serialport/node_modules/@serialport/bindings-cpp/prebuilds' \
+        ${S}/debian/rules
 }
