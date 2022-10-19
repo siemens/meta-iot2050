@@ -2,7 +2,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2018-2021
+# Copyright (c) Siemens AG, 2018-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -31,14 +31,19 @@ usage()
 {
 	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] [KASFILE]\n"
 	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
-	printf "%b" "       $0 [OPTIONS] clean\n"
+	printf "%b" "       $0 [OPTIONS] { clean | cleansstate | cleanall}\n"
 	printf "%b" "       $0 [OPTIONS] menu [KCONFIG]\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
 	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
 	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
 	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
-	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
+	printf "%b" "clean\t\t\tClean build artifacts, keep sstate cache and " \
+		    "downloads.\n"
+	printf "%b" "cleansstate\t\tClean build artifacts and sstate cache, " \
+		    "keep downloads.\n"
+	printf "%b" "cleanall\t\tClean build artifacts, sstate cache and " \
+		    "downloads.\n"
 	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
 		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
@@ -56,6 +61,7 @@ usage()
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
+	printf "%b" "--ssh-agent\t\tForward ssh-agent socket to the container.\n"
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
 	printf "%b" "--git-credential-store\tFile path to the git credential " \
 		    "store\n"
@@ -78,17 +84,53 @@ trace()
 }
 
 enable_isar_mode() {
+	if [ -n "${ISAR_MODE}" ]; then
+		return
+	fi
+	ISAR_MODE=1
+
 	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
 	KAS_ISAR_ARGS="--privileged"
 
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
 		# sudo is needed for a privileged podman container
-		KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
-		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --pid=host"
+		KAS_CONTAINER_COMMAND="sudo --preserve-env ${KAS_CONTAINER_COMMAND}"
 	fi
 }
 
-KAS_IMAGE_VERSION_DEFAULT="2.6.3"
+enable_oe_mode() {
+	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
+		# The container entry point expects that the current userid
+		# calling "podman run" has a 1:1 mapping
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --userns=keep-id"
+	fi
+}
+
+run_clean() {
+	if [ -n "${KAS_ISAR_ARGS}" ]; then
+		set_container_image_var
+		# SC2086: Double quote to prevent globbing and word splitting.
+		# shellcheck disable=2086
+		trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
+				--workdir=/build --rm ${KAS_ISAR_ARGS} \
+				${KAS_CONTAINER_IMAGE} \
+				sudo rm -rf tmp
+	else
+		trace rm -rf "${KAS_BUILD_DIR}/tmp"
+	fi
+
+	if [ "$1" != "clean" ]; then
+		SSTATE_DIR=${SSTATE_DIR:-${KAS_BUILD_DIR}/sstate-cache}
+		trace rm -rf "${SSTATE_DIR}"
+
+		if [ "$1" = "cleanall" ]; then
+			DL_DIR=${DL_DIR:-${KAS_BUILD_DIR}/downloads}
+			trace rm -rf "${DL_DIR}"
+		fi
+	fi
+}
+
+KAS_IMAGE_VERSION_DEFAULT="3.1"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
 
@@ -125,7 +167,7 @@ docker)
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
-	KAS_RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
+	KAS_RUNTIME_ARGS="--security-opt label=disable"
 	;;
 *)
 	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
@@ -173,6 +215,10 @@ while [ $# -gt 0 ]; do
 		KAS_SSH_DIR="$2"
 		shift 2
 		;;
+	--ssh-agent)
+		KAS_SSH_AUTH_SOCK=$(readlink -f "$SSH_AUTH_SOCK")
+		shift 1
+		;;
 	--aws-dir)
 		[ $# -gt 2 ] || usage
 		KAS_AWS_DIR="$2"
@@ -207,19 +253,9 @@ while [ $# -gt 0 ]; do
 	--*)
 		usage
 		;;
-	clean)
+	clean|cleansstate|cleanall)
 		[ $# -eq 1 ] || usage
-		if [ -n "${KAS_ISAR_ARGS}" ]; then
-			set_container_image_var
-			# SC2086: Double quote to prevent globbing and word splitting.
-			# shellcheck disable=2086
-			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
-					 --workdir=/build --rm ${KAS_ISAR_ARGS} \
-					 ${KAS_CONTAINER_IMAGE} \
-					 sudo rm -rf tmp
-		else
-			trace rm -rf "${KAS_BUILD_DIR}/tmp"
-		fi
+		run_clean "$1"
 		exit 0
 		;;
 	shell)
@@ -261,6 +297,10 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	-c|--cmd|--command)
 		KAS_BITBAKE_C_OPTION_ARGS="$2"
 		shift 2
+		;;
+	-E|--preserve-env)
+		echo "$1 is not supported with kas-container"
+		exit 1
 		;;
 	--)
 		KAS_EXTRA_BITBAKE_ARGS=$#
@@ -323,6 +363,8 @@ fi
 
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
 	enable_isar_mode
+else
+	enable_oe_mode
 fi
 
 set_container_image_var
@@ -343,7 +385,7 @@ set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
 	-v "${KAS_BUILD_DIR}":/build:rw \
 	--workdir=/repo \
 	-e KAS_BUILD_DIR=/build \
-	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
+	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm --init
 
 if [ -n "${KAS_SSH_DIR}" ] ; then
 	if [ ! -d "${KAS_SSH_DIR}" ]; then
@@ -351,6 +393,15 @@ if [ -n "${KAS_SSH_DIR}" ] ; then
 		exit 1
 	fi
 	set -- "$@" -v "$(readlink -f "${KAS_SSH_DIR}")":/etc/skel/.ssh:ro
+fi
+
+if [ -n "${KAS_SSH_AUTH_SOCK}" ]; then
+	if [ ! -S "${KAS_SSH_AUTH_SOCK}" ]; then
+		echo "Passed SSH_AUTH_SOCK '${KAS_SSH_AUTH_SOCK}' is not a socket"
+		exit 1
+	fi
+	set -- "$@" -v "${KAS_SSH_AUTH_SOCK}":/ssh-agent/ssh-auth-sock \
+		-e SSH_AUTH_SOCK=/ssh-agent/ssh-auth-sock
 fi
 
 if [ -n "${KAS_AWS_DIR}" ] ; then
@@ -378,6 +429,11 @@ GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER:-${KAS_GIT_CREDENTIAL_HELPER_DEFA
 
 if [ -n "${GIT_CREDENTIAL_HELPER}" ] ; then
 	set -- "$@" -e GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER}"
+fi
+
+if [ -f "${NETRC_FILE}" ]; then
+	set -- "$@" -v "$(readlink -f "${NETRC_FILE}")":/etc/skel/.netrc:ro \
+		-e NETRC_FILE="/etc/skel/.netrc"
 fi
 
 if [ -t 1 ]; then
