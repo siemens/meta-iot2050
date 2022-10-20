@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2022
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
@@ -16,7 +16,7 @@ MAINTAINER = "chao.zeng@siemens.com"
 
 SRC_URI = "git://github.com/node-red/node-red-nodes;protocol=https"
 
-SRCREV="e4dc3a2bcfd38dfd18eff1bfa5542ff56c40f27c"
+SRCREV="c15fa79e9535d029d206dfb76474d56bf979504b"
 
 S = "${WORKDIR}/git"
 
