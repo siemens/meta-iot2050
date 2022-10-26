@@ -1,7 +1,7 @@
-From 20e862ec0521ad747012387d635c346c2039f3c5 Mon Sep 17 00:00:00 2001
+From 0c9f3a892035f55baab39dbb30a08c65bf74694a Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Feb 2021 20:32:56 +0100
-Subject: [PATCH 007/121] arm64: dts: ti: k3-am65-main: Add device_type to
+Subject: [PATCH 007/120] arm64: dts: ti: k3-am65-main: Add device_type to
  pcie*_rc nodes
 
 This is demanded by the parent binding of ti,am654-pcie-rc, see
@@ -16,10 +16,10 @@ Link: https://lore.kernel.org/r/881dfd6c75423efce1d10261909939cd5ef19937.1613071
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 29c647f35464..00cd06ff98ee 100644
+index cf7656cf650e..3c36ae6d7816 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -706,6 +706,7 @@ pcie0_rc: pcie@5500000 {
+@@ -709,6 +709,7 @@ pcie0_rc: pcie@5500000 {
  		dma-coherent;
  		interrupts = <GIC_SPI 340 IRQ_TYPE_EDGE_RISING>;
  		msi-map = <0x0 &gic_its 0x0 0x10000>;
@@ -27,7 +27,7 @@ index 29c647f35464..00cd06ff98ee 100644
  	};
  
  	pcie0_ep: pcie-ep@5500000 {
-@@ -738,6 +739,7 @@ pcie1_rc: pcie@5600000 {
+@@ -741,6 +742,7 @@ pcie1_rc: pcie@5600000 {
  		dma-coherent;
  		interrupts = <GIC_SPI 355 IRQ_TYPE_EDGE_RISING>;
  		msi-map = <0x0 &gic_its 0x10000 0x10000>;

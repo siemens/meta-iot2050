@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: iot2050-example-image
           path: |
@@ -26,13 +26,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
       - name: Upload image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: iot2050-example-image-rt
           path: |
@@ -44,13 +44,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml
       - name: Upload image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: iot2050-swupdate-image
           path: |
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image for PG1
@@ -70,7 +70,7 @@ jobs:
       - name: Build bootloader image for PG2 & m.2
         run: ./kas-container build kas-iot2050-boot-pg2.yml
       - name: Archive bootloaders
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: iot2050-bootloaders
           path: build/tmp/deploy/images/iot2050/*.bin

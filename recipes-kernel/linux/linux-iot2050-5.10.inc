@@ -18,11 +18,11 @@ def get_patches(d, patchdir):
     return ' '.join(['file://' + patch[len(files_dir)+1:] for patch in patches])
 
 SRC_URI += " \
-    https://gitlab.com/cip-project/cip-kernel/linux-cip/-/archive/v${PV}/linux-cip-v${PV}.tar.gz \
+    https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git/snapshot/linux-cip-${PV}.tar.gz \
     ${@get_patches(d, 'patches-5.10')} \
     file://${KERNEL_DEFCONFIG} \
     file://iot2050_defconfig_extra.cfg"
 
-S = "${WORKDIR}/linux-cip-v${PV}"
+S = "${WORKDIR}/linux-cip-${PV}"
 
 KERNEL_DEFCONFIG = "iot2050_defconfig_base"

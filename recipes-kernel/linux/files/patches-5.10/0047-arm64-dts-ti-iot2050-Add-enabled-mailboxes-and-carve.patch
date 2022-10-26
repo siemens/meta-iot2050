@@ -1,15 +1,18 @@
-From 780589ad3ea0c9dd156901a6464f8c965459db36 Mon Sep 17 00:00:00 2001
+From 5e8c08502e85e9e90764a30fbf45b314311cf2ad Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Thu, 9 Sep 2021 08:01:16 +0200
-Subject: [PATCH 047/121] arm64: dts: ti: iot2050: Add/enabled mailboxes and
+Date: Sun, 26 Sep 2021 14:05:14 +0200
+Subject: [PATCH 047/120] arm64: dts: ti: iot2050: Add/enabled mailboxes and
  carve-outs for R5F cores
 
-Analogously to the am654-base-board, configure the mailboxes for the the
-two R5F cores, add them and the already existing memory carve-outs to
-the related MCU nodes. Allows to load applications under Linux onto the
+Analogously to the am654-base-board, configure the mailboxes for the two
+R5F cores, add them and the already existing memory carve-outs to the
+related MCU nodes. Allows to load applications under Linux onto the
 cores, e.g. the RTI watchdog firmware.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Reviewed-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/1776f8be19b39a938d9248fcfc5332b753783c3e.1632657917.git.jan.kiszka@web.de
 ---
  .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 26 +++++++++++++++++--
  1 file changed, 24 insertions(+), 2 deletions(-)

@@ -1,0 +1,40 @@
+From 610b86406b59782653a46f3c037e320dd8ceecf5 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Sat, 30 Jul 2022 10:53:55 +0800
+Subject: [PATCH 17/18] spl: fit: Report fdt error for loading u-boot
+
+Commit 71551055cbdb ("spl: fit: Load devicetree when a Linux payload is
+found") made a change to not report the spl_fit_append_fdt error at all
+if next-stage image is u-boot.
+
+However for u-boot image without CONFIG_OF_EMBED, the error should be
+reported to uplevel caller. Otherwise, uplevel caller would think the
+fdt is already loaded which is obviously not true.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ common/spl/spl_fit.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/common/spl/spl_fit.c b/common/spl/spl_fit.c
+index a35be529656..00404935cb2 100644
+--- a/common/spl/spl_fit.c
++++ b/common/spl/spl_fit.c
+@@ -770,8 +770,12 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
+ 	 */
+ 	if (os_takes_devicetree(spl_image->os)) {
+ 		ret = spl_fit_append_fdt(spl_image, info, sector, &ctx);
+-		if (ret < 0 && spl_image->os != IH_OS_U_BOOT)
+-			return ret;
++		if (ret < 0) {
++			if (spl_image->os != IH_OS_U_BOOT)
++				return ret;
++			else if (!IS_ENABLED(CONFIG_OF_EMBED))
++				return ret;
++		}
+ 	}
+ 
+ 	firmware_node = node;
+-- 
+2.35.3
+

@@ -1,7 +1,7 @@
-From 61a367dd6764ae64df88939a28c9e7c5bea1e1ca Mon Sep 17 00:00:00 2001
+From 846975e40e37df3e05159b2166c735bac842e032 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Mon, 21 Feb 2022 15:33:54 +0100
-Subject: [PATCH 044/121] watchdog: rti_wdt: Fix calculation and evaluation of
+Date: Mon, 21 Feb 2022 17:22:38 +0100
+Subject: [PATCH 044/120] watchdog: rti_wdt: Fix calculation and evaluation of
  preset heartbeat
 
 This ensures that the same value is read back as was eventually
@@ -13,15 +13,19 @@ apples to apples.
 Tested in combination with U-Boot as watchdog starter.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/6a4b54ac-9588-e172-c4c7-b91d524a851e@siemens.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 ---
  drivers/watchdog/rti_wdt.c | 8 +++++---
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index 359302f71f7e..40696a260534 100644
+index 46c2a4bd9ebe..06f9d0ee1340 100644
 --- a/drivers/watchdog/rti_wdt.c
 +++ b/drivers/watchdog/rti_wdt.c
-@@ -254,6 +254,7 @@ static int rti_wdt_probe(struct platform_device *pdev)
+@@ -255,6 +255,7 @@ static int rti_wdt_probe(struct platform_device *pdev)
  	}
  
  	if (readl(wdt->base + RTIDWDCTRL) == WDENABLE_KEY) {
@@ -29,7 +33,7 @@ index 359302f71f7e..40696a260534 100644
  		u32 time_left_ms;
  		u64 heartbeat_ms;
  		u32 wsize;
-@@ -264,11 +265,12 @@ static int rti_wdt_probe(struct platform_device *pdev)
+@@ -265,11 +266,12 @@ static int rti_wdt_probe(struct platform_device *pdev)
  		heartbeat_ms <<= WDT_PRELOAD_SHIFT;
  		heartbeat_ms *= 1000;
  		do_div(heartbeat_ms, wdt->freq);

@@ -1,0 +1,29 @@
+From 5fa879520d262093a7d65e3aba4af3154a48caba Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 14 Oct 2022 13:59:53 +0200
+Subject: [PATCH 18/18] iot2050: Select DM_ETH to restore UEFI support
+
+This is a workaround since c779e0d92318 prevents to activate the loader
+in the presence of NET but without any DM_ETH driver - which is exactly
+the case for the IOT2050 so far.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ board/siemens/iot2050/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
+index e66b2427d95..9528f0b9011 100644
+--- a/board/siemens/iot2050/Kconfig
++++ b/board/siemens/iot2050/Kconfig
+@@ -33,6 +33,7 @@ config IOT2050_A53_COMMON
+ 	select BOARD_LATE_INIT
+ 	select SYS_DISABLE_DCACHE_OPS
+ 	select BINMAN
++	select DM_ETH
+ 
+ if IOT2050_A53_COMMON
+ 
+-- 
+2.35.3
+

@@ -1,0 +1,55 @@
+From 93d7da070b2e64a20aff3256e253a75c668f27cd Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 25 Apr 2022 10:33:15 +0200
+Subject: [PATCH 01/18] efi_loader: Improve console screen clearing and reset
+
+Before clearing the screen, ensure that no previous output of firmware
+or UEFI programs will be overwritten on serial devices or other
+streaming consoles. This helps generating complete boot logs.
+
+Tested regarding multi-output against qemu-x86_defconfig.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ lib/efi_loader/efi_console.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index ee9dc6bbd82..95777e894b6 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -472,8 +472,18 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
+ static efi_status_t EFIAPI efi_cout_clear_screen(
+ 			struct efi_simple_text_output_protocol *this)
+ {
++	unsigned int row;
++
+ 	EFI_ENTRY("%p", this);
+ 
++	/* Avoid overwriting previous outputs on streaming consoles */
++	for (row = 1; row < efi_cout_modes[efi_con_mode.mode].rows; row++)
++		printf("\n");
++
++	/* Set default colors if not done yet */
++	if (efi_con_mode.attribute == 0)
++		efi_cout_set_attribute(this, 0x07);
++
+ 	/*
+ 	 * The Linux console wants both a clear and a home command. The video
+ 	 * uclass does not support <ESC>[H without coordinates, yet.
+@@ -531,9 +541,9 @@ static efi_status_t EFIAPI efi_cout_reset(
+ {
+ 	EFI_ENTRY("%p, %d", this, extended_verification);
+ 
+-	/* Set default colors */
+-	efi_con_mode.attribute = 0x07;
+-	printf(ESC "[0;37;40m");
++	/* Trigger reset to default colors */
++	efi_con_mode.attribute = 0;
++
+ 	/* Clear screen */
+ 	EFI_CALL(efi_cout_clear_screen(this));
+ 
+-- 
+2.35.3
+

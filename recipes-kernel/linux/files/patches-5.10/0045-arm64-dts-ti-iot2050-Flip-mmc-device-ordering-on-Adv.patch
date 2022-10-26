@@ -1,7 +1,7 @@
-From de881f4556e65b3b76ef37f203dd1e02a0916e01 Mon Sep 17 00:00:00 2001
+From 128c8ad26e860b0b78f5d6eaf3f9c4d2483c30ec Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Wed, 1 Sep 2021 21:52:11 +0200
-Subject: [PATCH 045/121] arm64: dts: ti: iot2050: Flip mmc device ordering on
+Date: Sun, 26 Sep 2021 14:05:12 +0200
+Subject: [PATCH 045/120] arm64: dts: ti: iot2050: Flip mmc device ordering on
  Advanced devices
 
 This ensures that the SD card will remain mmc0 across Basic and Advanced
@@ -9,6 +9,9 @@ devices, also avoiding surprises for users coming from the downstream
 kernels.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/fe20d6346f119a28e47d129b616682001299cf0e.1632657917.git.jan.kiszka@web.de
 ---
  arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi | 2 ++
  1 file changed, 2 insertions(+)

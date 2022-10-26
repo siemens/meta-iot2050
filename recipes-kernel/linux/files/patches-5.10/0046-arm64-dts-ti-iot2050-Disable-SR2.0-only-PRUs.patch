@@ -1,12 +1,16 @@
-From b83b0cefa6d5db57fc3c3d40d62a8a84bf391aaa Mon Sep 17 00:00:00 2001
+From 657f536f1d080386c5e9c20cc7e43708ad9b0642 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Wed, 1 Sep 2021 19:58:30 +0200
-Subject: [PATCH 046/121] arm64: dts: ti: iot2050: Disable SR2.0-only PRUs
+Date: Sun, 26 Sep 2021 14:05:13 +0200
+Subject: [PATCH 046/120] arm64: dts: ti: iot2050: Disable SR2.0-only PRUs
 
 The IOT2050 devices described so far are using SR1.0 silicon, thus do
 not have the additional PRUs of the ICSSG of the SR2.0. Disable them.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Aswath Govindraju <a-govindraju@ti.com>
+Acked-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/189a91866fb1af02e4fd2345dc56774aa069d5ba.1632657917.git.jan.kiszka@web.de
 ---
  .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 24 +++++++++++++++++++
  1 file changed, 24 insertions(+)

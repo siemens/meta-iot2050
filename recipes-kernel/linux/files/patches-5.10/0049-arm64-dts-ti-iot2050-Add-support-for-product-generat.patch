@@ -1,7 +1,7 @@
-From a27432478d49d14a328e4c68cc921bc1dbec5147 Mon Sep 17 00:00:00 2001
+From 20e35f39724ecfabd62f67ec7c7560fb1d7ffbff Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Mon, 21 Jun 2021 11:04:56 +0200
-Subject: [PATCH 049/121] arm64: dts: ti: iot2050: Add support for product
+Date: Sun, 26 Sep 2021 14:05:17 +0200
+Subject: [PATCH 049/120] arm64: dts: ti: iot2050: Add support for product
  generation 2 boards
 
 This adds the devices trees for IOT2050 Product Generation 2 (PG2)
@@ -11,6 +11,8 @@ The major difference to PG1 is the used silicon revision (SR2.x on
 PG2).
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/cc868da8264324bde2c87d0c01d4763e3678c706.1632657917.git.jan.kiszka@web.de
 ---
  arch/arm64/boot/dts/ti/Makefile               |  2 +
  .../dts/ti/k3-am65-iot2050-common-pg2.dtsi    | 51 +++++++++++++++++++

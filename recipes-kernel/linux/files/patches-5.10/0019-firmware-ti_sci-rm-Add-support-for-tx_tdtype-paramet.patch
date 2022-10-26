@@ -1,7 +1,7 @@
-From 52df53802dafe39cc01976e33a7247ba6e8e9c90 Mon Sep 17 00:00:00 2001
+From 16ca136482df2a562d6935baec63d40a8221a2aa Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:02 -0700
-Subject: [PATCH 019/121] firmware: ti_sci: rm: Add support for tx_tdtype
+Subject: [PATCH 019/120] firmware: ti_sci: rm: Add support for tx_tdtype
  parameter for tx channel
 
 The system controller's resource manager have support for configuring the
@@ -66,7 +66,7 @@ index 57cd04062994..dca19ca5fc49 100644
  
  /**
 diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
-index cf27b080e148..d254d99fd45b 100644
+index b1af87330f86..fece890e1635 100644
 --- a/include/linux/soc/ti/ti_sci_protocol.h
 +++ b/include/linux/soc/ti/ti_sci_protocol.h
 @@ -345,6 +345,7 @@ struct ti_sci_msg_rm_udmap_tx_ch_cfg {

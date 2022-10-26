@@ -1,0 +1,137 @@
+From 5a27c35476e8e11a8f6e5dd658b763b6e8681669 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 18 Nov 2021 10:56:22 +0100
+Subject: [PATCH 11/18] iot2050: Add script for signing artifacts
+
+There are many ways to get a signed firmware for the IOT2050 devices,
+namely for the parts under user-control. This script documents one way
+of doing it, given a signing key. Augment the board documentation with
+the required procedure around it.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ doc/board/siemens/iot2050.rst | 52 +++++++++++++++++++++++++++++++++++
+ tools/iot2050-sign-fw.sh      | 51 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 103 insertions(+)
+ create mode 100755 tools/iot2050-sign-fw.sh
+
+diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
+index 26972e20ae9..4e0925c72c9 100644
+--- a/doc/board/siemens/iot2050.rst
++++ b/doc/board/siemens/iot2050.rst
+@@ -79,3 +79,55 @@ Via external programmer Dediprog SF100 or SF600:
+ .. code-block:: text
+ 
+  $ dpcmd --vcc 2 -v -u flash.bin
++
++Signing (optional)
++------------------
++
++To enable verified boot for the firmware artifacts after the Siemens-managed
++first-stage loader (seboot_pg*.bin), the following steps need to be taken
++before and after the build:
++
++Generate dtsi holding the public key
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++.. code-block:: text
++
++ tools/key2dtsi.py -c -s key.pem public-key.dtsi
++
++This will be used to embed the public key into U-Boot SPL and main so that each
++step can validate signatures of the succeeding one.
++
++Adjust U-Boot configuration
++^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++Enabled at least the following options in U-Boot:
++
++.. code-block:: text
++
++ CONFIG_SPL_FIT_SIGNATURE=y
++ CONFIG_DEVICE_TREE_INCLUDES="/path/to/public-key.dtsi"
++ CONFIG_RSA=y
++
++Note that there are more configuration changes needed in order to lock-down
++the command line and the boot process of U-Boot for secure scenarios. These are
++not in scope here.
++
++Build U-Boot
++^^^^^^^^^^^^
++
++See related section above.
++
++Sign flash.bin
++^^^^^^^^^^^^^^
++
++In the build folder still containing artifacts from step 3, invoke:
++
++.. code-block:: text
++
++ tools/iot2050-sign-fw.sh /path/to/key.pem
++
++Flash signed flash.bin
++^^^^^^^^^^^^^^^^^^^^^^
++
++The signing has happen in-place in flash.bin, thus the flashing procedure
++described above.
+diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
+new file mode 100755
+index 00000000000..4d1d79498c2
+--- /dev/null
++++ b/tools/iot2050-sign-fw.sh
+@@ -0,0 +1,51 @@
++#!/bin/sh
++
++if [ -z "$1" ]; then
++	echo "Usage: $0 KEY"
++	exit 1
++fi
++
++TEMP_X509=$(mktemp XXXXXXXX.temp)
++
++REVISION=${2:-0}
++SHA_VAL=$(openssl dgst -sha512 -hex tispl.bin | sed -e "s/^.*= //g")
++BIN_SIZE=$(stat -c %s tispl.bin)
++
++cat <<EOF >$TEMP_X509
++[ req ]
++distinguished_name     = req_distinguished_name
++x509_extensions        = v3_ca
++prompt                 = no
++dirstring_type         = nobmp
++
++[ req_distinguished_name ]
++CN                     = IOT2050 Firmware Signature
++
++[ v3_ca ]
++basicConstraints       = CA:true
++1.3.6.1.4.1.294.1.3    = ASN1:SEQUENCE:swrv
++1.3.6.1.4.1.294.1.34   = ASN1:SEQUENCE:sysfw_image_integrity
++
++[ swrv ]
++swrv = INTEGER:$REVISION
++
++[ sysfw_image_integrity ]
++shaType                = OID:2.16.840.1.101.3.4.2.3
++shaValue               = FORMAT:HEX,OCT:$SHA_VAL
++imageSize              = INTEGER:$BIN_SIZE
++EOF
++
++CERT_X509=$(mktemp XXXXXXXX.crt)
++
++openssl req -new -x509 -key $1 -nodes -outform DER -out $CERT_X509 -config $TEMP_X509 -sha512
++cat $CERT_X509 tispl.bin > tispl.bin_signed
++# currently broken in upstream
++#source/tools/binman/binman replace -i flash.bin -f tispl.bin_signed blob@0x180000
++dd if=tispl.bin_signed of=flash.bin bs=$((0x1000)) seek=$((0x180000/0x1000)) conv=notrunc
++
++rm $TEMP_X509 $CERT_X509
++
++tools/mkimage -G $1 -r -o sha256,rsa4096 -F fit@0x380000.fit
++# currently broken in upstream
++#source/tools/binman/binman replace -i flash.bin -f fit@0x380000.fit fit@0x380000
++dd if=fit@0x380000.fit of=flash.bin bs=$((0x1000)) seek=$((0x380000/0x1000)) conv=notrunc
+-- 
+2.35.3
+

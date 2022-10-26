@@ -1,0 +1,72 @@
+From e8996bd2b14ffb77d63dfe41bd6619deea472a35 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 28 Feb 2022 12:00:14 +0100
+Subject: [PATCH 02/18] env: Complete generic support for writable list
+
+This completes what 890feecaab72 started by selecting ENV_APPEND and
+ENV_IS_NOWHERE and by moving this driver to top if the list. This
+ensures that load operations pick up both the default env and the
+permitted parts of the next-prio location. When writing though, we must
+use the regular ordering.
+
+With this change, boards only need to define the list of writable
+variables but no longer have to provide a custom env_get_location
+implementation.
+
+CC: Joe Hershberger <joe.hershberger@ni.com>
+CC: Marek Vasut <marex@denx.de>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ env/Kconfig |  2 ++
+ env/env.c   | 22 ++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/env/Kconfig b/env/Kconfig
+index 238e4c70cf0..7b4d54031ed 100644
+--- a/env/Kconfig
++++ b/env/Kconfig
+@@ -714,6 +714,8 @@ config ENV_APPEND
+ 
+ config ENV_WRITEABLE_LIST
+ 	bool "Permit write access only to listed variables"
++	select ENV_IS_NOWHERE
++	select ENV_APPEND
+ 	help
+ 	  If defined, only environment variables which explicitly set the 'w'
+ 	  writeable flag can be written and modified at runtime. No variables
+diff --git a/env/env.c b/env/env.c
+index 69848fb0608..d0649f9540d 100644
+--- a/env/env.c
++++ b/env/env.c
+@@ -133,6 +133,28 @@ __weak enum env_location arch_env_get_location(enum env_operation op, int prio)
+ 	if (prio >= ARRAY_SIZE(env_locations))
+ 		return ENVL_UNKNOWN;
+ 
++	if (IS_ENABLED(CONFIG_ENV_WRITEABLE_LIST)) {
++		/*
++		 * In writeable-list mode, ENVL_NOWHERE gains highest prio by
++		 * virtually injecting it at prio 0.
++		 */
++		if (prio == 0) {
++			/*
++			 * Avoid the injection for write operations as that
++			 * would block it.
++			 */
++			if (op != ENVOP_SAVE && op != ENVOP_ERASE)
++				return ENVL_NOWHERE;
++		} else {
++			/*
++			 * always subtract 1, also for writing because
++			 * env_load_prio, which is used for writing, was
++			 * initialized with that offset.
++			 */
++			prio--;
++		}
++	}
++
+ 	return env_locations[prio];
+ }
+ 
+-- 
+2.35.3
+

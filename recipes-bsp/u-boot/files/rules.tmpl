@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+#
+# Copyright (c) Siemens AG, 2018-2022
+#
+# SPDX-License-Identifier: MIT
+
+ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
+SET_CROSS_BUILD_TOOLS=CROSS_BUILD_TOOLS=y
+endif
+
+override_dh_auto_build:
+	if [ -e keys ]; then \
+		tools/key2dtsi.py -c -s keys/custMpk.pem arch/arm/dts/custMpk.dtsi; \
+		openssl x509 -in keys/custMpk.crt -out custMpk.crt.pem -outform der; \
+		rm -f custMpk.esl; \
+		efisiglist -a -c custMpk.crt.pem -o custMpk.esl; \
+		rm -f ubootefi.var; \
+		tools/efivar.py set -i ubootefi.var -n PK -d custMpk.esl -t file; \
+		tools/efivar.py set -i ubootefi.var -n KEK -d custMpk.esl -t file; \
+		tools/efivar.py set -i ubootefi.var -n db -d custMpk.esl -t file; \
+	fi
+	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_CONFIG}
+	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_BIN} \
+		ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin \
+		TEE=/usr/lib/optee-os/iot2050/tee-pager_v2.bin
+	$(MAKE) -n u-boot-initial-env >/dev/null 2>&1; if [ $$? -ne 2 ]; then \
+		$(MAKE) $(PARALLEL_MAKE) u-boot-initial-env; \
+	else \
+		./scripts/get_default_envs.sh >u-boot-initial-env; \
+	fi
+	$(MAKE) $(PARALLEL_MAKE) $(SET_CROSS_BUILD_TOOLS) NO_SDL=1 tools-only envtools
+	if [ -e keys ]; then \
+		tools/iot2050-sign-fw.sh keys/custMpk.pem ${FIRMWARE_SECURE_VER}; \
+	fi
+
+override_dh_auto_install:
+	mv tools/env/lib.a tools/env/libubootenv.a
+
+override_dh_auto_test:
+
+override_dh_strip:
+	dh_strip -X libubootenv.a
+
+%:
+	dh $@ --parallel

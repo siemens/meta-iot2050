@@ -1,7 +1,7 @@
-From e97ec491c1b485ac2e4a0d5cec0783a1e429e34f Mon Sep 17 00:00:00 2001
+From 693c3636645a3fa4830b7727779d6bfd5ca409a4 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:22 +0100
-Subject: [PATCH 111/121] USB: serial: cp210x: clean up line-control handling
+Subject: [PATCH 111/120] USB: serial: cp210x: clean up line-control handling
 
 Update the line-control settings in one request unconditionally instead
 of setting the word-length, parity and stop-bit settings separately.
@@ -21,10 +21,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 41 insertions(+), 60 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 363232b6e4b2..6992818570a7 100644
+index e6a471035c03..6709b8cfc6ad 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1384,9 +1384,11 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1387,9 +1387,11 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  static void cp210x_set_termios(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
@@ -36,7 +36,7 @@ index 363232b6e4b2..6992818570a7 100644
  
  	if (!cp210x_termios_change(&tty->termios, old_termios))
  		return;
-@@ -1397,74 +1399,53 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1400,74 +1402,53 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	if (tty->termios.c_ospeed != old_termios->c_ospeed)
  		cp210x_change_speed(tty, port, old_termios);
  

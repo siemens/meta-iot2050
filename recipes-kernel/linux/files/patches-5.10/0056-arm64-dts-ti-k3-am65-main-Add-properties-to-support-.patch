@@ -1,7 +1,7 @@
-From 155d1a988b39ce8a85ada36635ca9c0cafade164 Mon Sep 17 00:00:00 2001
+From 1f18fb4d6dfa92f0dbb6495ffa4a628722380ecf Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:38:07 +0530
-Subject: [PATCH 056/121] arm64: dts: ti: k3-am65-main: Add properties to
+Subject: [PATCH 056/120] arm64: dts: ti: k3-am65-main: Add properties to
  support legacy interrupts
 
 Add DT properties in PCIe DT node to support legacy interrupts.
@@ -16,10 +16,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 30 insertions(+), 4 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 9b1a016162b2..b786daed9639 100644
+index dd1e475f2c18..2911b4286c97 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -697,8 +697,8 @@ pcie0_rc: pcie@5500000 {
+@@ -700,8 +700,8 @@ pcie0_rc: pcie@5500000 {
  		power-domains = <&k3_pds 120 TI_SCI_PD_EXCLUSIVE>;
  		#address-cells = <3>;
  		#size-cells = <2>;
@@ -30,7 +30,7 @@ index 9b1a016162b2..b786daed9639 100644
  		ti,syscon-pcie-id = <&pcie_devid>;
  		ti,syscon-pcie-mode = <&pcie0_mode>;
  		bus-range = <0x0 0xff>;
-@@ -708,6 +708,19 @@ pcie0_rc: pcie@5500000 {
+@@ -711,6 +711,19 @@ pcie0_rc: pcie@5500000 {
  		interrupts = <GIC_SPI 340 IRQ_TYPE_EDGE_RISING>;
  		msi-map = <0x0 &gic_its 0x0 0x10000>;
  		device_type = "pci";
@@ -50,7 +50,7 @@ index 9b1a016162b2..b786daed9639 100644
  	};
  
  	pcie0_ep: pcie-ep@5500000 {
-@@ -730,8 +743,8 @@ pcie1_rc: pcie@5600000 {
+@@ -733,8 +746,8 @@ pcie1_rc: pcie@5600000 {
  		power-domains = <&k3_pds 121 TI_SCI_PD_EXCLUSIVE>;
  		#address-cells = <3>;
  		#size-cells = <2>;
@@ -61,7 +61,7 @@ index 9b1a016162b2..b786daed9639 100644
  		ti,syscon-pcie-id = <&pcie_devid>;
  		ti,syscon-pcie-mode = <&pcie1_mode>;
  		bus-range = <0x0 0xff>;
-@@ -741,6 +754,19 @@ pcie1_rc: pcie@5600000 {
+@@ -744,6 +757,19 @@ pcie1_rc: pcie@5600000 {
  		interrupts = <GIC_SPI 355 IRQ_TYPE_EDGE_RISING>;
  		msi-map = <0x0 &gic_its 0x10000 0x10000>;
  		device_type = "pci";

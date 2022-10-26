@@ -8,20 +8,17 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-USE_IMAGE_UUID = "image_uuid"
-USE_IMAGE_UUID_secureboot = ""
-
-inherit ${USE_IMAGE_UUID}
-
-# generate a swu image for a/b updating via swupdate
-IMAGE_FSTYPES = "wic-swu-img"
-IMAGE_FSTYPES_secureboot = "secure-wic-swu-img"
-
-require recipes-core/images/swupdate.inc
 require recipes-core/images/iot2050-image-example.bb
+require recipes-core/images/swupdate.inc
+
+inherit image_uuid
+
+IMAGE_TYPEDEP_wic = "squashfs"
+IMAGE_TYPEDEP_wic_secureboot = "verity"
 
 WKS_FILE = "iot2050-swu.wks.in"
 WKS_FILE_secureboot = "iot2050-swu-secure.wks.in"
+WIC_DEPLOY_PARTITIONS = "1"
 
 WIC_IMAGER_INSTALL += "efibootguard"
 # watchdog is managed by U-Boot - disable

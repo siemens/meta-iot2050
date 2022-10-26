@@ -1,0 +1,75 @@
+From e37319f6bd17bd13ece8ef780886789532497201 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 7 Nov 2021 17:59:17 +0100
+Subject: [PATCH 10/18] arm: dts: iot2050: Allow verifying U-Boot proper by SPL
+
+Add hashes and configuration signature stubs to prepare verified boot
+of main U-Boot by SPL.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 3ee0842e993..9082a79a034 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -14,6 +14,7 @@
+ 		filename = "flash.bin";
+ 		pad-byte = <0xff>;
+ 		size = <0x8c0000>;
++		allow-repack;
+ 
+ 		blob-ext@0x000000 {
+ 			offset = <0x000000>;
+@@ -45,6 +46,9 @@
+ 					entry = <0x80800000>;
+ 					u-boot-nodtb {
+ 					};
++					hash {
++						algo = "sha256";
++					};
+ 				};
+ 
+ 				@fdt-SEQ {
+@@ -52,6 +56,9 @@
+ 					type = "flat_dt";
+ 					arch = "arm64";
+ 					compression = "none";
++					hash {
++						algo = "sha256";
++					};
+ 				};
+ 
+ #ifdef CONFIG_WDT_K3_RTI_FW_FILE
+@@ -64,6 +71,9 @@
+ 						filename = CONFIG_WDT_K3_RTI_FW_FILE;
+ 						missing-msg = "k3-rti-wdt-firmware";
+ 					};
++					hash {
++						algo = "sha256";
++					};
+ 				};
+ #endif
+ 			};
+@@ -77,10 +87,16 @@
+ #ifdef CONFIG_WDT_K3_RTI_FW_FILE
+ 					loadables = "k3-rti-wdt-firmware";
+ #endif
++					signature {
++						sign-images = "firmware", "fdt", "loadables";
++					};
+ 				};
+ 			};
+ 		};
+ 
++		fdtmap {
++		};
++
+ 		/* primary env */
+ 		fill@0x680000 {
+ 			offset = <0x680000>;
+-- 
+2.35.3
+

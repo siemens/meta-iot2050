@@ -1,7 +1,7 @@
-From 051b5f9493b320724bb59de95e3619688a19788d Mon Sep 17 00:00:00 2001
+From ac8128a14d918854d21f73cbb47398c11cc2438d Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:05 -0700
-Subject: [PATCH 024/121] firmware: ti_sci: rm: Remove ring_get_config support
+Subject: [PATCH 024/120] firmware: ti_sci: rm: Remove ring_get_config support
 
 The ring_get_cfg (0x1111 message) is not used and it is not supported by
 sysfw for a long time.
@@ -176,7 +176,7 @@ index ca15d8f1f8de..1cdf918be861 100644
   * struct ti_sci_msg_psil_pair - Pairs a PSI-L source thread to a destination
   *				 thread
 diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
-index 6978afc00823..6710d7ac7a72 100644
+index a090b72a3362..7727ec954f62 100644
 --- a/include/linux/soc/ti/ti_sci_protocol.h
 +++ b/include/linux/soc/ti/ti_sci_protocol.h
 @@ -286,8 +286,6 @@ struct ti_sci_rm_irq_ops {

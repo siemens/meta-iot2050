@@ -10,7 +10,9 @@
 
 inherit dpkg
 
-SRC_URI = "git://github.com/siemens/k3-rti-wdt.git;protocol=https"
+SRC_URI = " \
+    git://github.com/siemens/k3-rti-wdt.git;protocol=https \
+    file://rules"
 SRCREV = "33a6680184996074ca9731710161520edf334725"
 
 S = "${WORKDIR}/git"
@@ -23,8 +25,4 @@ do_prepare_build() {
     deb_debianize
 
     echo "k3-rti-wdt.fw /lib/firmware/" > ${S}/debian/install
-}
-
-dpkg_runbuild_prepend() {
-    export CC="gcc"
 }

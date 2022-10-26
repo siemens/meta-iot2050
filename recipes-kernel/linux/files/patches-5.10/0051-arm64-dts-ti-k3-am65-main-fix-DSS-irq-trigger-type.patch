@@ -1,7 +1,7 @@
-From ee820c10c2bac07000c36ddc0dae4f225803728a Mon Sep 17 00:00:00 2001
+From b1d66d6a10869b1a80eb85391fcf22523918def9 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 31 May 2021 16:31:35 +0530
-Subject: [PATCH 051/121] arm64: dts: ti: k3-am65-main: fix DSS irq trigger
+Subject: [PATCH 051/120] arm64: dts: ti: k3-am65-main: fix DSS irq trigger
  type
 
 DSS irq trigger type is set to IRQ_TYPE_EDGE_RISING. For some reason this
@@ -22,10 +22,10 @@ Tested-by: Praneeth Bajjuri <praneeth@ti.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 9338f1042232..9b1a016162b2 100644
+index a506a24bd9c2..dd1e475f2c18 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -858,7 +858,7 @@ dss: dss@4a00000 {
+@@ -861,7 +861,7 @@ dss: dss@4a00000 {
  		assigned-clocks = <&k3_clks 67 2>;
  		assigned-clock-parents = <&k3_clks 67 5>;
  

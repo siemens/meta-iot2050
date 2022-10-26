@@ -1,0 +1,88 @@
+From d76fe699182d9f7979236d38b05b1127127172cc Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 20 Mar 2022 15:00:34 +0100
+Subject: [PATCH 08/18] iot2050: Add watchdog start to bootcmd
+
+Allows run-time control over watchdog auto-start and the timeout via
+setting the environment variable watchdog_timeout_ms. A value of zero
+means "do not start". Use CONFIG_WATCHDOG_TIMEOUT_MSECS as initial value
+and this to zero by default. Users can then enable the watchdog once the
+use and OS which picks it up during boot.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ configs/iot2050_pg1_defconfig | 2 ++
+ configs/iot2050_pg2_defconfig | 2 ++
+ include/configs/iot2050.h     | 9 +++++++++
+ 3 files changed, 13 insertions(+)
+
+diff --git a/configs/iot2050_pg1_defconfig b/configs/iot2050_pg1_defconfig
+index 934266c26ef..49f81109364 100644
+--- a/configs/iot2050_pg1_defconfig
++++ b/configs/iot2050_pg1_defconfig
+@@ -32,6 +32,7 @@ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTSTAGE=y
+ CONFIG_SHOW_BOOT_PROGRESS=y
+ CONFIG_SPL_SHOW_BOOT_PROGRESS=y
++CONFIG_BOOTCOMMAND="run start_watchdog; run distro_bootcmd"
+ CONFIG_CONSOLE_MUX=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_SPL_MAX_SIZE=0x58000
+@@ -142,6 +143,7 @@ CONFIG_USB_DWC3_GENERIC=y
+ CONFIG_USB_KEYBOARD=y
+ # CONFIG_WATCHDOG is not set
+ # CONFIG_WATCHDOG_AUTOSTART is not set
++CONFIG_WATCHDOG_TIMEOUT_MSECS=0
+ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
+index c76abcca672..43410160c8a 100644
+--- a/configs/iot2050_pg2_defconfig
++++ b/configs/iot2050_pg2_defconfig
+@@ -32,6 +32,7 @@ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTSTAGE=y
+ CONFIG_SHOW_BOOT_PROGRESS=y
+ CONFIG_SPL_SHOW_BOOT_PROGRESS=y
++CONFIG_BOOTCOMMAND="run start_watchdog; run distro_bootcmd"
+ CONFIG_CONSOLE_MUX=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_SPL_MAX_SIZE=0x58000
+@@ -142,6 +143,7 @@ CONFIG_USB_DWC3_GENERIC=y
+ CONFIG_USB_KEYBOARD=y
+ # CONFIG_WATCHDOG is not set
+ # CONFIG_WATCHDOG_AUTOSTART is not set
++CONFIG_WATCHDOG_TIMEOUT_MSECS=0
+ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
+index 0f6150fc9c7..dc4b5f90595 100644
+--- a/include/configs/iot2050.h
++++ b/include/configs/iot2050.h
+@@ -15,6 +15,14 @@
+ 
+ /* SPL Loader Configuration */
+ 
++#define WATCHDOG_ENV							\
++	"watchdog_timeout_ms=" __stringify(CONFIG_WATCHDOG_TIMEOUT_MSECS) "\0" \
++	"start_watchdog=if test ${watchdog_timeout_ms} -gt 0; then "	\
++		"wdt dev watchdog@40610000; "				\
++		"wdt start ${watchdog_timeout_ms}; "			\
++		"echo Watchdog started, timeout ${watchdog_timeout_ms} ms; " \
++		"fi\0"
++
+ /* U-Boot general configuration */
+ #define EXTRA_ENV_IOT2050_BOARD_SETTINGS				\
+ 	"usb_pgood_delay=900\0"
+@@ -43,6 +51,7 @@
+ #define CONFIG_EXTRA_ENV_SETTINGS					\
+ 	DEFAULT_LINUX_BOOT_ENV						\
+ 	BOOTENV								\
++	WATCHDOG_ENV							\
+ 	EXTRA_ENV_IOT2050_BOARD_SETTINGS
+ 
+ #include <configs/ti_armv7_common.h>
+-- 
+2.35.3
+

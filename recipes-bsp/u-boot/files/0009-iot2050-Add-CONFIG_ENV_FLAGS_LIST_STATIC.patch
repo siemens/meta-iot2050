@@ -1,0 +1,35 @@
+From b7d0346c54bfe7aa00cce0a9f520f232cb0ff6f8 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 25 Apr 2022 10:42:25 +0200
+Subject: [PATCH 09/18] iot2050: Add CONFIG_ENV_FLAGS_LIST_STATIC
+
+Will be needed when CONFIG_ENV_WRITEABLE_LIST is enabled. The listed
+variables shall remain writable, for informational purposes - they have
+to be considered untrusted because the persistent U-Boot env is not
+protected.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ include/configs/iot2050.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
+index dc4b5f90595..d2cba5acfdd 100644
+--- a/include/configs/iot2050.h
++++ b/include/configs/iot2050.h
+@@ -56,4 +56,12 @@
+ 
+ #include <configs/ti_armv7_common.h>
+ 
++#ifdef CONFIG_ENV_WRITEABLE_LIST
++/* relevant for secure boot with CONFIG_ENV_WRITEABLE_LIST=y */
++#define CONFIG_ENV_FLAGS_LIST_STATIC					\
++	"board_uuid:sw,board_name:sw,board_serial:sw,board_a5e:sw,"	\
++	"mlfb:sw,fw_version:sw,seboot_version:sw,"			\
++	"eth1addr:mw,eth2addr:mw,watchdog_timeout_ms:dw,boot_targets:sw"
++#endif
++
+ #endif /* __CONFIG_IOT2050_H */
+-- 
+2.35.3
+
