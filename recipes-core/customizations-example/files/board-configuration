@@ -69,8 +69,6 @@ def initAruinoPins():
 
 
 def initExternalSerialMode():
-    command = 'grep -a -o -P "IOT2050 \w*" /proc/device-tree/model'
-    boardType = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8')
     initMode = config['User_configuration']['External_Serial_Init_Mode']
     currentMode = config['User_configuration']['External_Serial_Current_Mode']
     terminate = config['User_configuration']['External_Serial_Terminate']
@@ -79,18 +77,6 @@ def initExternalSerialMode():
         config['User_configuration']['External_Serial_Current_Mode'] = initMode
         saveConfig(config)
 
-    command = ""
-    if boardType == "IOT2050 Basic":
-        command = "switchserialmode ttyuart -D /dev/ttyS2 -m " + initMode
-    elif boardType == "IOT2050 Advanced":
-        if initMode == "RS232":
-            command = "switchserialmode cp210x -D cp2102n24 -m gpio -v 0"
-        elif initMode == "RS485":
-            command = "switchserialmode cp210x -D cp2102n24 -m RS485 -g 1"
-        elif initMode == "RS422":
-            command = "switchserialmode cp210x -D cp2102n24 -m gpio -v 1"
-
-    subprocess.call(command, shell=True)
     terminateOpt = ''
     if (initMode == 'RS485') or (initMode == 'RS422'):
         terminateOpt = ' -t' if terminate == 'on' else ''

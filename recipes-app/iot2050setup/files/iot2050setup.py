@@ -502,12 +502,10 @@ class PeripheralsMenu:
         else:
             return
         terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
-        subprocess.call('switchserialmode -m ' + switchMode + terminateOpt, shell=True)
+        subprocess.call('switchserialmode '  + terminateOpt, shell=True)
         self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
         self.saveConfig(self.config)
         subprocess.call('sync', shell=True)
-        if not self.topmenu.boardType.startswith('IOT2050 Basic') and self.topmenu.boardType != 'IOT2050 Advanced':
-            subprocess.call('switchserialmode -r', shell=True)
 
     def currentMode(self):
         mode = self.config['User_configuration']['External_Serial_Current_Mode']
@@ -520,13 +518,7 @@ class PeripheralsMenu:
         return 0
 
     def setAdvancedBoard(self, mode):
-        command = ''
-        if mode == 'RS232':
-            command = 'switchserialmode cp210x -D cp2102n24 -m gpio -v 0'
-        elif mode == 'RS485':
-            command = 'switchserialmode cp210x -D cp2102n24 -m RS485 -g 1'
-        elif mode == 'RS422':
-            command = 'switchserialmode cp210x -D cp2102n24 -m gpio -v 1'
+        command = 'switchserialmode -m ' + mode
         subprocess.call(command, shell=True)
         self.config['User_configuration']['External_Serial_Init_Mode'] = mode
         if self.terminateStatus == 'on' or self.terminateStatus == 'off':
@@ -541,9 +533,9 @@ class PeripheralsMenu:
                             buttons=['Ok'])
 
     def setRS485SetupHoldTime(self):
-        command = 'switchserialmode cp210x -D CP2102N24 -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
+        command = 'switchserialmode -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
         setup = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
-        command = 'switchserialmode cp210x -D CP2102N24 -d | grep -o -P \"hold-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
+        command = 'switchserialmode -d | grep -o -P \"hold-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
         hold = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
 
         disSetup = '0xaa' if int(setup, 0) == 0 else setup
@@ -560,11 +552,11 @@ class PeripheralsMenu:
         if action == 'cancel':
             return
 
-        command = 'switchserialmode cp210x -D cp2102n24'
+        command = 'switchserialmode'
         if int(setup, 0) != int(values[0], 0):
-            command += ' -s ' + values[0]
+            command += ' -s ' + str(int(values[0], 16))
         if int(hold, 0) != int(values[1], 0):
-            command += ' -o ' + values[1]
+            command += ' -o ' + str(int(values[1], 16))
         if ('-s' in command) or ('-o' in command):
             subprocess.call(command, shell=True)
 
@@ -574,7 +566,7 @@ class PeripheralsMenu:
                                               text='Do you want to make your changes persistent?\n(Mode setting will be kept after reboot.) ',
                                               buttons=[('Yes', 'yes'), ('No', 'no', 'ESC')],
                                               width=40)
-        command = 'switchserialmode ttyuart -D /dev/ttyS2 -m ' + mode
+        command = 'switchserialmode -m ' + mode
         subprocess.call(command, shell=True)
         if persistentReturn == 'yes':
             self.config['User_configuration']['External_Serial_Init_Mode'] = mode
