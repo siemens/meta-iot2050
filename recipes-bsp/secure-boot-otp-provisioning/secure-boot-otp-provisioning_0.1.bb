@@ -54,11 +54,20 @@ check_dummy_hash() {
 do_prepare_build[cleandirs] += "${S}/debian"
 do_prepare_build() {
     deb_debianize
-    cd ${S}
-    cp -rPf ../its ${S}/its
-    ln -sf ../keys ${S}/keys
-    ln -sf ../make-otpcmd.sh ${S}
+    mkdir -p ${S}/its
+    cp -rPf ${WORKDIR}/its/* ${S}/its/
+    mkdir -p ${S}/keys
+    ln -f ${WORKDIR}/keys/* ${S}/keys/
+    ln -f ${WORKDIR}/make-otpcmd.sh ${S}
+    check_dummy_hash
+
     echo "otpcmd.bin /usr/lib/secure-boot-otp-provisioning/" > \
             ${S}/debian/secure-boot-otp-provisioning.install
-    check_dummy_hash
+}
+
+dpkg_runbuild_append() {
+    # remove keys from source archive
+    gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
+    tar --delete -f ${WORKDIR}/${PN}_${PV}.tar ${PN}-${PV}/keys
+    gzip ${WORKDIR}/${PN}_${PV}.tar
 }
