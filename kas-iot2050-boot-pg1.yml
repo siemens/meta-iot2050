@@ -20,4 +20,4 @@ target: u-boot-iot2050
 
 local_conf_header:
   u-boot: |
-    PREFERRED_PROVIDER_u-boot-${MACHINE} = "u-boot-iot2050-pg1"
+    PRODUCT_GENERATION = "pg1"
