@@ -38,6 +38,9 @@ repos:
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
     refspec: a4f8825da273cb655c94ace3c0e3ce4bbba1247e
+    patches:
+      add-edk2:
+        path: isar-patches/0001-Add-recipe-for-EDK2-StandaloneMmRpmb.patch
 
 bblayers_conf_header:
   standard: |
