@@ -1,0 +1,62 @@
+From d448e8bb2e526ba132311a61927f0a9177ae8c4d Mon Sep 17 00:00:00 2001
+From: "Ying-Chun Liu (PaulLiu)" <paul.liu@linaro.org>
+Date: Mon, 21 Nov 2022 22:14:05 +0800
+Subject: [PATCH] Allow cross-compile pkg-config
+
+optee-client fails to cross build from source. This commit
+apply CROSS_COMPILE on pkg-config to let it be able to build by
+cross-compiler.
+
+Link: https://bugs.debian.org/1023233
+Link: http://crossqa.debian.net/src/optee-client
+Signed-off-by: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
+Signed-off-by: Helmut Grohne <helmut@subdivi.de>
+Acked-by: Jerome Forissier <jerome.forissier@linaro.org>
+---
+ Makefile           | 2 +-
+ flags.mk           | 1 +
+ libteeacl/Makefile | 4 ++--
+ 3 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 7803a5a..90b487e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -52,7 +52,7 @@ build-libteeacl: check-libuuid
+ 
+ check-libuuid:
+ 	@echo "Finding uuid.pc"
+-	pkg-config --atleast-version=2.34 uuid
++	$(PKG_CONFIG) --atleast-version=2.34 uuid
+ 
+ install: copy_export
+ 
+diff --git a/flags.mk b/flags.mk
+index c2f1846..7052d80 100644
+--- a/flags.mk
++++ b/flags.mk
+@@ -5,6 +5,7 @@
+ CROSS_COMPILE   ?= arm-linux-gnueabihf-
+ CC              ?= $(CROSS_COMPILE)gcc
+ AR		?= $(CROSS_COMPILE)ar
++PKG_CONFIG	?= $(CROSS_COMPILE)pkg-config
+ 
+ override CFLAGS += -Wall -Wbad-function-cast -Wcast-align \
+ 		   -Werror-implicit-function-declaration -Wextra \
+diff --git a/libteeacl/Makefile b/libteeacl/Makefile
+index 5485144..3f708ac 100644
+--- a/libteeacl/Makefile
++++ b/libteeacl/Makefile
+@@ -27,10 +27,10 @@ LIBTEEACL_SRCS	+= tee_uuid.c
+ LIBTEEACL_INCLUDES	= ${CURDIR}/include
+ 
+ LIBTEEACL_CFLAGS	:= $(addprefix -I, $(LIBTEEACL_INCLUDES)) \
+-			$(shell pkg-config --cflags uuid) \
++			$(shell $(PKG_CONFIG) --cflags uuid) \
+ 			$(CFLAGS) -D_GNU_SOURCE -fPIC
+ 
+-LIBTEEACL_LFLAGS	:= $(LDFLAGS) $(shell pkg-config --libs uuid)
++LIBTEEACL_LFLAGS	:= $(LDFLAGS) $(shell $(PKG_CONFIG) --libs uuid)
+ 
+ LIBTEEACL_OBJ_DIR	:= $(OUT_DIR)
+ LIBTEEACL_OBJS	:= $(patsubst %.c,$(LIBTEEACL_OBJ_DIR)/%.o, $(LIBTEEACL_SRCS))
