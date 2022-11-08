@@ -1,0 +1,74 @@
+From dd2d39b49975d2ada7870fe2b7f5a84d0d3860dc Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Mon, 7 Nov 2022 20:19:29 +0800
+Subject: [PATCH] libteeacl: Move uuid-dev checking in libteec makefile
+
+For uuid dependency checking, cross compiler version pkg-config should
+be used. However top level makefile does not hold the information of the
+cross compiler. To solve that, move the checking from top level makefile
+to the library level.
+
+Fixes: d448e8bb2e52 ("Allow cross-compile pkg-config")
+Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
+Reviewed-by: Jens Wiklander <jens.wiklander@linaro.org>
+Acked-by: Etienne Carriere <etienne.carriere@linaro.org>
+---
+ Makefile           | 8 ++------
+ libteeacl/Makefile | 8 +++++++-
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 2ee5621..0578b63 100644
+--- a/Makefile
++++ b/Makefile
+@@ -19,7 +19,7 @@ INCLUDEDIR ?= /usr/include
+ WITH_TEEACL ?= 1
+ 
+ .PHONY: all build build-libteec build-libckteec build-libseteec \
+-	build-libteeacl check-libuuid install copy_export clean cscope \
++	build-libteeacl install copy_export clean cscope \
+ 	clean-cscope \
+ 	checkpatch-pre-req checkpatch-modified-patch checkpatch-modified-file \
+ 	checkpatch-last-commit-patch checkpatch-last-commit-file \
+@@ -50,14 +50,10 @@ build-libseteec: build-libteec
+ 	@echo "Building libseteec.so"
+ 	@$(MAKE) --directory=libseteec --no-print-directory --no-builtin-variables
+ 
+-build-libteeacl: check-libuuid
++build-libteeacl:
+ 	@echo "Building libteeacl.so"
+ 	@$(MAKE) --directory=libteeacl --no-print-directory --no-builtin-variables
+ 
+-check-libuuid:
+-	@echo "Finding uuid.pc"
+-	$(PKG_CONFIG) --atleast-version=2.34 uuid
+-
+ install: copy_export
+ 
+ clean: clean-libteec clean-tee-supplicant clean-cscope clean-libckteec \
+diff --git a/libteeacl/Makefile b/libteeacl/Makefile
+index 3f708ac..fe50c51 100644
+--- a/libteeacl/Makefile
++++ b/libteeacl/Makefile
+@@ -3,7 +3,7 @@ include ../config.mk
+ 
+ OUT_DIR := $(OO)/libteeacl
+ 
+-.PHONY: all libteeacl clean
++.PHONY: all libteeacl check-libuuid clean
+ 
+ all: libteeacl
+ install: libteeacl
+@@ -40,6 +40,12 @@ $(LIBTEEACL_OBJ_DIR)/%.o: ${LIBTEEACL_SRC_DIR}/%.c
+ 	@echo "  CC      $<"
+ 	$(VPREFIX)$(CC) $(LIBTEEACL_CFLAGS) -c $< -o $@
+ 
++libteeacl: check-libuuid
++
++check-libuuid:
++	@echo "  Finding uuid.pc"
++	$(VPREFIX)$(PKG_CONFIG) --atleast-version=2.34 uuid
++
+ libteeacl: $(OUT_DIR)/$(LIBTEEACL_SO_LIBRARY)
+ 
+ $(OUT_DIR)/$(LIBTEEACL_SO_LIBRARY): $(LIBTEEACL_OBJS)
