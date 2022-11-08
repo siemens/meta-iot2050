@@ -1,0 +1,79 @@
+From 98f108ad618570c2fdb4f33e4e3f54a1882562b1 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Mon, 7 Nov 2022 19:20:55 +0800
+Subject: [PATCH 2/2] makefile: Fix the pkg-config for cross building
+
+For cross building, the cross version <CROSS_COMPILE>pkg-config should
+be used instead of the native pkg-config.
+
+This is because for the dynamic linking dependency such as
+uuid-dev/libuuid, the build machine architecture version should not be
+used, instead, the host machine version should be used. Or in other
+words, install uuid-dev:arm64 for cross building the aarch64 target on
+Debian/Ubuntu.
+
+However, the native pkg-config could not find the correct cross
+compiling dependencies if only the target arch uuid-dev is installed.
+Even worse, it produces the incorrect LFLAGS without the required -L, if
+the native uuid-dev is installed.
+
+By adding multiarch, on Debian/Ubuntu, a <CROSS_COMPILE>pkg-config is
+created to correctly handle such problem.
+
+This fixes below issues while cross building.
+
+- If only the target uuid-dev is installed:
+
+  make: *** [Makefile:55: check-libuuid] Error 1
+
+- If both the native and the target uuid-dev are installed:
+
+  ld: cannot find -luuid
+
+Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
+---
+ flags.mk           | 1 +
+ libteeacl/Makefile | 6 +++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/flags.mk b/flags.mk
+index c2f1846..a9483e8 100644
+--- a/flags.mk
++++ b/flags.mk
+@@ -5,6 +5,7 @@
+ CROSS_COMPILE   ?= arm-linux-gnueabihf-
+ CC              ?= $(CROSS_COMPILE)gcc
+ AR		?= $(CROSS_COMPILE)ar
++PKG_CONFIG      ?= $(CROSS_COMPILE)pkg-config
+ 
+ override CFLAGS += -Wall -Wbad-function-cast -Wcast-align \
+ 		   -Werror-implicit-function-declaration -Wextra \
+diff --git a/libteeacl/Makefile b/libteeacl/Makefile
+index cadc296..ad5d2a9 100644
+--- a/libteeacl/Makefile
++++ b/libteeacl/Makefile
+@@ -27,10 +27,10 @@ LIBTEEACL_SRCS	+= tee_uuid.c
+ LIBTEEACL_INCLUDES	= ${CURDIR}/include
+ 
+ LIBTEEACL_CFLAGS	:= $(addprefix -I, $(LIBTEEACL_INCLUDES)) \
+-			$(shell pkg-config --cflags uuid) \
++			$(shell $(PKG_CONFIG) --cflags uuid) \
+ 			$(CFLAGS) -D_GNU_SOURCE -fPIC
+ 
+-LIBTEEACL_LFLAGS	:= $(LDFLAGS) $(shell pkg-config --libs uuid)
++LIBTEEACL_LFLAGS	:= $(LDFLAGS) $(shell $(PKG_CONFIG) --libs uuid)
+ 
+ LIBTEEACL_OBJ_DIR	:= $(OUT_DIR)
+ LIBTEEACL_OBJS	:= $(patsubst %.c,$(LIBTEEACL_OBJ_DIR)/%.o, $(LIBTEEACL_SRCS))
+@@ -44,7 +44,7 @@ libteeacl: check-libuuid
+ 
+ check-libuuid:
+ 	@echo "  Finding uuid.pc"
+-	pkg-config --atleast-version=2.34 uuid
++	$(PKG_CONFIG) --atleast-version=2.34 uuid
+ 
+ libteeacl: $(OUT_DIR)/$(LIBTEEACL_SO_LIBRARY)
+ 
+-- 
+2.30.2
+
