@@ -538,13 +538,10 @@ class PeripheralsMenu:
         command = 'switchserialmode -d | grep -o -P \"hold-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
         hold = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
 
-        disSetup = '0xaa' if int(setup, 0) == 0 else setup
-        disHold = '0xaa' if int(hold, 0) == 0 else hold
-
         action, values = EntryWindow(screen=self.topmenu.gscreen,
                                      title='Set The Setup and Hold Time of RS485 Mode',
                                      text='The setup and hold time will affect the transfer stable in RS485 mode',
-                                     prompts=[('Setup (0x00 ~ 0xffff): ', disSetup), ('Hold (0x00 ~ 0xffff): ', disHold)],
+                                     prompts=[('Setup (0x00 ~ 0xffff): ', setup), ('Hold (0x00 ~ 0xffff): ', hold)],
                                      width=70,
                                      entryWidth=50,
                                      buttons=[('OK'), ('Cancel', 'cancel', 'ESC')])
