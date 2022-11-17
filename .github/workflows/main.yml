@@ -18,8 +18,8 @@ jobs:
         with:
           name: iot2050-example-image
           path: |
-            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
-            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img.bmap
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.bmap
 
   debian-rt-example-image:
     name: Debian RT example image
@@ -36,8 +36,8 @@ jobs:
         with:
           name: iot2050-example-image-rt
           path: |
-            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img
-            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.img.bmap
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
+            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.bmap
 
   debian-swupdate-image:
     name: Debian secure boot SWUpdate image
@@ -54,8 +54,8 @@ jobs:
         with:
           name: iot2050-swupdate-image
           path: |
-            build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img
-            build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.img.bmap
+            build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic
+            build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.bmap
 
   bootloaders:
     name: Bootloaders
