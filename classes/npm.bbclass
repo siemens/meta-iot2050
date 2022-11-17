@@ -242,7 +242,7 @@ override_dh_clean:
 	rm -rf $(npm_config_cache)
 
 override_dh_auto_build:
-	cd ${CHDIR} && npm install ${INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
+	cd ${CHDIR} && npm install ${INSTALL_FLAGS} ${NPM_INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
 	if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then \
 	    rm -f ${CHDIR}/node_modules/.package-lock.json; \
 	fi
