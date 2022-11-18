@@ -36,9 +36,13 @@ typedef struct serial_ops {
 
     /*Release*/
     void (*release)(void);
-
-    transceiver_ops_t *transOps;
 }serial_ops_t;
+
+typedef struct platform {
+    serial_ops_t *serOps;
+    transceiver_ops_t *transOps;
+    void *private_data;
+} platform_t;
 
 boardType_e get_board_type(void);
 
