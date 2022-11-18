@@ -328,6 +328,19 @@ static void cp2102n_release()
     cp2102n_hardware_reset();
 }
 
+static void cp2102n_pre_process(void *data)
+{
+    platform_t *preProcess = (platform_t *)data;
+    if (preProcess->private_data) {
+        controller_setting_t *privData = (controller_setting_t *)(preProcess->private_data);
+        if ((0 == GET_CP2102N_RS485_SETUP_TIME(cp2102n_cfg_operation->deviceConf)) ||
+            (0 == GET_CP2102N_RS485_HOLD_TIME(cp2102n_cfg_operation->deviceConf))) {
+            cfg_cp2102n_rs485_setup_time(cp2102n_cfg_operation, privData->setup_time);
+            cfg_cp2102n_rs485_hold_time(cp2102n_cfg_operation, privData->hold_time);
+        }
+    }
+}
+
 serial_ops_t cp210x_ops = {
     .devName = "cp2102n24",
     .init = cp2102n_init,
@@ -336,4 +349,5 @@ serial_ops_t cp210x_ops = {
     .rs485HoldTime = cp2102n_set_rs485_hold_time,
     .rs485SetupTime = cp2102n_set_rs485_setup_time,
     .release = cp2102n_release,
+    .preProcess = cp2102n_pre_process,
 };

@@ -36,7 +36,14 @@ typedef struct serial_ops {
 
     /*Release*/
     void (*release)(void);
-}serial_ops_t;
+
+    void (*preProcess)(void *);
+} serial_ops_t;
+
+typedef struct controller_setting {
+    uint32_t hold_time;
+    uint32_t setup_time;
+} controller_setting_t;
 
 typedef struct platform {
     serial_ops_t *serOps;
