@@ -91,6 +91,16 @@ def runcmd(d, cmd, dir):
             cmd, (":\n" + output) if output else ""))
     bb.note(output)
 
+def apply_mirrors_in_shrinkwrap(path, pattern, subst):
+    import json, re
+    with open(path, 'r') as f:
+        data = json.load(f)
+    for pname, pdef in data['packages'].items():
+        if 'resolved' in pdef:
+            pdef['resolved'] = re.sub(pattern, subst, pdef['resolved'])
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+
 do_install_npm() {
     install_cmd="sudo -E chroot ${BUILDCHROOT_DIR} \
         apt-get install -y -o Debug::pkgProblemResolver=yes \
@@ -118,7 +128,7 @@ do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
 addtask install_npm before do_fetch
 
 python fetch_npm() {
-    import json, os, shutil
+    import json, os, shutil, re
 
     workdir = d.getVar('WORKDIR');
     tmpdir = workdir + "/fetch-tmp"
@@ -159,7 +169,16 @@ python fetch_npm() {
     # be created in this directory
     os.environ['HOME'] = d.getVar('PP') + "/fetch-tmp"
 
-    os.environ.update({'npm_config_registry': d.getVar('NPM_REGISTRY')})
+    # apply simplified PREMIRRORS logic to NPM_REGISTRY and shrinkwrap
+    npm_registry = d.getVar('NPM_REGISTRY', True)
+    mirrors = bb.fetch2.mirror_from_string(d.getVar('PREMIRRORS'))
+    npm_mirrors = filter(lambda m: m[0].startswith('npm://'), mirrors)
+    for m in npm_mirrors:
+        pattern = m[0].replace('npm://','')
+        subst = m[1].replace('npm://','')
+        npm_registry = re.sub(pattern, subst, npm_registry)
+        apply_mirrors_in_shrinkwrap('npm-shrinkwrap.json', pattern, subst)
+    os.environ.update({'npm_config_registry': npm_registry})
 
     npmpn = d.getVar('NPMPN')
 
