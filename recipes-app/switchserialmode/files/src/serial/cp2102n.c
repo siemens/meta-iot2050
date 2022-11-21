@@ -168,6 +168,9 @@ static int8_t cp2102n_open(struct cp2102n_conf_ops *conf)
             printf("Open usb failed\n");
             goto error;
         }
+    } else {
+        printf("No matched device found\n");
+        goto error;
     }
 
     libusb_free_device_list(list, 1);

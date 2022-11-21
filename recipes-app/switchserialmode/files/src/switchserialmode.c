@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 
     if (display_current_mode) {
         curr_platform->serOps->getMode();
-        goto release;
+        return SUCCESS;
     }
 
     if (curr_platform->serOps->preProcess)
