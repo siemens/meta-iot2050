@@ -241,10 +241,10 @@ static void cp2102n_hardware_reset(void)
         for later baord, hardware reset can take effective.
     */
     if (ADVANCED_BOARD_PG1 != get_board_type()) {
-        usleep(500 * 1000);
         gpio_set("CP2102N-RESET", 0);
-        usleep(500 * 1000);
+        usleep(30 * 1000);
         gpio_set("CP2102N-RESET", 1);
+        sleep(1);
     }
 }
 
