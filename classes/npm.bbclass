@@ -110,14 +110,14 @@ do_install_npm() {
     dpkg_do_mounts
 
     E="${@ bb.utils.export_proxies(d)}"
-    deb_dl_dir_import "${BUILDCHROOT_DIR}"
+    deb_dl_dir_import "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
     sudo -E chroot ${BUILDCHROOT_DIR} \
             apt-get update \
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
     ${install_cmd} --download-only ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
-    deb_dl_dir_export "${BUILDCHROOT_DIR}"
+    deb_dl_dir_export "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
     ${install_cmd} ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
 
     dpkg_undo_mounts
