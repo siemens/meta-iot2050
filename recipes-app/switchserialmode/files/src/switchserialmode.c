@@ -22,7 +22,8 @@ extern serial_ops_t ttyuart_ops;
 extern serial_ops_t cp210x_ops;
 extern transceiver_ops_t sp339e_ops;
 
-static serial_ops_t *serial_ops = NULL;
+static platform_t *curr_platform = NULL;
+static controller_setting_t default_setting = {0x5, 0x5};
 
 boardType_e get_board_type(void)
 {
@@ -74,14 +75,20 @@ static struct option serial_long_options[] = {
 
 static void init_ops(void)
 {
-    if (get_board_type())
-        serial_ops = &cp210x_ops;
-    else
-        serial_ops = &ttyuart_ops;
+    curr_platform = (platform_t *)malloc(sizeof(platform_t));
+    memset(curr_platform, 0, sizeof(platform_t));
 
-    serial_ops->transOps = &sp339e_ops;
+    if (get_board_type()) {
+        curr_platform->serOps = &cp210x_ops;
+        curr_platform->transOps = &sp339e_ops;;
+        curr_platform->private_data = (controller_setting_t*)&default_setting;
+    }
+    else {
+        curr_platform->serOps = &ttyuart_ops;
+        curr_platform->transOps = &sp339e_ops;
+    }
 
-    if (serial_ops->init(serial_ops->devName))
+    if (curr_platform->serOps->init(curr_platform->serOps->devName))
     {
         printf("Init error\n");
         exit(1);
@@ -129,32 +136,36 @@ int main(int argc, char **argv)
     init_ops();
 
     if (display_current_mode) {
-        serial_ops->getMode();
-        goto release;
+        curr_platform->serOps->getMode();
+        return SUCCESS;
     }
 
+    if (curr_platform->serOps->preProcess)
+        curr_platform->serOps->preProcess(curr_platform);
+
     if (NULL != mode) {
-        serial_ops->setMode(mode);
+        curr_platform->serOps->setMode(mode);
     }
 
     if (holdTime) {
-        serial_ops->rs485HoldTime(holdTime);
+        curr_platform->serOps->rs485HoldTime(holdTime);
     }
 
     if (setupTime) {
-        serial_ops->rs485SetupTime(setupTime);
+        curr_platform->serOps->rs485SetupTime(setupTime);
     }
 
     /* configure transceiver */
     if (NULL != mode)
-        serial_ops->transOps->transceiver_switch_mode(mode);
+        curr_platform->transOps->transceiver_switch_mode(mode);
 
     //default is disable terminate
-    serial_ops->transOps->transceiver_set_termination(set_termination);
+    curr_platform->transOps->transceiver_set_termination(set_termination);
 
 release:
-    if(serial_ops->release)
-        serial_ops->release();
+    if(curr_platform->serOps->release)
+        curr_platform->serOps->release();
+    free(curr_platform);
 
     return SUCCESS;
 }

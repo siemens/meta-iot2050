@@ -37,8 +37,19 @@ typedef struct serial_ops {
     /*Release*/
     void (*release)(void);
 
+    void (*preProcess)(void *);
+} serial_ops_t;
+
+typedef struct controller_setting {
+    uint32_t hold_time;
+    uint32_t setup_time;
+} controller_setting_t;
+
+typedef struct platform {
+    serial_ops_t *serOps;
     transceiver_ops_t *transOps;
-}serial_ops_t;
+    void *private_data;
+} platform_t;
 
 boardType_e get_board_type(void);
 

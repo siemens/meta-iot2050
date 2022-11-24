@@ -168,6 +168,9 @@ static int8_t cp2102n_open(struct cp2102n_conf_ops *conf)
             printf("Open usb failed\n");
             goto error;
         }
+    } else {
+        printf("No matched device found\n");
+        goto error;
     }
 
     libusb_free_device_list(list, 1);
@@ -207,19 +210,28 @@ static uint16_t fletcher16(const uint8_t *bytes, uint16_t len)
     return sum2 << 8 | sum1;
 }
 
-static void write_config_to_device(struct cp2102n_conf_ops *conf)
+static int8_t write_config_to_device(struct cp2102n_conf_ops *conf)
 {
     uint16_t checkSumNew = fletcher16(conf -> deviceConf, CP2102N_MAX_CONFIG_LENGTH - 2);
-
+    uint8_t deviceConf[CP2102N_MAX_CONFIG_LENGTH] = {0};
     if (conf -> confCheckSum != checkSumNew) {
         //update checksum
         conf->deviceConf[CP2102N_MAX_CONFIG_LENGTH - 2] = (uint8_t)((checkSumNew >> 8) & 0xff);
         conf->deviceConf[CP2102N_MAX_CONFIG_LENGTH - 1] = (uint8_t)((checkSumNew) & 0xff);
         if(SUCCESS != cp2102n_write_config_to_device(conf)) {
             printf("cp2102n_write_config_to_device failed\n");
+            return ERROR;
+        }
+
+        memcpy(deviceConf, conf->deviceConf, CP2102N_MAX_CONFIG_LENGTH);
+        cp2102n_read_config(conf);
+        if (memcmp(deviceConf, conf->deviceConf, CP2102N_MAX_CONFIG_LENGTH)) {
+            printf("Write configuration failed\n");
+            return ERROR;
         }
     }
-}
+    return SUCCESS;
+} 
 
 static void cp2102n_hardware_reset(void)
 {
@@ -229,10 +241,10 @@ static void cp2102n_hardware_reset(void)
         for later baord, hardware reset can take effective.
     */
     if (ADVANCED_BOARD_PG1 != get_board_type()) {
-        usleep(500 * 1000);
         gpio_set("CP2102N-RESET", 0);
-        usleep(500 * 1000);
+        usleep(30 * 1000);
         gpio_set("CP2102N-RESET", 1);
+        sleep(1);
     }
 }
 
@@ -320,12 +332,26 @@ static int8_t cp2102n_init(uint8_t *deviceNode)
 
 static void cp2102n_release()
 {
-    write_config_to_device(cp2102n_cfg_operation);
+    int8_t ret = write_config_to_device(cp2102n_cfg_operation);
     cp2102n_close(cp2102n_cfg_operation);
     free(cp2102n_cfg_operation);
     cp2102n_cfg_operation = NULL;
     libusb_exit(NULL);
-    cp2102n_hardware_reset();
+    if (SUCCESS == ret)
+        cp2102n_hardware_reset();
+}
+
+static void cp2102n_pre_process(void *data)
+{
+    platform_t *preProcess = (platform_t *)data;
+    if (preProcess->private_data) {
+        controller_setting_t *privData = (controller_setting_t *)(preProcess->private_data);
+        if ((0 == GET_CP2102N_RS485_SETUP_TIME(cp2102n_cfg_operation->deviceConf)) ||
+            (0 == GET_CP2102N_RS485_HOLD_TIME(cp2102n_cfg_operation->deviceConf))) {
+            cfg_cp2102n_rs485_setup_time(cp2102n_cfg_operation, privData->setup_time);
+            cfg_cp2102n_rs485_hold_time(cp2102n_cfg_operation, privData->hold_time);
+        }
+    }
 }
 
 serial_ops_t cp210x_ops = {
@@ -336,4 +362,5 @@ serial_ops_t cp210x_ops = {
     .rs485HoldTime = cp2102n_set_rs485_hold_time,
     .rs485SetupTime = cp2102n_set_rs485_setup_time,
     .release = cp2102n_release,
+    .preProcess = cp2102n_pre_process,
 };
