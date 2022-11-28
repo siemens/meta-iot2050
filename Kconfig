@@ -87,6 +87,17 @@ config KAS_INCLUDE_NO_CORAL
 	default "kas/opt/no-coral.yml"
 	depends on !CORAL
 
+config DOCKER
+	bool "Docker support"
+	default n
+	help
+	  Building image with docker support.
+
+config KAS_INCLUDE_DOCKER
+	string
+	default "kas/opt/docker.yml"
+	depends on DOCKER
+
 config LXDE
 	bool "LXDE graphical user interface"
 	help

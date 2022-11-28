@@ -104,6 +104,18 @@ IMAGE_PREINSTALL += " \
     ${IOT2050_DEBIAN_MULTIARCH_PACKAGES} \
     "
 
+IOT2050_DOCKER_SUPPORT ?= "0"
+
+# docker support
+IOT2050_DEBIAN_DOCKER_PACKAGES = " \
+    docker.io \
+    docker-compose \
+    "
+
+IMAGE_PREINSTALL += "${@ ' \
+    ${IOT2050_DEBIAN_DOCKER_PACKAGES} \
+    ' if d.getVar('IOT2050_DOCKER_SUPPORT') == '1' else ''}"
+
 IMAGE_INSTALL += " \
     expand-on-first-boot \
     sshd-regen-keys \
