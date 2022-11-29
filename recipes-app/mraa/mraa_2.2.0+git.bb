@@ -28,7 +28,7 @@ DEBIAN_BUILD_DEPENDS = " \
     libjson-c-dev, \
     default-jdk:native"
 
-DEBIAN_DEPENDS = "python3, nodejs"
+DEBIAN_DEPENDS = "python3, nodejs, \${shlibs:Depends}"
 
 do_prepare_build[cleandirs] += "${S}/debian"
 
