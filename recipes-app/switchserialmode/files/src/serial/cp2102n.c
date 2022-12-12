@@ -260,15 +260,28 @@ static void cp2102n_set_rs485_hold_time(uint8_t holdtime)
 
 static void print_cfg(uint8_t *devConf)
 {
+    const uint8_t *mode = NULL;
+    const uint8_t *activeLogic = NULL;
+
     if (IS_CP2102N_RS485PIN_RS485_MODE((devConf))) {
-        printf("Rs485 active-logic(%s) setup-time(0x%04x) hold-time(0x%04x)\n"
-                        , IS_CP2102N_RS485PIN_RS485_LOGIC(devConf) ? "high" : "low"
-                        , GET_CP2102N_RS485_SETUP_TIME(devConf)
-                        , GET_CP2102N_RS485_HOLD_TIME(devConf));
+        mode = "rs485";
+        activeLogic = IS_CP2102N_RS485PIN_RS485_LOGIC(devConf) ? "high" : "low";
     }
     else {
-        printf("Gpio reset-logic(%s)\n", GET_CP2102N_GPIO2_RESET_LATH(devConf) ? "high" : "low");
+        if (GET_CP2102N_GPIO2_RESET_LATH(devConf)) {
+            mode = "rs422";
+            activeLogic = "high";
+        }
+        else {
+            mode = "rs232";
+            activeLogic = "low";
+        }
     }
+
+    printf("%s %s setup-time(0x%04x) hold-time(0x%04x)\n",
+            mode, activeLogic,
+            GET_CP2102N_RS485_SETUP_TIME(devConf),
+            GET_CP2102N_RS485_HOLD_TIME(devConf));
 }
 
 static void cp2102n_print_mode(void)
