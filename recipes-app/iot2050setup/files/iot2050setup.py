@@ -456,6 +456,43 @@ class PeripheralsMenu:
                 self.resetPinmuxOfUserConfig('ADC_' + str(n))
         self.saveConfig(self.config)
 
+    def show_arduino_pinout(self):
+        self.arduino_pinout = '''
+        +--------------------------------------------+
+        |                                     A5/SCL |  IO19
+        |                                     A4/SDA |  IO18
+        |                                       AREF |
+        |                                        GND |
+        | N/C                                 SCK/13 |  IO13
+        | IOREF                              MISO/12 |  .
+        | RST                                MOSI/11 |  .
+        | 3V3    +---+                         SS/10 |  .
+        | 5V    -| A |-                        PWM/9 |  .
+        | GND   -| R |-                        PWM/8 |  IO8
+        | GND   -| D |-                              |
+        | VIN   -| U |-                        PWM/7 |  IO7
+        |       -| I |-                        PWM/6 |  .
+  IO14  | A0    -| N |-                        PWM/5 |  .
+  .     | A1    -| O |-                        PWM/4 |  .
+  .     | A2     +---+                    UART_RTS/3 |  .
+  .     | A3                              UART_CTS/2 |  .
+  .     | A4/SDA           ICSP            UART_TX/1 |  .
+  IO19  | A5/SCL +-----------------------+ UART_RX/0 |  IO0
+        |        | RST  SCK/13   MISO/12 |           |
+        |        | GND  MOSI/11  5V      |           |
+        |        +-----------------------+ __________/
+        \_________________________________/
+        '''
+
+        g = GridForm(self.topmenu.gscreen,      # screen
+                     'Arduino Pinout',  # title
+                      1, 2)
+        buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok')])
+        t = TextboxReflowed(70, self.arduino_pinout)
+        g.add(t, 0, 0)
+        g.add(buttonbar, 0, 1)
+        g.runOnce()
+
     def configureArduinoIoMode(self):
         while True:
             self.config = self.getConfig()
@@ -468,7 +505,8 @@ class PeripheralsMenu:
             action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
                                                     title='Configure Arduino I/O',
                                                     text=ioInfor,
-                                                    items=[('Enable GPIO', self.configureArduinoGpio),
+                                                    items=[('Arduino Pinout', self.show_arduino_pinout),
+                                                           ('Enable GPIO', self.configureArduinoGpio),
                                                            ('Enable I2C on IO18 & IO19', self.configureArduinoI2c),
                                                            ('Enable SPI on IO10-IO13', self.configureArduinoSpi),
                                                            ('Enable UART on IO0-IO3', self.configureArduinoUart),
