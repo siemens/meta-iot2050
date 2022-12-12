@@ -519,7 +519,15 @@ class PeripheralsMenu:
 
     def configureExternalSerialMode(self):
         self.config = self.getConfig()
-        modeItems = ['RS232', 'RS485', 'RS422']
+        if self.topmenu.boardType.startswith('IOT2050 Basic'):
+            modeItems = [('RS232', self.configureBasicRs232SerialMode),
+                         ('RS485', self.configureBasicRs485SerialMode),
+                         ('RS422', self.configureBasicRs422SerialMode)]
+        elif self.topmenu.boardType.startswith('IOT2050 Advanced'):
+            modeItems = [('RS232', self.configureAdvancedRs232SerialMode),
+                         ('RS485', self.configureAdvancedRs485SerialMode),
+                         ('RS422', self.configureAdvancedRs422SerialMode)]
+
         modeAction, modeSelection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
                                                         title='Configure External COM Ports',
                                                         text='Select a mode:',
@@ -528,21 +536,7 @@ class PeripheralsMenu:
                                                         default=self.currentMode())
         if modeAction == 'cancel':
             return
-        switchMode = modeItems[modeSelection]
-        self.terminateStatus = ''
-        if (switchMode == 'RS485') or (switchMode == 'RS422'):
-            self.terminateStatus = self.selectTerminate()
-        if self.topmenu.boardType.startswith('IOT2050 Basic'):
-            self.setBasicBoard(switchMode)
-        elif self.topmenu.boardType.startswith('IOT2050 Advanced'):
-            self.setAdvancedBoard(switchMode)
-        else:
-            return
-        terminateOpt = ' -t' if self.terminateStatus == 'on' else ''
-        subprocess.call('switchserialmode '  + terminateOpt, shell=True)
-        self.config['User_configuration']['External_Serial_Current_Mode'] = switchMode
-        self.saveConfig(self.config)
-        subprocess.call('sync', shell=True)
+        modeSelection()
 
     def currentMode(self):
         mode = self.config['User_configuration']['External_Serial_Current_Mode']
@@ -554,22 +548,51 @@ class PeripheralsMenu:
             return 2
         return 0
 
-    def setAdvancedBoard(self, mode):
-        command = 'switchserialmode -m ' + mode
-        subprocess.call(command, shell=True)
+    def serialModeSelection(self, mode, terminateStatus='', setuptime = '0', holdtime = '0'):
+        terminateOpt = ' -t' if terminateStatus == 'on' else ''
+        if terminateStatus == 'on' or terminateStatus == 'off':
+            self.config['User_configuration']['External_Serial_Terminate'] = terminateStatus
         self.config['User_configuration']['External_Serial_Init_Mode'] = mode
-        if self.terminateStatus == 'on' or self.terminateStatus == 'off':
-                self.config['User_configuration']['External_Serial_Terminate'] = self.terminateStatus
+        self.config['User_configuration']['External_Serial_Current_Mode'] = mode
         self.saveConfig(self.config)
-        if mode == 'RS485':
-            self.setRS485SetupHoldTime()
+
+        command = 'switchserialmode -m ' + mode + terminateOpt
+        if self.topmenu.boardType.startswith('IOT2050 Advanced'):
+            setuptime = str(int(setuptime, 16))
+            holdtime = str(int(holdtime, 16))
+            command += ' -s ' + setuptime + ' -o ' +  holdtime
+        subprocess.call(command, shell=True)
+
         if self.topmenu.boardType == 'IOT2050 Advanced':
             ButtonChoiceWindow(screen=self.topmenu.gscreen,
                             title='Note',
                             text='You need to power cycle the device for the changes to take effect',
                             buttons=['Ok'])
 
-    def setRS485SetupHoldTime(self):
+    def configureBasicRs232SerialMode(self):
+        self.serialModeSelection('RS232')
+
+    def configureBasicRs485SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        self.serialModeSelection('RS485', terminateStatus)
+
+    def configureBasicRs422SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        self.serialModeSelection('RS422', terminateStatus)
+
+    def configureAdvancedRs232SerialMode(self):
+        self.serialModeSelection('RS232')
+
+    def configureAdvancedRs485SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        setuptime, holdtime = self.getRS485SetupHoldTime()
+        self.serialModeSelection('RS485', terminateStatus, setuptime, holdtime)
+
+    def configureAdvancedRs422SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        self.serialModeSelection('RS422', terminateStatus)
+
+    def getRS485SetupHoldTime(self):
         command = 'switchserialmode -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
         setup = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
         command = 'switchserialmode -d | grep -o -P \"hold-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
@@ -586,27 +609,10 @@ class PeripheralsMenu:
         if action == 'cancel':
             return
 
-        command = 'switchserialmode'
-        if int(setup, 0) != int(values[0], 0):
-            command += ' -s ' + str(int(values[0], 16))
-        if int(hold, 0) != int(values[1], 0):
-            command += ' -o ' + str(int(values[1], 16))
-        if ('-s' in command) or ('-o' in command):
-            subprocess.call(command, shell=True)
+        setuptime = values[0]
+        holdtime = values[1]
 
-    def setBasicBoard(self, mode):
-        persistentReturn = ButtonChoiceWindow(screen=self.topmenu.gscreen,
-                                              title='Configure Serial Mode',
-                                              text='Do you want to make your changes persistent?\n(Mode setting will be kept after reboot.) ',
-                                              buttons=[('Yes', 'yes'), ('No', 'no', 'ESC')],
-                                              width=40)
-        command = 'switchserialmode -m ' + mode
-        subprocess.call(command, shell=True)
-        if persistentReturn == 'yes':
-            self.config['User_configuration']['External_Serial_Init_Mode'] = mode
-            if self.terminateStatus == 'on' or self.terminateStatus == 'off':
-                self.config['User_configuration']['External_Serial_Terminate'] = self.terminateStatus
-            self.saveConfig(self.config)
+        return (setuptime, holdtime)
 
     def currentTerminate(self):
         terminate = self.config['User_configuration']['External_Serial_Terminate']
