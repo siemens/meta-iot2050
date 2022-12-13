@@ -161,30 +161,10 @@ class SoftwareMenu:
             subprocess.call('systemctl disable ' + name, shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
 
 
-class PeripheralsMenu:
-    def __init__(self, topmenu):
-        self.topmenu = topmenu
+class BoardConfigurationUtility:
+    def __init__(self):
         self.configureFile = '/etc/board-configuration.json'
         self.config = self.getConfig()
-        self.bkey_pciex2_ekey_none = '0'
-        self.bkey_pcie_ekey_pcie = '1'
-        self.bkey_usb30_ekey_pcie = '2'
-
-    def show(self):
-        menuItems=[('Configure External COM Ports', self.configureExternalSerialMode),
-                    ('Configure Arduino I/O', self.configureArduinoIoMode)]
-        if self.topmenu.boardType == 'IOT2050 Advanced M2':
-            menuItems.append(('Configure M.2 Connector', self.configM2Connector))
-
-        while True:
-            action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
-                                                    title='Peripherals',
-                                                    text='',
-                                                    items=menuItems,
-                                                    buttons=[('Back', 'back', 'ESC')])
-            if action == 'back':
-                return
-            selection()
 
     def getConfig(self):
         with open(self.configureFile, 'r') as f:
@@ -236,12 +216,12 @@ class PeripheralsMenu:
                     mraa.I2c(0)
 
     def setPinmuxToGpio(self, gpioPinmux, index):
-            direction = gpioPinmux.split('_')[1].lstrip().rstrip().lower()
-            gpio = mraa.Gpio(index)
-            gpio.dir(mraa.DIR_OUT if direction == 'output' else mraa.DIR_IN)
-            if direction == 'output':
-                gpio.write(0)
-            gpio.mode(self.pullMode(index))
+        direction = gpioPinmux.split('_')[1].lstrip().rstrip().lower()
+        gpio = mraa.Gpio(index)
+        gpio.dir(mraa.DIR_OUT if direction == 'output' else mraa.DIR_IN)
+        if direction == 'output':
+            gpio.write(0)
+        gpio.mode(self.pullMode(index))
 
     def checkPinmuxConfig(self, pinmux, index=None):
         for i in range(0, 20):
@@ -273,6 +253,177 @@ class PeripheralsMenu:
             return 'Pull-up'
         elif self.checkPullModeConfig('Hiz', index):
             return 'Hiz'
+
+
+class ExternalSerialMode(BoardConfigurationUtility):
+    def __init__(self, topmenu):
+        self.topmenu = topmenu
+        super().__init__()
+
+    def show(self):
+        while True:
+            if self.topmenu.boardType.startswith('IOT2050 Basic'):
+                modeItems = [('RS232', self.configureBasicRs232SerialMode),
+                             ('RS485', self.configureBasicRs485SerialMode),
+                             ('RS422', self.configureBasicRs422SerialMode)]
+            elif self.topmenu.boardType.startswith('IOT2050 Advanced'):
+                modeItems = [('RS232', self.configureAdvancedRs232SerialMode),
+                             ('RS485', self.configureAdvancedRs485SerialMode),
+                             ('RS422', self.configureAdvancedRs422SerialMode)]
+
+            modeAction, modeSelection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
+                                                            title='Configure External COM Ports',
+                                                            text='Select a mode:',
+                                                            items=modeItems,
+                                                            buttons=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')],
+                                                            default=self.currentMode())
+            if modeAction == 'cancel':
+                return
+            modeSelection()
+
+    def currentMode(self):
+        mode = self.config['User_configuration']['External_Serial_Current_Mode']
+        if mode == 'RS232':
+            return 0
+        elif mode == 'RS485':
+            return 1
+        elif mode == 'RS422':
+            return 2
+        return 0
+
+    def serialModeSelection(self, mode, terminateStatus='', setuptime = '0', holdtime = '0'):
+        terminateOpt = ' -t' if terminateStatus == 'on' else ''
+        self.external_serial_config['External_Serial_Init_Mode'] = mode
+        self.external_serial_config['External_Serial_Current_Mode'] = mode
+        self.saveConfig(self.config)
+
+        command = 'switchserialmode -m ' + mode + terminateOpt
+        if self.topmenu.boardType.startswith('IOT2050 Advanced'):
+            setuptime = str(int(setuptime, 16))
+            holdtime = str(int(holdtime, 16))
+            command += ' -s ' + setuptime + ' -o ' +  holdtime
+        subprocess.call(command, shell=True)
+
+        if self.topmenu.boardType == 'IOT2050 Advanced':
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                               title='Note',
+                               text='You need to power cycle the device for the changes to take effect',
+                               buttons=['Ok'])
+
+    def configureBasicRs232SerialMode(self):
+        self.serialModeSelection('RS232')
+
+    def configureBasicRs485SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        if (terminateStatus is None):
+            return
+        self.serialModeSelection('RS485', terminateStatus)
+
+    def configureBasicRs422SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        if (terminateStatus is None):
+            return
+        self.serialModeSelection('RS422', terminateStatus)
+
+    def configureAdvancedRs232SerialMode(self):
+        self.serialModeSelection('RS232')
+
+    def configureAdvancedRs485SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        if (terminateStatus is None):
+            return
+        setuptime, holdtime = self.getRS485SetupHoldTime()
+        if (setuptime is None and holdtime is None):
+            return
+        self.serialModeSelection('RS485', terminateStatus, setuptime, holdtime)
+
+    def configureAdvancedRs422SerialMode(self):
+        terminateStatus = self.selectTerminate()
+        if (terminateStatus is None):
+            return
+        self.serialModeSelection('RS422', terminateStatus)
+
+    def getRS485SetupHoldTime(self):
+        command = 'switchserialmode -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
+        setup = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
+        command = 'switchserialmode -d | grep -o -P \"hold-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
+        hold = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
+
+        action, values = EntryWindow(screen=self.topmenu.gscreen,
+                                     title='Set The Setup and Hold Time of RS485 Mode',
+                                     text='The setup and hold time will affect the transfer stable in RS485 mode',
+                                     prompts=[('Setup (0x00 ~ 0xffff): ', setup), ('Hold (0x00 ~ 0xffff): ', hold)],
+                                     width=70,
+                                     entryWidth=50,
+                                     buttons=[('OK'), ('Cancel', 'cancel', 'ESC')])
+
+        if action == 'cancel':
+            return (None, None)
+
+        setuptime = values[0]
+        holdtime = values[1]
+
+        return (setuptime, holdtime)
+
+    def currentTerminate(self):
+        terminate = self.config['User_configuration']['External_Serial_Terminate']
+        if terminate == 'off':
+            return 0
+        elif terminate == 'on':
+            return 1
+        else:
+            return 0
+
+    def selectTerminate(self):
+        rdgroup = RadioGroup()
+        rda = rdgroup.add(title='Turn off terminate resistor', value=0, default=0 if self.currentTerminate() else 1)
+        rdb = rdgroup.add(title='Turn on terminate resistor', value=1, default=self.currentTerminate())
+        buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
+        g = GridForm(self.topmenu.gscreen,
+                     'Set the terminate resistor',
+                     1, 3)
+        g.add(rda, 0, 0)
+        g.add(rdb, 0, 1)
+        g.add(buttonbar, 0, 2)
+        result = g.runOnce()
+        if buttonbar.buttonPressed(result) == 'cancel':
+            return
+
+        terminateStatus = 'on' if rdgroup.getSelection() else 'off'
+        self.external_serial_config['External_Serial_Terminate'] = terminateStatus
+        self.saveConfig(self.config)
+
+        return terminateStatus
+
+
+class ArduinoIoMode(BoardConfigurationUtility):
+    def __init__(self, topmenu):
+        self.topmenu = topmenu
+        super().__init__()
+
+    def show(self):
+        while True:
+            ioInfor = ' Pin  | Current    | Pinmux\n -----+------------+-------------------------------------------\n'
+            for i in range(0, 20):
+                ioInfor += ' IO{:<3}'.format(str(i))
+                ioInfor += '| {:<11}'.format(self.config['User_configuration']['IO' + str(i) + '_MODE'])
+                ioInfor += '| ' + ' | '.join(self.config['Arduino_pinmux_map']['IO' + str(i)])
+                ioInfor += '\n'
+            action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
+                                                    title='Configure Arduino I/O',
+                                                    text=ioInfor,
+                                                    items=[('Arduino Pinout', self.show_arduino_pinout),
+                                                           ('Enable GPIO', self.configureArduinoGpio),
+                                                           ('Enable I2C on IO18 & IO19', self.configureArduinoI2c),
+                                                           ('Enable SPI on IO10-IO13', self.configureArduinoSpi),
+                                                           ('Enable UART on IO0-IO3', self.configureArduinoUart),
+                                                           ('Enable PWM on IO4-IO9', self.configureArduinoPwm),
+                                                           ('Enable ADC on IO14-IO19', self.configureArduinoAdc)],
+                                                    buttons=[('Back', 'back', 'ESC')],
+                                                    width=68)
+            if action == 'back':
+                return
+            selection()
 
     def configureArduinoGpio(self):
         gpioIndex = 0
@@ -492,153 +643,37 @@ class PeripheralsMenu:
         g.add(buttonbar, 0, 1)
         g.runOnce()
 
-    def configureArduinoIoMode(self):
+
+class M2Connector():
+    def __init__(self, topmenu):
+        self.topmenu = topmenu
+        self.bkey_pciex2_ekey_none = '0'
+        self.bkey_pcie_ekey_pcie = '1'
+        self.bkey_usb30_ekey_pcie = '2'
+
+    def show(self):
         while True:
-            self.config = self.getConfig()
-            ioInfor = ' Pin  | Current    | Pinmux\n -----+------------+-------------------------------------------\n'
-            for i in range(0, 20):
-                ioInfor += ' IO{:<3}'.format(str(i))
-                ioInfor += '| {:<11}'.format(self.config['User_configuration']['IO' + str(i) + '_MODE'])
-                ioInfor += '| ' + ' | '.join(self.config['Arduino_pinmux_map']['IO' + str(i)])
-                ioInfor += '\n'
+            m2Info = "Option | B-KEY | E-KEY | Recommend"
+            m2Capabililty = [('1    |       AutoDetect ',self.m2AutoDetect),
+                             ('2    | USB3.0 | PCIE | 5G WIFI/BT', self.m2_select_usb30_pcie),
+                             ('3    | PCIE   | PCIE | 5G WIFI/BT', self.m2_select_pcie_pcie),
+                             ('4    | PCIEx2 | ---- | SSD',        self.m2_select_pciex2)]
+
             action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
-                                                    title='Configure Arduino I/O',
-                                                    text=ioInfor,
-                                                    items=[('Arduino Pinout', self.show_arduino_pinout),
-                                                           ('Enable GPIO', self.configureArduinoGpio),
-                                                           ('Enable I2C on IO18 & IO19', self.configureArduinoI2c),
-                                                           ('Enable SPI on IO10-IO13', self.configureArduinoSpi),
-                                                           ('Enable UART on IO0-IO3', self.configureArduinoUart),
-                                                           ('Enable PWM on IO4-IO9', self.configureArduinoPwm),
-                                                           ('Enable ADC on IO14-IO19', self.configureArduinoAdc)],
-                                                    buttons=[('Back', 'back', 'ESC')],
-                                                    width=68)
+                                                    title="M2 Advanced Configure",
+                                                    text=m2Info,
+                                                    items=m2Capabililty,
+                                                    buttons=[('Ok', 'ok'),('Back', 'back', 'ESC')],
+                                                    default=self.currentM2Select())
+
             if action == 'back':
                 return
             selection()
 
-    def configureExternalSerialMode(self):
-        self.config = self.getConfig()
-        if self.topmenu.boardType.startswith('IOT2050 Basic'):
-            modeItems = [('RS232', self.configureBasicRs232SerialMode),
-                         ('RS485', self.configureBasicRs485SerialMode),
-                         ('RS422', self.configureBasicRs422SerialMode)]
-        elif self.topmenu.boardType.startswith('IOT2050 Advanced'):
-            modeItems = [('RS232', self.configureAdvancedRs232SerialMode),
-                         ('RS485', self.configureAdvancedRs485SerialMode),
-                         ('RS422', self.configureAdvancedRs422SerialMode)]
-
-        modeAction, modeSelection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
-                                                        title='Configure External COM Ports',
-                                                        text='Select a mode:',
-                                                        items=modeItems,
-                                                        buttons=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')],
-                                                        default=self.currentMode())
-        if modeAction == 'cancel':
-            return
-        modeSelection()
-
-    def currentMode(self):
-        mode = self.config['User_configuration']['External_Serial_Current_Mode']
-        if mode == 'RS232':
-            return 0
-        elif mode == 'RS485':
-            return 1
-        elif mode == 'RS422':
-            return 2
-        return 0
-
-    def serialModeSelection(self, mode, terminateStatus='', setuptime = '0', holdtime = '0'):
-        terminateOpt = ' -t' if terminateStatus == 'on' else ''
-        if terminateStatus == 'on' or terminateStatus == 'off':
-            self.config['User_configuration']['External_Serial_Terminate'] = terminateStatus
-        self.config['User_configuration']['External_Serial_Init_Mode'] = mode
-        self.config['User_configuration']['External_Serial_Current_Mode'] = mode
-        self.saveConfig(self.config)
-
-        command = 'switchserialmode -m ' + mode + terminateOpt
-        if self.topmenu.boardType.startswith('IOT2050 Advanced'):
-            setuptime = str(int(setuptime, 16))
-            holdtime = str(int(holdtime, 16))
-            command += ' -s ' + setuptime + ' -o ' +  holdtime
-        subprocess.call(command, shell=True)
-
-        if self.topmenu.boardType == 'IOT2050 Advanced':
             ButtonChoiceWindow(screen=self.topmenu.gscreen,
-                            title='Note',
-                            text='You need to power cycle the device for the changes to take effect',
-                            buttons=['Ok'])
-
-    def configureBasicRs232SerialMode(self):
-        self.serialModeSelection('RS232')
-
-    def configureBasicRs485SerialMode(self):
-        terminateStatus = self.selectTerminate()
-        self.serialModeSelection('RS485', terminateStatus)
-
-    def configureBasicRs422SerialMode(self):
-        terminateStatus = self.selectTerminate()
-        self.serialModeSelection('RS422', terminateStatus)
-
-    def configureAdvancedRs232SerialMode(self):
-        self.serialModeSelection('RS232')
-
-    def configureAdvancedRs485SerialMode(self):
-        terminateStatus = self.selectTerminate()
-        setuptime, holdtime = self.getRS485SetupHoldTime()
-        self.serialModeSelection('RS485', terminateStatus, setuptime, holdtime)
-
-    def configureAdvancedRs422SerialMode(self):
-        terminateStatus = self.selectTerminate()
-        self.serialModeSelection('RS422', terminateStatus)
-
-    def getRS485SetupHoldTime(self):
-        command = 'switchserialmode -d | grep -o -P \"setup-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
-        setup = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
-        command = 'switchserialmode -d | grep -o -P \"hold-time\\(0x\\w*\\)\" | grep -o -P \"0x\\w*\"'
-        hold = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8').lower()
-
-        action, values = EntryWindow(screen=self.topmenu.gscreen,
-                                     title='Set The Setup and Hold Time of RS485 Mode',
-                                     text='The setup and hold time will affect the transfer stable in RS485 mode',
-                                     prompts=[('Setup (0x00 ~ 0xffff): ', setup), ('Hold (0x00 ~ 0xffff): ', hold)],
-                                     width=70,
-                                     entryWidth=50,
-                                     buttons=[('OK'), ('Cancel', 'cancel', 'ESC')])
-
-        if action == 'cancel':
-            return
-
-        setuptime = values[0]
-        holdtime = values[1]
-
-        return (setuptime, holdtime)
-
-    def currentTerminate(self):
-        terminate = self.config['User_configuration']['External_Serial_Terminate']
-        if terminate == 'off':
-            return 0
-        elif terminate == 'on':
-            return 1
-        else:
-            return 0
-
-    def selectTerminate(self):
-        default = self.config['User_configuration']['External_Serial_Terminate']
-        rdgroup = RadioGroup()
-        rda = rdgroup.add(title = 'Turn off terminate resistor', value = 0, default = 0 if self.currentTerminate() else 1)
-        rdb = rdgroup.add(title = 'Turn on terminate resistor', value = 1, default = self.currentTerminate())
-        buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
-        g = GridForm(self.topmenu.gscreen,
-                     'Set the terminate resistor',
-                     1, 3)
-        g.add(rda, 0, 0)
-        g.add(rdb, 0, 1)
-        g.add(buttonbar, 0, 2)
-        result = g.runOnce()
-        if buttonbar.buttonPressed(result) == 'cancel':
-            return default
-        return 'on' if rdgroup.getSelection() else 'off'
+                               title='Note',
+                               text='You need to power cycle the device for the changes to take effect',
+                               buttons=['Ok'])
 
     def currentM2Select(self):
         manual_config = subprocess.check_output("fw_printenv m2_manual_config",shell=True).decode('utf-8').lstrip().rstrip()
@@ -666,29 +701,28 @@ class PeripheralsMenu:
     def m2_select_pciex2(self):
         subprocess.call("fw_setenv m2_manual_config  %s" % self.bkey_pciex2_ekey_none,shell=True)
 
-    def configM2Connector(self):
+
+class PeripheralsMenu:
+    def __init__(self, topmenu):
+        self.topmenu = topmenu
+
+    def show(self):
+        menuItems = [('Configure External COM Ports', ExternalSerialMode(self.topmenu)),
+                     ('Configure Arduino I/O', ArduinoIoMode(self.topmenu))]
+        if self.topmenu.boardType == 'IOT2050 Advanced M2':
+            menuItems.append(('Configure M.2 Connector', M2Connector(self.topmenu)))
+
         while True:
-            m2Info = "Option | B-KEY | E-KEY | Recommend"
-            m2Capabililty = [('1    |       AutoDetect ',self.m2AutoDetect),
-                                ('2    | USB3.0 | PCIE | 5G WIFI/BT', self.m2_select_usb30_pcie),
-                                ('3    | PCIE   | PCIE | 5G WIFI/BT', self.m2_select_pcie_pcie),
-                                ('4    | PCIEx2 | ---- | SSD',        self.m2_select_pciex2)]
-
             action, selection = ListboxChoiceWindow(screen=self.topmenu.gscreen,
-                                title="M2 Advanced Configure",
-                                text=m2Info,
-                                items=m2Capabililty,
-                                buttons=[('Ok', 'ok'),('Back', 'back', 'ESC')],
-                                default=self.currentM2Select())
-
+                                                    title='Peripherals',
+                                                    text='',
+                                                    items=menuItems,
+                                                    buttons=[('Back', 'back', 'ESC')])
             if action == 'back':
                 return
-            selection()
 
-            ButtonChoiceWindow(screen=self.topmenu.gscreen,
-                title='Note',
-                text='You need to power cycle the device for the changes to take effect',
-                buttons=['Ok'])
+            selection.show()
+
 
 class TerminalResize:
     """
