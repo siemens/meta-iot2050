@@ -17,6 +17,23 @@ import fcntl
 import struct
 import tty
 import termios
+import select
+import threading
+
+
+def threadDecorator(func):
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.setDaemon(True)
+        thread.start()
+        thread.join(3)
+        if thread.is_alive():
+            ButtonChoiceWindow(screen=TopMenu().gscreen,
+                               title='Warnning',
+                               text='Configuration may not take effect',
+                               buttons=['Ok'])
+    return wrapper
+
 
 class ansicolors:
     clear = '\033[2J'
@@ -479,6 +496,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
                 pullmodeIndex = lbPullMode.current()
                 self.gpioButtonOkProcess(gpioIndex, dirIndex, pullmodeIndex)
 
+    @threadDecorator
     def gpioButtonOkProcess(self, gpioIndex, dirIndex, pullmodeIndex):
         def selectedPullMode(item):
             if item == 2:
@@ -508,6 +526,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
             return
         self.arduinoI2cChoice(btnchoicewind)
 
+    @threadDecorator
     def arduinoI2cChoice(self, select):
         if select == 'enable':
             i2c = mraa.I2c(0)
@@ -526,6 +545,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
             return
         self.arduinoSpiChoice(btnchoicewind)
 
+    @threadDecorator
     def arduinoSpiChoice(self, select):
         if select == 'enable':
             spi = mraa.Spi(0)
@@ -550,6 +570,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
         else:
             self.uartButtonOkProcess()
 
+    @threadDecorator
     def uartButtonOkProcess(self):
         selected = self.uartChkBoxTree.getSelection()
         if 1 in selected:
@@ -587,6 +608,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
         else:
             self.pwmButtonOkProcess()
 
+    @threadDecorator
     def pwmButtonOkProcess(self):
         selected = self.pwmCkBoxTree.getSelection()
         for n in range(4, 10):
@@ -617,6 +639,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
         else:
             self.adcButtonOkProcess()
 
+    @threadDecorator
     def adcButtonOkProcess(self):
         selected = self.adcChkBoxTree.getSelection()
         for n in range(0, 6):
