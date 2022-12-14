@@ -473,39 +473,46 @@ class ArduinoIoMode(BoardConfigurationUtility):
             result = gm.runOnce()
             if btnBack.buttonPressed(result) == 'back':
                 return
-            def selectedPullMode(item):
-                if item == 2:
-                    return 'Pull-down'
-                elif item == 1:
-                    return 'Pull-up'
-                elif item == 0:
-                    return 'Hiz'
             if btnOk.buttonPressed(result) == 1:
                 gpioIndex = lbGpio.current()
                 dirIndex = lbDir.current()
                 pullmodeIndex = lbPullMode.current()
-                if dirIndex == 0: # input
-                    self.setPinmuxOfUserConfig('GPIO_Input', gpioIndex)
-                    self._setPullModeOfUserConfig(gpioIndex, selectedPullMode(pullmodeIndex))
-                    self.setPinmuxToGpio('GPIO_Input', gpioIndex)
-                elif dirIndex == 1: # output
-                    self.setPinmuxOfUserConfig('GPIO_Output', gpioIndex)
-                    self._setPullModeOfUserConfig(gpioIndex, selectedPullMode(pullmodeIndex))
-                    self.setPinmuxToGpio('GPIO_Output', gpioIndex)
-                self.saveConfig(self.config)
+                self.gpioButtonOkProcess(gpioIndex, dirIndex, pullmodeIndex)
+
+    def gpioButtonOkProcess(self, gpioIndex, dirIndex, pullmodeIndex):
+        def selectedPullMode(item):
+            if item == 2:
+                return 'Pull-down'
+            elif item == 1:
+                return 'Pull-up'
+            elif item == 0:
+                return 'Hiz'
+
+        if dirIndex == 0: # input
+            self.setPinmuxOfUserConfig('GPIO_Input', gpioIndex)
+            self._setPullModeOfUserConfig(gpioIndex, selectedPullMode(pullmodeIndex))
+            self.setPinmuxToGpio('GPIO_Input', gpioIndex)
+        elif dirIndex == 1: # output
+            self.setPinmuxOfUserConfig('GPIO_Output', gpioIndex)
+            self._setPullModeOfUserConfig(gpioIndex, selectedPullMode(pullmodeIndex))
+            self.setPinmuxToGpio('GPIO_Output', gpioIndex)
+        self.saveConfig(self.config)
 
     def configureArduinoI2c(self):
         btnchoicewind = ButtonChoiceWindow(screen=self.topmenu.gscreen,
                                            title='Enable I2C on IO18 & IO19',
                                            text='',
-                                           buttons=['Enable', 'Disable', ('Cancel', 'ESC')],
+                                           buttons=['Enable', 'Disable', ('Cancel', 'cancel', 'ESC')],
                                            width=40)
         if btnchoicewind == 'cancel':
             return
-        elif btnchoicewind == 'enable':
+        self.arduinoI2cChoice(btnchoicewind)
+
+    def arduinoI2cChoice(self, select):
+        if select == 'enable':
             i2c = mraa.I2c(0)
             self.setPinmuxOfUserConfig('I2C')
-        elif (btnchoicewind == 'disable') and self.checkPinmuxConfig('I2C'):
+        elif (select == 'disable') and self.checkPinmuxConfig('I2C'):
             self.resetPinmuxOfUserConfig('I2C')
         self.saveConfig(self.config)
 
@@ -513,32 +520,38 @@ class ArduinoIoMode(BoardConfigurationUtility):
         btnchoicewind = ButtonChoiceWindow(screen=self.topmenu.gscreen,
                                            title='Enable SPI on IO10-IO13',
                                            text='',
-                                           buttons=['Enable', 'Disable', ('Cancel', 'ESC')],
+                                           buttons=['Enable', 'Disable', ('Cancel', 'cancel', 'ESC')],
                                            width=40)
         if btnchoicewind == 'cancel':
             return
-        elif btnchoicewind == 'enable':
+        self.arduinoSpiChoice(btnchoicewind)
+
+    def arduinoSpiChoice(self, select):
+        if select == 'enable':
             spi = mraa.Spi(0)
             self.setPinmuxOfUserConfig('SPI')
-        elif btnchoicewind == 'disable' and self.checkPinmuxConfig('SPI'):
+        elif select == 'disable' and self.checkPinmuxConfig('SPI'):
             self.resetPinmuxOfUserConfig('SPI')
         self.saveConfig(self.config)
 
     def configureArduinoUart(self):
-        ckboxtree = CheckboxTree(height=2, scroll=0)
-        ckboxtree.append(text='RX & TX',   item=1, selected=self.checkPinmuxConfig('UART_RX'))
-        ckboxtree.append(text='CTS & RTS', item=2, selected=self.checkPinmuxConfig('UART_CTS'))
+        self.uartChkBoxTree = CheckboxTree(height=2, scroll=0)
+        self.uartChkBoxTree.append(text='RX & TX',   item=1, selected=self.checkPinmuxConfig('UART_RX'))
+        self.uartChkBoxTree.append(text='CTS & RTS', item=2, selected=self.checkPinmuxConfig('UART_CTS'))
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
         g = GridForm(self.topmenu.gscreen,      # screen
                      'Enable UART on IO0-IO3',  # title
                       1, 2)                     # 2x1 grid
-        g.add(ckboxtree, 0, 0)
+        g.add(self.uartChkBoxTree, 0, 0)
         g.add(buttonbar, 0, 1)
         result = g.runOnce()
         if buttonbar.buttonPressed(result) == 'cancel':
             return
+        else:
+            self.uartButtonOkProcess()
 
-        selected = ckboxtree.getSelection()
+    def uartButtonOkProcess(self):
+        selected = self.uartChkBoxTree.getSelection()
         if 1 in selected:
             uart = mraa.Uart(0)
             uart.setFlowcontrol(False, True if 2 in selected else False)
@@ -555,23 +568,27 @@ class ArduinoIoMode(BoardConfigurationUtility):
         self.saveConfig(self.config)
 
     def configureArduinoPwm(self):
-        ckboxtree = CheckboxTree(height=6, scroll=0)
-        ckboxtree.append(text='PWM 4', item=4, selected=self.checkPinmuxConfig('PWM_4'))
-        ckboxtree.append(text='PWM 5', item=5, selected=self.checkPinmuxConfig('PWM_5'))
-        ckboxtree.append(text='PWM 6', item=6, selected=self.checkPinmuxConfig('PWM_6'))
-        ckboxtree.append(text='PWM 7', item=7, selected=self.checkPinmuxConfig('PWM_7'))
-        ckboxtree.append(text='PWM 8', item=8, selected=self.checkPinmuxConfig('PWM_8'))
-        ckboxtree.append(text='PWM 9', item=9, selected=self.checkPinmuxConfig('PWM_9'))
+        self.pwmCkBoxTree = CheckboxTree(height=6, scroll=0)
+        self.pwmCkBoxTree.append(text='PWM 4', item=4, selected=self.checkPinmuxConfig('PWM_4'))
+        self.pwmCkBoxTree.append(text='PWM 5', item=5, selected=self.checkPinmuxConfig('PWM_5'))
+        self.pwmCkBoxTree.append(text='PWM 6', item=6, selected=self.checkPinmuxConfig('PWM_6'))
+        self.pwmCkBoxTree.append(text='PWM 7', item=7, selected=self.checkPinmuxConfig('PWM_7'))
+        self.pwmCkBoxTree.append(text='PWM 8', item=8, selected=self.checkPinmuxConfig('PWM_8'))
+        self.pwmCkBoxTree.append(text='PWM 9', item=9, selected=self.checkPinmuxConfig('PWM_9'))
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
         g = GridForm(self.topmenu.gscreen,      # screen
                      'Enable PWM on IO4-IO9',   # title
                       1, 2)                     # 1x1 grid
-        g.add(ckboxtree, 0, 0)
+        g.add(self.pwmCkBoxTree, 0, 0)
         g.add(buttonbar, 0, 1)
         result = g.runOnce()
         if buttonbar.buttonPressed(result) == 'cancel':
             return
-        selected = ckboxtree.getSelection()
+        else:
+            self.pwmButtonOkProcess()
+
+    def pwmButtonOkProcess(self):
+        selected = self.pwmCkBoxTree.getSelection()
         for n in range(4, 10):
             if n in selected:
                 pwm = mraa.Pwm(n)
@@ -581,23 +598,27 @@ class ArduinoIoMode(BoardConfigurationUtility):
         self.saveConfig(self.config)
 
     def configureArduinoAdc(self):
-        ckboxtree = CheckboxTree(height=6, scroll=0)
-        ckboxtree.append(text='ADC 0', item=0, selected=self.checkPinmuxConfig('ADC_0'))
-        ckboxtree.append(text='ADC 1', item=1, selected=self.checkPinmuxConfig('ADC_1'))
-        ckboxtree.append(text='ADC 2', item=2, selected=self.checkPinmuxConfig('ADC_2'))
-        ckboxtree.append(text='ADC 3', item=3, selected=self.checkPinmuxConfig('ADC_3'))
-        ckboxtree.append(text='ADC 4', item=4, selected=self.checkPinmuxConfig('ADC_4'))
-        ckboxtree.append(text='ADC 5', item=5, selected=self.checkPinmuxConfig('ADC_5'))
+        self.adcChkBoxTree = CheckboxTree(height=6, scroll=0)
+        self.adcChkBoxTree.append(text='ADC 0', item=0, selected=self.checkPinmuxConfig('ADC_0'))
+        self.adcChkBoxTree.append(text='ADC 1', item=1, selected=self.checkPinmuxConfig('ADC_1'))
+        self.adcChkBoxTree.append(text='ADC 2', item=2, selected=self.checkPinmuxConfig('ADC_2'))
+        self.adcChkBoxTree.append(text='ADC 3', item=3, selected=self.checkPinmuxConfig('ADC_3'))
+        self.adcChkBoxTree.append(text='ADC 4', item=4, selected=self.checkPinmuxConfig('ADC_4'))
+        self.adcChkBoxTree.append(text='ADC 5', item=5, selected=self.checkPinmuxConfig('ADC_5'))
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
         g = GridForm(self.topmenu.gscreen,                  # screen
                      'Enable ADC on IO14-IO19',   # title
                      1, 2)                                  # 1x1 grid
-        g.add(ckboxtree, 0, 0)
+        g.add(self.adcChkBoxTree, 0, 0)
         g.add(buttonbar, 0, 1)
         result = g.runOnce()
         if buttonbar.buttonPressed(result) == 'cancel':
             return
-        selected = ckboxtree.getSelection()
+        else:
+            self.adcButtonOkProcess()
+
+    def adcButtonOkProcess(self):
+        selected = self.adcChkBoxTree.getSelection()
         for n in range(0, 6):
             if n in selected:
                 aio = mraa.Aio(n)
