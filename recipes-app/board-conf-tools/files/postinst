@@ -1,0 +1,10 @@
+#
+# Authors:
+#  Chao Zeng <chao.zeng@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+# Board bootup configuration service
+systemctl enable board-bootup-configuration.service

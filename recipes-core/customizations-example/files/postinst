@@ -22,9 +22,6 @@ fi
 # Status LED service
 systemctl enable status-led.service
 
-# Board configuration service
-systemctl enable board-configuration.service
-
 # Relocate /root under /home
 mv /root /home/
 ln -s /home/root /root
