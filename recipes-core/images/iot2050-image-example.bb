@@ -36,13 +36,13 @@ IMAGE_INSTALL += " \
     install-on-emmc \
     customizations-example \
     switchserialmode \
-    iot2050setup \
     iot2050-firmware-update \
     tcf-agent \
     mraa \
     node-red \
     node-red-gpio \
     node-red-preinstalled-nodes \
+    board-conf-tools \
     "
 
 IOT2050_CORAL_SUPPORT ?= "1"

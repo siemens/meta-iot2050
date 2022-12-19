@@ -19,9 +19,6 @@ DEBIAN_DEPENDS = "openssh-server, bluez, pulseaudio-module-bluetooth, network-ma
 SRC_URI = " \
     file://status-led.service \
     file://postinst \
-    file://board-configuration \
-    file://board-configuration.service \
-    file://board-configuration.json \
     file://10-globally-managed-devices.conf \
     file://cellular-4g \
     file://eno1-default \
@@ -33,13 +30,6 @@ do_install() {
     # add board status led service
     install -v -d ${D}/lib/systemd/system/
     install -v -m 644 ${WORKDIR}/status-led.service ${D}/lib/systemd/system/
-
-    # add board configuration service
-    install -v -d ${D}/usr/bin
-    install -v -m 755 ${WORKDIR}/board-configuration ${D}/usr/bin
-    install -v -m 644 ${WORKDIR}/board-configuration.service ${D}/lib/systemd/system/
-    install -v -d ${D}/etc
-    install -v -m 644 ${WORKDIR}/board-configuration.json ${D}/etc/
 
     # enable management via NetworkManager
     install -v -d ${D}/etc/NetworkManager/conf.d/

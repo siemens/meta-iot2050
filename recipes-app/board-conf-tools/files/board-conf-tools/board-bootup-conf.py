@@ -1,34 +1,23 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
+#
+# Copyright (c) Siemens AG, 2023
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
 
-import json
 import subprocess
 import mraa
 import sys
-from collections import OrderedDict
+from json_ops.json_ops import BoardConfigurationUtility
 
-
-configure_file = '/etc/board-configuration.json'
-
-
-def getConfig():
-    with open(configure_file, 'r') as f:
-        config = json.load(f, object_pairs_hook=OrderedDict)
-        return config
-
-
-def saveConfig(jsonSrc):
-    with open(configure_file, "w") as f:
-        json.dump(jsonSrc, f, indent=4, separators=(',', ': '))
-
-
-config = getConfig()
+board_conf = BoardConfigurationUtility()
 
 
 def setPinmux(index, mode):
     MODE = mode.upper()
     if 'GPIO' in MODE:
         direction = mode.split('_')[1].lstrip().rstrip().lower()
-        pullMode = config['User_configuration']['IO' + str(index) + '_PULL_MODE']
+        pullMode = board_conf.getArduinoPullModeCfg(index)
         pullModeMap = {'Hiz': mraa.MODE_HIZ,
                        'Pull-up': mraa.MODE_PULLUP,
                        'Pull-down': mraa.MODE_PULLDOWN}
@@ -56,31 +45,27 @@ def setPinmux(index, mode):
 
 def initAruinoPins():
     for i in range(0, 20):
-        io = 'IO' + str(i)
-        mode = config['User_configuration'][io + '_MODE']
-        if mode in config['Arduino_pinmux_map'][io]:
-            setPinmux(i, mode)
+        pinmux = board_conf.getArduinoPinmuxCfg(i)
+        if pinmux in board_conf.arduinoPinmuxMap(i):
+            setPinmux(i, pinmux)
         else:
-            sys.stderr.write("ERROR: " + io +
-                             " configuration mode [" + mode +
-                             "] do not match the pinmux [" +
-                             ', '.join(config['Arduino_pinmux_map'][io]) +
-                             "]\n")
+            sys.stderr.write("Arduino init pinmux error:" + pinmux)
 
 
 def initExternalSerialMode():
-    initMode = config['User_configuration']['External_Serial_Init_Mode']
-    currentMode = config['User_configuration']['External_Serial_Current_Mode']
-    terminate = config['User_configuration']['External_Serial_Terminate']
+    initMode = board_conf.getExternalDB9InitMode()
+    currentMode = board_conf.getExternalDB9CurrenttMode()
+    terminate = board_conf.getExternalRs485TerminalteConf()
 
     if initMode != currentMode:
-        config['User_configuration']['External_Serial_Current_Mode'] = initMode
-        saveConfig(config)
+        board_conf.setExternalDB9CurrentMode(initMode)
+        board_conf.saveConfig()
 
     terminateOpt = ''
     if (initMode == 'RS485') or (initMode == 'RS422'):
         terminateOpt = ' -t' if terminate == 'on' else ''
-    subprocess.call("switchserialmode -m " + initMode + terminateOpt, shell=True)
+    subprocess.call("switchserialmode -m " +
+                    initMode + terminateOpt, shell=True)
 
 
 def main():

@@ -1,0 +1,10 @@
+[Unit]
+Description=IOT2050 Board Bootup Configuration
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/board-bootup-configuration
+StandardOutput=tty
+
+[Install]
+WantedBy=multi-user.target
