@@ -39,6 +39,7 @@ NPM_EXTRA_DEPS = "${@'python-is-python3' if d.getVar('NPM_REBUILD') == '1' else 
 
 DEBIAN_BUILD_DEPENDS =. "${@'python, libnode72,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
+DEBIAN_DEPENDS =. "\${shlibs:Depends}, \${misc:Depends},"
 
 python() {
     src_uri = (d.getVar('SRC_URI', True) or "").split()
