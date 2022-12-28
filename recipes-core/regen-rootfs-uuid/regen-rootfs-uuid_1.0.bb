@@ -10,6 +10,7 @@ inherit dpkg-raw
 
 DESCRIPTION = "This service generates an individual UUID for the rootfs during first boot"
 
+RDEPENDS = "u-boot-script"
 DEBIAN_DEPENDS = "systemd, u-boot-script, fdisk, util-linux, uuid-runtime"
 
 SRC_URI = " \
