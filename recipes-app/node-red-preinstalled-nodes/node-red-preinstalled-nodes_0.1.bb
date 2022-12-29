@@ -9,6 +9,7 @@
 #
 
 inherit dpkg-raw
+DPKG_ARCH = "all"
 
 REGULAR_NODE_RED_PACKAGES = " \
     node-red-dashboard \
