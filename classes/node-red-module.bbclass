@@ -14,4 +14,9 @@ require recipes-app/node-red/node-red-home.inc
 DEBIAN_DEPENDS .= ", node-red"
 RDEPENDS += "node-red"
 
-NPM_LOCAL_INSTALL_DIR ?= "/root/.node-red"
+# We need to explicitly set this directory to vendor the dependencies instead
+# of using NPMs "global" pattern that shares the dependencies.
+# This is required, because we do not model all transitive dependencies as
+# as individual debian packages. Modelling all transitive dependencies as
+# debian packages is not feasable from a maintenance point of view.
+NPM_LOCAL_INSTALL_DIR ?= "/usr/lib"
