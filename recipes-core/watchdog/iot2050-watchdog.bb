@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: MIT
 inherit dpkg-raw
 
-DEPENDS += "patch-u-boot-env"
+RDEPENDS += "patch-u-boot-env"
 DEBIAN_DEPENDS += "patch-u-boot-env"
 
 SRC_URI += "file://99-watchdog.conf"

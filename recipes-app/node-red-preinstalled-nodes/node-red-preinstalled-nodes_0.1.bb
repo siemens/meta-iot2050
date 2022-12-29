@@ -23,7 +23,7 @@ NODE_RED_PACKAGES = " \
     ${REGULAR_NODE_RED_PACKAGES} \
     @mindconnect/node-red-contrib-mindconnect"
 
-DEPENDS = " \
+RDEPENDS = " \
     ${REGULAR_NODE_RED_PACKAGES} \
     mindconnect-node-red-contrib-mindconnect"
 
