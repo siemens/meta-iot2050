@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2022
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Nian Gao <nian.gao@siemens.com>
@@ -10,13 +10,17 @@
 #
 
 inherit npm
+require recipes-app/node-red/node-red-home.inc
 
 DESCRIPTION = "A visual tool for wiring the Internet of Things"
 
 PRESERVE_PERMS = "usr/lib/node_modules/node-red/red.js"
 DEBIAN_DEPENDS = "nodejs"
 
-SRC_URI += "file://node-red.service"
+SRC_URI += "file://node-red.service.tmpl"
+
+TEMPLATE_FILES = "node-red.service.tmpl"
+TEMPLATE_VARS  = "NODE_RED_HOME_DIR"
 
 do_install_append() {
     install -v -d ${D}/lib/systemd/system/

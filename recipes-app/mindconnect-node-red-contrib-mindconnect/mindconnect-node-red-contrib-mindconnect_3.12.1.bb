@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2022
+# Copyright (c) Siemens AG, 2020-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -9,8 +9,8 @@
 #
 
 inherit npm
+inherit node-red-module
 
 DESCRIPTION = "node red mindconnect node using mindconnect-nodejs library"
 
 NPMPN = "@mindconnect/node-red-contrib-mindconnect"
-NPM_LOCAL_INSTALL_DIR = "/root/.node-red"

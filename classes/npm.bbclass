@@ -11,7 +11,7 @@ inherit dpkg-raw
 
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json"
-NPM_LOCAL_INSTALL_DIR ?= ""
+NPM_LOCAL_INSTALL_DIR ??= ""
 NPM_INSTALL_FLAGS ?= ""
 
 NPM_REBUILD ?= "1"

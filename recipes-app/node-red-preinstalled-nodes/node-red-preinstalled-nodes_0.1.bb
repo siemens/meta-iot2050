@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2021
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -9,6 +9,7 @@
 #
 
 inherit dpkg-raw
+
 DPKG_ARCH = "all"
 
 REGULAR_NODE_RED_PACKAGES = " \
@@ -49,6 +50,6 @@ python do_generate_package_json() {
 addtask generate_package_json before do_install
 
 do_install() {
-    install -d ${D}/root/.node-red/
-    install -m 0644 ${WORKDIR}/package.json ${D}/root/.node-red/
+    install -d ${D}/${NODE_RED_HOME_DIR}/.node-red
+    install -m 0644 ${WORKDIR}/package.json ${D}/${NODE_RED_HOME_DIR}/.node-red
 }
