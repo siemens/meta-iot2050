@@ -14,6 +14,7 @@ inherit npm
 DESCRIPTION = "A visual tool for wiring the Internet of Things"
 
 PRESERVE_PERMS = "usr/lib/node_modules/node-red/red.js"
+DEBIAN_DEPENDS = "nodejs"
 
 SRC_URI += "file://node-red.service"
 
