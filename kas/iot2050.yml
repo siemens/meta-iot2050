@@ -27,17 +27,17 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: ea8a17426634f4cb85437d8ebfa7f1a73533be2a
+    refspec: 2664090d8733313d782dba51f5a8a20f19445f8b
     layers:
       meta:
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
-    refspec: 04057698ad106fb996c3d4029e69c6c6467534ec
+    refspec: 66a85fc4958524526d4a5e2eda0588de2a5f46f9
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    refspec: 8a42c75bd85b10884926d59a364982dba4d3be5e
+    refspec: a4f8825da273cb655c94ace3c0e3ce4bbba1247e
 
 bblayers_conf_header:
   standard: |
