@@ -11,6 +11,8 @@ DESCRIPTION = "Add script to confirm update"
 
 SRC_URI = "file://complete_update.sh"
 
+DEBIAN_DEPENDS .= ",u-boot-tools"
+
 do_install() {
     # add board status led service
     install -v -d ${D}/usr/bin
