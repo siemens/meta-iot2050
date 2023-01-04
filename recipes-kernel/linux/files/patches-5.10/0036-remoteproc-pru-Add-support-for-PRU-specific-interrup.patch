@@ -1,4 +1,4 @@
-From 880477ddcaee99594a560ac3aea075f0de9fd4fe Mon Sep 17 00:00:00 2001
+From 46a980ea4159ffe892d8c8223814f2ac57141b0a Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Tue, 8 Dec 2020 15:09:59 +0100
 Subject: [PATCH 036/120] remoteproc: pru: Add support for PRU specific
@@ -352,5 +352,5 @@ index 000000000000..8ee9c3171610
 +
 +#endif	/* _PRU_RPROC_H_ */
 -- 
-2.35.3
+2.34.1
 

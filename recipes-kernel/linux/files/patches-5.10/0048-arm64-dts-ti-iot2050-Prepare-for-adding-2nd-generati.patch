@@ -1,4 +1,4 @@
-From 2b10be6eb723b040c696c3922f4d1b40b213e1ec Mon Sep 17 00:00:00 2001
+From 766497acb9e2a15bb450fa3b59183c1174e66ee0 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:16 +0200
 Subject: [PATCH 048/120] arm64: dts: ti: iot2050: Prepare for adding
@@ -359,5 +359,5 @@ index ec9617c13cdb..077f165bdc68 100644
 -	status = "disabled";
  };
 -- 
-2.35.3
+2.34.1
 

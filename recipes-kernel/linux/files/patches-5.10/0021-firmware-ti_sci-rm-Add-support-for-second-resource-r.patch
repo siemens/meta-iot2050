@@ -1,4 +1,4 @@
-From 9623554a594445b870509c796540a0c2062099ef Mon Sep 17 00:00:00 2001
+From 1310363d9f1d2ec01e396aa7bcab7fbe21b00130 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
 Subject: [PATCH 021/120] firmware: ti_sci: rm: Add support for second resource
@@ -174,5 +174,5 @@ index 19b90545edd8..2cd563c7328c 100644
  };
  
 -- 
-2.35.3
+2.34.1
 

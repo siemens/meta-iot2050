@@ -1,4 +1,4 @@
-From 7b7a612f0eb3ced29c9836cb8e69e9ff800542b0 Mon Sep 17 00:00:00 2001
+From 0cc88d8cc7b3a9cc37886e9385253211bc2a0a7d Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:10:00 +0100
 Subject: [PATCH 037/120] remoteproc: pru: Add pru-specific debugfs support
@@ -223,5 +223,5 @@ index 72e64d15f0dc..59240fd82f56 100644
  
  	return 0;
 -- 
-2.35.3
+2.34.1
 

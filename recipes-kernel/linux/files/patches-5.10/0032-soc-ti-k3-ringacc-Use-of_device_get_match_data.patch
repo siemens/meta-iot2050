@@ -1,4 +1,4 @@
-From 77089c5ab6da4d3c7a083ac4f58ae28c45fa118b Mon Sep 17 00:00:00 2001
+From 020de327cbd5a881002bd503f1c949402d410415 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:58:49 -0800
 Subject: [PATCH 032/120] soc: ti: k3-ringacc: Use of_device_get_match_data()
@@ -44,5 +44,5 @@ index 7fdb688452f7..db3f705da7a0 100644
  	ringacc = devm_kzalloc(dev, sizeof(*ringacc), GFP_KERNEL);
  	if (!ringacc)
 -- 
-2.35.3
+2.34.1
 

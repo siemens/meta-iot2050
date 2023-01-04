@@ -1,4 +1,4 @@
-From cff99043458b316f3ead41d12dbc06d984c8d14f Mon Sep 17 00:00:00 2001
+From 07da9762274fa716e71ee1d5475bf91337bfde67 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:31 +0300
 Subject: [PATCH 075/120] net: ethernet: ti: icss_iep: fix pps irq race vs pps
@@ -123,5 +123,5 @@ index c0bcb1d1180a..ead1e7c94021 100644
  	mutex_unlock(&iep->ptp_clk_mutex);
  
 -- 
-2.35.3
+2.34.1
 

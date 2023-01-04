@@ -1,4 +1,4 @@
-From 24dfafe1339618f30d85f4a26694b5bdbb8fcf2c Mon Sep 17 00:00:00 2001
+From e1510ebe25c77e492696e86707515c8c1cda5960 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 16 Mar 2021 18:00:25 -0500
 Subject: [PATCH 084/120] arm64: dts: ti: k3-am65-main: Add ICSSG IEP nodes
@@ -77,5 +77,5 @@ index 2911b4286c97..351183c116c5 100644
  			compatible = "ti,pruss-mii", "syscon";
  			reg = <0x32000 0x100>;
 -- 
-2.35.3
+2.34.1
 

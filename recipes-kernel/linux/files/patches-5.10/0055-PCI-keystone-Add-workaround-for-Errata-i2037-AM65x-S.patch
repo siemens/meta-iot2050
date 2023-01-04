@@ -1,4 +1,4 @@
-From a79e6b84a63941c5f8622cd1eeb0e9e0926cb6a5 Mon Sep 17 00:00:00 2001
+From a73b62a2662baa935c9edca58e8d68bd4806dde3 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:49 +0530
 Subject: [PATCH 055/120] PCI: keystone: Add workaround for Errata #i2037
@@ -110,5 +110,5 @@ index 0460ed2a277a..bb7190400ba8 100644
  DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, ks_pcie_quirk);
  
 -- 
-2.35.3
+2.34.1
 

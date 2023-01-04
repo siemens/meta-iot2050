@@ -1,4 +1,4 @@
-From 8a9c66f3df76743065cf740525c1448fccfc05e6 Mon Sep 17 00:00:00 2001
+From 914404a4899885320a3dfcafaace1615dd90d913 Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Sat, 29 May 2021 09:07:49 +0530
 Subject: [PATCH 015/120] arm64: dts: ti: k3-am65: Add support for UHS-I modes
@@ -108,5 +108,5 @@ index 8c082af489f5..fea6a8243d75 100644
  	pinctrl-0 = <&main_mmc1_pins_default>;
  	ti,driver-strength-ohm = <50>;
 -- 
-2.35.3
+2.34.1
 

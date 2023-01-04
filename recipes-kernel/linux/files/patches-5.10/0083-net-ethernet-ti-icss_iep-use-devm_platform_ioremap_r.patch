@@ -1,4 +1,4 @@
-From 49d88d6b08a827d08743d336722b3bc179cf3f9e Mon Sep 17 00:00:00 2001
+From ad046e905b0b4de115acdee8ebf886a7ecccf1b8 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:39 +0300
 Subject: [PATCH 083/120] net: ethernet: ti: icss_iep: use
@@ -35,5 +35,5 @@ index 08b456f0bc12..640f483854d0 100644
  		return -ENODEV;
  
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From 5c9d2975642f9a2ff42b94dbff9240f74f2ed619 Mon Sep 17 00:00:00 2001
+From 22e2e1c92f021e337bbe32736ff4624f08237f4f Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
 Subject: [PATCH 020/120] firmware: ti_sci: Use struct ti_sci_resource_desc in
@@ -177,5 +177,5 @@ index fece890e1635..19b90545edd8 100644
   * struct ti_sci_resource - Structure representing a resource assigned
   *			    to a device.
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From f98c7075fc722fa8841771e34d47d1afb4cb2f0d Mon Sep 17 00:00:00 2001
+From 86b20ee783dfd444d02f707628eb966b3144bff1 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:22 -0700
 Subject: [PATCH 028/120] soc: ti: k3-ringacc: Use correct device for
@@ -126,5 +126,5 @@ index 5a472eca5ee4..658dc71d2901 100644
  
  #define K3_RINGACC_RING_ID_ANY (-1)
 -- 
-2.35.3
+2.34.1
 

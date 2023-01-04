@@ -1,4 +1,4 @@
-From 657f536f1d080386c5e9c20cc7e43708ad9b0642 Mon Sep 17 00:00:00 2001
+From 7eb2a6106ba768bb1e92010b0caf79ee43479a52 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:13 +0200
 Subject: [PATCH 046/120] arm64: dts: ti: iot2050: Disable SR2.0-only PRUs
@@ -48,5 +48,5 @@ index 6261ca8ee2d8..58c8e64d5885 100644
 +	status = "disabled";
 +};
 -- 
-2.35.3
+2.34.1
 
