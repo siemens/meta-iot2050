@@ -22,7 +22,7 @@ WKS_FILE:secureboot = "iot2050-swu-secure.wks.in"
 IMAGE_FSTYPES += "swu"
 SWU_ROOTFS_TYPE:secureboot = "verity"
 
-WIC_IMAGER_INSTALL += "efibootguard"
+WIC_IMAGER_INSTALL += "efibootguard:${DISTRO_ARCH}"
 # watchdog is managed by U-Boot - disable
 WDOG_TIMEOUT = "0"
 WICVARS += "WDOG_TIMEOUT KERNEL_IMAGE INITRD_DEPLOY_FILE DTB_FILES"

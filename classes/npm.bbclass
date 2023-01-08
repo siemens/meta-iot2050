@@ -35,10 +35,7 @@ NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 NPM_CLASS_PACKAGE ?= "npm"
 OWN_NPM_CLASS_PACKAGE ?= "0"
 
-# needed as gyp from bullseye does not establish /usr/bin/python
-NPM_EXTRA_DEPS = "${@'python-is-python3' if d.getVar('NPM_REBUILD') == '1' else ''}"
-
-DEBIAN_BUILD_DEPENDS =. "${@'python, libnode72,' if d.getVar('NPM_REBUILD') == '1' else ''}"
+DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode108,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
 DEBIAN_DEPENDS =. "\${shlibs:Depends}, \${misc:Depends},"
 
@@ -141,9 +138,9 @@ do_install_npm() {
                     -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
                     -o Dir::Etc::sourceparts="-" \
                     -o APT::Get::List-Cleanup="0"
-    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
+    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE}
     deb_dl_dir_export "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
-    ${install_cmd} ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
+    ${install_cmd} ${NPM_CLASS_PACKAGE}
 
     npm_fetch_undo_mounts
 }
