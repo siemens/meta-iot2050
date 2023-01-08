@@ -20,8 +20,6 @@ SRCREV = "8b1c54934e80edc2d36abac9d9c96fe1e01cb669"
 
 S = "${WORKDIR}/git"
 
-DEPENDS = "swig"
-
 DEBIAN_BUILD_DEPENDS = " \
     cmake, \
     swig4.0, \
