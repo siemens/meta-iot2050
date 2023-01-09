@@ -3,6 +3,7 @@ MAINTAINER = "nian.gao@siemens.com"
 
 SRC_URI = "file://iot2050setup.py"
 
+RDEPENDS = "mraa"
 DEBIAN_DEPENDS = "python3-newt, mraa"
 
 inherit dpkg-raw

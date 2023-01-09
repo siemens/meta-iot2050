@@ -1,5 +1,5 @@
 [Unit]
-Description="IOT2050 Board Configuration"
+Description=IOT2050 Board Configuration
 
 [Service]
 Type=idle
