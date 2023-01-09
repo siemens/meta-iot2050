@@ -1,4 +1,4 @@
-From 9595c3bcbe19e6ce139d3ba7926bca815410a53a Mon Sep 17 00:00:00 2001
+From 95156ab70cdc9a7d7483dd40c21eb998fa09a893 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:34 +0300
 Subject: [PATCH 078/120] net: ethernet: ti: icss_iep: use readl/writel in
@@ -102,5 +102,5 @@ index b39d4c08c6c9..e2663dd5cf38 100644
  	return HRTIMER_NORESTART;
  }
 -- 
-2.35.3
+2.34.1
 

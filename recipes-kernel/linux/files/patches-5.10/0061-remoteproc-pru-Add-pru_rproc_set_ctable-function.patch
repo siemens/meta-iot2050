@@ -1,4 +1,4 @@
-From 8b75e4d0ca24d7e4ed536184d55af9be6bab47ea Mon Sep 17 00:00:00 2001
+From c625c085089a54e3871a821c056a5e53a49ec5a0 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Fri, 26 Mar 2021 15:43:53 -0500
 Subject: [PATCH 061/120] remoteproc: pru: Add pru_rproc_set_ctable() function
@@ -182,5 +182,5 @@ index 1a97856b463a..e1740ff06962 100644
  
  static inline bool is_pru_rproc(struct device *dev)
 -- 
-2.35.3
+2.34.1
 

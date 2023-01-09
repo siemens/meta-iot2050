@@ -1,4 +1,4 @@
-From 764224bb7911351f8a897b31a86a18fb976a90d0 Mon Sep 17 00:00:00 2001
+From db06dbd7ec257eb5dac8322d734656c1989da17e Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:04 -0700
 Subject: [PATCH 022/120] soc: ti: ti_sci_inta_msi: Add support for second
@@ -36,5 +36,5 @@ index 0eb9462f609e..a1d9c027022a 100644
  
  	return count;
 -- 
-2.35.3
+2.34.1
 

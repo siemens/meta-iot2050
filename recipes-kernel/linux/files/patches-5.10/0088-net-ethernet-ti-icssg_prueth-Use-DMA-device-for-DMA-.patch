@@ -1,4 +1,4 @@
-From 24b0b22d44cc8baa7042fa45252b0dc29373c2e2 Mon Sep 17 00:00:00 2001
+From e127f8b8ea421d35cf3bb14855268b2c57983827 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:25 +0300
 Subject: [PATCH 088/120] net: ethernet: ti: icssg_prueth: Use DMA device for
@@ -342,5 +342,5 @@ index 69c558eb004d..2e8d45c8c25d 100644
  	struct k3_udma_glue_rx_channel *rx_chn;
  	u32 descs_num;
 -- 
-2.35.3
+2.34.1
 

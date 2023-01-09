@@ -1,4 +1,4 @@
-From 6073757e0dbc2bc4599326f1cc7dc0323c32e579 Mon Sep 17 00:00:00 2001
+From 70f4742e4058fbc91c7e28bb8bac2d83acb38ad9 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 20 Nov 2020 21:01:54 -0600
 Subject: [PATCH 057/120] remoteproc: Fix unbalanced boot with sysfs for no
@@ -73,5 +73,5 @@ index 1dbef895e65e..3b05230641c8 100644
  		dev_err(&rproc->dev, "Unrecognised option: %s\n", buf);
  		ret = -EINVAL;
 -- 
-2.35.3
+2.34.1
 

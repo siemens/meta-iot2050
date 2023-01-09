@@ -1,4 +1,4 @@
-From dec2e494b1ee58b3cb03e3c4862d1034ae8663e9 Mon Sep 17 00:00:00 2001
+From aaf83c026ac126399687d983458b4bad18661430 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Sat, 27 Mar 2021 10:11:42 -0500
 Subject: [PATCH 069/120] remoteproc/pru: add support for configuring GPMUX
@@ -75,5 +75,5 @@ index c346899d5e3b..7ef176170b18 100644
  
  	mutex_lock(&pru->lock);
 -- 
-2.35.3
+2.34.1
 

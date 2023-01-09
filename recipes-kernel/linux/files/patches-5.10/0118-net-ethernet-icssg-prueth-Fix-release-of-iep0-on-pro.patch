@@ -1,4 +1,4 @@
-From b0f3a3c8648b3729959b14245ebed06f88de39b6 Mon Sep 17 00:00:00 2001
+From 5d6645307632553289aafe58f0606c85dfcb632c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 30 Nov 2021 10:53:42 +0100
 Subject: [PATCH 118/120] net: ethernet: icssg-prueth: Fix release of iep0 on
@@ -26,5 +26,5 @@ index e33aafc9e029..f996273b4ea3 100644
  		prueth->iep1 = NULL;
  		goto free_pool;
 -- 
-2.35.3
+2.34.1
 

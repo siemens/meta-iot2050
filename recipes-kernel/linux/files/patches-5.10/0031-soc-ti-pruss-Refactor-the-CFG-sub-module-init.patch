@@ -1,4 +1,4 @@
-From 7334ba89e50423220be222046d0e2c7e629145db Mon Sep 17 00:00:00 2001
+From 759a96ed263888fb4b811900b15fa88770dfed20 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:53:43 -0800
 Subject: [PATCH 031/120] soc: ti: pruss: Refactor the CFG sub-module init
@@ -134,5 +134,5 @@ index dc94335fc351..afc8aae68035 100644
  	pm_runtime_put_sync(dev);
  rpm_disable:
 -- 
-2.35.3
+2.34.1
 

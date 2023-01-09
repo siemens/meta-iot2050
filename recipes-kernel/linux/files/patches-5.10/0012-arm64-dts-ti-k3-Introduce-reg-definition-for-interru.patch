@@ -1,4 +1,4 @@
-From 5a0359f7ef324fbf45676c9228f8ac81b0e6cca9 Mon Sep 17 00:00:00 2001
+From 1d1d98a8574c00b33bab9b1d3c65334b95a110dd Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Tue, 11 May 2021 14:48:21 -0500
 Subject: [PATCH 012/120] arm64: dts: ti: k3*: Introduce reg definition for
@@ -162,5 +162,5 @@ index d766c7fe02af..282bbdc359ac 100644
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
 -- 
-2.35.3
+2.34.1
 

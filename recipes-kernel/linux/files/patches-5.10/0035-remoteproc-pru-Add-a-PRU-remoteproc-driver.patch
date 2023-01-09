@@ -1,4 +1,4 @@
-From 611679084e60663843add5e78ec616d90ecb9eca Mon Sep 17 00:00:00 2001
+From a5eb683304f87c3b2e19fc95b0050949365b8663 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:09:58 +0100
 Subject: [PATCH 035/120] remoteproc: pru: Add a PRU remoteproc driver
@@ -524,5 +524,5 @@ index 000000000000..d33392bbd8af
 +MODULE_DESCRIPTION("PRU-ICSS Remote Processor Driver");
 +MODULE_LICENSE("GPL v2");
 -- 
-2.35.3
+2.34.1
 

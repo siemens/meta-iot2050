@@ -1,4 +1,4 @@
-From cf1a1afb303707c2622d6ffa47cc0aae96b040dd Mon Sep 17 00:00:00 2001
+From b9fb2cb52162239f9184895885c1f07c53c29265 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:46 +0530
 Subject: [PATCH 052/120] irqdomain: Export of_phandle_args_to_fwspec()
@@ -55,5 +55,5 @@ index c6b419db68ef..a17e4ce3811d 100644
  unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
  {
 -- 
-2.35.3
+2.34.1
 

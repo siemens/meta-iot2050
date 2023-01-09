@@ -1,4 +1,4 @@
-From 0fba16d2cf33faa182c1b6d54358e57b02217136 Mon Sep 17 00:00:00 2001
+From 360af753d830acb3d56ab28b6b32bfdf032776bf Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Sat, 29 Aug 2020 21:41:39 +0300
 Subject: [PATCH 002/120] arm64: dts: ti: k3-am65: ringacc: drop ti,
@@ -39,5 +39,5 @@ index 29aaf8dca6f6..044042b166d9 100644
  			ti,sci-dev-id = <195>;
  			msi-parent = <&inta_main_udmass>;
 -- 
-2.35.3
+2.34.1
 

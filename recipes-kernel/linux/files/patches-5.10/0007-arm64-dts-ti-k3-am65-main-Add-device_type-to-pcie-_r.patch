@@ -1,4 +1,4 @@
-From 0c9f3a892035f55baab39dbb30a08c65bf74694a Mon Sep 17 00:00:00 2001
+From 856344d056ebe9b5d74fd389ce8b9182a66ab914 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Feb 2021 20:32:56 +0100
 Subject: [PATCH 007/120] arm64: dts: ti: k3-am65-main: Add device_type to
@@ -36,5 +36,5 @@ index cf7656cf650e..3c36ae6d7816 100644
  
  	pcie1_ep: pcie-ep@5600000 {
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From 9f70151b4f4e874126179cdc69e65dee9f9f15b8 Mon Sep 17 00:00:00 2001
+From f47f363e1d62621f70e11a4022784f0a26a606d2 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 13 Sep 2021 12:27:17 +0200
 Subject: [PATCH 105/120] watchdog: rti-wdt: Provide set_timeout handler to
@@ -57,5 +57,5 @@ index 06f9d0ee1340..15a476b8aa78 100644
  };
  
 -- 
-2.35.3
+2.34.1
 
