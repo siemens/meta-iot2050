@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2022
+# Copyright (c) Siemens AG, 2020-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -9,13 +9,12 @@
 #
 
 inherit npm
+inherit node-red-module
 
 DESCRIPTION = "A Node-RED node to communicate via OPC UA based on node-opcua library"
-
-NPM_LOCAL_INSTALL_DIR = "/root/.node-red"
 
 do_prepare_build_append() {
     # x86-64 binary that breaks Debian packaging.
     # Fortunately only needed for npm release packaging.
-    rm -f ${D}/root/.node-red/node_modules/node-red-contrib-opcua/node_modules/node-opcua-pki/pkg/pki
+    rm -f ${D}/${NPM_LOCAL_INSTALL_DIR}/node_modules/node-red-contrib-opcua/node_modules/node-opcua-pki/pkg/pki
 }

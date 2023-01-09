@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2022
+# Copyright (c) Siemens AG, 2020-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -9,7 +9,6 @@
 #
 
 inherit npm
+inherit node-red-module
 
 DESCRIPTION = "The all in one Modbus TCP and Serial contribution package for Node-RED"
-
-NPM_LOCAL_INSTALL_DIR = "/root/.node-red"

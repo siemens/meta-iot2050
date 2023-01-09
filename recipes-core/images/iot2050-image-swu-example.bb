@@ -28,7 +28,6 @@ WICVARS += "WDOG_TIMEOUT KERNEL_IMAGE INITRD_IMAGE DTB_FILES"
 # not compatible with SWUpdate images
 IMAGE_INSTALL_remove = "regen-rootfs-uuid"
 IMAGE_INSTALL_remove = "install-on-emmc"
-IMAGE_INSTALL_remove = "node-red-preinstalled-nodes"
 
 # EFI Boot Guard is used instead
 IMAGE_INSTALL_remove = "u-boot-script"
