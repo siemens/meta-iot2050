@@ -14,7 +14,7 @@ DESCRIPTION = "IOT2050 reference image customizations example"
 
 # The bluez and pulseaudio-module-bluetooth must be install before this package,
 # that's because the 'passwd --expire root' command in the 'postinst' file
-DEBIAN_DEPENDS = "openssh-server, bluez, pulseaudio-module-bluetooth"
+DEBIAN_DEPENDS = "openssh-server, bluez, pulseaudio-module-bluetooth, network-manager"
 
 SRC_URI = " \
     file://status-led.service \
