@@ -1,7 +1,7 @@
-From f36936d566fc1de2a56bd5b26b7c14a3b610a927 Mon Sep 17 00:00:00 2001
+From 3f303985fc5b94749a61a377656acdc6d9fffe3e Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 27 Jun 2020 10:53:13 +0200
-Subject: [PATCH 101/120] arm64: dts: ti: iot2050: Add icssg-prueth nodes for
+Subject: [PATCH 101/148] arm64: dts: ti: iot2050: Add icssg-prueth nodes for
  PG1 and PG2 devices
 
 Add the required nodes to enable ICSSG SR1.0 and SR2.0 based prueth
@@ -206,5 +206,5 @@ index d8661096f2de..51e82e08550a 100644
  
  &icssg1_mdio {
 -- 
-2.34.1
+2.32.0
 

@@ -1,22 +1,23 @@
-From 5d6645307632553289aafe58f0606c85dfcb632c Mon Sep 17 00:00:00 2001
+From b6cf336de262657a53d902805fe7a24075019de5 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Date: Tue, 30 Nov 2021 10:53:42 +0100
-Subject: [PATCH 118/120] net: ethernet: icssg-prueth: Fix release of iep0 on
+Date: Mon, 6 Dec 2021 11:59:13 +0530
+Subject: [PATCH 130/148] net: ethernet: icssg-prueth: Fix release of iep0 on
  probing error
 
 A typo caused crashes in case icss_iep_get_idx succeeded for iep0 but
 failed for iep1.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 ---
  drivers/net/ethernet/ti/icssg_prueth.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
-index e33aafc9e029..f996273b4ea3 100644
+index 9595b1697e58..c94d90577e45 100644
 --- a/drivers/net/ethernet/ti/icssg_prueth.c
 +++ b/drivers/net/ethernet/ti/icssg_prueth.c
-@@ -2458,7 +2458,7 @@ static int prueth_probe(struct platform_device *pdev)
+@@ -2870,7 +2870,7 @@ static int prueth_probe(struct platform_device *pdev)
  	prueth->iep1 = icss_iep_get_idx(np, 1);
  	if (IS_ERR(prueth->iep1)) {
  		ret = dev_err_probe(dev, PTR_ERR(prueth->iep1), "iep1 get failed\n");
@@ -26,5 +27,5 @@ index e33aafc9e029..f996273b4ea3 100644
  		prueth->iep1 = NULL;
  		goto free_pool;
 -- 
-2.34.1
+2.32.0
 

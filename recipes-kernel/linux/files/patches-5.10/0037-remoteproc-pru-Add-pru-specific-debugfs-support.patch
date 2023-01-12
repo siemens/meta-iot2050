@@ -1,7 +1,7 @@
-From 0cc88d8cc7b3a9cc37886e9385253211bc2a0a7d Mon Sep 17 00:00:00 2001
+From dda64ecfc5524feaae46ee2b998cf8ac53f58e5b Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:10:00 +0100
-Subject: [PATCH 037/120] remoteproc: pru: Add pru-specific debugfs support
+Subject: [PATCH 037/148] remoteproc: pru: Add pru-specific debugfs support
 
 The remoteproc core creates certain standard debugfs entries,
 that does not give a whole lot of useful information for the
@@ -223,5 +223,5 @@ index 72e64d15f0dc..59240fd82f56 100644
  
  	return 0;
 -- 
-2.34.1
+2.32.0
 

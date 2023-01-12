@@ -1,7 +1,7 @@
-From 6547298840b4a735de3654fc52fd90d3bb218b74 Mon Sep 17 00:00:00 2001
+From 57e8d43f5e88acda65f566b49e72c645e1bdb640 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 7 Jul 2021 14:43:12 +0300
-Subject: [PATCH 099/120] net: ethernet: icssg-prueth: fix bug 'scheduling
+Subject: [PATCH 099/148] net: ethernet: icssg-prueth: fix bug 'scheduling
  while atomic' from emac_ndo_set_rx_mode()
 
 The .ndo_set_rx_mode() is called with BH disabled and should be atomic, but
@@ -133,5 +133,5 @@ index 7cc81c67bf72..59dec45a3c86 100644
  	struct pruss_mem_region dram;
  };
 -- 
-2.34.1
+2.32.0
 

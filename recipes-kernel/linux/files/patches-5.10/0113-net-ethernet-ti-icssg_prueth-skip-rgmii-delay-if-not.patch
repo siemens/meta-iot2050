@@ -1,0 +1,31 @@
+From 942e7022e63e990fe64ebc31336384d555ed55f2 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Mon, 13 Sep 2021 18:19:54 +0300
+Subject: [PATCH 113/148] net: ethernet: ti: icssg_prueth: skip rgmii delay if
+ not rgmii
+
+Do not configure RGMII delay if PHY interface mode is not RGMII.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index e33aafc9e029..e07c25a5bc15 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -2048,6 +2048,9 @@ static int prueth_config_rgmiidelay(struct prueth *prueth,
+ 	u32 rgmii_tx_id = 0;
+ 	u32 icssgctrl_reg;
+ 
++	if (!phy_interface_mode_is_rgmii(phy_if))
++		return 0;
++
+ 	ctrl_mmr = syscon_regmap_lookup_by_phandle(eth_np, "syscon-rgmii-delay");
+ 	if (IS_ERR(ctrl_mmr)) {
+ 		dev_err(dev, "couldn't get syscon-rgmii-delay\n");
+-- 
+2.32.0
+

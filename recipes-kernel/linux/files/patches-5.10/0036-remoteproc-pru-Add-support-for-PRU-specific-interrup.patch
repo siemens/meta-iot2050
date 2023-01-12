@@ -1,7 +1,7 @@
-From 46a980ea4159ffe892d8c8223814f2ac57141b0a Mon Sep 17 00:00:00 2001
+From c853280aafcb49b7b06a9b0b8e6328bccf9f55c3 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Tue, 8 Dec 2020 15:09:59 +0100
-Subject: [PATCH 036/120] remoteproc: pru: Add support for PRU specific
+Subject: [PATCH 036/148] remoteproc: pru: Add support for PRU specific
  interrupt configuration
 
 The firmware blob can contain optional ELF sections: .resource_table
@@ -352,5 +352,5 @@ index 000000000000..8ee9c3171610
 +
 +#endif	/* _PRU_RPROC_H_ */
 -- 
-2.34.1
+2.32.0
 

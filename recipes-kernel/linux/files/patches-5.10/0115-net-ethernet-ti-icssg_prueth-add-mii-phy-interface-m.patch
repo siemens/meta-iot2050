@@ -1,0 +1,265 @@
+From 6a8bc1e88289cdeb9a3f9ab904c3dbd61511498b Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Mon, 13 Sep 2021 18:19:56 +0300
+Subject: [PATCH 115/148] net: ethernet: ti: icssg_prueth: add mii phy
+ interface mode support
+
+Add and use icssg_miig_set_interface_mode() API and rework mii/miig
+initialization for MII PHY mode support.
+Also change:
+- default speed/duplex to 100M FD
+- update icssg_update_rgmii_cfg() to not enable in-band mode for MII case
+- limit PHY capabilities to 100M in case of MII
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_mii_rt.h   | 16 +++++++--
+ drivers/net/ethernet/ti/icssg_config.c  | 44 +++++++++++++++----------
+ drivers/net/ethernet/ti/icssg_mii_cfg.c | 32 +++++++++++++-----
+ drivers/net/ethernet/ti/icssg_prueth.c  | 13 ++++++--
+ 4 files changed, 74 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_mii_rt.h b/drivers/net/ethernet/ti/icss_mii_rt.h
+index 88b3c9cf222f..502c39c34814 100644
+--- a/drivers/net/ethernet/ti/icss_mii_rt.h
++++ b/drivers/net/ethernet/ti/icss_mii_rt.h
+@@ -8,6 +8,9 @@
+ #ifndef __NET_PRUSS_MII_RT_H__
+ #define __NET_PRUSS_MII_RT_H__
+ 
++#include <linux/if_ether.h>
++#include <linux/phy.h>
++
+ /* PRUSS_MII_RT Registers */
+ #define PRUSS_MII_RT_RXCFG0		0x0
+ #define PRUSS_MII_RT_RXCFG1		0x4
+@@ -102,7 +105,11 @@
+ #define ICSSG_CFG_TX_L2_EN	BIT(1)
+ #define ICSSG_CFG_TX_L1_EN	BIT(0)
+ 
+-enum mii_mode { MII_MODE_MII = 0, MII_MODE_RGMII, MII_MODE_SGMII };
++enum mii_mode {
++	MII_MODE_MII = 0,
++	MII_MODE_RGMII,
++	MII_MODE_SGMII
++};
+ 
+ /* RGMII CFG Register bits */
+ #define RGMII_CFG_INBAND_EN_MII0	BIT(16)
+@@ -123,11 +130,14 @@ enum mii_mode { MII_MODE_MII = 0, MII_MODE_RGMII, MII_MODE_SGMII };
+ #define RGMII_CFG_SPEED_100M	1
+ #define RGMII_CFG_SPEED_1G	2
+ 
++struct regmap;
++struct prueth_emac;
++
+ void icssg_mii_update_ipg(struct regmap *mii_rt, int mii, u32 ipg);
+-void icssg_update_rgmii_cfg(struct regmap *miig_rt, int speed,
+-			    int duplex, int mii);
++void icssg_update_rgmii_cfg(struct regmap *miig_rt, struct prueth_emac *emac);
+ u32 icssg_rgmii_cfg_get_bitfield(struct regmap *miig_rt, u32 mask, u32 shift);
+ u32 icssg_rgmii_get_speed(struct regmap *miig_rt, int mii);
+ u32 icssg_rgmii_get_fullduplex(struct regmap *miig_rt, int mii);
++void icssg_miig_set_interface_mode(struct regmap *miig_rt, int mii, phy_interface_t phy_if);
+ 
+ #endif /* __NET_PRUSS_MII_RT_H__ */
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index 7b0a39f6de54..faa9855f03bf 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -85,46 +85,48 @@ struct map hwq_map[2][ICSSG_NUM_OTHER_QUEUES] = {
+ 	},
+ };
+ 
+-static void icssg_config_mii_init(struct prueth *prueth, int mii)
++static void icssg_config_mii_init(struct prueth_emac *emac)
+ {
++	struct prueth *prueth = emac->prueth;
+ 	struct regmap *mii_rt = prueth->mii_rt;
++	int slice = prueth_emac_slice(emac);
+ 	u32 rxcfg_reg, txcfg_reg, pcnt_reg;
+ 	u32 rxcfg, txcfg;
+ 
+-	rxcfg_reg = (mii == ICSS_MII0) ? PRUSS_MII_RT_RXCFG0 :
++	rxcfg_reg = (slice == ICSS_MII0) ? PRUSS_MII_RT_RXCFG0 :
+ 				       PRUSS_MII_RT_RXCFG1;
+-	txcfg_reg = (mii == ICSS_MII0) ? PRUSS_MII_RT_TXCFG0 :
++	txcfg_reg = (slice == ICSS_MII0) ? PRUSS_MII_RT_TXCFG0 :
+ 				       PRUSS_MII_RT_TXCFG1;
+-	pcnt_reg = (mii == ICSS_MII0) ? PRUSS_MII_RT_RX_PCNT0 :
++	pcnt_reg = (slice == ICSS_MII0) ? PRUSS_MII_RT_RX_PCNT0 :
+ 				       PRUSS_MII_RT_RX_PCNT1;
+ 
+ 	rxcfg = MII_RXCFG_DEFAULT;
+ 	txcfg = MII_TXCFG_DEFAULT;
+ 
+-	if (mii == ICSS_MII1) {
++	if (slice == ICSS_MII1)
+ 		rxcfg |= PRUSS_MII_RT_RXCFG_RX_MUX_SEL;
++
++	/* In MII mode TX lines swapped inside ICSSG, so TX_MUX_SEL cfg need
++	 * to be swapped also comparing to RGMII mode. TODO: errata?
++	 */
++	if (emac->phy_if == PHY_INTERFACE_MODE_MII && slice == ICSS_MII0)
++		txcfg |= PRUSS_MII_RT_TXCFG_TX_MUX_SEL;
++	else if (emac->phy_if != PHY_INTERFACE_MODE_MII && slice == ICSS_MII1)
+ 		txcfg |= PRUSS_MII_RT_TXCFG_TX_MUX_SEL;
+-	}
+ 
+ 	regmap_write(mii_rt, rxcfg_reg, rxcfg);
+ 	regmap_write(mii_rt, txcfg_reg, txcfg);
+ 	regmap_write(mii_rt, pcnt_reg, 0x1);
+ }
+ 
+-static void icssg_config_rgmii_init(struct prueth *prueth, int slice)
++static void icssg_miig_queues_init(struct prueth *prueth, int slice)
+ {
+-	void __iomem *smem = prueth->shram.va;
+ 	struct regmap *miig_rt = prueth->miig_rt;
+-	int queue = 0, i, j;
++	void __iomem *smem = prueth->shram.va;
+ 	u8 pd[ICSSG_SPECIAL_PD_SIZE];
++	int queue = 0, i, j;
+ 	u32 *pdword;
+-	u32 mii_mode;
+ 
+-	mii_mode = MII_MODE_RGMII << ICSSG_CFG_MII0_MODE_SHIFT;
+-	mii_mode |= MII_MODE_RGMII << ICSSG_CFG_MII1_MODE_SHIFT;
+-	regmap_write(miig_rt, ICSSG_CFG_OFFSET, ICSSG_CFG_DEFAULT | mii_mode);
+-
+-	icssg_update_rgmii_cfg(miig_rt, SPEED_1000, DUPLEX_FULL, slice);
+ 	/* reset hwqueues */
+ 	if (slice)
+ 		queue = ICSSG_NUM_TX_QUEUES;
+@@ -292,11 +294,19 @@ int icssg_config_sr2(struct prueth *prueth, struct prueth_emac *emac, int slice)
+ 
+ 	rxq_ctx = emac->dram.va + HOST_RX_Q_PRE_CONTEXT_OFFSET;
+ 	memset_io(config, 0, TAS_GATE_MASK_LIST0);
+-	icssg_config_rgmii_init(prueth, slice);
+-	icssg_config_mii_init(prueth, slice);
++	icssg_miig_queues_init(prueth, slice);
++
+ 	emac->speed = SPEED_1000;
+ 	emac->duplex = DUPLEX_FULL;
++	if (!phy_interface_mode_is_rgmii(emac->phy_if)) {
++		emac->speed = SPEED_100;
++		emac->duplex = DUPLEX_FULL;
++	}
++	regmap_update_bits(prueth->miig_rt, ICSSG_CFG_OFFSET, ICSSG_CFG_DEFAULT, ICSSG_CFG_DEFAULT);
++	icssg_miig_set_interface_mode(prueth->miig_rt, slice, emac->phy_if);
++	icssg_config_mii_init(emac);
+ 	icssg_config_ipg(emac);
++	icssg_update_rgmii_cfg(prueth->miig_rt, emac);
+ 
+ 	/* set GPI mode */
+ 	pruss_cfg_gpimode(prueth->pruss, prueth->pru_id[slice],
+diff --git a/drivers/net/ethernet/ti/icssg_mii_cfg.c b/drivers/net/ethernet/ti/icssg_mii_cfg.c
+index eea04806ad28..97c2e5b2957b 100644
+--- a/drivers/net/ethernet/ti/icssg_mii_cfg.c
++++ b/drivers/net/ethernet/ti/icssg_mii_cfg.c
+@@ -26,32 +26,48 @@ void icssg_mii_update_ipg(struct regmap *mii_rt, int mii, u32 ipg)
+ 	}
+ }
+ 
+-void icssg_update_rgmii_cfg(struct regmap *miig_rt, int speed,
+-			    int duplex, int mii)
++void icssg_update_rgmii_cfg(struct regmap *miig_rt, struct prueth_emac *emac)
+ {
+ 	u32 gig_en_mask, gig_val = 0, full_duplex_mask, full_duplex_val = 0;
++	int slice = prueth_emac_slice(emac);
+ 	u32 inband_en_mask, inband_val = 0;
+ 
+-	gig_en_mask = (mii == ICSS_MII0) ? RGMII_CFG_GIG_EN_MII0 :
++	gig_en_mask = (slice == ICSS_MII0) ? RGMII_CFG_GIG_EN_MII0 :
+ 					RGMII_CFG_GIG_EN_MII1;
+-	if (speed == SPEED_1000)
++	if (emac->speed == SPEED_1000)
+ 		gig_val = gig_en_mask;
+ 	regmap_update_bits(miig_rt, RGMII_CFG_OFFSET, gig_en_mask, gig_val);
+ 
+-	inband_en_mask = (mii == ICSS_MII0) ? RGMII_CFG_INBAND_EN_MII0 :
++	inband_en_mask = (slice == ICSS_MII0) ? RGMII_CFG_INBAND_EN_MII0 :
+ 					RGMII_CFG_INBAND_EN_MII1;
+-	if (speed == SPEED_10)
++	if (emac->speed == SPEED_10 && phy_interface_mode_is_rgmii(emac->phy_if))
+ 		inband_val = inband_en_mask;
+ 	regmap_update_bits(miig_rt, RGMII_CFG_OFFSET, inband_en_mask, inband_val);
+ 
+-	full_duplex_mask = (mii == ICSS_MII0) ? RGMII_CFG_FULL_DUPLEX_MII0 :
++	full_duplex_mask = (slice == ICSS_MII0) ? RGMII_CFG_FULL_DUPLEX_MII0 :
+ 					   RGMII_CFG_FULL_DUPLEX_MII1;
+-	if (duplex == DUPLEX_FULL)
++	if (emac->duplex == DUPLEX_FULL)
+ 		full_duplex_val = full_duplex_mask;
+ 	regmap_update_bits(miig_rt, RGMII_CFG_OFFSET, full_duplex_mask,
+ 			   full_duplex_val);
+ }
+ 
++void icssg_miig_set_interface_mode(struct regmap *miig_rt, int mii, phy_interface_t phy_if)
++{
++	u32 val, mask, shift;
++
++	mask = mii == ICSS_MII0 ? ICSSG_CFG_MII0_MODE : ICSSG_CFG_MII1_MODE;
++	shift =  mii == ICSS_MII0 ? ICSSG_CFG_MII0_MODE_SHIFT : ICSSG_CFG_MII1_MODE_SHIFT;
++
++	val = MII_MODE_RGMII;
++	if (phy_if == PHY_INTERFACE_MODE_MII)
++		val = MII_MODE_MII;
++
++	val <<= shift;
++	regmap_update_bits(miig_rt, ICSSG_CFG_OFFSET, mask, val);
++	regmap_read(miig_rt, ICSSG_CFG_OFFSET, &val);
++}
++
+ u32 icssg_rgmii_cfg_get_bitfield(struct regmap *miig_rt, u32 mask, u32 shift)
+ {
+ 	u32 val;
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index a3ec4e9a14a4..581408208069 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -1238,7 +1238,6 @@ static void emac_adjust_link(struct net_device *ndev)
+ 	struct prueth_emac *emac = netdev_priv(ndev);
+ 	struct phy_device *phydev = emac->phydev;
+ 	struct prueth *prueth = emac->prueth;
+-	int slice = prueth_emac_slice(emac);
+ 	bool new_state = false;
+ 	unsigned long flags;
+ 
+@@ -1278,8 +1277,7 @@ static void emac_adjust_link(struct net_device *ndev)
+ 			if (emac->duplex == DUPLEX_HALF)
+ 				icssg_config_half_duplex(emac);
+ 			/* Set the RGMII cfg for gig en and full duplex */
+-			icssg_update_rgmii_cfg(prueth->miig_rt, emac->speed,
+-					       emac->duplex, slice);
++			icssg_update_rgmii_cfg(prueth->miig_rt, emac);
+ 
+ 			/* update the Tx IPG based on 100M/1G speed */
+ 			spin_lock_irqsave(&emac->lock, flags);
+@@ -2167,6 +2165,12 @@ static int prueth_netdev_init(struct prueth *prueth,
+ 		goto free;
+ 	}
+ 
++	if (emac->phy_if != PHY_INTERFACE_MODE_MII &&
++	    !phy_interface_mode_is_rgmii(emac->phy_if)) {
++		dev_err(prueth->dev, "PHY mode unsupported %s\n", phy_modes(emac->phy_if));
++		goto free;
++	}
++
+ 	ret = prueth_config_rgmiidelay(prueth, eth_node, emac->phy_if);
+ 	if (ret)
+ 		goto free;
+@@ -2192,6 +2196,9 @@ static int prueth_netdev_init(struct prueth *prueth,
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_Pause_BIT);
+ 	phy_remove_link_mode(emac->phydev, ETHTOOL_LINK_MODE_Asym_Pause_BIT);
+ 
++	if (emac->phy_if == PHY_INTERFACE_MODE_MII)
++		phy_set_max_speed(emac->phydev, SPEED_100);
++
+ 	/* get mac address from DT and set private and netdev addr */
+ 	mac_addr = of_get_mac_address(eth_node);
+ 	if (!IS_ERR(mac_addr))
+-- 
+2.32.0
+

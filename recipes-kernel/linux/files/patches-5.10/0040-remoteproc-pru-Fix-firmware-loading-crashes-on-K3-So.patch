@@ -1,7 +1,7 @@
-From c1aaaa9793a122664867c59d207d5fb06f73e60f Mon Sep 17 00:00:00 2001
+From 2d35cdd1a8ac6d10002b018049197b57eae3d5b8 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Mon, 15 Mar 2021 15:58:59 -0500
-Subject: [PATCH 040/120] remoteproc: pru: Fix firmware loading crashes on K3
+Subject: [PATCH 040/148] remoteproc: pru: Fix firmware loading crashes on K3
  SoCs
 
 The K3 PRUs are 32-bit processors and in general have some limitations
@@ -36,5 +36,5 @@ index a113e150d5d5..21105592a83d 100644
  					       filesz);
  			if (ret) {
 -- 
-2.34.1
+2.32.0
 

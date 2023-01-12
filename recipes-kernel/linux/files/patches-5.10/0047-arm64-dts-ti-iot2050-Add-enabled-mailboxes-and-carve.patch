@@ -1,7 +1,7 @@
-From a7cba7bde8eaf60c8608e4c8435d03f842e39fb2 Mon Sep 17 00:00:00 2001
+From d658cbbef785fa90d4b92ef8e7a3a20569f1a33c Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:14 +0200
-Subject: [PATCH 047/120] arm64: dts: ti: iot2050: Add/enabled mailboxes and
+Subject: [PATCH 047/148] arm64: dts: ti: iot2050: Add/enabled mailboxes and
  carve-outs for R5F cores
 
 Analogously to the am654-base-board, configure the mailboxes for the two
@@ -65,5 +65,5 @@ index 58c8e64d5885..b29537088289 100644
  	status = "disabled";
  };
 -- 
-2.34.1
+2.32.0
 

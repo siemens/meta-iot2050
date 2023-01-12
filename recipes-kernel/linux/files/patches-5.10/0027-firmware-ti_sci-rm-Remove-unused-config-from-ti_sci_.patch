@@ -1,7 +1,7 @@
-From 935b14caa68a4114bb15f8549ce00ee30c52cd89 Mon Sep 17 00:00:00 2001
+From eb7dcc64e7f602ba975241a1fe415654e51e4093 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:07 -0700
-Subject: [PATCH 027/120] firmware: ti_sci: rm: Remove unused config() from
+Subject: [PATCH 027/148] firmware: ti_sci: rm: Remove unused config() from
  ti_sci_rm_ringacc_ops
 
 The ringacc driver has been converted to use the new set_cfg function to
@@ -127,5 +127,5 @@ index d7f0dcf98861..bd0d11af76c5 100644
  		       const struct ti_sci_msg_rm_ring_cfg *params);
  };
 -- 
-2.34.1
+2.32.0
 

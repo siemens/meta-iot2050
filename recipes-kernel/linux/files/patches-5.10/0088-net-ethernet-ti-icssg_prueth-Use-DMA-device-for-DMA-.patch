@@ -1,7 +1,7 @@
-From e127f8b8ea421d35cf3bb14855268b2c57983827 Mon Sep 17 00:00:00 2001
+From 20b5398b3d4edafc9a37c20bcd453e8f3e9d7685 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:25 +0300
-Subject: [PATCH 088/120] net: ethernet: ti: icssg_prueth: Use DMA device for
+Subject: [PATCH 088/148] net: ethernet: ti: icssg_prueth: Use DMA device for
  DMA API
 
 For DMA API the DMA device should be used as cpsw does not accesses to
@@ -342,5 +342,5 @@ index 69c558eb004d..2e8d45c8c25d 100644
  	struct k3_udma_glue_rx_channel *rx_chn;
  	u32 descs_num;
 -- 
-2.34.1
+2.32.0
 

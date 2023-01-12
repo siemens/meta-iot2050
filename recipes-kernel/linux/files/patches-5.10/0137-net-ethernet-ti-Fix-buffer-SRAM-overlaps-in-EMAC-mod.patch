@@ -1,0 +1,43 @@
+From b7f17fd0708e02de904c5aca899d5c9f2ce7b4da Mon Sep 17 00:00:00 2001
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Date: Mon, 6 Dec 2021 14:12:07 +0530
+Subject: [PATCH 137/148] net: ethernet: ti: Fix buffer SRAM overlaps in EMAC
+ mode
+
+Buffer allocation was supposed to follow below layout as per comment in
+the prueth_emac_buffer_setup()
+
+[1] |BPOOL0 (64K) |BPOOL1 (64K)|RX_CTX0 (32K)|RX_CTX1 (32K)|
+
+But at the moment tracing prueth_emac_buffer_setup() shows below layout:
+
+[2] |BPOOL0 (64K) |BPOOL1 (64K)|RX_CTX0 (32K)| EMPTY (64K) |RX_CTX1 (32K)|
+
+Additional empty 64K is not required and is a bug. This causes ICSSG0
+SRAM reservations to overlap with ICSSG1 and so on. Fix this by dropping
+unintended empty 64K hole and this reverting to layout [1].
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_config.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index 94785a85416c..564bafcd6fc3 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -431,8 +431,9 @@ static int prueth_emac_buffer_setup(struct prueth_emac *emac)
+ 		addr += PRUETH_EMAC_BUF_POOL_SIZE_SR2;
+ 	}
+ 
+-	addr += PRUETH_NUM_BUF_POOLS_SR2 * PRUETH_EMAC_BUF_POOL_SIZE_SR2;
+-	if (slice)
++	if (!slice)
++		addr += PRUETH_NUM_BUF_POOLS_SR2 * PRUETH_EMAC_BUF_POOL_SIZE_SR2;
++	else
+ 		addr += PRUETH_EMAC_RX_CTX_BUF_SIZE * 2;
+ 
+ 	/* Pre-emptible RX buffer queue */
+-- 
+2.32.0
+
