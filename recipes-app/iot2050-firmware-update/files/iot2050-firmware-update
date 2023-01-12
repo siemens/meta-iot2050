@@ -110,6 +110,8 @@ from types import SimpleNamespace as Namespace
 import subprocess
 import tempfile
 import hashlib
+import io
+
 
 class UpgradeError(Exception):
     def __init__(self, ErrorInfo):
@@ -123,6 +125,10 @@ class UpgradeError(Exception):
 class FirmwareUpdate(object):
     def __init__(self, firmware):
         self.firmware = firmware
+        self.user_home = os.getenv('HOME')
+        self.back_fw_path = os.path.join(self.user_home, ".rollback_fw")
+        self.rollback_fw_tar = os.path.join(self.back_fw_path, 'rollback_backup_fw.tar')
+        self.backup_fw_name = 'rollback_fw.bin'
 
     def get_path_type_value(self, path):
         """get the path value"""
@@ -227,6 +233,12 @@ class FirmwareUpdate(object):
 
         self.firmware_integrity_check()
 
+        reboot_input = input(
+            "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
+        if not reboot_input == "y":
+            sys.exit(1)
+        os.system('reboot')
+
     def flash_md5_digest(self, firmware_len, mtd_num=0):
         flash_md5 = hashlib.md5()
 
@@ -271,6 +283,64 @@ class FirmwareUpdate(object):
 
         if firmware_md5_digest != firmware_flash_md5_digest:
             raise UpgradeError("Firmware digest verification failed")
+
+    def backup_firmware(self, firmware_length=0x8c0000):
+        try:
+            if not os.path.exists(self.back_fw_path):
+                os.mkdir(self.back_fw_path)
+        except OSError:
+            raise UpgradeError("Failed to create path %s for firmware rollback" % self.back_fw_path)
+
+        print("\nFirmware backup started")
+
+        flash_md5_digest = []
+        # The reason for reading twice. The uboot binary lacks a check code,
+        # and reading the key flash data cannot be guaranteed to be 100%
+        # correct.Therefore, the method of reading twice and comparing the
+        # check code to reduce the chance error.
+        i = 0
+        while i < 2:
+            mtd_num = 0
+            mtd_in_memory = b''
+            firmware_len = firmware_length
+
+            flash_md5 = hashlib.md5()
+            while True:
+                if firmware_len <= 0:
+                    break
+
+                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
+                    mtd_num)
+
+                mtd_pos = 0
+                try:
+                    mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDONLY)
+                except IOError as e:
+                    raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
+
+                while mtd_pos < mtd_size and firmware_len > 0:
+                    mtd_content = os.read(mtd_dev, mtd_erasesize)
+                    mtd_pos += mtd_erasesize
+                    firmware_len -= mtd_erasesize
+                    flash_md5.update(mtd_content)
+                    mtd_in_memory += mtd_content
+
+                os.close(mtd_dev)
+
+                mtd_num += 1
+
+            flash_md5_digest.append(flash_md5.hexdigest())
+            i += 1
+
+        if flash_md5_digest[0] != flash_md5_digest[1]:
+            print("Firmware backup failed")
+            sys.exit(1)
+
+        info = tarfile.TarInfo(name=self.backup_fw_name)
+        info.size = len(mtd_in_memory)
+        with tarfile.TarFile(self.rollback_fw_tar, 'w') as tar:
+            tar.addfile(info, io.BytesIO(mtd_in_memory))
+        print('Firmware backup ended\n')
 
 
 class BoardInformation(object):
@@ -371,7 +441,7 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
     uboot_default_env_file_name = 'u-boot-initial-env'
 
     def __init__(self, firmware):
-        self.firmware = firmware
+        super().__init__(firmware)
 
         # Build the board information
         self._board_info = BoardInformation()
@@ -520,7 +590,22 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         return preserved_uboot_env_value
 
 
-__version__ = "0.2"
+class RollbackFirmware(FirmwareUpdate):
+    def rollback_firmware(self):
+        if not os.path.exists(self.rollback_fw_tar) or not tarfile.is_tarfile(self.rollback_fw_tar):
+            print('No rollback firmware exists')
+            print('It could be that you have not done any upgrades')
+            sys.exit(1)
+
+        try:
+            with tarfile.open(self.rollback_fw_tar) as f:
+                self.firmware = f.extractfile(self.backup_fw_name)
+                self.update_firmware()
+        except tarfile.ExtractError:
+            print("Extract rollback firmware error")
+
+
+__version__ = "0.3"
 
 
 def main(argv):
@@ -535,11 +620,13 @@ def main(argv):
              using tarball format firmware, preserve environment follow -p
         4. %(prog)s -r file.tar.xz
              using tarball format firmware, reset environment
+        5. %(prog)s -b
+             rollback the firmware to the version before the upgrade
          ''')
     parser = argparse.ArgumentParser(description=description,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     group = parser.add_mutually_exclusive_group()
-    parser.add_argument('firmware', metavar='FIRMWARE',
+    parser.add_argument('firmware', nargs='?', metavar='FIRMWARE',
                         type=argparse.FileType('rb'),
                         help='firmware image or package')
     group.add_argument('-f', '--force',
@@ -554,7 +641,9 @@ def main(argv):
     parser.add_argument('-v', '--version',
                         action='version',
                         version="%(prog)s version: " + __version__)
-
+    group.add_argument('-b', '--rollback',
+                        help='Rollback the firmware to the version before the upgrade',
+                        action='store_true')
     try:
         args = parser.parse_args()
     except IOError as e:
@@ -574,13 +663,23 @@ def main(argv):
         if args.force:
             # When forced, ignore all the checking and call the underlying updater directly
             updater = FirmwareUpdate(args.firmware)
+        if args.rollback:
+            updater = RollbackFirmware(args.firmware)
         else:
             updater = ManagedFirmwareUpdate(args.firmware)
+
+        if args.rollback:
+            rollback_confirm = input("\nRollback the firmware to the version before the upgrade (y/N)?")
+            if not rollback_confirm == "y":
+                sys.exit(1)
+            updater.rollback_firmware()
+            sys.exit(1)
 
         envlist = None
         if not args.force and not args.reset:
             envlist = updater.get_preserved_uboot_env(args.preserve_list)
 
+        updater.backup_firmware()
         updater.update_firmware()
 
         if envlist:
@@ -601,14 +700,15 @@ def main(argv):
         ====================================
 Hit any Key to Exit:
         '''
-        input(intput_reminder)
-        sys.exit(1)
+        # Rollback the firmware when the upgrade fails
+        try:
+            print('Warning: Upgrade failed, rollback started')
+            updater.rollback_firmware()
+        except UpgradeError:
+            print("Rollback failed")
 
-    reboot_input = input(
-        "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
-    if not reboot_input == "y":
-        sys.exit(1)
-    os.system('reboot')
+        input(intput_reminder)
+
 
 if __name__ == '__main__':
     main(sys.argv)
