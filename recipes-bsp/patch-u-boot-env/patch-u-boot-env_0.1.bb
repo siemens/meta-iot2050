@@ -13,6 +13,8 @@ DESCRIPTION = "prepare u-boot environment for swupdate"
 RDEPENDS += "u-boot-${MACHINE}-config"
 DEBIAN_DEPENDS = "libubootenv-tool, u-boot-${MACHINE}-config"
 
+DPKG_ARCH = "all"
+
 SRC_URI += "file://postinst \
             file://patch-u-boot-env.config \
             file://patch-u-boot-env.sh \
