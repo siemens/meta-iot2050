@@ -5,6 +5,8 @@ runs:
   steps:
       - name:  Free disk space
         run: |
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get update
           sudo apt-get purge 'dotnet*' google-chrome-stable 'temurin*' google-cloud-sdk azure-cli 'mongodb*' powershell firefox chromium 'llvm*' 'libllvm*' 'mysql*' libgl1-mesa-dri apache2 'mono*' 'swift*' microsoft-edge-stable
           sudo rm -rf /usr/local/* /opt/hostedtoolcache /opt/pipx* /opt/az
         shell: bash
