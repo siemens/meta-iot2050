@@ -1,8 +1,8 @@
-From bf22ec796136dbd8ed73f4f17caefb9c28dcefba Mon Sep 17 00:00:00 2001
+From 510b52edb0b8c0eb76d5027a9601564edd1e7bde Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Apr 2021 13:17:31 +0530
-Subject: [PATCH 071/120] HACK: net: ethernet: ti: icss-iep: Fix sync0
- generation on a compare event
+Subject: [PATCH] HACK: net: ethernet: ti: icss-iep: Fix sync0 generation on a
+ compare event
 
 commit 41e5c46849b5 ("net: ethernet: ti: icss-iep: Add support for generating
 perout/PPS signal for am57xx variant") introduced support for generating
@@ -118,6 +118,3 @@ index 234972a034a9..22034d41c988 100644
  }
  EXPORT_SYMBOL_GPL(icss_iep_put);
  
--- 
-2.34.1
-

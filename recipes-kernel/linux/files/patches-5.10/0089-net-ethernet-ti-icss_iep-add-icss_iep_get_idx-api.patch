@@ -1,8 +1,7 @@
-From e730686324de02fc0097957b123a7e02244cad12 Mon Sep 17 00:00:00 2001
+From ee493117ee071308aa4cc3b823599c9b5f19e103 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 18 May 2021 23:37:26 +0300
-Subject: [PATCH 089/120] net: ethernet: ti: icss_iep: add icss_iep_get_idx()
- api
+Subject: [PATCH] net: ethernet: ti: icss_iep: add icss_iep_get_idx() api
 
 Add icss_iep_get_idx() API to allow retrieve IEP from phandle list in DT.
 
@@ -58,6 +57,3 @@ index a41e18df666e..eefc8c8bd8cc 100644
  void icss_iep_put(struct icss_iep *iep);
  int icss_iep_init(struct icss_iep *iep, const struct icss_iep_clockops *clkops,
  		  void *clockops_data, u32 cycle_time_ns);
--- 
-2.34.1
-

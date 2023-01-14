@@ -1,8 +1,8 @@
-From aaf83c026ac126399687d983458b4bad18661430 Mon Sep 17 00:00:00 2001
+From 136dfe54398592bdb325b40353d55ae8d559269b Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Sat, 27 Mar 2021 10:11:42 -0500
-Subject: [PATCH 069/120] remoteproc/pru: add support for configuring GPMUX
- based on client setup
+Subject: [PATCH] remoteproc/pru: add support for configuring GPMUX based on
+ client setup
 
 Client device node property ti,pruss-gp-mux-sel can now be used to
 configure the GPMUX config value for PRU.
@@ -74,6 +74,3 @@ index c346899d5e3b..7ef176170b18 100644
  	pru_rproc_set_firmware(rproc, NULL);
  
  	mutex_lock(&pru->lock);
--- 
-2.34.1
-

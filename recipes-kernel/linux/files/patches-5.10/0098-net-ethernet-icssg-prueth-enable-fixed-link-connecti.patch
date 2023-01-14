@@ -1,8 +1,7 @@
-From 5cfddadac0fd3abf5bfefbaaac806b1c9194c862 Mon Sep 17 00:00:00 2001
+From 6c6a2f23255e541a35a61951d82fdf673c50b5b1 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 18 Jun 2021 20:51:48 +0300
-Subject: [PATCH 098/120] net: ethernet: icssg-prueth: enable "fixed-link"
- connection
+Subject: [PATCH] net: ethernet: icssg-prueth: enable "fixed-link" connection
 
 The ICSSG has incomplete and incorrect "fixed-link" connection type
 implementation. The "fixed-link" is property of the Ethernet port and not
@@ -70,6 +69,3 @@ index d19a05fd8b06..3b1769a5e2b3 100644
  			emac->phy_node->full_name);
  		ret = -EPROBE_DEFER;
  		goto free;
--- 
-2.34.1
-

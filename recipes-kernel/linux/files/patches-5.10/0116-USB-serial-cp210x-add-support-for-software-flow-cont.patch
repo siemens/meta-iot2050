@@ -1,8 +1,7 @@
-From c0827c69c37ace2cb6ce38288688ec4f1220eb14 Mon Sep 17 00:00:00 2001
+From b5b3ee2f8454f468bfcea11beee205d44e082de4 Mon Sep 17 00:00:00 2001
 From: Wang Sheng Long <shenglong.wang.ext@siemens.com>
 Date: Mon, 18 Jan 2021 12:13:26 +0100
-Subject: [PATCH 116/120] USB: serial: cp210x: add support for software flow
- control
+Subject: [PATCH] USB: serial: cp210x: add support for software flow control
 
 When data is transmitted between two serial ports, the phenomenon of
 data loss often occurs. The two kinds of flow control commonly used in
@@ -138,6 +137,3 @@ index 6443aca5cc3d..aff686b50251 100644
  	dev_dbg(&port->dev, "%s - ulControlHandshake=0x%08x, ulFlowReplace=0x%08x\n",
  			__func__, ctl_hs, flow_repl);
  
--- 
-2.34.1
-

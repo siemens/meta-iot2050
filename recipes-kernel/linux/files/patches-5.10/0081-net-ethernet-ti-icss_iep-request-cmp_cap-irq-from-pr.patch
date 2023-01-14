@@ -1,8 +1,7 @@
-From ae1f64efe96232ca0dd5fee91b19c0428d3f5a9b Mon Sep 17 00:00:00 2001
+From 617ad920ba2e6e5bcd2e079f66b72b0e46008811 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:37 +0300
-Subject: [PATCH 081/120] net: ethernet: ti: icss_iep: request cmp_cap irq from
- probe
+Subject: [PATCH] net: ethernet: ti: icss_iep: request cmp_cap irq from probe
 
 The current INTC design allows to define IEP cmp_cap IRQ explicitly for IEP
 device, so it can be requested from probe and do not have dependencies from
@@ -105,6 +104,3 @@ index 8bad9c86775a..df74b5fd17e9 100644
  	iep_clk = devm_clk_get(dev, NULL);
  	if (IS_ERR(iep_clk))
  		return PTR_ERR(iep_clk);
--- 
-2.34.1
-

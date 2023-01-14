@@ -1,8 +1,7 @@
-From 587b8e70550a559c842b93eaa3cd0ae83821ef24 Mon Sep 17 00:00:00 2001
+From fcd4c5f8319b377b84b899186240335171371a6d Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 18 May 2021 23:37:22 +0300
-Subject: [PATCH 085/120] dt-bindings: net: Add binding for ti,icssg-prueth
- device
+Subject: [PATCH] dt-bindings: net: Add binding for ti,icssg-prueth device
 
 This is the DT binding document for the ICSSG Dual-EMAC Ethernet
 device.
@@ -148,6 +147,3 @@ index 000000000000..67609e26afa5
 +			ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 +		};
 +	};
--- 
-2.34.1
-

@@ -1,8 +1,7 @@
-From e17e66d4ceb2b952acd646e1f25946ff1186cd2c Mon Sep 17 00:00:00 2001
+From b5a595df1fc4c0a5ae73f5a53ce530df63bc2bd1 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:39 -0500
-Subject: [PATCH 041/120] remoteproc: pru: Fixup interrupt-parent logic for fw
- events
+Subject: [PATCH] remoteproc: pru: Fixup interrupt-parent logic for fw events
 
 The PRU firmware interrupt mapping logic in pru_handle_intrmap() uses
 of_irq_find_parent() with PRU device node to get a handle to the PRUSS
@@ -73,6 +72,3 @@ index 21105592a83d..773c09d01958 100644
  
  	return ret;
  }
--- 
-2.34.1
-

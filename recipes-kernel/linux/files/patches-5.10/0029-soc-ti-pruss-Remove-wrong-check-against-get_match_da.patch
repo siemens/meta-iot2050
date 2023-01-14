@@ -1,8 +1,8 @@
-From a6e0ed17feb77da77a5fb615d261874a65b0b56d Mon Sep 17 00:00:00 2001
+From e6ae83d52128da18a4817e30b67e55f0bd5f588f Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
-Subject: [PATCH 029/120] soc: ti: pruss: Remove wrong check against
- *get_match_data return value
+Subject: [PATCH] soc: ti: pruss: Remove wrong check against *get_match_data
+ return value
 
 Since the of_device_get_match_data() doesn't return error code, remove
 wrong IS_ERR test. Proper check against NULL pointer is already done
@@ -42,6 +42,3 @@ index 30695172a508..aa3aba80dbc6 100644
  
  	ret = dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
  	if (ret) {
--- 
-2.34.1
-

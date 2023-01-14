@@ -1,8 +1,8 @@
-From 86b20ee783dfd444d02f707628eb966b3144bff1 Mon Sep 17 00:00:00 2001
+From 3413d5c63136bacf82e1cc7f0d39129291010911 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:22 -0700
-Subject: [PATCH 028/120] soc: ti: k3-ringacc: Use correct device for
- allocation in RING mode
+Subject: [PATCH] soc: ti: k3-ringacc: Use correct device for allocation in
+ RING mode
 
 In RING mode the ringacc does not access the ring memory. In this access
 mode the ringacc coherency does not have meaning.
@@ -125,6 +125,3 @@ index 5a472eca5ee4..658dc71d2901 100644
  };
  
  #define K3_RINGACC_RING_ID_ANY (-1)
--- 
-2.34.1
-

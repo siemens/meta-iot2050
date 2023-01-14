@@ -1,8 +1,8 @@
-From 40cc8413bbc3161aff97ba8e1acfc7459762fe60 Mon Sep 17 00:00:00 2001
+From ed0aabfba1d3cc00af8752157794c25abe6abb0d Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Feb 2022 17:22:38 +0100
-Subject: [PATCH 044/120] watchdog: rti_wdt: Fix calculation and evaluation of
- preset heartbeat
+Subject: [PATCH] watchdog: rti_wdt: Fix calculation and evaluation of preset
+ heartbeat
 
 This ensures that the same value is read back as was eventually
 programmed when using seconds as accuracy. Even then, comparing the more
@@ -49,6 +49,3 @@ index 46c2a4bd9ebe..06f9d0ee1340 100644
  
  		wsize = readl(wdt->base + RTIWWDSIZECTRL);
  		ret = rti_wdt_setup_hw_hb(wdd, wsize);
--- 
-2.34.1
-
