@@ -1,8 +1,7 @@
-From d2c6c9316a4e8cd4b5c1bca6521073fa2680fe62 Mon Sep 17 00:00:00 2001
+From 9af1be08c8d063c4c2dd9cc8ca6d3bf284097202 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 14 May 2021 16:20:16 -0500
-Subject: [PATCH 014/120] arm64: dts: ti: k3-am65-iot2050-common: Disable
- mailbox nodes
+Subject: [PATCH] arm64: dts: ti: k3-am65-iot2050-common: Disable mailbox nodes
 
 There are no sub-mailbox devices defined currently for both the
 IOT2050 boards. These are usually dictated by the firmwares running
@@ -79,6 +78,3 @@ index de763ca9251c..f4ec9ed52939 100644
 +&mailbox0_cluster11 {
 +	status = "disabled";
 +};
--- 
-2.34.1
-

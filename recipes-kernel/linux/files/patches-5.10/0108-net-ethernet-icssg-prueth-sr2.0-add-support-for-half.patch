@@ -1,8 +1,8 @@
-From 08d465f59ad666dccd323b26f33f6fcfcfaf28e4 Mon Sep 17 00:00:00 2001
+From 3ad25a3a73d8b6ea7788c0c2de2026fe39b1dfa4 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 12 Oct 2021 13:54:43 +0300
-Subject: [PATCH 108/120] net: ethernet: icssg-prueth: sr2.0: add support for
- half duplex operation
+Subject: [PATCH] net: ethernet: icssg-prueth: sr2.0: add support for half
+ duplex operation
 
 This patch adds support for half duplex operation at 10M and 100M link
 speeds for AM654x ICSS-G SR2.0 devices.
@@ -134,6 +134,3 @@ index 644a22b53424..99225d0f1582 100644
  
  /* Memory Usage of : DMEM1
   *
--- 
-2.34.1
-

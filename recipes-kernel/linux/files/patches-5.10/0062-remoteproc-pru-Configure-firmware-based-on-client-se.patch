@@ -1,8 +1,7 @@
-From ec426cfe463625eaf63bafdec6fb070f9a6a809e Mon Sep 17 00:00:00 2001
+From a18ec1c471974c07109854a2192b371467350e68 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:50:14 -0500
-Subject: [PATCH 062/120] remoteproc: pru: Configure firmware based on client
- setup
+Subject: [PATCH] remoteproc: pru: Configure firmware based on client setup
 
 Client device node property firmware-name is now used to configure
 firmware for the PRU instances. The default firmware is also
@@ -103,6 +102,3 @@ index 90c097ebc27e..c346899d5e3b 100644
  	mutex_lock(&pru->lock);
  	pru->client_np = NULL;
  	rproc->deny_sysfs_ops = false;
--- 
-2.34.1
-

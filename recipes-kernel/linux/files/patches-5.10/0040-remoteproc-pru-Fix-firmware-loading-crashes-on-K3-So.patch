@@ -1,8 +1,7 @@
-From c1aaaa9793a122664867c59d207d5fb06f73e60f Mon Sep 17 00:00:00 2001
+From c3accbfbac51dfeda8d196034c6fa7177310d966 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Mon, 15 Mar 2021 15:58:59 -0500
-Subject: [PATCH 040/120] remoteproc: pru: Fix firmware loading crashes on K3
- SoCs
+Subject: [PATCH] remoteproc: pru: Fix firmware loading crashes on K3 SoCs
 
 The K3 PRUs are 32-bit processors and in general have some limitations
 in using the standard ARMv8 memcpy function for loading firmware segments,
@@ -35,6 +34,3 @@ index a113e150d5d5..21105592a83d 100644
  			ret = pru_rproc_memcpy(ptr, elf_data + phdr->p_offset,
  					       filesz);
  			if (ret) {
--- 
-2.34.1
-

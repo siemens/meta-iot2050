@@ -1,8 +1,7 @@
-From 1310363d9f1d2ec01e396aa7bcab7fbe21b00130 Mon Sep 17 00:00:00 2001
+From b42008ea27b9df70e938096197746592f62cfc17 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
-Subject: [PATCH 021/120] firmware: ti_sci: rm: Add support for second resource
- range
+Subject: [PATCH] firmware: ti_sci: rm: Add support for second resource range
 
 Sysfw added support for a second range in the resource range API to be able
 to describe complex allocations mainly for DMA channels.
@@ -173,6 +172,3 @@ index 19b90545edd8..2cd563c7328c 100644
  	unsigned long *res_map;
  };
  
--- 
-2.34.1
-

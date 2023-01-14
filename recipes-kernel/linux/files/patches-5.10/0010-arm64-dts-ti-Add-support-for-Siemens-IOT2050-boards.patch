@@ -1,8 +1,7 @@
-From fe91a58ddf2259428ab5d99d5242d928466290f5 Mon Sep 17 00:00:00 2001
+From d44bdc1b83b7d3471ff026a56486237526e8e7ca Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Mar 2021 15:33:43 +0100
-Subject: [PATCH 010/120] arm64: dts: ti: Add support for Siemens IOT2050
- boards
+Subject: [PATCH] arm64: dts: ti: Add support for Siemens IOT2050 boards
 
 Add support for two Siemens SIMATIC IOT2050 variants, Basic and
 Advanced. They are based on the TI AM6528 GP and AM6548 SOCs HS, thus
@@ -835,6 +834,3 @@ index 000000000000..ec9617c13cdb
 +&main_uart0 {
 +	status = "disabled";
 +};
--- 
-2.34.1
-

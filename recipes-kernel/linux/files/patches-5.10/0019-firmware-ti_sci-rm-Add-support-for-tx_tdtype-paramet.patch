@@ -1,8 +1,8 @@
-From 9d27e77ad832959aaaa02eb74b3b875e08456357 Mon Sep 17 00:00:00 2001
+From 768a97005fa9f4193e5a5f840bf105da0e58716b Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:02 -0700
-Subject: [PATCH 019/120] firmware: ti_sci: rm: Add support for tx_tdtype
- parameter for tx channel
+Subject: [PATCH] firmware: ti_sci: rm: Add support for tx_tdtype parameter for
+ tx channel
 
 The system controller's resource manager have support for configuring the
 TDTYPE of TCHAN_CFG register on j721e.
@@ -85,6 +85,3 @@ index b1af87330f86..fece890e1635 100644
  };
  
  /**
--- 
-2.34.1
-

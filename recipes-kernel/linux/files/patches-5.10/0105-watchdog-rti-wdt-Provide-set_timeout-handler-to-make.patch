@@ -1,8 +1,8 @@
-From f47f363e1d62621f70e11a4022784f0a26a606d2 Mon Sep 17 00:00:00 2001
+From 2515ecefcbb3b1ce43537a50dccf594e43f6fd26 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 13 Sep 2021 12:27:17 +0200
-Subject: [PATCH 105/120] watchdog: rti-wdt: Provide set_timeout handler to
- make existing userspace happy
+Subject: [PATCH] watchdog: rti-wdt: Provide set_timeout handler to make
+ existing userspace happy
 
 Prominent userspace - systemd - cannot handle watchdogs without
 WDIOF_SETTIMEOUT. To avoid failing in this case, implement a handler
@@ -56,6 +56,3 @@ index 06f9d0ee1340..15a476b8aa78 100644
  	.get_timeleft	= rti_wdt_get_timeleft,
  };
  
--- 
-2.34.1
-

@@ -1,8 +1,7 @@
-From b4cc838f86fb60d5d6706f1cdd7fd1e1adb27d3e Mon Sep 17 00:00:00 2001
+From 5a9f90c28af7952e7ebbf1c0cb7353a671b196b1 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 31 May 2021 16:31:35 +0530
-Subject: [PATCH 051/120] arm64: dts: ti: k3-am65-main: fix DSS irq trigger
- type
+Subject: [PATCH] arm64: dts: ti: k3-am65-main: fix DSS irq trigger type
 
 DSS irq trigger type is set to IRQ_TYPE_EDGE_RISING. For some reason this
 results in double the amount of expected interrupts, e.g. for normal
@@ -34,6 +33,3 @@ index a506a24bd9c2..dd1e475f2c18 100644
  
  		dma-coherent;
  
--- 
-2.34.1
-

@@ -1,8 +1,8 @@
-From 778812d627c0a43a908854262b425a3811f02314 Mon Sep 17 00:00:00 2001
+From 05b02751e23d3983d41702d26c9d9abaade4d38d Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:17 +0200
-Subject: [PATCH 049/120] arm64: dts: ti: iot2050: Add support for product
- generation 2 boards
+Subject: [PATCH] arm64: dts: ti: iot2050: Add support for product generation 2
+ boards
 
 This adds the devices trees for IOT2050 Product Generation 2 (PG2)
 boards. We have Basic and an Advanced variants again, differing in
@@ -159,6 +159,3 @@ index 000000000000..f00dc86d01b9
 +	/* lock-step mode not supported on this board */
 +	ti,cluster-mode = <0>;
 +};
--- 
-2.34.1
-
