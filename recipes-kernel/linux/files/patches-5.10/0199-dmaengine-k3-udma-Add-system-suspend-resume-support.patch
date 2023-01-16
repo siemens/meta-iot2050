@@ -1,0 +1,142 @@
+From 242e0801cfefd907e5debf235fd9a3ca8e31d353 Mon Sep 17 00:00:00 2001
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Date: Mon, 10 Oct 2022 23:07:02 +0300
+Subject: [PATCH] dmaengine: k3-udma: Add system suspend/resume support
+
+The K3 platforms configure the DMA resources with the
+help of the TI's System Firmware's Device Manager(DM)
+over TISCI. The group of DMA related Resource Manager[1]
+TISCI messages includes: INTA, RINGACC, UDMAP, and PSI-L.
+This configuration however, does not persist in the DM
+after leaving from Suspend-to-RAM state. We have to restore
+the DMA channel configuration over TISCI for all configured
+channels when entering suspend.
+
+The TISCI resource management calls for each DMA type (UDMA,
+PKTDMA, BCDMA) happen in device_free_chan_resources() and
+device_alloc_chan_resources(). In pm_suspend() we store
+the current udma_chan_config for channels that still have
+attached clients and call device_free_chan_resources().
+In pm_resume() restore the udma_channel_config from backup
+and call device_alloc_chan_resources() for those channels.
+Drivers like CPSW do their own DMA resource management,
+so use the late system suspend/resume hooks.
+
+[1] https://software-dl.ti.com/tisci/esd/latest/2_tisci_msgs/index.html#resource-management-rm
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+[g-vlaev@ti.com: Add udma_chan_config backup]
+[g-vlaev@ti.com: Supend only channels with clients]
+Signed-off-by: Georgi Vlaev <g-vlaev@ti.com>
+---
+ drivers/dma/ti/k3-udma.c | 57 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index 6b02433c7f1d..3a0582f99208 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -193,6 +193,7 @@ struct udma_dev {
+ 	int rchan_cnt;
+ 	int rflow_cnt;
+ 	int tflow_cnt;
++	int ch_count;
+ 	unsigned long *bchan_map;
+ 	unsigned long *tchan_map;
+ 	unsigned long *rchan_map;
+@@ -303,6 +304,8 @@ struct udma_chan {
+ 
+ 	/* Channel configuration parameters */
+ 	struct udma_chan_config config;
++	/* Channel configuration parameters (backup) */
++	struct udma_chan_config backup_config;
+ 
+ 	/* dmapool for packet mode descriptors */
+ 	bool use_dma_pool;
+@@ -4948,6 +4951,7 @@ static int setup_resources(struct udma_dev *ud)
+ 	if (!ch_count)
+ 		return -ENODEV;
+ 
++	ud->ch_count = ch_count;
+ 	ud->channels = devm_kcalloc(dev, ch_count, sizeof(*ud->channels),
+ 				    GFP_KERNEL);
+ 	if (!ud->channels)
+@@ -5444,11 +5448,62 @@ static int udma_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
++static int udma_pm_suspend(struct device *dev)
++{
++	struct udma_dev *ud = dev_get_drvdata(dev);
++	struct dma_chan *chan;
++	int i;
++
++	for (i = 0; i < ud->ch_count; i++) {
++		chan = &ud->channels[i].vc.chan;
++		if (chan->client_count) {
++			/* backup the channel configuration */
++			memcpy(&ud->channels[i].backup_config,
++			       &ud->channels[i].config,
++			       sizeof(struct udma_chan_config));
++			dev_dbg(dev, "Suspending channel %s\n",
++				dma_chan_name(chan));
++			ud->ddev.device_free_chan_resources(chan);
++		}
++	}
++
++	return 0;
++}
++
++static int udma_pm_resume(struct device *dev)
++{
++	struct udma_dev *ud = dev_get_drvdata(dev);
++	struct dma_chan *chan;
++	int ret, i;
++
++	for (i = 0; i < ud->ch_count; i++) {
++		chan = &ud->channels[i].vc.chan;
++		if (chan->client_count) {
++			/* restore the channel configuration */
++			memcpy(&ud->channels[i].config,
++			       &ud->channels[i].backup_config,
++			       sizeof(struct udma_chan_config));
++			dev_dbg(dev, "Resuming channel %s\n",
++				dma_chan_name(chan));
++			ret = ud->ddev.device_alloc_chan_resources(chan);
++			if (ret)
++				return ret;
++		}
++	}
++
++	return 0;
++}
++
++static const struct dev_pm_ops udma_pm_ops = {
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(udma_pm_suspend, udma_pm_resume)
++};
++
+ static struct platform_driver udma_driver = {
+ 	.driver = {
+ 		.name	= "ti-udma",
+ 		.of_match_table = udma_of_match,
+ 		.suppress_bind_attrs = true,
++		.pm = &udma_pm_ops,
+ 	},
+ 	.probe		= udma_probe,
+ };
+@@ -5459,6 +5514,7 @@ static struct platform_driver bcdma_driver = {
+ 		.name	= "ti-bcdma",
+ 		.of_match_table = bcdma_of_match,
+ 		.suppress_bind_attrs = true,
++		.pm = &udma_pm_ops,
+ 	},
+ 	.probe		= udma_probe,
+ };
+@@ -5469,6 +5525,7 @@ static struct platform_driver pktdma_driver = {
+ 		.name	= "ti-pktdma",
+ 		.of_match_table = pktdma_of_match,
+ 		.suppress_bind_attrs = true,
++		.pm = &udma_pm_ops,
+ 	},
+ 	.probe		= udma_probe,
+ };

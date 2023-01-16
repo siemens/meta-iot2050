@@ -1,0 +1,38 @@
+From f9d101741e590874d03eab9e8d5cddc08140187d Mon Sep 17 00:00:00 2001
+From: Jayesh Choudhary <j-choudhary@ti.com>
+Date: Fri, 25 Nov 2022 15:09:50 +0530
+Subject: [PATCH] dmaengine: ti: k3-udma: Do conditional decrement of
+ UDMA_CHAN_RT_PEER_BCNT_REG
+
+PSIL_EP_NATIVE endpoints may not have PEER registers for BCNT and thus
+udma_decrement_byte_counters() should not try to decrement these counters.
+This fixes the issue of crypto IPERF testing where the client side (EVM)
+hangs without transfer of packets to the server side, seen since this
+function was added.
+
+Fixes: a85c781629b3 ("dma: ti: k3-udma: Reset UDMA_CHAN_RT byte counters
+to prevent overflow")
+Signed-off-by: Jayesh Choudhary <j-choudhary@ti.com>
+---
+ drivers/dma/ti/k3-udma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index 7dcaf7a1eedb..43442556ab1d 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -764,11 +764,12 @@ static void udma_decrement_byte_counters(struct udma_chan *uc, u32 val)
+ 	if (uc->desc->dir == DMA_DEV_TO_MEM) {
+ 		udma_rchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
+ 		udma_rchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
+-		udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
++		if (uc->config.ep_type != PSIL_EP_NATIVE)
++			udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
+ 	} else {
+ 		udma_tchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
+ 		udma_tchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
+-		if (!uc->bchan)
++		if (!uc->bchan && uc->config.ep_type != PSIL_EP_NATIVE)
+ 			udma_tchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
+ 	}
+ }
