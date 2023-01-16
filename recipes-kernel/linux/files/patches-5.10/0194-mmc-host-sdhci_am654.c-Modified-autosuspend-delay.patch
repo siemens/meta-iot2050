@@ -1,0 +1,27 @@
+From c67ad45e20ae040ede3fc4c76ccea1e39d052aab Mon Sep 17 00:00:00 2001
+From: Bhavya Kapoor <b-kapoor@ti.com>
+Date: Fri, 12 Aug 2022 02:52:45 +0530
+Subject: [PATCH] mmc: host: sdhci_am654.c: Modified autosuspend delay
+
+MMC controller gets suspended automatically after 100ms of inactivity.
+Removed autosuspend feature by changing autosuspend delay
+value from 100 to -1.
+
+Signed-off-by: Bhavya Kapoor <b-kapoor@ti.com>
+---
+ drivers/mmc/host/sdhci_am654.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
+index f3b1ce66a25b..9be87f494fc0 100644
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -84,7 +84,7 @@
+ #define DRIVER_STRENGTH_40_OHM	0x4
+ 
+ #define CLOCK_TOO_SLOW_HZ	50000000
+-#define SDHCI_AM654_AUTOSUSPEND_DELAY	100
++#define SDHCI_AM654_AUTOSUSPEND_DELAY	-1
+ 
+ /* Command Queue Host Controller Interface Base address */
+ #define SDHCI_AM654_CQE_BASE_ADDR 0x200

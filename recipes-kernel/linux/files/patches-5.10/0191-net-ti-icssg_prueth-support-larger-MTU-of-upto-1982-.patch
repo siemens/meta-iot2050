@@ -1,0 +1,97 @@
+From 6295f5cade70250139495e819672ea9b35d2b514 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@kernel.org>
+Date: Wed, 22 Jun 2022 14:36:34 +0300
+Subject: [PATCH] net: ti: icssg_prueth: support larger MTU of upto 1982 bytes
+
+MII_G port defaults are 2000 bytes.
+(i.e. MII_G_RT_RX_STAT_MAX_SIZE_PRU0/1 & MII_G_RT_TX_STAT_MAX_SIZE_PORT0/1)
+
+Removing 14 bytes of Ethernet MAC header and 4 bytes of FCS we
+are left with a payload size (MTU) of 1982.
+
+Update MII_RT_RX_FRMS0/1 to the same (2000-1) and set max MTU of
+the PRU Ethernet device driver to 1982.
+
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_mii_rt.h   |  1 +
+ drivers/net/ethernet/ti/icssg_mii_cfg.c | 16 ++++++++++++++++
+ drivers/net/ethernet/ti/icssg_prueth.c  | 10 +++++++++-
+ 3 files changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_mii_rt.h b/drivers/net/ethernet/ti/icss_mii_rt.h
+index 11c159cb8510..13c87bb567b0 100644
+--- a/drivers/net/ethernet/ti/icss_mii_rt.h
++++ b/drivers/net/ethernet/ti/icss_mii_rt.h
+@@ -133,6 +133,7 @@ struct regmap;
+ struct prueth_emac;
+ 
+ void icssg_mii_update_ipg(struct regmap *mii_rt, int mii, u32 ipg);
++void icssg_mii_update_mtu(struct regmap *mii_rt, int mii, int mtu);
+ void icssg_update_rgmii_cfg(struct regmap *miig_rt, struct prueth_emac *emac);
+ u32 icssg_rgmii_cfg_get_bitfield(struct regmap *miig_rt, u32 mask, u32 shift);
+ u32 icssg_rgmii_get_speed(struct regmap *miig_rt, int mii);
+diff --git a/drivers/net/ethernet/ti/icssg_mii_cfg.c b/drivers/net/ethernet/ti/icssg_mii_cfg.c
+index 97c2e5b2957b..8687fa3b5163 100644
+--- a/drivers/net/ethernet/ti/icssg_mii_cfg.c
++++ b/drivers/net/ethernet/ti/icssg_mii_cfg.c
+@@ -26,6 +26,22 @@ void icssg_mii_update_ipg(struct regmap *mii_rt, int mii, u32 ipg)
+ 	}
+ }
+ 
++void icssg_mii_update_mtu(struct regmap *mii_rt, int mii, int mtu)
++{
++	mtu += (ETH_HLEN + ETH_FCS_LEN);
++	if (mii == ICSS_MII0) {
++		regmap_update_bits(mii_rt,
++				   PRUSS_MII_RT_RX_FRMS0,
++				   PRUSS_MII_RT_RX_FRMS_MAX_FRM_MASK,
++				   (mtu - 1) << PRUSS_MII_RT_RX_FRMS_MAX_FRM_SHIFT);
++	} else {
++		regmap_update_bits(mii_rt,
++				   PRUSS_MII_RT_RX_FRMS1,
++				   PRUSS_MII_RT_RX_FRMS_MAX_FRM_MASK,
++				   (mtu - 1) << PRUSS_MII_RT_RX_FRMS_MAX_FRM_SHIFT);
++	}
++}
++
+ void icssg_update_rgmii_cfg(struct regmap *miig_rt, struct prueth_emac *emac)
+ {
+ 	u32 gig_en_mask, gig_val = 0, full_duplex_mask, full_duplex_val = 0;
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 8b7c2018d094..50bb35e93360 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -35,8 +35,12 @@
+ #define PRUETH_MODULE_VERSION "0.1"
+ #define PRUETH_MODULE_DESCRIPTION "PRUSS ICSSG Ethernet driver"
+ 
++/* MAX MTU set to match MII_G_RT_RX_STAT_MAX_SIZE_PRU0/1,
++ * MII_G_RT_TX_STAT_MAX_SIZE_PORT0/1 defaults
++ */
++#define PRUETH_MAX_MTU		(2000 - ETH_HLEN - ETH_FCS_LEN)
+ #define PRUETH_MIN_PKT_SIZE	(VLAN_ETH_ZLEN)
+-#define PRUETH_MAX_PKT_SIZE	(VLAN_ETH_FRAME_LEN + ETH_FCS_LEN)
++#define PRUETH_MAX_PKT_SIZE	(PRUETH_MAX_MTU + ETH_HLEN + ETH_FCS_LEN)
+ 
+ /* Netif debug messages possible */
+ #define PRUETH_EMAC_DEBUG	(NETIF_MSG_DRV | \
+@@ -1761,6 +1765,8 @@ static int emac_ndo_open(struct net_device *ndev)
+ 	if (ret)
+ 		goto free_rx_mgmt_ts_irq;
+ 
++	icssg_mii_update_mtu(prueth->mii_rt, slice, ndev->max_mtu);
++
+ 	if (!emac->is_sr1 && !prueth->emacs_initialized) {
+ 		ret = icss_iep_init(emac->iep, &prueth_iep_clockops,
+ 				    emac, IEP_DEFAULT_CYCLE_TIME_NS);
+@@ -2322,6 +2328,8 @@ static int prueth_netdev_init(struct prueth *prueth,
+ 	}
+ 	ether_addr_copy(emac->mac_addr, ndev->dev_addr);
+ 
++	ndev->min_mtu = PRUETH_MIN_PKT_SIZE;
++	ndev->max_mtu = PRUETH_MAX_MTU;
+ 	ndev->netdev_ops = &emac_netdev_ops;
+ 	ndev->ethtool_ops = &icssg_ethtool_ops;
+ 	ndev->hw_features = NETIF_F_SG;
