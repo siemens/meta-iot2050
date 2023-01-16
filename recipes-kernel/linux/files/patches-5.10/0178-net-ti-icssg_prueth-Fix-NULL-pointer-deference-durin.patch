@@ -1,0 +1,32 @@
+From f537636c2451ad681b699e1bffedbcc057245514 Mon Sep 17 00:00:00 2001
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Date: Wed, 1 Dec 2021 13:17:25 +0530
+Subject: [PATCH] net: ti: icssg_prueth: Fix NULL pointer deference during
+ remove
+
+In case where only one EMAC port is enabled,
+prueth_unregister_devlink_ports() tries to unregister devlink for
+both ports during rmmod and leads to NULL pointer deference abort.
+Fix this by checking if prueth->emac[i] is valid before dereferencing
+in prueth_unregister_devlink_ports().
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index a7754341eeda..531029351504 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -2646,6 +2646,9 @@ static void prueth_unregister_devlink_ports(struct prueth *prueth)
+ 
+ 	for (i = PRUETH_MAC0; i < PRUETH_NUM_MACS; i++) {
+ 		emac = prueth->emac[i];
++		if (!emac)
++			continue;
++
+ 		dl_port = &emac->devlink_port;
+ 
+ 		if (dl_port->registered)

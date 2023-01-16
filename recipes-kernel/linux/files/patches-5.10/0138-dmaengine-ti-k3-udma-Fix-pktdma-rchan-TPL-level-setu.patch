@@ -1,0 +1,37 @@
+From 26b5f6727b411ad8a3ceab87b91491ced22a70ec Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Wed, 16 Dec 2020 17:48:33 +0200
+Subject: [PATCH] dmaengine: ti: k3-udma: Fix pktdma rchan TPL level setup
+
+commit 26b614fa441048a9f8e4a814c3b01756816ce7a7 upstream.
+
+Instead of initializing the rchan_tpl the initial commit re-initialized
+the tchan_tpl.
+
+Fixes: d2abc982333c0 ("dmaengine: ti: k3-udma: Initial support for K3 PKTDMA")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20201216154833.20821-1-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[s-anna@ti.com: cherry-pick commit '26b614fa4410' from v5.11]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/dma/ti/k3-udma.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index 87157cbae1b8..298460438bb4 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -4698,9 +4698,9 @@ static int pktdma_setup_resources(struct udma_dev *ud)
+ 		ud->tchan_tpl.levels = 1;
+ 	}
+ 
+-	ud->tchan_tpl.levels = ud->tchan_tpl.levels;
+-	ud->tchan_tpl.start_idx[0] = ud->tchan_tpl.start_idx[0];
+-	ud->tchan_tpl.start_idx[1] = ud->tchan_tpl.start_idx[1];
++	ud->rchan_tpl.levels = ud->tchan_tpl.levels;
++	ud->rchan_tpl.start_idx[0] = ud->tchan_tpl.start_idx[0];
++	ud->rchan_tpl.start_idx[1] = ud->tchan_tpl.start_idx[1];
+ 
+ 	ud->tchan_map = devm_kmalloc_array(dev, BITS_TO_LONGS(ud->tchan_cnt),
+ 					   sizeof(unsigned long), GFP_KERNEL);

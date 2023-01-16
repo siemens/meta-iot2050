@@ -1,0 +1,33 @@
+From c7379520268143f570fac1ff028700a71fce1f38 Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Mon, 14 Dec 2020 08:54:21 +0200
+Subject: [PATCH] soc: ti: k3-ringacc: Use correct error casting in
+ k3_ringacc_dmarings_init
+
+commit 115ff12aecfd55376d704fa2c0a2d117e5827f9f upstream.
+
+Use ERR_CAST() when devm_ioremap_resource() fails.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20201214065421.5138-1-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[s-anna@ti.com: cherry-pick commit '115ff12aecfd' from v5.11]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/soc/ti/k3-ringacc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/soc/ti/k3-ringacc.c b/drivers/soc/ti/k3-ringacc.c
+index 3a0002303379..086d61a86b17 100644
+--- a/drivers/soc/ti/k3-ringacc.c
++++ b/drivers/soc/ti/k3-ringacc.c
+@@ -1476,7 +1476,7 @@ struct k3_ringacc *k3_ringacc_dmarings_init(struct platform_device *pdev,
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ringrt");
+ 	base_rt = devm_ioremap_resource(dev, res);
+ 	if (IS_ERR(base_rt))
+-		return base_rt;
++		return ERR_CAST(base_rt);
+ 
+ 	ringacc->rings = devm_kzalloc(dev,
+ 				      sizeof(*ringacc->rings) *

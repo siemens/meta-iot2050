@@ -1,0 +1,125 @@
+From b4ba1b5900b0c1d25ca2169caad7d2e30186099f Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Fri, 24 Sep 2021 16:58:40 +0300
+Subject: [PATCH] net: ethernet: ti: icss_iep: fix phc2sys sync
+
+Now when phc2sys is running to sync sys-clock to PHC the sync doesn't
+happen:
+
+phc2sys[2046.273]: CLOCK_REALTIME phc offset -1588667462018990140 s0 freq +100000000 delay 1048389136
+phc2sys[2047.273]: clockcheck: clock jumped backward or running slower than expected!
+phc2sys[2047.273]: CLOCK_REALTIME phc offset -1588667463942743044 s0 freq +100000000 delay      0
+phc2sys[2048.273]: CLOCK_REALTIME phc offset -864962291571182424 s2 freq +100000000 delay 1447410346965662944
+phc2sys[2049.273]: clockcheck: clock jumped backward or running slower than expected!
+phc2sys[2049.273]: CLOCK_REALTIME phc offset -1588667465352817468 s0 freq +100000000 delay 1048389136
+
+cmd master:
+phc2sys -a -rr -m -q -l5&
+ptp4l -2 -i eth0 -l5 -m -q --priority1 127&
+
+cmd slave:
+phc2sys -a -r -q -m -l6&
+ptp4l -2 -s -i eth3 -m -q -l5&
+
+The issue is due PTP IEP PHC clock was converted to use .gettimex64()
+callback and code path for AM65x SR1.0 IEP was updated properly to fill
+struct ptp_system_timestamp *sts parameter, but the same is missing for
+AM65x SR2.0 IEP code path where gettime() is implemented in icssg_prueth
+driver through .gettime() callback.
+
+Hence fix AM65x SR2.0 IEP to pass struct ptp_system_timestamp to
+icss_iep_clockops.gettime() callback and fill it properly. After this
+change:
+
+phc2sys -a -r -q -m -l6
+phc2sys[177.659]: reconfiguring after port state change
+phc2sys[177.659]: selecting CLOCK_REALTIME for synchronization
+phc2sys[177.659]: selecting eth3 as the master clock
+phc2sys[177.659]: CLOCK_REALTIME phc offset 43656345542569315 s0 freq      +0 delay    330
+phc2sys[178.659]: CLOCK_REALTIME phc offset 43656345542534414 s1 freq  -34897 delay    330
+phc2sys[179.659]: CLOCK_REALTIME phc offset        -2 s2 freq  -34899 delay    330
+phc2sys[180.660]: CLOCK_REALTIME phc offset       -19 s2 freq  -34917 delay    325
+phc2sys[181.660]: CLOCK_REALTIME phc offset       -18 s2 freq  -34921 delay    330
+phc2sys[182.660]: CLOCK_REALTIME phc offset       -48 s2 freq  -34957 delay    330
+phc2sys[183.660]: CLOCK_REALTIME phc offset       -34 s2 freq  -34957 delay    330
+phc2sys[184.660]: CLOCK_REALTIME phc offset       -32 s2 freq  -34965 delay    325
+phc2sys[185.660]: CLOCK_REALTIME phc offset       -12 s2 freq  -34955 delay    330
+phc2sys[186.660]: CLOCK_REALTIME phc offset         1 s2 freq  -34946 delay    330
+phc2sys[187.660]: CLOCK_REALTIME phc offset         2 s2 freq  -34944 delay    330
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icss_iep.c     | 2 +-
+ drivers/net/ethernet/ti/icss_iep.h     | 2 +-
+ drivers/net/ethernet/ti/icssg_prueth.c | 7 ++++++-
+ 3 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icss_iep.c b/drivers/net/ethernet/ti/icss_iep.c
+index d3aa3dca729c..481dc366a7c2 100644
+--- a/drivers/net/ethernet/ti/icss_iep.c
++++ b/drivers/net/ethernet/ti/icss_iep.c
+@@ -223,7 +223,7 @@ static u64 icss_iep_gettime(struct icss_iep *iep,
+ 	unsigned long flags;
+ 
+ 	if (iep->ops && iep->ops->gettime)
+-		return iep->ops->gettime(iep->clockops_data);
++		return iep->ops->gettime(iep->clockops_data, sts);
+ 
+ 	/* use local_irq_x() to make it work for both RT/non-RT */
+ 	local_irq_save(flags);
+diff --git a/drivers/net/ethernet/ti/icss_iep.h b/drivers/net/ethernet/ti/icss_iep.h
+index 1c8f74ae659a..22bee0ad4565 100644
+--- a/drivers/net/ethernet/ti/icss_iep.h
++++ b/drivers/net/ethernet/ti/icss_iep.h
+@@ -18,7 +18,7 @@ struct icss_iep;
+ struct icss_iep_clockops {
+ 	void (*settime)(void *clockops_data, u64 ns);
+ 	void (*adjtime)(void *clockops_data, s64 delta);
+-	u64 (*gettime)(void *clockops_data);
++	u64 (*gettime)(void *clockops_data, struct ptp_system_timestamp *sts);
+ 	int (*perout_enable)(void *clockops_data,
+ 			     struct ptp_perout_request *req, int on,
+ 			     u64 *cmp);
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 4470482062f9..e07b318d9422 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -1395,7 +1395,7 @@ static void prueth_reset_rx_chan(struct prueth_rx_chn *chn,
+ 		k3_udma_glue_disable_rx_chn(chn->rx_chn);
+ }
+ 
+-static u64 prueth_iep_gettime(void *clockops_data)
++static u64 prueth_iep_gettime(void *clockops_data, struct ptp_system_timestamp *sts)
+ {
+ 	u32 hi_rollover_count, hi_rollover_count_r;
+ 	struct prueth_emac *emac = clockops_data;
+@@ -1403,23 +1403,28 @@ static u64 prueth_iep_gettime(void *clockops_data)
+ 	void __iomem *fw_hi_r_count_addr;
+ 	void __iomem *fw_count_hi_addr;
+ 	u32 iepcount_hi, iepcount_hi_r;
++	unsigned long flags;
+ 	u32 iepcount_lo;
+ 	u64 ts = 0;
+ 
+ 	fw_count_hi_addr = prueth->shram.va + TIMESYNC_FW_WC_COUNT_HI_SW_OFFSET_OFFSET;
+ 	fw_hi_r_count_addr = prueth->shram.va + TIMESYNC_FW_WC_HI_ROLLOVER_COUNT_OFFSET;
+ 
++	local_irq_save(flags);
+ 	do {
+ 		iepcount_hi = icss_iep_get_count_hi(emac->iep);
+ 		iepcount_hi += readl(fw_count_hi_addr);
+ 		hi_rollover_count = readl(fw_hi_r_count_addr);
++		ptp_read_system_prets(sts);
+ 		iepcount_lo = icss_iep_get_count_low(emac->iep);
++		ptp_read_system_postts(sts);
+ 
+ 		iepcount_hi_r = icss_iep_get_count_hi(emac->iep);
+ 		iepcount_hi_r += readl(fw_count_hi_addr);
+ 		hi_rollover_count_r = readl(fw_hi_r_count_addr);
+ 	} while ((iepcount_hi_r != iepcount_hi) ||
+ 		 (hi_rollover_count != hi_rollover_count_r));
++	local_irq_restore(flags);
+ 
+ 	ts = ((u64)hi_rollover_count) << 23 | iepcount_hi;
+ 	ts = ts * (u64)IEP_DEFAULT_CYCLE_TIME_NS + iepcount_lo;
