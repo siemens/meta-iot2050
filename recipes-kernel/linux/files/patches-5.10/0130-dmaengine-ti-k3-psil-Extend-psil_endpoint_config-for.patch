@@ -1,0 +1,58 @@
+From c641ca12a87e82627f098f767e0357d3b9a9effe Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Tue, 8 Dec 2020 11:04:33 +0200
+Subject: [PATCH] dmaengine: ti: k3-psil: Extend psil_endpoint_config for K3
+ PKTDMA
+
+commit b9366e2577a38ca5322f326cff9752c2008597c6 upstream.
+
+Additional fields needed for K3 PKTDMA to be able to handle the mapped
+channels (channels are locked to handle specific threads) and flow ranges
+for these mapped threads.
+PKTDMA also introduces tflow for tx channels which can not be found in
+K3 UDMA architecture.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Link: https://lore.kernel.org/r/20201208090440.31792-14-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[s-anna@ti.com: cherry-pick commit 'b9366e2577a3' from v5.11]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ include/linux/dma/k3-psil.h | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/include/linux/dma/k3-psil.h b/include/linux/dma/k3-psil.h
+index 1962f75fa2d3..36e22c5a0f29 100644
+--- a/include/linux/dma/k3-psil.h
++++ b/include/linux/dma/k3-psil.h
+@@ -50,6 +50,15 @@ enum psil_endpoint_type {
+  * @channel_tpl:	Desired throughput level for the channel
+  * @pdma_acc32:		ACC32 must be enabled on the PDMA side
+  * @pdma_burst:		BURST must be enabled on the PDMA side
++ * @mapped_channel_id:	PKTDMA thread to channel mapping for mapped channels.
++ *			The thread must be serviced by the specified channel if
++ *			mapped_channel_id is >= 0 in case of PKTDMA
++ * @flow_start:		PKDMA flow range start of mapped channel. Unmapped
++ *			channels use flow_id == chan_id
++ * @flow_num:		PKDMA flow count of mapped channel. Unmapped channels
++ *			use flow_id == chan_id
++ * @default_flow_id:	PKDMA default (r)flow index of mapped channel.
++ *			Must be within the flow range of the mapped channel.
+  */
+ struct psil_endpoint_config {
+ 	enum psil_endpoint_type ep_type;
+@@ -63,6 +72,13 @@ struct psil_endpoint_config {
+ 	/* PDMA properties, valid for PSIL_EP_PDMA_* */
+ 	unsigned pdma_acc32:1;
+ 	unsigned pdma_burst:1;
++
++	/* PKDMA mapped channel */
++	int mapped_channel_id;
++	/* PKTDMA tflow and rflow ranges for mapped channel */
++	u16 flow_start;
++	u16 flow_num;
++	u16 default_flow_id;
+ };
+ 
+ int psil_set_new_ep_config(struct device *dev, const char *name,

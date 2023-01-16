@@ -1,0 +1,65 @@
+From 3a68203ad21cdf832cdef959748c8671a53d26ac Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Tue, 8 Dec 2020 11:04:28 +0200
+Subject: [PATCH] dmaengine: Add support for per channel coherency handling
+
+commit ab650ef6d548153862119e1bf3bf267510707f48 upstream.
+
+If the DMA device supports per channel coherency configuration (a channel
+can be configured to have coherent or not coherent view) then a single
+device (the DMA controller's device) can not be used for dma_api for all
+channels as channels can have different coherency.
+
+Introduce custom_dma_mapping flag for the dma_chan and a new helper to get
+the device pointer to be used for dma_api for the given channel.
+
+Client drivers should be updated to be able to support per channel
+coherency by:
+
+- dma_map_single(chan->device->dev, ptr, size, DMA_TO_DEVICE);
++ struct device *dma_dev = dmaengine_get_dma_device(chan);
++
++ dma_map_single(dma_dev, ptr, size, DMA_TO_DEVICE);
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20201208090440.31792-9-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[s-anna@ti.com: cherry-pick commit 'ab650ef6d548' from v5.11]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ include/linux/dmaengine.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
+index 86beb2b84bac..6ca71379dd5f 100644
+--- a/include/linux/dmaengine.h
++++ b/include/linux/dmaengine.h
+@@ -357,11 +357,14 @@ struct dma_chan {
+  * @chan: driver channel device
+  * @device: sysfs device
+  * @dev_id: parent dma_device dev_id
++ * @chan_dma_dev: The channel is using custom/different dma-mapping
++ * compared to the parent dma_device
+  */
+ struct dma_chan_dev {
+ 	struct dma_chan *chan;
+ 	struct device device;
+ 	int dev_id;
++	bool chan_dma_dev;
+ };
+ 
+ /**
+@@ -1614,4 +1617,13 @@ dmaengine_get_direction_text(enum dma_transfer_direction dir)
+ 		return "invalid";
+ 	}
+ }
++
++static inline struct device *dmaengine_get_dma_device(struct dma_chan *chan)
++{
++	if (chan->dev->chan_dma_dev)
++		return &chan->dev->device;
++
++	return chan->device->dev;
++}
++
+ #endif /* DMAENGINE_H */

@@ -1,0 +1,69 @@
+From 6172d7f092a9f12a8a7494c4d53f1e77aba192ab Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Tue, 8 Dec 2020 11:04:27 +0200
+Subject: [PATCH] dmaengine: of-dma: Add support for optional router
+ configuration callback
+
+commit 4f910c035f38053ac8eb63a672c78862c535cd0f upstream.
+
+Additional configuration for the DMA event router might be needed for a
+channel which can not be done during device_alloc_chan_resources callback
+since the router information is not yet present for the drivers.
+
+If there is a need for additional configuration for the channel if DMA
+router is in use, then the driver can implement the device_router_config
+callback.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20201208090440.31792-8-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[s-anna@ti.com: cherry-pick commit '4f910c035f38' from v5.11]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/dma/of-dma.c      | 10 ++++++++++
+ include/linux/dmaengine.h |  2 ++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/drivers/dma/of-dma.c b/drivers/dma/of-dma.c
+index 4be433482053..ac61ecda2926 100644
+--- a/drivers/dma/of-dma.c
++++ b/drivers/dma/of-dma.c
+@@ -79,8 +79,18 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
+ 		ofdma->dma_router->route_free(ofdma->dma_router->dev,
+ 					      route_data);
+ 	} else {
++		int ret = 0;
++
+ 		chan->router = ofdma->dma_router;
+ 		chan->route_data = route_data;
++
++		if (chan->device->device_router_config)
++			ret = chan->device->device_router_config(chan);
++
++		if (ret) {
++			dma_release_channel(chan);
++			chan = ERR_PTR(ret);
++		}
+ 	}
+ 
+ err:
+diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
+index 256592c0a365..86beb2b84bac 100644
+--- a/include/linux/dmaengine.h
++++ b/include/linux/dmaengine.h
+@@ -801,6 +801,7 @@ struct dma_filter {
+  *	by tx_status
+  * @device_alloc_chan_resources: allocate resources and return the
+  *	number of allocated descriptors
++ * @device_router_config: optional callback for DMA router configuration
+  * @device_free_chan_resources: release DMA channel's resources
+  * @device_prep_dma_memcpy: prepares a memcpy operation
+  * @device_prep_dma_xor: prepares a xor operation
+@@ -875,6 +876,7 @@ struct dma_device {
+ 	enum dma_residue_granularity residue_granularity;
+ 
+ 	int (*device_alloc_chan_resources)(struct dma_chan *chan);
++	int (*device_router_config)(struct dma_chan *chan);
+ 	void (*device_free_chan_resources)(struct dma_chan *chan);
+ 
+ 	struct dma_async_tx_descriptor *(*device_prep_dma_memcpy)(

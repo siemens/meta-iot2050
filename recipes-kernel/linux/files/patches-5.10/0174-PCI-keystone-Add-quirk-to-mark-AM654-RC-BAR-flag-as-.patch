@@ -1,0 +1,41 @@
+From 3b4b6aa91fb160410d38c7b507d673e06e7d8825 Mon Sep 17 00:00:00 2001
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Date: Wed, 10 Nov 2021 13:13:43 +0530
+Subject: [PATCH] PCI: keystone: Add quirk to mark AM654 RC BAR flag as
+ IORESOURCE_UNSET
+
+AM654 RootComplex has a hard coded 64 bit BAR of size 1MB and also has
+both MSI and MSI-X capability in it's config space. If PCIEPORTBUS is
+enabled, it tries to configure MSI-X and msix_mask_all() adds about 10
+Second boot up delay when it tries to write to undefined location.
+
+Add quirk to mark AM654 RC BAR flag as IORESOURCE_UNSET so that
+msix_map_region() returns NULL for Root Complex and avoid un-desirable
+writes to MSI-X table.
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/pci/controller/dwc/pci-keystone.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
+index bb7190400ba8..4e973f829436 100644
+--- a/drivers/pci/controller/dwc/pci-keystone.c
++++ b/drivers/pci/controller/dwc/pci-keystone.c
+@@ -650,8 +650,14 @@ static void ks_pcie_quirk(struct pci_dev *dev)
+ 		{ 0, },
+ 	};
+ 
+-	if (pci_is_root_bus(bus))
++	if (pci_is_root_bus(bus)) {
+ 		bridge = dev;
++		if (pci_match_id(am6_pci_devids, bridge)) {
++			struct resource *r = &dev->resource[0];
++
++			r->flags |= IORESOURCE_UNSET;
++		}
++	}
+ 
+ 	/* look for the host bridge */
+ 	while (!pci_is_root_bus(bus)) {

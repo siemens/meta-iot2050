@@ -1,0 +1,69 @@
+From df1ef9dd1ee3407a5e227151b9d34da2ed2dbfe7 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Fri, 9 Jul 2021 17:12:24 +0300
+Subject: [PATCH] irqchip/irq-pruss-intc: Fix build warning
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fix build warning on v7 platforms:
+
+  CC [M]  drivers/irqchip/irq-pruss-intc.o
+In file included from ../include/linux/bits.h:6,
+                 from ../include/linux/bitops.h:5,
+                 from ../include/linux/kernel.h:12,
+                 from ../include/linux/interrupt.h:6,
+                 from ../drivers/irqchip/irq-pruss-intc.c:15:
+../include/vdso/bits.h:7:26: warning: left shift count >= width of type [-Wshift-count-overflow]
+ #define BIT(nr)   (UL(1) << (nr))
+                          ^~
+../drivers/irqchip/irq-pruss-intc.c:668:32: note: in expansion of macro ‘BIT’
+  .quirky_events = BIT_ULL(7) | BIT(56), /* IEP{0,1} capture/compare events */
+                                ^~~
+The quirky_events is u64 so BIT_ULL() has to be used.
+
+Fixes: bbe0ff82f922 ("HACK: irqchip/irq-pruss-intc: Fix processing of IEP interrupts")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/irqchip/irq-pruss-intc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/irqchip/irq-pruss-intc.c b/drivers/irqchip/irq-pruss-intc.c
+index 74f7d51236f7..00dd8ee40b82 100644
+--- a/drivers/irqchip/irq-pruss-intc.c
++++ b/drivers/irqchip/irq-pruss-intc.c
+@@ -310,7 +310,7 @@ static void pruss_intc_irq_ack(struct irq_data *data)
+ 	unsigned int hwirq = data->hwirq;
+ 
+ 	if (hwirq < MAX_PRU_INT_EVENTS &&
+-	    intc->soc_config->quirky_events & BIT(hwirq))
++	    intc->soc_config->quirky_events & BIT_ULL(hwirq))
+ 		return;
+ 
+ 	pruss_intc_write_reg(intc, PRU_INTC_SICR, hwirq);
+@@ -330,7 +330,7 @@ static void pruss_intc_irq_unmask(struct irq_data *data)
+ 	unsigned int hwirq = data->hwirq;
+ 
+ 	if (hwirq < MAX_PRU_INT_EVENTS &&
+-	    intc->soc_config->quirky_events & BIT(hwirq))
++	    intc->soc_config->quirky_events & BIT_ULL(hwirq))
+ 		pruss_intc_write_reg(intc, PRU_INTC_SICR, hwirq);
+ 	pruss_intc_write_reg(intc, PRU_INTC_EISR, hwirq);
+ }
+@@ -659,13 +659,13 @@ static int pruss_intc_remove(struct platform_device *pdev)
+ static const struct pruss_intc_match_data pruss_intc_data = {
+ 	.num_system_events = 64,
+ 	.num_host_events = 10,
+-	.quirky_events = BIT(7), /* IEP capture/compare event */
++	.quirky_events = BIT_ULL(7), /* IEP capture/compare event */
+ };
+ 
+ static const struct pruss_intc_match_data icssg_intc_data = {
+ 	.num_system_events = 160,
+ 	.num_host_events = 20,
+-	.quirky_events = BIT(7) | BIT(56), /* IEP{0,1} capture/compare events */
++	.quirky_events = BIT_ULL(7) | BIT_ULL(56), /* IEP{0,1} capture/compare events */
+ };
+ 
+ static const struct of_device_id pruss_intc_of_match[] = {

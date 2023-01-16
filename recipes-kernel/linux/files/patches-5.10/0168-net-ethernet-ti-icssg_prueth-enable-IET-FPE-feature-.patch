@@ -1,0 +1,122 @@
+From 3f6b6fbc2dafdf42133f9a7b0aaa32864babb98e Mon Sep 17 00:00:00 2001
+From: Murali Karicheri <m-karicheri2@ti.com>
+Date: Thu, 14 Oct 2021 14:26:58 +0530
+Subject: [PATCH] net: ethernet: ti: icssg_prueth: enable IET/FPE feature
+ configuration
+
+This adds the necessary hooks to enable IET/FPE feature in ICSSG
+prueth driver. IET/FPE gets configured when Link is up and gets
+disabled when link goes down or device is stopped.
+
+Allocate MSMC area for express RX queue.
+
+Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_config.c     | 24 +++++++++++++++++++---
+ drivers/net/ethernet/ti/icssg_config.h     |  2 +-
+ drivers/net/ethernet/ti/icssg_prueth.c     |  6 +++++-
+ drivers/net/ethernet/ti/icssg_switch_map.h |  2 ++
+ 4 files changed, 29 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index 8d813da0baf6..94785a85416c 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -375,14 +375,23 @@ static int prueth_switch_buffer_setup(struct prueth_emac *emac)
+ 	if (!slice)
+ 		addr += PRUETH_SW_NUM_BUF_POOLS_HOST_SR2 * PRUETH_SW_BUF_POOL_SIZE_HOST_SR2;
+ 	else
+-		addr += PRUETH_EMAC_RX_CTX_BUF_SIZE;
++		addr += PRUETH_EMAC_RX_CTX_BUF_SIZE * 2;
+ 
++	/* Pre-emptible RX buffer queue */
+ 	rxq_ctx = emac->dram.va + HOST_RX_Q_PRE_CONTEXT_OFFSET;
+ 	for (i = 0; i < 3; i++)
+ 		rxq_ctx->start[i] = cpu_to_le32(addr);
+ 
+ 	addr += PRUETH_EMAC_RX_CTX_BUF_SIZE;
+-	rxq_ctx->end = cpu_to_le32(addr) - SZ_2K;
++	rxq_ctx->end = cpu_to_le32(addr);
++
++	/* Express RX buffer queue */
++	rxq_ctx = emac->dram.va + HOST_RX_Q_EXP_CONTEXT_OFFSET;
++	for (i = 0; i < 3; i++)
++		rxq_ctx->start[i] = cpu_to_le32(addr);
++
++	addr += PRUETH_EMAC_RX_CTX_BUF_SIZE;
++	rxq_ctx->end = cpu_to_le32(addr);
+ 
+ 	return 0;
+ }
+@@ -424,8 +433,9 @@ static int prueth_emac_buffer_setup(struct prueth_emac *emac)
+ 
+ 	addr += PRUETH_NUM_BUF_POOLS_SR2 * PRUETH_EMAC_BUF_POOL_SIZE_SR2;
+ 	if (slice)
+-		addr += PRUETH_EMAC_RX_CTX_BUF_SIZE;
++		addr += PRUETH_EMAC_RX_CTX_BUF_SIZE * 2;
+ 
++	/* Pre-emptible RX buffer queue */
+ 	rxq_ctx = emac->dram.va + HOST_RX_Q_PRE_CONTEXT_OFFSET;
+ 	for (i = 0; i < 3; i++)
+ 		rxq_ctx->start[i] = cpu_to_le32(addr);
+@@ -433,6 +443,14 @@ static int prueth_emac_buffer_setup(struct prueth_emac *emac)
+ 	addr += PRUETH_EMAC_RX_CTX_BUF_SIZE;
+ 	rxq_ctx->end = cpu_to_le32(addr);
+ 
++	/* Express RX buffer queue */
++	rxq_ctx = emac->dram.va + HOST_RX_Q_EXP_CONTEXT_OFFSET;
++	for (i = 0; i < 3; i++)
++		rxq_ctx->start[i] = cpu_to_le32(addr);
++
++	addr += PRUETH_EMAC_RX_CTX_BUF_SIZE;
++	rxq_ctx->end = cpu_to_le32(addr);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/ethernet/ti/icssg_config.h b/drivers/net/ethernet/ti/icssg_config.h
+index dfb75f479404..1f973dd5c6f7 100644
+--- a/drivers/net/ethernet/ti/icssg_config.h
++++ b/drivers/net/ethernet/ti/icssg_config.h
+@@ -103,7 +103,7 @@ struct icssg_config_sr1 {
+ #define PRUETH_EMAC_RX_CTX_BUF_SIZE	SZ_16K	/* per slice */
+ #define MSMC_RAM_SIZE_SR2	\
+ 	(2 * (PRUETH_EMAC_BUF_POOL_SIZE_SR2 * PRUETH_NUM_BUF_POOLS_SR2 + \
+-	 PRUETH_EMAC_RX_CTX_BUF_SIZE))
++	 PRUETH_EMAC_RX_CTX_BUF_SIZE * 2))
+ 
+ #define PRUETH_SW_BUF_POOL_SIZE_HOST_SR2 SZ_2K
+ #define PRUETH_SW_NUM_BUF_POOLS_HOST_SR2 16
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 193ec64f1341..34c4c8926cdc 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -1340,8 +1340,12 @@ static void emac_adjust_link(struct net_device *ndev)
+ 		/* send command to firmware to change speed and duplex
+ 		 * setting when link is up.
+ 		 */
+-		if (emac->link)
++		if (emac->link) {
+ 			emac_change_port_speed_duplex(emac);
++			icssg_qos_link_up(ndev);
++		} else {
++			icssg_qos_link_down(ndev);
++		}
+ 	}
+ 
+ 	if (emac->link) {
+diff --git a/drivers/net/ethernet/ti/icssg_switch_map.h b/drivers/net/ethernet/ti/icssg_switch_map.h
+index f53f5633cf42..a5e56b9cd820 100644
+--- a/drivers/net/ethernet/ti/icssg_switch_map.h
++++ b/drivers/net/ethernet/ti/icssg_switch_map.h
+@@ -166,6 +166,8 @@
+ #define TAS_QUEUE_MAX_SDU_LIST                             0x08FA
+ /*Used by FW to generate random number with the SEED value*/
+ #define HD_RAND_SEED_OFFSET                                0x0934
++/*16B for Host Egress MSMC Q (Express) context*/
++#define HOST_RX_Q_EXP_CONTEXT_OFFSET                       0x0940
+ 
+ /* Memory Usage of : DMEM1
+  *

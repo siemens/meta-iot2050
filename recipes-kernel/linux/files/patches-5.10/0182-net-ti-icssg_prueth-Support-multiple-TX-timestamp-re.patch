@@ -1,0 +1,207 @@
+From 56c39d572444a1bbac848d876462828f4ce9a67e Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@kernel.org>
+Date: Thu, 10 Feb 2022 11:03:53 +0200
+Subject: [PATCH] net: ti: icssg_prueth: Support multiple TX timestamp requests
+
+There is no firmware limitation to handle multiple TX timestamp
+requests. Support upto 50 simultaneous requests. The maximum
+requests can be changed by macro PRUETH_MAX_TX_TS_REQUESTS.
+
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 78 +++++++++++++-------------
+ drivers/net/ethernet/ti/icssg_prueth.h | 11 ++--
+ 2 files changed, 43 insertions(+), 46 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 531029351504..7805603c9767 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -771,12 +771,6 @@ static void tx_ts_work(struct prueth_emac *emac)
+ 	struct emac_tx_ts_response tsr;
+ 	u32 hi_sw;
+ 
+-	if (!test_bit(__STATE_TX_TS_IN_PROGRESS, &emac->state)) {
+-		netdev_err(emac->ndev, "unexpected TS response\n");
+-		return;
+-	}
+-
+-	skb = emac->tx_ts_skb;
+ 	while (timeout-- > 0) {
+ 		/* wait for response or timeout */
+ 		ret = emac_get_tx_ts(emac, &tsr);
+@@ -787,13 +781,21 @@ static void tx_ts_work(struct prueth_emac *emac)
+ 
+ 	if (ret) {
+ 		netdev_err(emac->ndev, "TX timestamp timeout\n");
+-		goto error;
++		return;
++	}
++
++	if (tsr.cookie >= PRUETH_MAX_TX_TS_REQUESTS ||
++	    !emac->tx_ts_skb[tsr.cookie]) {
++		netdev_err(emac->ndev, "Invalid TX TS cookie 0x%x\n",
++			   tsr.cookie);
++		return;
+ 	}
+ 
+-	if (tsr.cookie != emac->tx_ts_cookie) {
+-		netdev_err(emac->ndev, "TX TS cookie mismatch 0x%x:0x%x\n",
+-			   tsr.cookie, emac->tx_ts_cookie);
+-		goto error;
++	skb = emac->tx_ts_skb[tsr.cookie];
++	emac->tx_ts_skb[tsr.cookie] = NULL;	/* free slot */
++	if (!skb) {
++		netdev_err(emac->ndev, "Driver Bug! got NULL skb\n");
++		return;
+ 	}
+ 
+ 	hi_sw = readl(emac->prueth->shram.va +
+@@ -801,20 +803,28 @@ static void tx_ts_work(struct prueth_emac *emac)
+ 	ns = icssg_ts_to_ns(hi_sw, tsr.hi_ts, tsr.lo_ts,
+ 			    IEP_DEFAULT_CYCLE_TIME_NS);
+ 
+-	emac->tx_ts_cookie++;
+ 	memset(&ssh, 0, sizeof(ssh));
+ 	ssh.hwtstamp = ns_to_ktime(ns);
+-	clear_bit_unlock(__STATE_TX_TS_IN_PROGRESS, &emac->state);
+ 
+ 	skb_tstamp_tx(skb, &ssh);
+ 	dev_consume_skb_any(skb);
+ 
+ 	return;
++}
+ 
+-error:
+-	dev_kfree_skb_any(skb);
+-	emac->tx_ts_skb = NULL;
+-	clear_bit_unlock(__STATE_TX_TS_IN_PROGRESS, &emac->state);
++int prueth_tx_ts_cookie_get(struct prueth_emac *emac)
++{
++	int i;
++
++	/* search and get the next free slot */
++	for (i = 0; i < PRUETH_MAX_TX_TS_REQUESTS; i++) {
++		if (!emac->tx_ts_skb[i]) {
++			emac->tx_ts_skb[i] = ERR_PTR(-EBUSY); /* reserve slot */
++			return i;
++		}
++	}
++
++	return -EBUSY;
+ }
+ 
+ /**
+@@ -841,6 +851,7 @@ static int emac_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	void **swdata;
+ 	u32 pkt_len;
+ 	u32 *epib;
++	int tx_ts_cookie;
+ 
+ 	pkt_len = skb_headlen(skb);
+ 	q_idx = skb_get_queue_mapping(skb);
+@@ -873,13 +884,13 @@ static int emac_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
+ 	    emac->tx_ts_enabled) {
+ 		/* We currently support only one TX HW timestamp at a time */
+-		if (!test_and_set_bit_lock(__STATE_TX_TS_IN_PROGRESS,
+-					   &emac->state)) {
++		tx_ts_cookie = prueth_tx_ts_cookie_get(emac);
++		if (tx_ts_cookie >= 0) {
+ 			skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 			/* Request TX timestamp */
+-			epib[0] = emac->tx_ts_cookie;
++			epib[0] = (u32)tx_ts_cookie;
+ 			epib[1] = 0x80000000;	/* TX TS request */
+-			emac->tx_ts_skb = skb_get(skb);
++			emac->tx_ts_skb[tx_ts_cookie] = skb_get(skb);
+ 			in_tx_ts = 1;
+ 		}
+ 	}
+@@ -964,9 +975,8 @@ static int emac_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 
+ cleanup_tx_ts:
+ 	if (in_tx_ts) {
+-		dev_kfree_skb_any(emac->tx_ts_skb);
+-		emac->tx_ts_skb = NULL;
+-		clear_bit_unlock(__STATE_TX_TS_IN_PROGRESS, &emac->state);
++		dev_kfree_skb_any(emac->tx_ts_skb[tx_ts_cookie]);
++		emac->tx_ts_skb[tx_ts_cookie] = NULL;
+ 	}
+ 
+ drop_free_descs:
+@@ -1086,32 +1096,22 @@ static void prueth_tx_ts_sr1(struct prueth_emac *emac,
+ 
+ 	ns = (u64)tsr->hi_ts << 32 | tsr->lo_ts;
+ 
+-	if (!test_bit(__STATE_TX_TS_IN_PROGRESS, &emac->state)) {
+-		netdev_err(emac->ndev, "unexpected TS response\n");
++	if (tsr->cookie >= PRUETH_MAX_TX_TS_REQUESTS) {
++		netdev_dbg(emac->ndev, "Invalid TX TS cookie 0x%x\n",
++			   tsr->cookie);
+ 		return;
+ 	}
+ 
+-	skb = emac->tx_ts_skb;
+-	if (tsr->cookie != emac->tx_ts_cookie) {
+-		netdev_err(emac->ndev, "TX TS cookie mismatch 0x%x:0x%x\n",
+-			   tsr->cookie, emac->tx_ts_cookie);
+-		goto error;
+-	}
++	skb = emac->tx_ts_skb[tsr->cookie];
++	emac->tx_ts_skb[tsr->cookie] = NULL;	/* free slot */
+ 
+-	emac->tx_ts_cookie++;
+ 	memset(&ssh, 0, sizeof(ssh));
+ 	ssh.hwtstamp = ns_to_ktime(ns);
+-	clear_bit_unlock(__STATE_TX_TS_IN_PROGRESS, &emac->state);
+ 
+ 	skb_tstamp_tx(skb, &ssh);
+ 	dev_consume_skb_any(skb);
+ 
+ 	return;
+-
+-error:
+-	dev_kfree_skb_any(skb);
+-	emac->tx_ts_skb = NULL;
+-	clear_bit_unlock(__STATE_TX_TS_IN_PROGRESS, &emac->state);
+ }
+ 
+ static irqreturn_t prueth_rx_mgm_ts_thread_sr1(int irq, void *dev_id)
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.h b/drivers/net/ethernet/ti/icssg_prueth.h
+index 2ae732fec2c6..b176ac96c2d7 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.h
++++ b/drivers/net/ethernet/ti/icssg_prueth.h
+@@ -113,10 +113,6 @@ struct prueth_rx_chn {
+ 	char name[32];
+ };
+ 
+-enum prueth_state_flags {
+-	__STATE_TX_TS_IN_PROGRESS,
+-};
+-
+ enum prueth_devlink_param_id {
+ 	PRUETH_DEVLINK_PARAM_ID_BASE = DEVLINK_PARAM_GENERIC_ID_MAX,
+ 	PRUETH_DL_PARAM_SWITCH_MODE,
+@@ -131,6 +127,8 @@ struct prueth_devlink {
+  */
+ #define PRUETH_MAX_TX_QUEUES	4
+ 
++#define PRUETH_MAX_TX_TS_REQUESTS	50	/* Max simultaneous TX_TS requests */
++
+ /* data for each emac port */
+ struct prueth_emac {
+ 	bool is_sr1;
+@@ -170,9 +168,8 @@ struct prueth_emac {
+ 	spinlock_t lock;	/* serialize access */
+ 
+ 	/* TX HW Timestamping */
+-	u32 tx_ts_cookie;
+-	struct sk_buff *tx_ts_skb;
+-	unsigned long state;
++	/* TX TS cookie will be index to the tx_ts_skb array */
++	struct sk_buff *tx_ts_skb[PRUETH_MAX_TX_TS_REQUESTS];
+ 	int tx_ts_irq;
+ 
+ 	u8 cmd_seq;

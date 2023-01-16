@@ -1,0 +1,31 @@
+From 1578b815749fcb65a8ca05dcd39eb76e48d208f3 Mon Sep 17 00:00:00 2001
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Date: Sat, 13 Nov 2021 13:35:06 +0530
+Subject: [PATCH] net: ti: icssg_prueth: Fix NULL pointer deference during
+ probe
+
+In case of only one EMAC port is enabled, prueth_register_devlink() try
+to register devlink for both ports and leads to NULL pointer deference
+and thus system crash. Fix this by checking if prueth->emac[i] is valid
+before dereferencing.
+
+Fixes: b56dfa67ea1c ("net: ethernet: ti: icssg_prueth: fix init after adding switchdev")
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/net/ethernet/ti/icssg_prueth.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/ethernet/ti/icssg_prueth.c b/drivers/net/ethernet/ti/icssg_prueth.c
+index 164892d5dc08..a4ac6f0d244a 100644
+--- a/drivers/net/ethernet/ti/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg_prueth.c
+@@ -2695,6 +2695,9 @@ static int prueth_register_devlink(struct prueth *prueth)
+ 
+ 	for (i = PRUETH_MAC0; i < PRUETH_NUM_MACS; i++) {
+ 		emac = prueth->emac[i];
++		if (!emac)
++			continue;
++
+ 		dl_port = &emac->devlink_port;
+ 
+ 		attrs.flavour = DEVLINK_PORT_FLAVOUR_PHYSICAL;
