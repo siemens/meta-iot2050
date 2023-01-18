@@ -663,7 +663,7 @@ def main(argv):
         if args.force:
             # When forced, ignore all the checking and call the underlying updater directly
             updater = FirmwareUpdate(args.firmware)
-        if args.rollback:
+        elif args.rollback:
             updater = RollbackFirmware(args.firmware)
         else:
             updater = ManagedFirmwareUpdate(args.firmware)
