@@ -644,6 +644,9 @@ def main(argv):
     group.add_argument('-b', '--rollback',
                         help='Rollback the firmware to the version before the upgrade',
                         action='store_true')
+    parser.add_argument('-n', '--no-backup',
+                        help='Do not generate a firmware backup',
+                        action='store_true')
     try:
         args = parser.parse_args()
     except IOError as e:
@@ -679,7 +682,8 @@ def main(argv):
         if not args.force and not args.reset:
             envlist = updater.get_preserved_uboot_env(args.preserve_list)
 
-        updater.backup_firmware()
+        if not args.no_backup:
+            updater.backup_firmware()
         updater.update_firmware()
 
         if envlist:
