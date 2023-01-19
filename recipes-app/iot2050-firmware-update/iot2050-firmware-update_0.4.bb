@@ -11,7 +11,9 @@
 DESCRIPTION = "OSPI Firmware Update Scripts"
 MAINTAINER = "chao.zeng@siemens.com"
 
-SRC_URI = "file://iot2050-firmware-update"
+SRC_URI = "file://iot2050-firmware-update.tmpl"
+
+TEMPLATE_FILES = "iot2050-firmware-update.tmpl"
 
 inherit dpkg-raw
 
