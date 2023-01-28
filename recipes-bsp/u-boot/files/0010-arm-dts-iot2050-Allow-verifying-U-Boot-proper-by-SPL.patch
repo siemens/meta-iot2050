@@ -1,7 +1,7 @@
-From e37319f6bd17bd13ece8ef780886789532497201 Mon Sep 17 00:00:00 2001
+From ab2ca86f88ede4fbe0e7c187c5f745727aa9b73e Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 7 Nov 2021 17:59:17 +0100
-Subject: [PATCH 10/18] arm: dts: iot2050: Allow verifying U-Boot proper by SPL
+Subject: [PATCH] arm: dts: iot2050: Allow verifying U-Boot proper by SPL
 
 Add hashes and configuration signature stubs to prepare verified boot
 of main U-Boot by SPL.
@@ -12,7 +12,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 16 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 3ee0842e993..9082a79a034 100644
+index 3ee0842e99..9082a79a03 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -14,6 +14,7 @@
@@ -70,6 +70,3 @@ index 3ee0842e993..9082a79a034 100644
  		/* primary env */
  		fill@0x680000 {
  			offset = <0x680000>;
--- 
-2.35.3
-

@@ -1,7 +1,7 @@
-From 602eab2a70e9d39da73dd3c79d74afd42bb1e585 Mon Sep 17 00:00:00 2001
+From 4fca8c6337deb984cff5360e4f8cb768338daaaa Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 11 Oct 2022 13:23:21 +0200
-Subject: [PATCH 16/18] iot2050: Add support for configuring M.2 connector
+Subject: [PATCH] iot2050: Add support for configuring M.2 connector
 
 The M.2 slots of the related IOT2050 variant need to be configured
 according to the plugged cards. This tries to detect the card using the
@@ -33,7 +33,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  create mode 100644 arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dts
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index d0ce6c97542..d4c5622e117 100644
+index d0ce6c9754..d4c5622e11 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -1211,7 +1211,9 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
@@ -48,7 +48,7 @@ index d0ce6c97542..d4c5622e117 100644
  dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
  			      k3-j721e-r5-common-proc-board.dtb \
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 25a22a7b7b8..a5b35d8298d 100644
+index 25a22a7b7b..a5b35d8298 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -61,6 +61,36 @@
@@ -107,7 +107,7 @@ index 25a22a7b7b8..a5b35d8298d 100644
  					};
 diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dts
 new file mode 100644
-index 00000000000..c9e736098f9
+index 0000000000..c9e736098f
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dts
 @@ -0,0 +1,27 @@
@@ -140,7 +140,7 @@ index 00000000000..c9e736098f9
 +};
 diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dts
 new file mode 100644
-index 00000000000..72fc011bd54
+index 0000000000..72fc011bd5
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dts
 @@ -0,0 +1,47 @@
@@ -192,7 +192,7 @@ index 00000000000..72fc011bd54
 +	snps,dis-u2-entry-quirk;
 +};
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index be30b9c4d18..2e90d3bd8c1 100644
+index be30b9c4d1..2e90d3bd8c 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
 @@ -1,7 +1,7 @@
@@ -514,7 +514,7 @@ index be30b9c4d18..2e90d3bd8c1 100644
  }
  #endif
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index 442d2cac216..074d6aa15af 100644
+index 442d2cac21..074d6aa15a 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -145,3 +145,21 @@ Flash signed flash.bin
@@ -540,7 +540,7 @@ index 442d2cac216..074d6aa15af 100644
 +"2"  -  B-key: USB 3.0,
 +        E-key: PCIe, USB 2.0
 diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
-index d2cba5acfdd..fe6a8bff59a 100644
+index d2cba5acfd..fe6a8bff59 100644
 --- a/include/configs/iot2050.h
 +++ b/include/configs/iot2050.h
 @@ -61,6 +61,7 @@
@@ -551,6 +551,3 @@ index d2cba5acfdd..fe6a8bff59a 100644
  	"eth1addr:mw,eth2addr:mw,watchdog_timeout_ms:dw,boot_targets:sw"
  #endif
  
--- 
-2.35.3
-

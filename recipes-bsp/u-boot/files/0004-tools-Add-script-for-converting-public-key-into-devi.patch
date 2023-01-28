@@ -1,8 +1,8 @@
-From 8f26f0da637251cfc08284cf996661eab13672ae Mon Sep 17 00:00:00 2001
+From 1b769481fba64d4fb62aca3e44e93583c4a03f9d Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 14 Feb 2022 07:05:15 +0100
-Subject: [PATCH 04/18] tools: Add script for converting public key into device
- tree include
+Subject: [PATCH] tools: Add script for converting public key into device tree
+ include
 
 Allows to create a public key device tree dtsi for inclusion into U-Boot
 SPL and proper during first build already. This can be achieved via
@@ -16,7 +16,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 
 diff --git a/tools/key2dtsi.py b/tools/key2dtsi.py
 new file mode 100755
-index 00000000000..1dbb2cc94bf
+index 0000000000..1dbb2cc94b
 --- /dev/null
 +++ b/tools/key2dtsi.py
 @@ -0,0 +1,64 @@
@@ -84,6 +84,3 @@ index 00000000000..1dbb2cc94bf
 +out.write('\t\t};\n')
 +out.write('\t};\n')
 +out.write('};\n')
--- 
-2.35.3
-
