@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Su Baocheng <baocheng.su@siemens.com>
@@ -21,6 +21,7 @@ IMAGE_PREINSTALL += " \
     ${IOT2050_DEBIAN_BT_PACKAGES} \
     ${IOT2050_DEBIAN_ALSA_PACKAGES} \
     ${IOT2050_DEBIAN_MULTIARCH_PACKAGES} \
+    ${IOT2050_DEBIAN_SECURITY_ADMIN_PACKAGES} \
     "
 
 IOT2050_DOCKER_SUPPORT ?= "0"

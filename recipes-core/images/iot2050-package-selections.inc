@@ -101,3 +101,9 @@ IOT2050_CORAL_PACKAGES = " \
     pycoral-examples \
     gasket-module-${KERNEL_NAME} \
     "
+
+# security admin support
+IOT2050_DEBIAN_SECURITY_ADMIN_PACKAGES = " \
+    cryptsetup \
+    keyutils \
+    "
