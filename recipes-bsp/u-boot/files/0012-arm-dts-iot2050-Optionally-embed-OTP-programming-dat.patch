@@ -1,8 +1,8 @@
-From 413f69e83b345e994bbe26a58213ba20896e9517 Mon Sep 17 00:00:00 2001
+From 4fc53fb6932fbc791c205c9b3c08c9e64844af12 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 May 2022 11:29:20 +0200
-Subject: [PATCH 12/18] arm: dts: iot2050: Optionally embed  OTP programming
- data into image
+Subject: [PATCH] arm: dts: iot2050: Optionally embed OTP programming data into
+ image
 
 Use external blob otpcmd.bin to replace the 0xff filled OTP programming
 command block to create a firmware image that provisions the OTP on
@@ -20,7 +20,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  4 files changed, 31 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index 9082a79a034..25a22a7b7b8 100644
+index 9082a79a03..25a22a7b7b 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -111,10 +111,18 @@
@@ -43,7 +43,7 @@ index 9082a79a034..25a22a7b7b8 100644
  	};
  };
 diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
-index a2b40881d11..e66b2427d95 100644
+index a2b40881d1..e66b2427d9 100644
 --- a/board/siemens/iot2050/Kconfig
 +++ b/board/siemens/iot2050/Kconfig
 @@ -49,4 +49,11 @@ config IOT2050_BOOT_SWITCH
@@ -59,7 +59,7 @@ index a2b40881d11..e66b2427d95 100644
 +
  endif
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index 4e0925c72c9..cb49a0e36bf 100644
+index 4e0925c72c..cb49a0e36b 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -27,6 +27,14 @@ The following binaries from that source need to be present in the build folder:
@@ -78,7 +78,7 @@ index 4e0925c72c9..cb49a0e36bf 100644
  --------
  
 diff --git a/tools/binman/missing-blob-help b/tools/binman/missing-blob-help
-index 5bb8961ce03..7e88cd03954 100644
+index 5bb8961ce0..7e88cd0395 100644
 --- a/tools/binman/missing-blob-help
 +++ b/tools/binman/missing-blob-help
 @@ -23,6 +23,14 @@ See the documentation for IOT2050 board. Your image is missing SEBoot
@@ -96,6 +96,3 @@ index 5bb8961ce03..7e88cd03954 100644
  k3-rti-wdt-firmware:
  If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
  the R5F core(s) to trigger the system reset. One possible source is
--- 
-2.35.3
-

@@ -1,7 +1,7 @@
-From 610b86406b59782653a46f3c037e320dd8ceecf5 Mon Sep 17 00:00:00 2001
+From 9b618828e9bed15f18e06f439dd5e31522f5d545 Mon Sep 17 00:00:00 2001
 From: Baocheng Su <baocheng.su@siemens.com>
 Date: Sat, 30 Jul 2022 10:53:55 +0800
-Subject: [PATCH 17/18] spl: fit: Report fdt error for loading u-boot
+Subject: [PATCH] spl: fit: Report fdt error for loading u-boot
 
 Commit 71551055cbdb ("spl: fit: Load devicetree when a Linux payload is
 found") made a change to not report the spl_fit_append_fdt error at all
@@ -17,7 +17,7 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/common/spl/spl_fit.c b/common/spl/spl_fit.c
-index a35be529656..00404935cb2 100644
+index a35be52965..00404935cb 100644
 --- a/common/spl/spl_fit.c
 +++ b/common/spl/spl_fit.c
 @@ -770,8 +770,12 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
@@ -35,6 +35,3 @@ index a35be529656..00404935cb2 100644
  	}
  
  	firmware_node = node;
--- 
-2.35.3
-

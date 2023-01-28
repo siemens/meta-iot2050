@@ -1,8 +1,8 @@
-From afd4d6088638924fd2a6d60689d7e91394d3a7ac Mon Sep 17 00:00:00 2001
+From 70909404eeaa14600f3e7f8ead1122b356bbe8bd Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Wed, 12 Jan 2022 10:34:18 +0800
-Subject: [PATCH 14/18] board: siemens: iot2050: use the named gpio to control
- the user-button
+Subject: [PATCH] board: siemens: iot2050: use the named gpio to control the
+ user-button
 
 User-button is controlled by the mcu domain gpio number 25.
 But main0 main1 mcu domain all have gpio number 25.
@@ -16,7 +16,7 @@ Signed-off-by: chao zeng <chao.zeng@siemens.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index 2be5d1eefc3..be30b9c4d18 100644
+index 2be5d1eefc..be30b9c4d1 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
 @@ -183,7 +183,7 @@ static bool user_button_pressed(void)
@@ -28,6 +28,3 @@ index 2be5d1eefc3..be30b9c4d18 100644
  	    dm_gpio_request(&gpio, "USER button") < 0 ||
  	    dm_gpio_set_dir_flags(&gpio, GPIOD_IS_IN) < 0)
  		return false;
--- 
-2.35.3
-

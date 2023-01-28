@@ -1,7 +1,7 @@
-From 93d7da070b2e64a20aff3256e253a75c668f27cd Mon Sep 17 00:00:00 2001
+From 3374f9d3d8cb74cbd55947518dd0d3bdcc7ccd63 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 10:33:15 +0200
-Subject: [PATCH 01/18] efi_loader: Improve console screen clearing and reset
+Subject: [PATCH] efi_loader: Improve console screen clearing and reset
 
 Before clearing the screen, ensure that no previous output of firmware
 or UEFI programs will be overwritten on serial devices or other
@@ -15,7 +15,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index ee9dc6bbd82..95777e894b6 100644
+index ee9dc6bbd8..95777e894b 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -472,8 +472,18 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
@@ -50,6 +50,3 @@ index ee9dc6bbd82..95777e894b6 100644
  	/* Clear screen */
  	EFI_CALL(efi_cout_clear_screen(this));
  
--- 
-2.35.3
-

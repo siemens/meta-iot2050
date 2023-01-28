@@ -1,8 +1,7 @@
-From af80648540a9625fd03c8dbebfb17901bb2317c8 Mon Sep 17 00:00:00 2001
+From b04d5be1ad9647398e34fd34d5ecbe3157ac7e07 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 11:15:36 +0200
-Subject: [PATCH 03/18] env: Couple networking-related variable flags to
- CONFIG_NET
+Subject: [PATCH] env: Couple networking-related variable flags to CONFIG_NET
 
 Boards may set networking variables programmatically, thus may have
 CONFIG_NET on but CONFIG_CMD_NET off. The IOT2050 is an example.
@@ -15,7 +14,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  2 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/env/flags.c b/env/flags.c
-index e3e833c4333..e2866361dfe 100644
+index e3e833c433..e2866361df 100644
 --- a/env/flags.c
 +++ b/env/flags.c
 @@ -22,7 +22,7 @@
@@ -64,7 +63,7 @@ index e3e833c4333..e2866361dfe 100644
  		cur = value;
  		for (i = 0; i < 4; i++) {
 diff --git a/include/env_flags.h b/include/env_flags.h
-index 313cb8c49a6..b49ec8e80f1 100644
+index 313cb8c49a..b49ec8e80f 100644
 --- a/include/env_flags.h
 +++ b/include/env_flags.h
 @@ -12,7 +12,7 @@ enum env_flags_vartype {
@@ -85,6 +84,3 @@ index 313cb8c49a6..b49ec8e80f1 100644
  /*
   * Check if a string has the format of an Ethernet MAC address
   */
--- 
-2.35.3
-

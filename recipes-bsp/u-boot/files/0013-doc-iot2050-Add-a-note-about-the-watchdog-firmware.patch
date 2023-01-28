@@ -1,7 +1,7 @@
-From ec6807dabf1d924395d2e25840549e72e42ae031 Mon Sep 17 00:00:00 2001
+From c93ead0e995e351c2c392ab1f30edc170086ee66 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 May 2022 11:35:45 +0200
-Subject: [PATCH 13/18] doc: iot2050: Add a note about the watchdog firmware
+Subject: [PATCH] doc: iot2050: Add a note about the watchdog firmware
 
 This is enabled by default, thus should be described as well.
 
@@ -11,7 +11,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index cb49a0e36bf..efe94a448a9 100644
+index cb49a0e36b..efe94a448a 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -27,6 +27,10 @@ The following binaries from that source need to be present in the build folder:
@@ -25,6 +25,3 @@ index cb49a0e36bf..efe94a448a9 100644
  For building an image containing the OTP key provisioning data, below binary
  needs to be present in the build folder:
  
--- 
-2.35.3
-

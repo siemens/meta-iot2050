@@ -1,7 +1,7 @@
-From e8996bd2b14ffb77d63dfe41bd6619deea472a35 Mon Sep 17 00:00:00 2001
+From 91a4736e8f62d949ebac3edba5bfc8380960e3ca Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 28 Feb 2022 12:00:14 +0100
-Subject: [PATCH 02/18] env: Complete generic support for writable list
+Subject: [PATCH] env: Complete generic support for writable list
 
 This completes what 890feecaab72 started by selecting ENV_APPEND and
 ENV_IS_NOWHERE and by moving this driver to top if the list. This
@@ -22,7 +22,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  2 files changed, 24 insertions(+)
 
 diff --git a/env/Kconfig b/env/Kconfig
-index 238e4c70cf0..7b4d54031ed 100644
+index 238e4c70cf..7b4d54031e 100644
 --- a/env/Kconfig
 +++ b/env/Kconfig
 @@ -714,6 +714,8 @@ config ENV_APPEND
@@ -35,7 +35,7 @@ index 238e4c70cf0..7b4d54031ed 100644
  	  If defined, only environment variables which explicitly set the 'w'
  	  writeable flag can be written and modified at runtime. No variables
 diff --git a/env/env.c b/env/env.c
-index 69848fb0608..d0649f9540d 100644
+index 69848fb060..d0649f9540 100644
 --- a/env/env.c
 +++ b/env/env.c
 @@ -133,6 +133,28 @@ __weak enum env_location arch_env_get_location(enum env_operation op, int prio)
@@ -67,6 +67,3 @@ index 69848fb0608..d0649f9540d 100644
  	return env_locations[prio];
  }
  
--- 
-2.35.3
-

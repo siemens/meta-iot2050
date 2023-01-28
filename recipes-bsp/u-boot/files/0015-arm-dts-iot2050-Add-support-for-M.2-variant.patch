@@ -1,7 +1,7 @@
-From b62e5d489b1ca85d825d3ed54e6d6b5f02a1ef3f Mon Sep 17 00:00:00 2001
+From 72c81108a7cf57ece569454df62812f1dbf05fec Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 7 Jan 2022 10:18:07 +0800
-Subject: [PATCH 15/18] arm: dts: iot2050: Add support for M.2 variant
+Subject: [PATCH] arm: dts: iot2050: Add support for M.2 variant
 
 Add support for the M.2 board based on the iot2050 advanced board.
 The board has two m.2 connectors, one is B-keyed, the other E-keyed.
@@ -22,7 +22,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  create mode 100644 arch/arm/dts/k3-am6548-iot2050-advanced-m2.dts
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 965895bc2a3..d0ce6c97542 100644
+index 965895bc2a..d0ce6c9754 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -1210,7 +1210,9 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
@@ -38,7 +38,7 @@ index 965895bc2a3..d0ce6c97542 100644
  			      k3-j7200-common-proc-board.dtb \
 diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-m2.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-m2.dts
 new file mode 100644
-index 00000000000..cb0f3a87292
+index 0000000000..cb0f3a8729
 --- /dev/null
 +++ b/arch/arm/dts/k3-am6548-iot2050-advanced-m2.dts
 @@ -0,0 +1,117 @@
@@ -160,7 +160,7 @@ index 00000000000..cb0f3a87292
 +	/delete-property/ snps,dis-u2-entry-quirk;
 +};
 diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
-index 43410160c8a..a31691a1d18 100644
+index 43410160c8..a31691a1d1 100644
 --- a/configs/iot2050_pg2_defconfig
 +++ b/configs/iot2050_pg2_defconfig
 @@ -70,7 +70,7 @@ CONFIG_CMD_TIME=y
@@ -173,7 +173,7 @@ index 43410160c8a..a31691a1d18 100644
  CONFIG_SPL_OF_LIST="k3-am65-iot2050-spl"
  CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
 diff --git a/doc/board/siemens/iot2050.rst b/doc/board/siemens/iot2050.rst
-index efe94a448a9..442d2cac216 100644
+index efe94a448a..442d2cac21 100644
 --- a/doc/board/siemens/iot2050.rst
 +++ b/doc/board/siemens/iot2050.rst
 @@ -6,7 +6,9 @@ SIMATIC IOT2050 BASIC and ADVANCED
@@ -196,6 +196,3 @@ index efe94a448a9..442d2cac216 100644
   $ make iot2050_pg2_defconfig
  
   $ make
--- 
-2.35.3
-
