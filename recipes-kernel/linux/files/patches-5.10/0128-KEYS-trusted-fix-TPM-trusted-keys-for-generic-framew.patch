@@ -1,0 +1,159 @@
+From eb83d129381aa97b53454cfdf0a60f9a318faa01 Mon Sep 17 00:00:00 2001
+From: Su Bao Cheng <baocheng.su@siemens.com>
+Date: Wed, 7 Dec 2022 22:19:01 +0800
+Subject: [PATCH] KEYS: trusted: fix TPM trusted keys for generic framework
+
+[Backport: 60dc5f1bcfaa9cae9f99637e347d068cad7f8c9f]
+
+The generic framework patch broke the current TPM trusted keys because
+it doesn't correctly remove the values consumed by the generic parser
+before passing them on to the implementation specific parser.  Fix
+this by having the generic parser return the string minus the consumed
+tokens.
+
+Additionally, there may be no tokens left for the implementation
+specific parser, so make it handle the NULL case correctly and finally
+fix a TPM 1.2 specific check for no keyhandle.
+
+Fixes: 5d0682be3189 ("KEYS: trusted: Add generic trusted keys framework")
+Tested-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+---
+ security/keys/trusted-keys/trusted_core.c | 24 +++++++++++------------
+ security/keys/trusted-keys/trusted_tpm1.c |  5 ++++-
+ 2 files changed, 16 insertions(+), 13 deletions(-)
+
+diff --git a/security/keys/trusted-keys/trusted_core.c b/security/keys/trusted-keys/trusted_core.c
+index c99eb6d7a495..8cab69e5d0da 100644
+--- a/security/keys/trusted-keys/trusted_core.c
++++ b/security/keys/trusted-keys/trusted_core.c
+@@ -62,7 +62,7 @@ static const match_table_t key_tokens = {
+  *
+  * On success returns 0, otherwise -EINVAL.
+  */
+-static int datablob_parse(char *datablob, struct trusted_key_payload *p)
++static int datablob_parse(char **datablob, struct trusted_key_payload *p)
+ {
+ 	substring_t args[MAX_OPT_ARGS];
+ 	long keylen;
+@@ -71,14 +71,14 @@ static int datablob_parse(char *datablob, struct trusted_key_payload *p)
+ 	char *c;
+ 
+ 	/* main command */
+-	c = strsep(&datablob, " \t");
++	c = strsep(datablob, " \t");
+ 	if (!c)
+ 		return -EINVAL;
+ 	key_cmd = match_token(c, key_tokens, args);
+ 	switch (key_cmd) {
+ 	case Opt_new:
+ 		/* first argument is key size */
+-		c = strsep(&datablob, " \t");
++		c = strsep(datablob, " \t");
+ 		if (!c)
+ 			return -EINVAL;
+ 		ret = kstrtol(c, 10, &keylen);
+@@ -89,7 +89,7 @@ static int datablob_parse(char *datablob, struct trusted_key_payload *p)
+ 		break;
+ 	case Opt_load:
+ 		/* first argument is sealed blob */
+-		c = strsep(&datablob, " \t");
++		c = strsep(datablob, " \t");
+ 		if (!c)
+ 			return -EINVAL;
+ 		p->blob_len = strlen(c) / 2;
+@@ -140,7 +140,7 @@ static int trusted_instantiate(struct key *key,
+ {
+ 	struct trusted_key_payload *payload = NULL;
+ 	size_t datalen = prep->datalen;
+-	char *datablob;
++	char *datablob, *orig_datablob;
+ 	int ret = 0;
+ 	int key_cmd;
+ 	size_t key_len;
+@@ -148,7 +148,7 @@ static int trusted_instantiate(struct key *key,
+ 	if (datalen <= 0 || datalen > 32767 || !prep->data)
+ 		return -EINVAL;
+ 
+-	datablob = kmalloc(datalen + 1, GFP_KERNEL);
++	orig_datablob = datablob = kmalloc(datalen + 1, GFP_KERNEL);
+ 	if (!datablob)
+ 		return -ENOMEM;
+ 	memcpy(datablob, prep->data, datalen);
+@@ -160,7 +160,7 @@ static int trusted_instantiate(struct key *key,
+ 		goto out;
+ 	}
+ 
+-	key_cmd = datablob_parse(datablob, payload);
++	key_cmd = datablob_parse(&datablob, payload);
+ 	if (key_cmd < 0) {
+ 		ret = key_cmd;
+ 		goto out;
+@@ -196,7 +196,7 @@ static int trusted_instantiate(struct key *key,
+ 		ret = -EINVAL;
+ 	}
+ out:
+-	kfree_sensitive(datablob);
++	kfree_sensitive(orig_datablob);
+ 	if (!ret)
+ 		rcu_assign_keypointer(key, payload);
+ 	else
+@@ -220,7 +220,7 @@ static int trusted_update(struct key *key, struct key_preparsed_payload *prep)
+ 	struct trusted_key_payload *p;
+ 	struct trusted_key_payload *new_p;
+ 	size_t datalen = prep->datalen;
+-	char *datablob;
++	char *datablob, *orig_datablob;
+ 	int ret = 0;
+ 
+ 	if (key_is_negative(key))
+@@ -231,7 +231,7 @@ static int trusted_update(struct key *key, struct key_preparsed_payload *prep)
+ 	if (datalen <= 0 || datalen > 32767 || !prep->data)
+ 		return -EINVAL;
+ 
+-	datablob = kmalloc(datalen + 1, GFP_KERNEL);
++	orig_datablob = datablob = kmalloc(datalen + 1, GFP_KERNEL);
+ 	if (!datablob)
+ 		return -ENOMEM;
+ 
+@@ -243,7 +243,7 @@ static int trusted_update(struct key *key, struct key_preparsed_payload *prep)
+ 
+ 	memcpy(datablob, prep->data, datalen);
+ 	datablob[datalen] = '\0';
+-	ret = datablob_parse(datablob, new_p);
++	ret = datablob_parse(&datablob, new_p);
+ 	if (ret != Opt_update) {
+ 		ret = -EINVAL;
+ 		kfree_sensitive(new_p);
+@@ -267,7 +267,7 @@ static int trusted_update(struct key *key, struct key_preparsed_payload *prep)
+ 	rcu_assign_keypointer(key, new_p);
+ 	call_rcu(&p->rcu, trusted_rcu_free);
+ out:
+-	kfree_sensitive(datablob);
++	kfree_sensitive(orig_datablob);
+ 	return ret;
+ }
+ 
+diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
+index 8695668940e2..464eef238108 100644
+--- a/security/keys/trusted-keys/trusted_tpm1.c
++++ b/security/keys/trusted-keys/trusted_tpm1.c
+@@ -749,6 +749,9 @@ static int getoptions(char *c, struct trusted_key_payload *pay,
+ 
+ 	opt->hash = tpm2 ? HASH_ALGO_SHA256 : HASH_ALGO_SHA1;
+ 
++	if (!c)
++		return 0;
++
+ 	while ((p = strsep(&c, " \t"))) {
+ 		if (*p == '\0' || *p == ' ' || *p == '\t')
+ 			continue;
+@@ -946,7 +949,7 @@ static int trusted_tpm_unseal(struct trusted_key_payload *p, char *datablob)
+ 		goto out;
+ 	dump_options(options);
+ 
+-	if (!options->keyhandle) {
++	if (!options->keyhandle && !tpm2) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}

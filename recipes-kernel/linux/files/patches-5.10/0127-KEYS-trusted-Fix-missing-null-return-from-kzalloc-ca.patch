@@ -1,0 +1,39 @@
+From 051ef59789ea186bd0572d925a192ec71fed9955 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Mon, 12 Apr 2021 17:01:01 +0100
+Subject: [PATCH] KEYS: trusted: Fix missing null return from kzalloc call
+
+The kzalloc call can return null with the GFP_KERNEL flag so
+add a null check and exit via a new error exit label. Use the
+same exit error label for another error path too.
+
+Addresses-Coverity: ("Dereference null return value")
+Fixes: 830027e2cb55 ("KEYS: trusted: Add generic trusted keys framework")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+ security/keys/trusted-keys/trusted_core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/security/keys/trusted-keys/trusted_core.c b/security/keys/trusted-keys/trusted_core.c
+index 70afd94910d5..c99eb6d7a495 100644
+--- a/security/keys/trusted-keys/trusted_core.c
++++ b/security/keys/trusted-keys/trusted_core.c
+@@ -116,11 +116,13 @@ static struct trusted_key_payload *trusted_payload_alloc(struct key *key)
+ 
+ 	ret = key_payload_reserve(key, sizeof(*p));
+ 	if (ret < 0)
+-		return p;
++		goto err;
+ 	p = kzalloc(sizeof(*p), GFP_KERNEL);
++	if (!p)
++		goto err;
+ 
+ 	p->migratable = migratable;
+-
++err:
+ 	return p;
+ }
+ 

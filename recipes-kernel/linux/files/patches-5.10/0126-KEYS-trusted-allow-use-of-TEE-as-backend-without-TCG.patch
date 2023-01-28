@@ -1,0 +1,143 @@
+From fec741eea0fa203967b6dcf3bccf51a19b8cd673 Mon Sep 17 00:00:00 2001
+From: Su Bao Cheng <baocheng.su@siemens.com>
+Date: Wed, 7 Dec 2022 22:15:11 +0800
+Subject: [PATCH] KEYS: trusted: allow use of TEE as backend without TCG_TPM
+ support
+
+[Backport: be07858fbf8115fc74528292c2ee8775fe49116f]
+
+With recent rework, trusted keys are no longer limited to TPM as trust
+source. The Kconfig symbol is unchanged however leading to a few issues:
+
+  - TCG_TPM is required, even if only TEE is to be used
+  - Enabling TCG_TPM, but excluding it from available trusted sources
+    is not possible
+  - TEE=m && TRUSTED_KEYS=y will lead to TEE support being silently
+    dropped, which is not the best user experience
+
+Remedy these issues by introducing two new boolean Kconfig symbols:
+TRUSTED_KEYS_TPM and TRUSTED_KEYS_TEE with the appropriate
+dependencies.
+
+Any new code depending on the TPM trusted key backend in particular
+or symbols exported by it will now need to explicitly state that it
+
+  depends on TRUSTED_KEYS && TRUSTED_KEYS_TPM
+
+The latter to ensure the dependency is built and the former to ensure
+it's reachable for module builds. There are no such users yet.
+
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Pankaj Gupta <pankaj.gupta@nxp.com>
+Tested-by: Pankaj Gupta <pankaj.gupta@nxp.com>
+Tested-by: Andreas Rammhold <andreas@rammhold.de>
+Tested-by: Tim Harvey <tharvey@gateworks.com>
+Tested-by: Michael Walle <michael@walle.cc> # on ls1028a (non-E and E)
+Tested-by: John Ernberg <john.ernberg@actia.se> # iMX8QXP
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+ security/keys/Kconfig                     | 15 ++++++-------
+ security/keys/trusted-keys/Kconfig        | 26 +++++++++++++++++++++++
+ security/keys/trusted-keys/Makefile       |  6 +++---
+ security/keys/trusted-keys/trusted_core.c |  4 ++--
+ 4 files changed, 38 insertions(+), 13 deletions(-)
+ create mode 100644 security/keys/trusted-keys/Kconfig
+
+diff --git a/security/keys/Kconfig b/security/keys/Kconfig
+index c161642a8484..9ec302962fe2 100644
+--- a/security/keys/Kconfig
++++ b/security/keys/Kconfig
+@@ -70,20 +70,19 @@ config BIG_KEYS
+ 
+ config TRUSTED_KEYS
+ 	tristate "TRUSTED KEYS"
+-	depends on KEYS && TCG_TPM
+-	select CRYPTO
+-	select CRYPTO_HMAC
+-	select CRYPTO_SHA1
+-	select CRYPTO_HASH_INFO
++	depends on KEYS
+ 	help
+ 	  This option provides support for creating, sealing, and unsealing
+ 	  keys in the kernel. Trusted keys are random number symmetric keys,
+-	  generated and RSA-sealed by the TPM. The TPM only unseals the keys,
+-	  if the boot PCRs and other criteria match.  Userspace will only ever
+-	  see encrypted blobs.
++	  generated and sealed by a trust source selected at kernel boot-time.
++	  Userspace will only ever see encrypted blobs.
+ 
+ 	  If you are unsure as to whether this is required, answer N.
+ 
++if TRUSTED_KEYS
++source "security/keys/trusted-keys/Kconfig"
++endif
++
+ config ENCRYPTED_KEYS
+ 	tristate "ENCRYPTED KEYS"
+ 	depends on KEYS
+diff --git a/security/keys/trusted-keys/Kconfig b/security/keys/trusted-keys/Kconfig
+new file mode 100644
+index 000000000000..7ea69a811981
+--- /dev/null
++++ b/security/keys/trusted-keys/Kconfig
+@@ -0,0 +1,26 @@
++config TRUSTED_KEYS_TPM
++	bool "TPM-based trusted keys"
++	depends on TCG_TPM >= TRUSTED_KEYS
++	default y
++	select CRYPTO
++	select CRYPTO_HMAC
++	select CRYPTO_SHA1
++	select CRYPTO_HASH_INFO
++	help
++	  Enable use of the Trusted Platform Module (TPM) as trusted key
++	  backend. Trusted keys are random number symmetric keys,
++	  which will be generated and RSA-sealed by the TPM.
++	  The TPM only unseals the keys, if the boot PCRs and other
++	  criteria match.
++
++config TRUSTED_KEYS_TEE
++	bool "TEE-based trusted keys"
++	depends on TEE >= TRUSTED_KEYS
++	default y
++	help
++	  Enable use of the Trusted Execution Environment (TEE) as trusted
++	  key backend.
++
++if !TRUSTED_KEYS_TPM && !TRUSTED_KEYS_TEE
++comment "No trust source selected!"
++endif
+diff --git a/security/keys/trusted-keys/Makefile b/security/keys/trusted-keys/Makefile
+index 5ab1c967709e..3bb02d3c7817 100644
+--- a/security/keys/trusted-keys/Makefile
++++ b/security/keys/trusted-keys/Makefile
+@@ -5,7 +5,7 @@
+ 
+ obj-$(CONFIG_TRUSTED_KEYS) += trusted.o
+ trusted-y += trusted_core.o
+-trusted-y += trusted_tpm1.o
+-trusted-y += trusted_tpm2.o
++trusted-$(CONFIG_TRUSTED_KEYS_TPM) += trusted_tpm1.o
++trusted-$(CONFIG_TRUSTED_KEYS_TPM) += trusted_tpm2.o
+ 
+-trusted-$(CONFIG_TEE) += trusted_tee.o
++trusted-$(CONFIG_TRUSTED_KEYS_TEE) += trusted_tee.o
+diff --git a/security/keys/trusted-keys/trusted_core.c b/security/keys/trusted-keys/trusted_core.c
+index ec3a066a4b42..70afd94910d5 100644
+--- a/security/keys/trusted-keys/trusted_core.c
++++ b/security/keys/trusted-keys/trusted_core.c
+@@ -27,10 +27,10 @@ module_param_named(source, trusted_key_source, charp, 0);
+ MODULE_PARM_DESC(source, "Select trusted keys source (tpm or tee)");
+ 
+ static const struct trusted_key_source trusted_key_sources[] = {
+-#if defined(CONFIG_TCG_TPM)
++#if defined(CONFIG_TRUSTED_KEYS_TPM)
+ 	{ "tpm", &trusted_key_tpm_ops },
+ #endif
+-#if defined(CONFIG_TEE)
++#if defined(CONFIG_TRUSTED_KEYS_TEE)
+ 	{ "tee", &trusted_key_tee_ops },
+ #endif
+ };

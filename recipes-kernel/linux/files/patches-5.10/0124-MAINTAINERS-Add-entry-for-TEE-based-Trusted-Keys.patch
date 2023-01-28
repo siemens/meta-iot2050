@@ -1,0 +1,35 @@
+From 564d18467c47148deca679421d11be46dd5f1233 Mon Sep 17 00:00:00 2001
+From: Su Bao Cheng <baocheng.su@siemens.com>
+Date: Wed, 7 Dec 2022 22:07:54 +0800
+Subject: [PATCH] MAINTAINERS: Add entry for TEE based Trusted Keys
+
+[Backport: 9d53913fad3ee800d0067c39881a86a5eb739ae3]
+
+Add MAINTAINERS entry for TEE based Trusted Keys framework.
+
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Acked-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+ MAINTAINERS | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 66c628761eed..6dca218f2477 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9730,6 +9730,14 @@ F:	include/keys/trusted-type.h
+ F:	include/keys/trusted_tpm.h
+ F:	security/keys/trusted-keys/
+ 
++KEYS-TRUSTED-TEE
++M:	Sumit Garg <sumit.garg@linaro.org>
++L:	linux-integrity@vger.kernel.org
++L:	keyrings@vger.kernel.org
++S:	Supported
++F:	include/keys/trusted_tee.h
++F:	security/keys/trusted-keys/trusted_tee.c
++
+ KEYS/KEYRINGS
+ M:	David Howells <dhowells@redhat.com>
+ M:	Jarkko Sakkinen <jarkko@kernel.org>
