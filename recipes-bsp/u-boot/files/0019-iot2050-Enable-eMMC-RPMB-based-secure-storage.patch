@@ -1,0 +1,53 @@
+From e033bf089a665b91a35341552cab991a158c4ab6 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 26 Oct 2022 16:51:36 +0800
+Subject: [PATCH] iot2050: Enable eMMC RPMB based secure storage
+
+Enable eMMC RPMB backed secure storage provided by OPTee, this brings
+value to UEFI secure boot on authentication key storage.
+
+Enable the `CONFIG_CMD_OPTEE_RPMB` for playing with the RPMB, e.g.
+programming the RPMB key, reading or writing the RPMB persistent
+storage, which is backed by the OPTee AVB trusted application.
+
+Disable the rpmb subcommand in `mmc` command since it just does not work
+with IOT2050.
+
+Only PG2 Advanced based variants provide eMMC.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ configs/iot2050_pg1_defconfig | 7 +++++++
+ configs/iot2050_pg2_defconfig | 7 +++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/configs/iot2050_pg1_defconfig b/configs/iot2050_pg1_defconfig
+index 49f8110936..780c46b49d 100644
+--- a/configs/iot2050_pg1_defconfig
++++ b/configs/iot2050_pg1_defconfig
+@@ -148,3 +148,10 @@ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+ CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_TEE=y
++CONFIG_OPTEE=y
++CONFIG_SUPPORT_EMMC_RPMB=y
++CONFIG_EFI_MM_COMM_TEE=y
++CONFIG_CMD_OPTEE_RPMB=y
++CONFIG_CMD_NVEDIT_EFI=y
++# CONFIG_CMD_MMC_RPMB is not set
+diff --git a/configs/iot2050_pg2_defconfig b/configs/iot2050_pg2_defconfig
+index a31691a1d1..5f90cd7fa8 100644
+--- a/configs/iot2050_pg2_defconfig
++++ b/configs/iot2050_pg2_defconfig
+@@ -148,3 +148,10 @@ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+ CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_TEE=y
++CONFIG_OPTEE=y
++CONFIG_SUPPORT_EMMC_RPMB=y
++CONFIG_EFI_MM_COMM_TEE=y
++CONFIG_CMD_OPTEE_RPMB=y
++CONFIG_CMD_NVEDIT_EFI=y
++# CONFIG_CMD_MMC_RPMB is not set
