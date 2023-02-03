@@ -154,8 +154,9 @@ You can find more details and options for the command `swupdate` in the [SWUpdat
 
 NOTE: The used SWUpdate package does not contain a web-app example.
 
-SWUpdate will write the image to the unused root partition and
-sets the necessary U-Boot variables.
+SWUpdate will write the image to the unused root partition and updates the EFI
+Boot Guard state. EFI Boot Guard is the bootloader that controls which of the
+two kernels and root file systems are booted.
 
 3. Reboot the system into the new root file system. The switch between the root file systems
 occurs automatically and requires no user interaction.
@@ -166,28 +167,20 @@ After a reboot, the device boots into the new root file system. If the boot is
 successful the update process needs to be completed by calling:
 
 ```shell
-$ complete_update.sh success
+$ complete_update.sh
 ```
 
-The script sets the update state in the U-Boot environment to the initial state.
+The script sets the update state in the EFI Boot Guard configuration to the initial state.
 
 If the update is deemed failed, resetting the device will select the previous root file system.
-Afterwards the failed update is confirmed by calling:
-
-```shell
-$ complete_update.sh failed
-```
-
-This call reverts the U-Boot environment to the initial state.
-After which you have to manually reboot in order to be effective.
 
 ### U-Boot environment
 
 The bootloader environment needs to be adapted to select the correct
 root file system during boot. This adaptation occurs automatically during the
 first boot by executing the `patch-u-boot-env.service`. This systemd-service
-writes the necessary variables (ustate, sysselect) to the U-Boot environment.
-After writing the U-Boot environment, an update with SWUpdate is possible.
+activates the hardware watchdog in the U-Boot environment, setting it to 60
+seconds by default.
 
 #### Revert to the default environment
 
