@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) Siemens AG, 2021
+# Copyright (c) Siemens AG, 2021-2023
 #
 # Authors:
 #  Quirin Gylstorff <quirin.gylstorff@siemens.com>
@@ -9,45 +9,23 @@
 
 set -e
 
-USTATE="$(fw_printenv -n ustate | tail -1)"
+eval $(bg_printenv -c -o ustate -r)
 if [ -z "$USTATE" ]; then
-    echo "$0: ustate is not set - abort!"
+    echo "$0: EFI Boot Guard is not configured - abort!"
     exit 1
 fi
 
-case "$1" in
-    success)
-        case "$USTATE" in
-            0)
-                # If no update was pending, ignore this
-                exit 0
-                ;;
-            2)
-                fw_setenv ustate 0
-                exit 0
-                ;;
-            *)
-                echo "$0: attempt to acknowledge while in wrong state('$USTATE' instead of '0')" >&2
-                exit 1
-                ;;
-        esac
+case "$USTATE" in
+0)
+    # If no update was pending, ignore this
+    exit 0
     ;;
-    failed)
-        case "$USTATE" in
-            3)
-                fw_setenv ustate 0
-                exit 0
-                ;;
-            *)
-                echo "$0: attempt to acknowledge failure while in wrong state('$USTATE' instead of '3')" >&2
-                exit 1
-                ;;
-        esac
-        ;;
-    *)
-        echo "usage: $0 <action>" >&2
-        echo "" >&2
-        echo "<action>: 'success', 'failed' " >&2
-        exit 1
-        ;;
+2)
+    bg_setenv -c
+    exit 0
+    ;;
+*)
+    echo "$0: attempt to acknowledge while in wrong state('$USTATE' instead of '2')" >&2
+    exit 1
+    ;;
 esac
