@@ -56,3 +56,10 @@ python image_postprocess_restore_sources_list () {
     else:
         bb.note('No need to restore sources for mainline packages')
 }
+
+# Make the .wic.img symlink to the .wic file for better backward compatibility
+do_deploy() {
+    echo "Linking wic img"
+    rm -f ${DEPLOY_DIR_IMAGE}/${IMAGE_FULLNAME}.wic.img
+    ln -s ${IMAGE_FULLNAME}.wic ${DEPLOY_DIR_IMAGE}/${IMAGE_FULLNAME}.wic.img
+}
