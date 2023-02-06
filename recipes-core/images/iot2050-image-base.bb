@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -55,4 +55,10 @@ python image_postprocess_restore_sources_list () {
         bb.build.exec_func("install_mainline_sources_list", d)
     else:
         bb.note('No need to restore sources for mainline packages')
+}
+
+# Make the .wic.img symlink to the .wic file for better backward compatibility
+do_deploy() {
+    echo "Linking wic img"
+    ln -sf ${IMAGE_FULLNAME}.wic ${DEPLOY_DIR_IMAGE}/${IMAGE_FULLNAME}.wic.img
 }
