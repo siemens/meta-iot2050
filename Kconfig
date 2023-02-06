@@ -213,7 +213,7 @@ config DEBIAN_MIRROR
 
 config DEBIAN_MIRROR_URL
 	string "URL of Debian mirror"
-	default "ftp.de.debian.org"
+	default "http://ftp.de.debian.org"
 	depends on DEBIAN_MIRROR
 
 config KAS_INCLUDE_DEBIAN_MIRROR
