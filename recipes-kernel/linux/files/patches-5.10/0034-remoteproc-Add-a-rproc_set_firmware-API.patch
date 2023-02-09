@@ -1,4 +1,4 @@
-From bd6cb37d10e3d63752b963cbe2bd1af9f67db19b Mon Sep 17 00:00:00 2001
+From dad5882905f5a36cb65d2b4193ca08a159b53bea Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 20 Nov 2020 21:20:42 -0600
 Subject: [PATCH] remoteproc: Add a rproc_set_firmware() API

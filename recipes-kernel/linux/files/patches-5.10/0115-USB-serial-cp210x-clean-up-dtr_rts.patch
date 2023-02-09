@@ -1,4 +1,4 @@
-From 72612de3d2d526fd55346cee856467c2b9e6ef5b Mon Sep 17 00:00:00 2001
+From 883422564331487947074638ec53e18eb4ec24db Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:26 +0100
 Subject: [PATCH] USB: serial: cp210x: clean up dtr_rts()
@@ -12,7 +12,7 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index e09110a5f8e5..6443aca5cc3d 100644
+index 649aba138e64..ca36e011e9ae 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
 @@ -46,7 +46,7 @@ static void cp210x_disconnect(struct usb_serial *);
@@ -24,7 +24,7 @@ index e09110a5f8e5..6443aca5cc3d 100644
  static void cp210x_process_read_urb(struct urb *urb);
  static void cp210x_enable_event_mode(struct usb_serial_port *port);
  static void cp210x_disable_event_mode(struct usb_serial_port *port);
-@@ -1257,12 +1257,12 @@ static int cp210x_tiocmset_port(struct usb_serial_port *port,
+@@ -1259,12 +1259,12 @@ static int cp210x_tiocmset_port(struct usb_serial_port *port,
  	return cp210x_write_u16_reg(port, CP210X_SET_MHS, control);
  }
  

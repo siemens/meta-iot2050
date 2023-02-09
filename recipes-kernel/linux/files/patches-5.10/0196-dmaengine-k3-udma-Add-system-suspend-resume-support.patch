@@ -1,4 +1,4 @@
-From 242e0801cfefd907e5debf235fd9a3ca8e31d353 Mon Sep 17 00:00:00 2001
+From 05e1635567d915658bcbc29165e29b6afa599b5d Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Mon, 10 Oct 2022 23:07:02 +0300
 Subject: [PATCH] dmaengine: k3-udma: Add system suspend/resume support

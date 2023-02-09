@@ -1,4 +1,4 @@
-From a53d4d1307908ed1197850616f6ba70e04c9005e Mon Sep 17 00:00:00 2001
+From cf220ea5e74d163399a637d8f0c6fa89431a7acf Mon Sep 17 00:00:00 2001
 From: Jayesh Choudhary <j-choudhary@ti.com>
 Date: Fri, 11 Nov 2022 16:20:03 +0530
 Subject: [PATCH] soc: ti: k3: ringacc: drop loglevel for non-fatal probe

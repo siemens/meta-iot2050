@@ -1,4 +1,4 @@
-From 368f36bcd8d69d26177ce3c4bc6bf02771d86d49 Mon Sep 17 00:00:00 2001
+From 7a8d4956b755a240455f5811600f8e109205c6e3 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Mon, 18 Oct 2021 11:29:18 +0000
 Subject: [PATCH] arm64: dts: ti: k3-am65-main: Add PRU system events for

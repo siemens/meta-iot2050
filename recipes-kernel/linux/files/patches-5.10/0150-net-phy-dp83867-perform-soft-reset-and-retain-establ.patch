@@ -1,4 +1,4 @@
-From e9fd1789eee5c6e71ef49ee29cd8aca6e47f7633 Mon Sep 17 00:00:00 2001
+From 5e2232ac4a852f15f4ca1c6c423350403d26e7b4 Mon Sep 17 00:00:00 2001
 From: Praneeth Bajjuri <praneeth@ti.com>
 Date: Wed, 9 Jun 2021 19:43:42 -0500
 Subject: [PATCH] net: phy: dp83867: perform soft reset and retain established
@@ -26,10 +26,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 deletions(-)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index ba49c435dc07..cfc19ff8f049 100644
+index 36d44ef89530..b03e831a86c3 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
-@@ -807,10 +807,6 @@ static int dp83867_phy_reset(struct phy_device *phydev)
+@@ -815,10 +815,6 @@ static int dp83867_phy_reset(struct phy_device *phydev)
  
  	usleep_range(10, 20);
  

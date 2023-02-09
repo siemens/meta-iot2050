@@ -1,4 +1,4 @@
-From 617ad920ba2e6e5bcd2e079f66b72b0e46008811 Mon Sep 17 00:00:00 2001
+From e49f886ed1e99f52d026c0d4e0acc94477dd1ad9 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:37 +0300
 Subject: [PATCH] net: ethernet: ti: icss_iep: request cmp_cap irq from probe

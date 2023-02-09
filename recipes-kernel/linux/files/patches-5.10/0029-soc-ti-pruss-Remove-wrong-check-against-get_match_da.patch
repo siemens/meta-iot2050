@@ -1,4 +1,4 @@
-From e6ae83d52128da18a4817e30b67e55f0bd5f588f Mon Sep 17 00:00:00 2001
+From a0398928ea759d68975836acf8c8888af6497341 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Sat, 21 Nov 2020 19:22:25 -0800
 Subject: [PATCH] soc: ti: pruss: Remove wrong check against *get_match_data

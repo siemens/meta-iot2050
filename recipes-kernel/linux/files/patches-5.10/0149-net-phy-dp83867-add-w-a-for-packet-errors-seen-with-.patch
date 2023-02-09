@@ -1,4 +1,4 @@
-From 5486df51f13d16d9ca82e717b4b0bbecfb023516 Mon Sep 17 00:00:00 2001
+From 454110edfce60be1c84165fbd01ee8458374d609 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 5 Mar 2021 19:14:09 +0200
 Subject: [PATCH] net: phy: dp83867: add w/a for packet errors seen with short
@@ -25,7 +25,7 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 604a1a5b06ef..ba49c435dc07 100644
+index 16dee5050f45..36d44ef89530 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
 @@ -41,6 +41,7 @@
@@ -36,7 +36,7 @@ index 604a1a5b06ef..ba49c435dc07 100644
  #define DP83867_RXFCFG		0x0134
  #define DP83867_RXFPMD1	0x0136
  #define DP83867_RXFPMD2	0x0137
-@@ -806,8 +807,24 @@ static int dp83867_phy_reset(struct phy_device *phydev)
+@@ -814,8 +815,24 @@ static int dp83867_phy_reset(struct phy_device *phydev)
  
  	usleep_range(10, 20);
  

@@ -1,4 +1,4 @@
-From b76cbee0810509d9ba73126bc46577c5cc9e82db Mon Sep 17 00:00:00 2001
+From 6d63b095b66065d1ba0390a8678b7030af210039 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:25 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: Get the ringacc from udma_dev
@@ -43,7 +43,7 @@ index 29d1524d1916..8a8988be4175 100644
  
  	return 0;
 diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index c9fb1d832581..0856721d0b04 100644
+index bae6150b1d8d..10a3ee529710 100644
 --- a/drivers/dma/ti/k3-udma-private.c
 +++ b/drivers/dma/ti/k3-udma-private.c
 @@ -56,6 +56,12 @@ struct device *xudma_get_device(struct udma_dev *ud)

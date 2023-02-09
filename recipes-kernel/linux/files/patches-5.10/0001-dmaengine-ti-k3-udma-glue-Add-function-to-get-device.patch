@@ -1,4 +1,4 @@
-From 9b8fc03987eec924f53e950547eadbe4e9122089 Mon Sep 17 00:00:00 2001
+From 3f592d3a8794d4db3192b71a7f8df363cb1c2c62 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:24 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: Add function to get device
@@ -49,7 +49,7 @@ index a367584f0d7b..a53bc4707ae8 100644
 +}
 +EXPORT_SYMBOL_GPL(k3_udma_glue_rx_get_dma_device);
 diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index 8563a392f30b..c9fb1d832581 100644
+index dadab2feca08..bae6150b1d8d 100644
 --- a/drivers/dma/ti/k3-udma-private.c
 +++ b/drivers/dma/ti/k3-udma-private.c
 @@ -50,6 +50,12 @@ struct udma_dev *of_xudma_dev_get(struct device_node *np, const char *property)

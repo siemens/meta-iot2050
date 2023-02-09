@@ -1,4 +1,4 @@
-From e468ba2651e382985f72aa0d52b793db7225b74b Mon Sep 17 00:00:00 2001
+From 35fc29603cd1d8ceee3ae054528f748d96ace70b Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:47 +0530
 Subject: [PATCH] PCI: keystone: Convert to using hierarchy domain for legacy

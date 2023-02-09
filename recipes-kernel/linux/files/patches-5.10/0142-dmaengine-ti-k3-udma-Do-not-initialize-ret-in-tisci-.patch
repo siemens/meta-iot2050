@@ -1,4 +1,4 @@
-From 0c556540c2a52188d62c4703149e8a3e498cfe4f Mon Sep 17 00:00:00 2001
+From 231bed9403b42d3ca5bb96dd45aaf222ffab6a28 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
 Date: Wed, 13 Jan 2021 13:49:23 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Do not initialize ret in tisci

@@ -1,4 +1,4 @@
-From 754aa4b0e6ff47073859eaa5c8783a25905aa8aa Mon Sep 17 00:00:00 2001
+From cef98ec97a1bbdb6982778cc935a1aa66ea0528f Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 11 Dec 2020 19:48:09 +0100
 Subject: [PATCH] soc: ti: pruss: Add helper functions to set GPI mode,

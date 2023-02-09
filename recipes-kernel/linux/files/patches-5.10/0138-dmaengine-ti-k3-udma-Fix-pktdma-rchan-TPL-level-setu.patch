@@ -1,4 +1,4 @@
-From 26b5f6727b411ad8a3ceab87b91491ced22a70ec Mon Sep 17 00:00:00 2001
+From eb141dafeeea71d8cf128bf93b72b3042eeea6e1 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Wed, 16 Dec 2020 17:48:33 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Fix pktdma rchan TPL level setup

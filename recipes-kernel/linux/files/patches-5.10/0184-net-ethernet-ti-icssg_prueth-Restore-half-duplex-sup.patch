@@ -1,4 +1,4 @@
-From 0840c18d74a3c1e0ae227a775f0b0fdf0fc523eb Mon Sep 17 00:00:00 2001
+From 53f0321757b54b49e4e87211c63d994e8836b933 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 14 Jan 2023 19:48:15 +0100
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: Restore half-duplex support

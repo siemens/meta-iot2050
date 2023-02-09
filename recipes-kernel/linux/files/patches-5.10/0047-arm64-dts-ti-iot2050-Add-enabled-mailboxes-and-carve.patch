@@ -1,4 +1,4 @@
-From 66f48801870ef8ec23c53c4dcbd5f94d3631ee46 Mon Sep 17 00:00:00 2001
+From b2d1ed865f9b50d3de5b946f7dec0b16770b70c6 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:14 +0200
 Subject: [PATCH] arm64: dts: ti: iot2050: Add/enabled mailboxes and carve-outs

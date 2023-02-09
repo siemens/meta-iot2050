@@ -1,4 +1,4 @@
-From d00fe2015592604f9f69483d09c139e83c94de38 Mon Sep 17 00:00:00 2001
+From 861c9deeb47fc980c7dc498cb5342fbe3388eef1 Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
 Subject: [PATCH] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to replace
@@ -16,10 +16,10 @@ Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 7cab9d831afb..9c3a37d94f53 100644
+index 24cd6d3dc647..4964509f2f3e 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -802,11 +802,9 @@ static int sdhci_am654_probe(struct platform_device *pdev)
+@@ -803,11 +803,9 @@ static int sdhci_am654_probe(struct platform_device *pdev)
  
  	/* Clocks are enabled using pm_runtime */
  	pm_runtime_enable(dev);

@@ -1,4 +1,4 @@
-From 4fe2419dc203788dc1bf95c96390245ed1f3c358 Mon Sep 17 00:00:00 2001
+From d331d6a1411dd7ad9f77985237b6b0e0a58b5255 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Tue, 11 May 2021 14:48:21 -0500
 Subject: [PATCH] arm64: dts: ti: k3*: Introduce reg definition for interrupt

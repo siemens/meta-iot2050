@@ -1,4 +1,4 @@
-From bbae886add1988eafc1ac236023a1a1bc9a7f30f Mon Sep 17 00:00:00 2001
+From 20d07e127954469db12b94e75055b77dc2f85f68 Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Wed, 6 Nov 2019 11:21:49 +0800
 Subject: [PATCH] HACK: setting the RJ45 port led behavior
@@ -12,7 +12,7 @@ Signed-off-by: zengchao <chao.zeng@siemens.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index f86acad0aad4..604a1a5b06ef 100644
+index c8031e297faf..16dee5050f45 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
 @@ -53,6 +53,10 @@

@@ -1,4 +1,4 @@
-From 52f89f0be99b12bf99201942732b2ede8c18053e Mon Sep 17 00:00:00 2001
+From e61c3b62700052b819dff35f7eb2114b61a39c31 Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Sat, 29 May 2021 09:07:49 +0530
 Subject: [PATCH] arm64: dts: ti: k3-am65: Add support for UHS-I modes in

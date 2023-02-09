@@ -1,4 +1,4 @@
-From eafee75b9d8ff251b9d719deaade3511018fbd65 Mon Sep 17 00:00:00 2001
+From df6606db83d71abb08cb24f377d661e702036183 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Wed, 13 Jan 2021 13:49:21 +0200
 Subject: [PATCH] dmaengine: Extend the dmaengine_alignment for 128 and 256

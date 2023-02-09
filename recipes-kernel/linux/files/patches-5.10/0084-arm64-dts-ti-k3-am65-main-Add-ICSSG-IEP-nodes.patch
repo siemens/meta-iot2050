@@ -1,4 +1,4 @@
-From d6b4af63120581ed3c66e3cb90b9e358230741a4 Mon Sep 17 00:00:00 2001
+From a900aea852e6e54caddc88816e5c2ae4746ea61a Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 16 Mar 2021 18:00:25 -0500
 Subject: [PATCH] arm64: dts: ti: k3-am65-main: Add ICSSG IEP nodes

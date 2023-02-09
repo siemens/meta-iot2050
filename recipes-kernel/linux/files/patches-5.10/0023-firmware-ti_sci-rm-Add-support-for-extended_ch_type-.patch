@@ -1,4 +1,4 @@
-From 9ac45984de304557234880a11a16ea6d4789c626 Mon Sep 17 00:00:00 2001
+From 66e3b73e7f8ff8110afc10a8bcc23458565e49d0 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:05 -0700
 Subject: [PATCH] firmware: ti_sci: rm: Add support for extended_ch_type for tx

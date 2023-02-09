@@ -1,4 +1,4 @@
-From 90bc597b6c20e670883557681a8510959d776e04 Mon Sep 17 00:00:00 2001
+From a253745a384f6beb50f5ff2babef269a6916ddee Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 8 Dec 2020 11:04:40 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: Add support for K3 PKTDMA
@@ -581,7 +581,7 @@ index e6ebcd98c02a..4fdd9f06b723 100644
 +}
 +arch_initcall(k3_udma_glue_class_init);
 diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index b8567dace644..aada84f40723 100644
+index 3a08e68de349..3257b2f5157c 100644
 --- a/drivers/dma/ti/k3-udma-private.c
 +++ b/drivers/dma/ti/k3-udma-private.c
 @@ -157,3 +157,27 @@ void xudma_##res##rt_write(struct udma_##res *p, int reg, u32 val)	\

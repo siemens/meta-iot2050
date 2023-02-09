@@ -1,4 +1,4 @@
-From de7958fdae88d1d5d3fb1c79ae39830dfedb6268 Mon Sep 17 00:00:00 2001
+From 0b81c5fbe821f75cf21be29afb9952a47ac40a50 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 31 Jan 2021 20:53:43 -0800
 Subject: [PATCH] soc: ti: pruss: Refactor the CFG sub-module init

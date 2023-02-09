@@ -1,4 +1,4 @@
-From 3cd0aa30830e3ebfaa901c2e7375ea81980047dc Mon Sep 17 00:00:00 2001
+From fb4549d6687db66b009bcd7f83c648750fd885c6 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:10:01 +0100
 Subject: [PATCH] remoteproc: pru: Add support for various PRU cores on K3

@@ -1,4 +1,4 @@
-From 6d08505e1b6c0e0379674f45b6d3d668193a1b2e Mon Sep 17 00:00:00 2001
+From 654db83468e05a905e9205a901fc99b894ee05d3 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
 Subject: [PATCH] firmware: ti_sci: Use struct ti_sci_resource_desc in

@@ -1,4 +1,4 @@
-From 136dfe54398592bdb325b40353d55ae8d559269b Mon Sep 17 00:00:00 2001
+From deb00f00f17206b2083f80f3f722963c1c3a80a9 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Sat, 27 Mar 2021 10:11:42 -0500
 Subject: [PATCH] remoteproc/pru: add support for configuring GPMUX based on

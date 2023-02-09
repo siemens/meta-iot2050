@@ -1,4 +1,4 @@
-From cca1636e724bb363c07f3995a11d066b3b5b2381 Mon Sep 17 00:00:00 2001
+From 59ccb60a9b21870c419465545f43f7c9773123b5 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
 Subject: [PATCH] USB: serial: cp210x: refactor flow-control handling
@@ -18,10 +18,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 47 insertions(+), 50 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index af63c411d08c..e09110a5f8e5 100644
+index 0a2b07b546ad..649aba138e64 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -574,14 +574,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -576,14 +576,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  	int result;
  
  	dmabuf = kmalloc(bufsize, GFP_KERNEL);
@@ -37,7 +37,7 @@ index af63c411d08c..e09110a5f8e5 100644
  
  	result = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
  			req, REQTYPE_INTERFACE_TO_HOST, 0,
-@@ -595,12 +589,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -597,12 +591,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  				req, bufsize, result);
  		if (result >= 0)
  			result = -EIO;
@@ -50,7 +50,7 @@ index af63c411d08c..e09110a5f8e5 100644
  	}
  
  	kfree(dmabuf);
-@@ -1118,11 +1106,55 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1120,11 +1108,55 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  	return tty_termios_hw_change(a, b) || iflag_change;
  }
  
@@ -107,7 +107,7 @@ index af63c411d08c..e09110a5f8e5 100644
  	u16 bits;
  	int ret;
  
-@@ -1179,42 +1211,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1181,42 +1213,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	if (ret)
  		dev_err(&port->dev, "failed to set line control: %d\n", ret);
  

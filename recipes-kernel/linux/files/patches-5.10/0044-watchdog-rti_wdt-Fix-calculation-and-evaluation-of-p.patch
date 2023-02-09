@@ -1,4 +1,4 @@
-From ed0aabfba1d3cc00af8752157794c25abe6abb0d Mon Sep 17 00:00:00 2001
+From 24637c741eee2b5a90bf9de2e49932440a428e95 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Feb 2022 17:22:38 +0100
 Subject: [PATCH] watchdog: rti_wdt: Fix calculation and evaluation of preset

@@ -1,4 +1,4 @@
-From 9f0a448e5ef9ff4630587c7c152e69027d017208 Mon Sep 17 00:00:00 2001
+From f01a195249b904d867e63d27b4f4c88f28b2b78e Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 28 Oct 2020 22:37:55 -0500
 Subject: [PATCH] arm64: dts: ti: k3-am65-mcu: Add MCU domain R5F cluster node

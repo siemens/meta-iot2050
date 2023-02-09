@@ -1,4 +1,4 @@
-From e77b2eba83b0f9a841b3b36078fcb51d904cf675 Mon Sep 17 00:00:00 2001
+From 6ade503971c9bbd900e12dc0a38197289654efaf Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Tue, 8 Jun 2021 10:44:13 +0530
 Subject: [PATCH] arm64: dts: ti: am65: align ti,pindir-d0-out-d1-in property

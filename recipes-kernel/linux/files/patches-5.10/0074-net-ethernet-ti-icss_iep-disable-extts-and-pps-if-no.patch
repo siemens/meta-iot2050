@@ -1,4 +1,4 @@
-From bf9e4d4e3b91982799a6dbaf83115f99add9f543 Mon Sep 17 00:00:00 2001
+From 2705467d56988c7ce636b8c85bbfe140e3c6c978 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:30 +0300
 Subject: [PATCH] net: ethernet: ti: icss_iep: disable extts and pps if no slow

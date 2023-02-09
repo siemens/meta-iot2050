@@ -1,4 +1,4 @@
-From e39d6de90497dab9e5a9a50757fca36f43386812 Mon Sep 17 00:00:00 2001
+From bbf4c000baf85a6de349fad3b6a5474a9f9a0af5 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 21 Mar 2022 15:53:15 +0100
 Subject: [PATCH] arm64: dts: ti: iot2050: Add layout of OSPI flash

@@ -1,4 +1,4 @@
-From dbd7f36a22ae9281d7671110059c873d516911f8 Mon Sep 17 00:00:00 2001
+From 69f78f1dcb33ad68bedd30c04cd4f22682b23f13 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Sun, 31 Oct 2021 09:02:51 +0530
 Subject: [PATCH] dmaengine: ti: k3-udma: Set r/tchan or rflow to NULL if

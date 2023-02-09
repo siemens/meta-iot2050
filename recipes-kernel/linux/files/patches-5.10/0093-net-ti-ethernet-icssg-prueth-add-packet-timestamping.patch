@@ -1,4 +1,4 @@
-From 5b4138f114897aa24b232fa492b15460a330221d Mon Sep 17 00:00:00 2001
+From 311521ee3ad52d2c90e5d3903b9e21c28e410bd4 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 18 May 2021 23:37:30 +0300
 Subject: [PATCH] net: ti: ethernet: icssg-prueth: add packet timestamping and

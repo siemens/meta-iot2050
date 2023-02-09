@@ -1,4 +1,4 @@
-From f34beea8030fef666355fe703ca1390bf9e09ab4 Mon Sep 17 00:00:00 2001
+From 8850255c504be5daa59885b959ee9581980b4219 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:39 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Initial support for K3 PKTDMA
@@ -31,7 +31,7 @@ Signed-off-by: Suman Anna <s-anna@ti.com>
  3 files changed, 533 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/dma/ti/k3-udma-private.c b/drivers/dma/ti/k3-udma-private.c
-index 0856721d0b04..b8567dace644 100644
+index 10a3ee529710..3a08e68de349 100644
 --- a/drivers/dma/ti/k3-udma-private.c
 +++ b/drivers/dma/ti/k3-udma-private.c
 @@ -88,6 +88,9 @@ EXPORT_SYMBOL(xudma_free_gp_rflow_range);

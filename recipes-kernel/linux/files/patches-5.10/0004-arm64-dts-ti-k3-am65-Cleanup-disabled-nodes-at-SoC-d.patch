@@ -1,4 +1,4 @@
-From 4196717e1792a93ea802b57b33a40834c47a917f Mon Sep 17 00:00:00 2001
+From 4734cecbafdb6c2cfb9bd1f5e39515f1fe18f883 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:22 -0600
 Subject: [PATCH] arm64: dts: ti: k3-am65*: Cleanup disabled nodes at SoC dtsi

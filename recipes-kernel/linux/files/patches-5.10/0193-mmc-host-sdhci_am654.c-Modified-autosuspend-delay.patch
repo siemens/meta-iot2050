@@ -1,4 +1,4 @@
-From c67ad45e20ae040ede3fc4c76ccea1e39d052aab Mon Sep 17 00:00:00 2001
+From e9c4ad511349c5ce886813b64427f1d64746dd98 Mon Sep 17 00:00:00 2001
 From: Bhavya Kapoor <b-kapoor@ti.com>
 Date: Fri, 12 Aug 2022 02:52:45 +0530
 Subject: [PATCH] mmc: host: sdhci_am654.c: Modified autosuspend delay
@@ -13,10 +13,10 @@ Signed-off-by: Bhavya Kapoor <b-kapoor@ti.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index f3b1ce66a25b..9be87f494fc0 100644
+index 0770db59066f..8ac4c5f53912 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -84,7 +84,7 @@
+@@ -85,7 +85,7 @@
  #define DRIVER_STRENGTH_40_OHM	0x4
  
  #define CLOCK_TOO_SLOW_HZ	50000000
