@@ -1,4 +1,4 @@
-From fede7522a4d96761b8fe3a9a865b37d5253cc289 Mon Sep 17 00:00:00 2001
+From 775efb78d9b0bf438a6a97c13b798e04f5de4be2 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 7 Jul 2021 14:43:12 +0300
 Subject: [PATCH] net: ethernet: icssg-prueth: fix bug 'scheduling while

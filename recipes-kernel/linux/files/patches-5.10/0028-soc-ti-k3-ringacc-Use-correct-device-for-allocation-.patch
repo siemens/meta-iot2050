@@ -1,4 +1,4 @@
-From 3413d5c63136bacf82e1cc7f0d39129291010911 Mon Sep 17 00:00:00 2001
+From efa19303e35f82243a781df500c6e0f93aabb489 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:22 -0700
 Subject: [PATCH] soc: ti: k3-ringacc: Use correct device for allocation in

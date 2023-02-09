@@ -1,4 +1,4 @@
-From 510b52edb0b8c0eb76d5027a9601564edd1e7bde Mon Sep 17 00:00:00 2001
+From 25ec1cea5fec3e7202e63a2f9926a14699020919 Mon Sep 17 00:00:00 2001
 From: Lokesh Vutla <lokeshvutla@ti.com>
 Date: Tue, 20 Apr 2021 13:17:31 +0530
 Subject: [PATCH] HACK: net: ethernet: ti: icss-iep: Fix sync0 generation on a

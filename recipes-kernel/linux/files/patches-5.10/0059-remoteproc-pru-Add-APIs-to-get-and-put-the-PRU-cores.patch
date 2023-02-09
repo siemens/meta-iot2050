@@ -1,4 +1,4 @@
-From 2571a22fa3889c3cf6a54269db180ed9889fa4b4 Mon Sep 17 00:00:00 2001
+From 478e98f1ae92de7db3ba7ebeac66a58d38067ce9 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Fri, 26 Mar 2021 15:32:29 -0500
 Subject: [PATCH] remoteproc: pru: Add APIs to get and put the PRU cores

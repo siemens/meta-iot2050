@@ -1,4 +1,4 @@
-From 237c32621083aced6a2063d79fc5eca1b98d69c2 Mon Sep 17 00:00:00 2001
+From b009a5c51468b1f67e7e279d0e422a59b818f4d4 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:26 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: Configure the dma_dev for rings

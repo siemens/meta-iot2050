@@ -1,4 +1,4 @@
-From c7d15c451b147845ac27fe1d8b36f3ebcf7d525e Mon Sep 17 00:00:00 2001
+From 22e43fbf99474ff85df13755b3654c23686267c7 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <grzegorz.jaszczyk@linaro.org>
 Date: Tue, 8 Dec 2020 15:09:59 +0100
 Subject: [PATCH] remoteproc: pru: Add support for PRU specific interrupt

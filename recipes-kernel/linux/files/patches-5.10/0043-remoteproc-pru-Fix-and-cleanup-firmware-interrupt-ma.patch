@@ -1,4 +1,4 @@
-From 3fcaab82355b1491ab063f49af0f57ec9d94b957 Mon Sep 17 00:00:00 2001
+From b763cdabc4c54e897400dc3fbfb3f9a795c41a48 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:41 -0500
 Subject: [PATCH] remoteproc: pru: Fix and cleanup firmware interrupt mapping

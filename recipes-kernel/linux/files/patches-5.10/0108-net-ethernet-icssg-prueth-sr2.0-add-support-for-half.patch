@@ -1,4 +1,4 @@
-From 3ad25a3a73d8b6ea7788c0c2de2026fe39b1dfa4 Mon Sep 17 00:00:00 2001
+From b65bb47eba7d51bd1fbb696ab22f0febcb0b2144 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 12 Oct 2021 13:54:43 +0300
 Subject: [PATCH] net: ethernet: icssg-prueth: sr2.0: add support for half

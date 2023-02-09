@@ -1,4 +1,4 @@
-From caf8f5431303735a4d9d1dbc1c2f1717a8aefd1d Mon Sep 17 00:00:00 2001
+From 8308bdff562fc1ed24d1dc48adf984db5d8bca53 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Sun, 31 Oct 2021 09:02:50 +0530
 Subject: [PATCH] dmaengine: ti: k3-udma: Set bchan to NULL if a channel

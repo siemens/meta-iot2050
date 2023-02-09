@@ -1,4 +1,4 @@
-From a034c8a4684d3b450333495c523683189994dab3 Mon Sep 17 00:00:00 2001
+From 14bfac475d10ea3bd44b44fc17edb318e05d437b Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Mon, 6 Dec 2021 14:12:07 +0530
 Subject: [PATCH] net: ethernet: ti: Fix buffer SRAM overlaps in EMAC mode

@@ -1,4 +1,4 @@
-From 5d7bd72617ef3cc6ffde0581c3fe85bf3847bd85 Mon Sep 17 00:00:00 2001
+From 2861e8d7f4d2c25c712805446ccf603d77e4b935 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Mon, 13 Sep 2021 18:19:53 +0300
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: move miig_rt api in separate

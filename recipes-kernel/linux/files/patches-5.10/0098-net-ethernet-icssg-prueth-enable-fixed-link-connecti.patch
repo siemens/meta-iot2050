@@ -1,4 +1,4 @@
-From 6c6a2f23255e541a35a61951d82fdf673c50b5b1 Mon Sep 17 00:00:00 2001
+From 3b3edb93a2957b25cd698d42d8e7a5b234bbfce1 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 18 Jun 2021 20:51:48 +0300
 Subject: [PATCH] net: ethernet: icssg-prueth: enable "fixed-link" connection

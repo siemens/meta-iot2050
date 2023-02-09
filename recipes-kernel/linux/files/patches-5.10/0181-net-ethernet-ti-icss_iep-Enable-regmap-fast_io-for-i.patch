@@ -1,4 +1,4 @@
-From fee69f4d7bf61a04c32e90ccc6f6b42392bc9133 Mon Sep 17 00:00:00 2001
+From e4bdbb1b7bdeaf2c7f869759aa5822471e579d42 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Mon, 7 Feb 2022 13:18:54 +0530
 Subject: [PATCH] net: ethernet: ti: icss_iep: Enable regmap fast_io for

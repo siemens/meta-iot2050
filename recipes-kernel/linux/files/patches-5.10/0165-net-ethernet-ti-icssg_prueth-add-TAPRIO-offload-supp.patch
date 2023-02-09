@@ -1,4 +1,4 @@
-From 3a5db68af6eb736139e27c66b50f4db0e8c05e16 Mon Sep 17 00:00:00 2001
+From 6c653ca2428989e31f67eec58045eb38c20bfe94 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Thu, 14 Oct 2021 14:26:55 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: add TAPRIO offload support

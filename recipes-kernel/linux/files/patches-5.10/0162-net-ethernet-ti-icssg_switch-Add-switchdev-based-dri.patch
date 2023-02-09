@@ -1,4 +1,4 @@
-From 33b6c94e34ee19539aa6c414e1c5d6441f77e297 Mon Sep 17 00:00:00 2001
+From 58467a9afff6128c0401e29b9a6711a306b71dd6 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Thu, 14 Oct 2021 14:14:27 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_switch: Add switchdev based driver

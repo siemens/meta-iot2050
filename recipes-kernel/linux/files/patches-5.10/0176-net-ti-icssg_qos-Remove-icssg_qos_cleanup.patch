@@ -1,4 +1,4 @@
-From b683287b9e4eaffeeac80e5413704ce1d3f0eee1 Mon Sep 17 00:00:00 2001
+From 082bfc6efdc9b84d4906b01cdbd0461ed78dfb1c Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Wed, 17 Nov 2021 20:27:52 +0530
 Subject: [PATCH] net: ti: icssg_qos: Remove icssg_qos_cleanup()

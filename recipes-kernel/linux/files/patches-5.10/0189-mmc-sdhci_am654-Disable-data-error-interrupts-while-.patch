@@ -1,4 +1,4 @@
-From dd737c4035dd8b0d70b6114115cd3c220f222103 Mon Sep 17 00:00:00 2001
+From 12df3b5de229b3390948c70f75735b1e9bddf02e Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Wed, 13 Apr 2022 18:44:03 +0530
 Subject: [PATCH] mmc: sdhci_am654: Disable data error interrupts while tuning
@@ -14,10 +14,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 9c3a37d94f53..93a8501655f3 100644
+index 4964509f2f3e..e882f31c92fb 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -390,8 +390,18 @@ static void sdhci_am654_reset(struct sdhci_host *host, u8 mask)
+@@ -391,8 +391,18 @@ static void sdhci_am654_reset(struct sdhci_host *host, u8 mask)
  static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
  {
  	struct sdhci_host *host = mmc_priv(mmc);
@@ -37,7 +37,7 @@ index 9c3a37d94f53..93a8501655f3 100644
  	if (err)
  		return err;
  	/*
-@@ -400,6 +410,13 @@ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
+@@ -401,6 +411,13 @@ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
  	 */
  	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
  

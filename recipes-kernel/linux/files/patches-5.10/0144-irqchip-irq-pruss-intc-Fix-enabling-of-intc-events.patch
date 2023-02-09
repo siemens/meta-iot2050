@@ -1,4 +1,4 @@
-From be237cc914b5c185332f4269821e1c6f050affcb Mon Sep 17 00:00:00 2001
+From 9c7f4b63bad758e0a5321b5c220960f4345f1862 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 28 May 2021 14:00:50 -0500
 Subject: [PATCH] irqchip/irq-pruss-intc: Fix enabling of intc events

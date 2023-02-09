@@ -1,4 +1,4 @@
-From f29f43cd8824abfe46d0b5f1a4df963218d10e80 Mon Sep 17 00:00:00 2001
+From 13353b91203ad4a3b0c06ff6c578f40928abb181 Mon Sep 17 00:00:00 2001
 From: Vaishnav Achath <vaishnav.a@ti.com>
 Date: Tue, 2 Aug 2022 11:43:15 +0530
 Subject: [PATCH] dmaengine: ti: k3-udma: Reset UDMA_CHAN_RT byte counters to

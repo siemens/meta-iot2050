@@ -1,4 +1,4 @@
-From 13274571cc834763569ff567c9c8d2626ca5a2d5 Mon Sep 17 00:00:00 2001
+From 8918fc6f1819f4d1760601ec44c7a197f7a8b760 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:46 +0530
 Subject: [PATCH] irqdomain: Export of_phandle_args_to_fwspec()

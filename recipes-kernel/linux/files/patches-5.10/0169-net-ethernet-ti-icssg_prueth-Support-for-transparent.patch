@@ -1,4 +1,4 @@
-From 4bc88e959115c21b5bf36b44e413fc4f962114d7 Mon Sep 17 00:00:00 2001
+From b87c65f93af6b1addf03b2bf76e903f82272a016 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 19 Oct 2021 13:01:11 +0300
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: Support for transparent ASEL

@@ -1,4 +1,4 @@
-From 9af1be08c8d063c4c2dd9cc8ca6d3bf284097202 Mon Sep 17 00:00:00 2001
+From 277d967daa126d8d9ddec365e1a5884ad82659c2 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 14 May 2021 16:20:16 -0500
 Subject: [PATCH] arm64: dts: ti: k3-am65-iot2050-common: Disable mailbox nodes
