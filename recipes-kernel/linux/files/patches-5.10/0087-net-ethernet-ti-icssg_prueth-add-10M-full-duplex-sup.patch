@@ -1,4 +1,4 @@
-From 50f6479b037d735c9d206a1f919e9b6c1ea3b68d Mon Sep 17 00:00:00 2001
+From 2a7cdae3aea04d1ee84919f4e10d2c67008a0320 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 18 May 2021 23:37:24 +0300
 Subject: [PATCH 087/121] net: ethernet: ti: icssg_prueth: add 10M full duplex
@@ -250,5 +250,5 @@ index bf52d350bdd0..644a22b53424 100644
  #define TAS_GATE_MASK_LIST0                                0x0100
  /*TAS gate mask for windows list1*/
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From e40d9f4772090a3a2ec2301d2f82f5675d9345a6 Mon Sep 17 00:00:00 2001
+From 63ccf2b5ad892ea5d7c05066291311e3c2a31520 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
 Date: Tue, 18 May 2021 23:37:30 +0300
 Subject: [PATCH 093/121] net: ti: ethernet: icssg-prueth: add packet
@@ -856,5 +856,5 @@ index 2e8d45c8c25d..156716bf0a76 100644
  
  struct emac_tx_ts_response_sr1 {
 -- 
-2.35.3
+2.34.1
 

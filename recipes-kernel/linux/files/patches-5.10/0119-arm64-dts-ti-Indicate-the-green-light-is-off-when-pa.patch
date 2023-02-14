@@ -1,4 +1,4 @@
-From f63c0f8baa4945b1b89f604bc050e3da425daad0 Mon Sep 17 00:00:00 2001
+From 87c21535233d51fbd1c3c2f24ac1b6667b515dc8 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Thu, 16 Dec 2021 15:09:25 +0800
 Subject: [PATCH 119/121] arm64: dts: ti: Indicate the green light is off when
@@ -25,5 +25,5 @@ index ea8ff74c681c..3310880e83ee 100644
  
  		user-led1-red {
 -- 
-2.35.3
+2.34.1
 

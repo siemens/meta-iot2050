@@ -1,4 +1,4 @@
-From e97ec491c1b485ac2e4a0d5cec0783a1e429e34f Mon Sep 17 00:00:00 2001
+From dab556bd571a5f9f045c2e533a9c2b606517a33e Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:22 +0100
 Subject: [PATCH 111/121] USB: serial: cp210x: clean up line-control handling
@@ -151,5 +151,5 @@ index 363232b6e4b2..6992818570a7 100644
  		struct cp210x_flow_ctl flow_ctl;
  		u32 ctl_hs;
 -- 
-2.35.3
+2.34.1
 

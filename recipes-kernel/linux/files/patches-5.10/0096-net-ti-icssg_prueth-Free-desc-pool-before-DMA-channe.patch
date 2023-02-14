@@ -1,4 +1,4 @@
-From 2b244ca54c615e54d2d6f1356f8d013377927fa7 Mon Sep 17 00:00:00 2001
+From f4345f305f40572386ab1dfafea5eeb4fddaffe1 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Mon, 21 Jun 2021 15:47:49 +0530
 Subject: [PATCH 096/121] net: ti: icssg_prueth: Free desc pool before DMA
@@ -48,5 +48,5 @@ index ef7392a2b9da..38d151dca81c 100644
  		 * end after all channel resources are freed
  		 */
 -- 
-2.35.3
+2.34.1
 

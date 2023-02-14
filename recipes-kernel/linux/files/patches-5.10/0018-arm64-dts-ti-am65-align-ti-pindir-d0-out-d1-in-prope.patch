@@ -1,4 +1,4 @@
-From 712e10e46c0bd4d38c6d3d8fe31dfb32f970efd3 Mon Sep 17 00:00:00 2001
+From 99dc53ff970da57fad532e80e226ec3b25fb7d08 Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Tue, 8 Jun 2021 10:44:13 +0530
 Subject: [PATCH 018/121] arm64: dts: ti: am65: align ti,pindir-d0-out-d1-in
@@ -46,5 +46,5 @@ index b47fc2a1e59d..56dc855a5f13 100644
  	flash@0{
  		compatible = "jedec,spi-nor";
 -- 
-2.35.3
+2.34.1
 

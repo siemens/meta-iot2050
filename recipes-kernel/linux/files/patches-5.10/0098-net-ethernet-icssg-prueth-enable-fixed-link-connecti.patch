@@ -1,4 +1,4 @@
-From 66c80905fc289fbd09464f829d1bb9c4f825821c Mon Sep 17 00:00:00 2001
+From 87c43439d4ff79a5bc6c2765b7b15e80954fe4d5 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 18 Jun 2021 20:51:48 +0300
 Subject: [PATCH 098/121] net: ethernet: icssg-prueth: enable "fixed-link"
@@ -71,5 +71,5 @@ index d19a05fd8b06..3b1769a5e2b3 100644
  		ret = -EPROBE_DEFER;
  		goto free;
 -- 
-2.35.3
+2.34.1
 

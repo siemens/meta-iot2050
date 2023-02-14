@@ -1,4 +1,4 @@
-From 019973e597f0fde5bfb0fba3052dfddf64ab4874 Mon Sep 17 00:00:00 2001
+From b22022465d10312419ac10f6c2a81c8a34c30a8a Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 12 Oct 2021 13:54:43 +0300
 Subject: [PATCH 108/121] net: ethernet: icssg-prueth: sr2.0: add support for
@@ -135,5 +135,5 @@ index 644a22b53424..99225d0f1582 100644
  /* Memory Usage of : DMEM1
   *
 -- 
-2.35.3
+2.34.1
 

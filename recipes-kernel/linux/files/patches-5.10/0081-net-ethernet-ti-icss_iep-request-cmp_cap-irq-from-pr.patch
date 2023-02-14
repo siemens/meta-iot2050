@@ -1,4 +1,4 @@
-From 523c75daf18750cffa76a05cdcc6e7b4a8fe724f Mon Sep 17 00:00:00 2001
+From b9785900390bb4842f60e98fda93f0e8d545d51b Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:37 +0300
 Subject: [PATCH 081/121] net: ethernet: ti: icss_iep: request cmp_cap irq from
@@ -106,5 +106,5 @@ index 8bad9c86775a..df74b5fd17e9 100644
  	if (IS_ERR(iep_clk))
  		return PTR_ERR(iep_clk);
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From e27985cb5cd613e5e632c9eaa670538b9b551463 Mon Sep 17 00:00:00 2001
+From 06aec6c787284a890e559d93602d02dea0eb8561 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 27 Jun 2020 10:53:13 +0200
 Subject: [PATCH 101/121] arm64: dts: ti: iot2050: Add icssg-prueth nodes for
@@ -206,5 +206,5 @@ index d8661096f2de..51e82e08550a 100644
  
  &icssg1_mdio {
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From eb27a746a65ecb8b3ec0c93e5de6d24d241b35da Mon Sep 17 00:00:00 2001
+From 52685de417c39fc8120ab87190081ecef9bf0985 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:48 +0530
 Subject: [PATCH 054/121] PCI: keystone: Add PCI legacy interrupt support for
@@ -135,5 +135,5 @@ index 0493e43ba416..0460ed2a277a 100644
  		return ret;
  
 -- 
-2.35.3
+2.34.1
 
