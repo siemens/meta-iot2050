@@ -1,4 +1,4 @@
-From 349313a3c6e898066e6c57ddae9b2008117a1acd Mon Sep 17 00:00:00 2001
+From 77302046e0e2a21a44889eedc5829678c2bd63ef Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 16:38:11 -0500
 Subject: [PATCH 067/121] soc: ti: pruss: Add helper function to enable OCP
@@ -178,5 +178,5 @@ index ba5b728d5015..5fdd6f03446d 100644
  
  #if IS_ENABLED(CONFIG_PRU_REMOTEPROC)
 -- 
-2.35.3
+2.34.1
 

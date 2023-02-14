@@ -1,4 +1,4 @@
-From 02878f8922baa24e75b93084f4f09e5e3d7ba673 Mon Sep 17 00:00:00 2001
+From 05f04fad06bf2084e5ee59e3d0daadaf5893a542 Mon Sep 17 00:00:00 2001
 From: Dimitar Dimitrov <dimitar@dinux.eu>
 Date: Wed, 30 Dec 2020 12:50:05 +0200
 Subject: [PATCH 039/121] remoteproc: pru: Fix loading of GNU Binutils ELF
@@ -48,5 +48,5 @@ index 421ebbc1c02d..a113e150d5d5 100644
  	    da + len <= PRU_IRAM_DA + pru->mem_regions[PRU_IOMEM_IRAM].size) {
  		offset = da - PRU_IRAM_DA;
 -- 
-2.35.3
+2.34.1
 

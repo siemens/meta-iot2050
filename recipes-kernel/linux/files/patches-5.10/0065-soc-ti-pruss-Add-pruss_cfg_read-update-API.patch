@@ -1,4 +1,4 @@
-From 5f799496298cd8b51949a5d0050506144ccc63f0 Mon Sep 17 00:00:00 2001
+From 4a608bb70357020e065c66c9f680b56955b9fa2a Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 16:27:34 -0500
 Subject: [PATCH 065/121] soc: ti: pruss: Add pruss_cfg_read()/update() API
@@ -209,5 +209,5 @@ index 40de553d4446..a4f59a46c331 100644
  
  #if IS_ENABLED(CONFIG_PRU_REMOTEPROC)
 -- 
-2.35.3
+2.34.1
 

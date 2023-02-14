@@ -1,4 +1,4 @@
-From 780589ad3ea0c9dd156901a6464f8c965459db36 Mon Sep 17 00:00:00 2001
+From 45456648b486875aed40e50ce66fd10a5806bba2 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 9 Sep 2021 08:01:16 +0200
 Subject: [PATCH 047/121] arm64: dts: ti: iot2050: Add/enabled mailboxes and
@@ -62,5 +62,5 @@ index 58c8e64d5885..b29537088289 100644
  	status = "disabled";
  };
 -- 
-2.35.3
+2.34.1
 

@@ -1,4 +1,4 @@
-From eebf0be3283f4929c5a0e75e5dc3ad4c37d9d90e Mon Sep 17 00:00:00 2001
+From b2f8127c6e0ee34d239ef55e37ba0f41d26a248e Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
 Subject: [PATCH 013/121] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to
@@ -34,5 +34,5 @@ index a64ea143d185..c4799a16a61f 100644
  	base = devm_platform_ioremap_resource(pdev, 1);
  	if (IS_ERR(base)) {
 -- 
-2.35.3
+2.34.1
 

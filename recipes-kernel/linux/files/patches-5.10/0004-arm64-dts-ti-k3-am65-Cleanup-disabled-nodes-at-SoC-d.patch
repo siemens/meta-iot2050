@@ -1,4 +1,4 @@
-From d1c6a04d81cc2f44a5dcdffcb3607d9268576071 Mon Sep 17 00:00:00 2001
+From a1343763a61df3b7023b194260a6e8ad4c0a229b Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:22 -0600
 Subject: [PATCH 004/121] arm64: dts: ti: k3-am65*: Cleanup disabled nodes at
@@ -121,5 +121,5 @@ index 937dd7280c7a..8c082af489f5 100644
 +	status = "disabled";
 +};
 -- 
-2.35.3
+2.34.1
 

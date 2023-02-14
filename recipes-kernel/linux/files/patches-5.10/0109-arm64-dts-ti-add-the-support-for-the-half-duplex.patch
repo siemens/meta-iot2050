@@ -1,4 +1,4 @@
-From 3a1a37b6c192ebcec3ee8f0d2fba0ad2e51e48dd Mon Sep 17 00:00:00 2001
+From cc91b897b926fa33709a995124c1a1895bf4f61d Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 22 Oct 2021 13:37:22 +0800
 Subject: [PATCH 109/121] arm64: dts: ti: add the support for the half-duplex
@@ -31,5 +31,5 @@ index fcf877d3d504..ea8ff74c681c 100644
  			local-mac-address = [00 00 00 00 00 00];
  		};
 -- 
-2.35.3
+2.34.1
 

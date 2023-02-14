@@ -1,4 +1,4 @@
-From ee820c10c2bac07000c36ddc0dae4f225803728a Mon Sep 17 00:00:00 2001
+From 7e4b7e2320eda2906789bec2af884401d3fc47e4 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 31 May 2021 16:31:35 +0530
 Subject: [PATCH 051/121] arm64: dts: ti: k3-am65-main: fix DSS irq trigger
@@ -35,5 +35,5 @@ index 9338f1042232..9b1a016162b2 100644
  		dma-coherent;
  
 -- 
-2.35.3
+2.34.1
 

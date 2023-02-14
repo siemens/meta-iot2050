@@ -1,4 +1,4 @@
-From 4ce932a0e31bf5ed2195d161250bef1eb0242e0f Mon Sep 17 00:00:00 2001
+From 8c57608a25194b2674278a13c27d732697a7ea46 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:24 -0600
 Subject: [PATCH 005/121] arm64: dts: ti: am65/j721e: Fix up un-necessary
@@ -44,5 +44,5 @@ index 85526f72b461..98009d3aa25d 100644
  				<&main_udmap 0x4001>;
  		dma-names = "tx", "rx1", "rx2";
 -- 
-2.35.3
+2.34.1
 

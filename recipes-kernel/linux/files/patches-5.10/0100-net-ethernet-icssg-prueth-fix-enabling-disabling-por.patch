@@ -1,4 +1,4 @@
-From 23a6caf4122fba5d041ec979eab1744569894537 Mon Sep 17 00:00:00 2001
+From af1a62f740822eabcd839198ebeb2347116adcbb Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 7 Jul 2021 14:43:13 +0300
 Subject: [PATCH 100/121] net: ethernet: icssg-prueth: fix enabling/disabling
@@ -59,5 +59,5 @@ index f212e5904afc..abd062bedebb 100644
  
  reset_tx_chan:
 -- 
-2.35.3
+2.34.1
 

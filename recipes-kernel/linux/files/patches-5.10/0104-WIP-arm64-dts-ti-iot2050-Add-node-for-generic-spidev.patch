@@ -1,4 +1,4 @@
-From 01e6e2f0163d8ddb3a2db25fdc6c75186cffb9cd Mon Sep 17 00:00:00 2001
+From 6056c69429a9f47cdd3fddbe7449a342ff8fc1af Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Mar 2021 15:28:21 +0100
 Subject: [PATCH 104/121] WIP: arm64: dts: ti: iot2050: Add node for generic
@@ -33,5 +33,5 @@ index 51e82e08550a..fcf877d3d504 100644
  
  &tscadc0 {
 -- 
-2.35.3
+2.34.1
 

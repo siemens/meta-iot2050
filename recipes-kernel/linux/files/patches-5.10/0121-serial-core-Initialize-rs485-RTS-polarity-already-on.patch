@@ -1,4 +1,4 @@
-From 168b279e70d4fb7414f248ce537034b99fd937eb Mon Sep 17 00:00:00 2001
+From 0513c5c3711e3bd1a77888f2ef0068597de321d8 Mon Sep 17 00:00:00 2001
 From: Lukas Wunner <lukas@wunner.de>
 Date: Sun, 23 Jan 2022 05:21:14 +0100
 Subject: [PATCH 121/121] serial: core: Initialize rs485 RTS polarity already
@@ -120,5 +120,5 @@ index be0d9922e320..dbd6911c32f1 100644
  		spin_unlock_irqrestore(&port->lock, flags);
  
 -- 
-2.35.3
+2.34.1
 

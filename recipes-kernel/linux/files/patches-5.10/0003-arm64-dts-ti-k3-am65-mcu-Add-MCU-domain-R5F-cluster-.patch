@@ -1,4 +1,4 @@
-From 6eaeeb8fadc6c439505ea2ca1073884b6958705e Mon Sep 17 00:00:00 2001
+From 456a0ea3edae00ff06322202c32a6fda78949c1e Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 28 Oct 2020 22:37:55 -0500
 Subject: [PATCH 003/121] arm64: dts: ti: k3-am65-mcu: Add MCU domain R5F
@@ -95,5 +95,5 @@ index 044042b166d9..7454c8cec0cc 100644
 +	};
  };
 -- 
-2.35.3
+2.34.1
 
