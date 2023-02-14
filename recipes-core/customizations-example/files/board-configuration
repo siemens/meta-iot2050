@@ -69,7 +69,7 @@ def initAruinoPins():
 
 
 def initExternalSerialMode():
-    command = 'grep -a -o -P "IOT2050 \w*" /proc/device-tree/model'
+    command = 'grep -a -o -P "IOT2050 [\w\s]+" /proc/device-tree/model'
     boardType = subprocess.check_output(command, shell=True).lstrip().rstrip().decode('utf-8')
     initMode = config['User_configuration']['External_Serial_Init_Mode']
     currentMode = config['User_configuration']['External_Serial_Current_Mode']
@@ -80,9 +80,9 @@ def initExternalSerialMode():
         saveConfig(config)
 
     command = ""
-    if boardType == "IOT2050 Basic":
+    if boardType.startswith('IOT2050 Basic'):
         command = "switchserialmode ttyuart -D /dev/ttyS2 -m " + initMode
-    elif boardType == "IOT2050 Advanced":
+    elif boardType.startswith('IOT2050 Advanced'):
         if initMode == "RS232":
             command = "switchserialmode cp210x -D cp2102n24 -m gpio -v 0"
         elif initMode == "RS485":
@@ -95,6 +95,8 @@ def initExternalSerialMode():
     if (initMode == 'RS485') or (initMode == 'RS422'):
         terminateOpt = ' -t' if terminate == 'on' else ''
     subprocess.call("switchserialmode -m " + initMode + terminateOpt, shell=True)
+    if not boardType.startswith('IOT2050 Basic') and boardType != 'IOT2050 Advanced':
+        subprocess.call('switchserialmode -r', shell=True)
 
 
 def main():
