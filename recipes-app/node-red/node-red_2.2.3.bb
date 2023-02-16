@@ -22,7 +22,7 @@ SRC_URI += "file://node-red.service.tmpl"
 TEMPLATE_FILES = "node-red.service.tmpl"
 TEMPLATE_VARS  = "NODE_RED_HOME_DIR"
 
-do_install_append() {
+do_install:append() {
     install -v -d ${D}/lib/systemd/system/
     install -v -m 644 ${WORKDIR}/node-red.service ${D}/lib/systemd/system/
 }

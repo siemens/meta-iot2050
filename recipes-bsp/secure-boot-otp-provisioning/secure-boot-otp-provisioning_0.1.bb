@@ -1,4 +1,4 @@
-# Copyright (c) Siemens AG, 2022
+# Copyright (c) Siemens AG, 2022-2023
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -65,7 +65,7 @@ do_prepare_build() {
             ${S}/debian/secure-boot-otp-provisioning.install
 }
 
-dpkg_runbuild_append() {
+dpkg_runbuild:append() {
     # remove keys from source archive
     gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
     tar --delete -f ${WORKDIR}/${PN}_${PV}.tar ${PN}-${PV}/keys

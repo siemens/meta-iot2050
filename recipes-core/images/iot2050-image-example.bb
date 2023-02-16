@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Su Baocheng <baocheng.su@siemens.com>
@@ -12,8 +12,6 @@ require recipes-core/images/iot2050-image-base.bb
 require recipes-core/images/iot2050-package-selections.inc
 
 DESCRIPTION = "IOT2050 Debian Example Image"
-
-DEPENDS += "openssl"
 
 IMAGE_PREINSTALL += " \
     ${IOT2050_DEBIAN_DEBUG_PACKAGES} \
@@ -30,6 +28,7 @@ IMAGE_PREINSTALL += "${@ ' \
     ' if d.getVar('IOT2050_DOCKER_SUPPORT') == '1' else ''}"
 
 IMAGE_INSTALL += " \
+    openssl-compat \
     expand-on-first-boot \
     sshd-regen-keys \
     regen-rootfs-uuid \
