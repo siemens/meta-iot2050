@@ -1,3 +1,0 @@
-Package: libssl*:*
-Pin: release n=isar
-Pin-Priority: -1

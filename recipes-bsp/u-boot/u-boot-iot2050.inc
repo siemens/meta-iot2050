@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2022
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -15,13 +15,13 @@ SRC_URI += " \
     file://rules.tmpl \
     file://prebuild \
     file://fw_env.config"
-SRC_URI_append_secureboot = " \
+SRC_URI:append:secureboot = " \
     file://keys/custMpk.crt \
     file://keys/custMpk.key \
     file://keys/custMpk.pem \
     file://keys/x509-sysfw-template.txt \
     file://secure-boot.cfg"
-SRC_URI_append_otpcmd = " \
+SRC_URI:append:otpcmd = " \
     file://otpcmd.cfg"
 
 U_BOOT_BIN = "flash.bin"
@@ -35,18 +35,18 @@ DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050 k3-rti-wdt"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
     trusted-firmware-a-iot2050, optee-os-iot2050, k3-rti-wdt, \
     swig, python3-dev:native, python3-pkg-resources,"
-DEBIAN_BUILD_DEPENDS_append_secureboot = ", python3-pycryptodome:native, \
+DEBIAN_BUILD_DEPENDS:append:secureboot = ", python3-pycryptodome:native, \
     pesign, python3-openssl:native"
 
-DEPENDS_append_otpcmd = " secure-boot-otp-provisioning"
-DEBIAN_BUILD_DEPENDS_append_otpcmd = ", secure-boot-otp-provisioning"
+DEPENDS:append:otpcmd = " secure-boot-otp-provisioning"
+DEBIAN_BUILD_DEPENDS:append:otpcmd = ", secure-boot-otp-provisioning"
 
 TEMPLATE_FILES += "rules.tmpl"
 TEMPLATE_VARS += "FIRMWARE_SECURE_VER"
 
 U_BOOT_CONFIG_PACKAGE = "1"
 
-do_prepare_build_append() {
+do_prepare_build:append() {
     ln -f ${WORKDIR}/prebuild/* ${S}
     ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
     echo "${SPI_FLASH_IMG} /usr/lib/u-boot/${MACHINE}" > \
@@ -56,7 +56,7 @@ do_prepare_build_append() {
     rm -rf ${S}/keys
 }
 
-do_prepare_build_append_secureboot() {
+do_prepare_build:append:secureboot() {
     if [ "${PRODUCT_GENERATION}" = "pg1" ]; then
         bbwarn "PG1 devices are not supported in booting securely"
     fi
@@ -66,14 +66,14 @@ do_prepare_build_append_secureboot() {
     cat ${WORKDIR}/secure-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
 }
 
-dpkg_runbuild_append_secureboot() {
+dpkg_runbuild:append:secureboot() {
     # remove private keys from source archive
     gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
     tar --delete -f ${WORKDIR}/${PN}_${PV}.tar u-boot-${PV}/keys/custMpk.key u-boot-${PV}/keys/custMpk.pem
     gzip ${WORKDIR}/${PN}_${PV}.tar
 }
 
-do_prepare_build_append_otpcmd() {
+do_prepare_build:append:otpcmd() {
     if [ "${PRODUCT_GENERATION}" = "pg1" ]; then
         bbwarn "PG1 devices are not supported in booting securely"
     fi

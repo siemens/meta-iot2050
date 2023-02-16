@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2021-2022
+# Copyright (c) Siemens AG, 2021-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -10,8 +10,8 @@
 
 include ebg-signed-sysparts.inc
 
-part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.verity" --align 1024 --fixed-size 4G --uuid "fedcba98-7654-3210-cafe-5e0710000001"
-part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.verity" --align 1024 --fixed-size 4G --uuid "fedcba98-7654-3210-cafe-5e0710000002"
+part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.verity" --align 1024 --fixed-size 4G --uuid "${ABROOTFS_PART_UUID_A}"
+part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.verity" --align 1024 --fixed-size 4G --uuid "${ABROOTFS_PART_UUID_B}"
 
 # persistent partitions
 part /var --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/var --label var --fstype=ext4 --mkfs-extraopts "-T default" --align 1024  --size 512M

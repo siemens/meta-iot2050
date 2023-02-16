@@ -151,6 +151,7 @@ do_install_npm[depends] += "${BUILDCHROOT_DEP}"
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
 do_install_npm[depends] += "${@(d.getVar('NPM_CLASS_PACKAGE') + ':do_deploy_deb') if d.getVar('OWN_NPM_CLASS_PACKAGE') == '1' else ''}"
 do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
+do_install_npm[network] += "${TASK_USE_SUDO}"
 
 addtask install_npm before do_fetch
 
@@ -263,7 +264,7 @@ do_install() {
     fi
 }
 
-do_prepare_build_append() {
+do_prepare_build:append() {
     INSTALL_FLAGS="--offline --only=production --no-package-lock --verbose \
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} \
                    --no-audit"

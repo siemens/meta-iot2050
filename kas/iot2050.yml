@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2022
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -27,17 +27,17 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: 2664090d8733313d782dba51f5a8a20f19445f8b
+    refspec: f95f69d3b83cc28976ef81eeefb5ec5dd17e544f
     layers:
       meta:
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
-    refspec: d25937753d1c3b038c9991eba6b644f00c7b335e
+    refspec: 1ffa0aa8d3f4c0427bf274c0e0280ef7553adc96
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    refspec: a4f8825da273cb655c94ace3c0e3ce4bbba1247e
+    refspec: 36850eb82552169dc38ffc7220ea58d0a6dcc3be
 
 bblayers_conf_header:
   standard: |
