@@ -16,8 +16,6 @@ SRC_URI = " \
     "
 CHANGELOG_V="<orig-version>+iot2050"
 
-KEEP_INSTALLED_ON_CLEAN = "1"
-
 DEB_BUILD_OPTIONS += "nocheck"
 
 do_prepare_build() {
