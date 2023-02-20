@@ -13,12 +13,14 @@ require recipes-core/images/swupdate.inc
 
 inherit image_uuid
 
-IMAGE_TYPEDEP:wic = "squashfs"
-IMAGE_TYPEDEP:wic:secureboot = "verity"
+IMAGE_TYPEDEP:wic += "squashfs"
+IMAGE_TYPEDEP:wic:secureboot += "verity"
 
 WKS_FILE = "iot2050-swu.wks.in"
 WKS_FILE:secureboot = "iot2050-swu-secure.wks.in"
-WIC_DEPLOY_PARTITIONS = "1"
+
+IMAGE_FSTYPES += "swu"
+SWU_ROOTFS_TYPE:secureboot = "verity"
 
 WIC_IMAGER_INSTALL += "efibootguard"
 # watchdog is managed by U-Boot - disable
