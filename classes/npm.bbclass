@@ -1,4 +1,4 @@
-# Copyright (c) Siemens AG, 2018-2019
+# Copyright (c) Siemens AG, 2018-2023
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,6 +8,7 @@
 #   cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
 
 inherit dpkg-raw
+inherit buildchroot
 
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json"
@@ -72,6 +73,30 @@ python() {
     d.setVar('NPM_MAPPED_NAME', mapped_name)
 }
 
+BUILDROOT = "${BUILDCHROOT_DIR}/${PP}"
+
+npm_fetch_do_mounts() {
+    mkdir -p ${BUILDROOT}
+    sudo mount --bind ${WORKDIR} ${BUILDROOT}
+
+    buildchroot_do_mounts
+}
+
+npm_fetch_undo_mounts() {
+    i=0
+    while ! sudo umount ${BUILDROOT}; do
+        sleep 0.1
+        if [ `expr $i % 100` -eq 0 ] ; then
+            bbwarn "${BUILDROOT}: Couldn't unmount ($i), retrying..."
+        fi
+        if [ $i -ge 10000 ]; then
+            bbfatal "${BUILDROOT}: Couldn't unmount after timeout"
+        fi
+        i=`expr $i + 1`
+    done
+    sudo rmdir ${BUILDROOT}
+}
+
 def get_npm_bundled_tgz(d):
     return "{0}-{1}-bundled.tgz".format(d.getVar('NPM_MAPPED_NAME'),
                                         d.getVar('PV'))
@@ -107,7 +132,7 @@ do_install_npm() {
         apt-get install -y -o Debug::pkgProblemResolver=yes \
                 --no-install-recommends"
 
-    dpkg_do_mounts
+    npm_fetch_do_mounts
 
     E="${@ bb.utils.export_proxies(d)}"
     deb_dl_dir_import "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
@@ -120,8 +145,9 @@ do_install_npm() {
     deb_dl_dir_export "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
     ${install_cmd} ${NPM_CLASS_PACKAGE} ${NPM_EXTRA_DEPS}
 
-    dpkg_undo_mounts
+    npm_fetch_undo_mounts
 }
+do_install_npm[depends] += "${BUILDCHROOT_DEP}"
 do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
 do_install_npm[depends] += "${@(d.getVar('NPM_CLASS_PACKAGE') + ':do_deploy_deb') if d.getVar('OWN_NPM_CLASS_PACKAGE') == '1' else ''}"
 do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
@@ -158,7 +184,7 @@ python fetch_npm() {
         if hash == fetch_hash:
             return
 
-    bb.build.exec_func("dpkg_do_mounts", d)
+    bb.build.exec_func("npm_fetch_do_mounts", d)
     bb.utils.export_proxies(d)
 
     old_cwd = os.getcwd()
@@ -210,7 +236,7 @@ python fetch_npm() {
         hash_file.write(fetch_hash)
 
     os.chdir(old_cwd)
-    bb.build.exec_func("dpkg_undo_mounts", d)
+    bb.build.exec_func("npm_fetch_undo_mounts", d)
 }
 do_fetch[postfuncs] += "fetch_npm"
 do_fetch[cleandirs] += "${WORKDIR}/fetch-tmp"
