@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2023
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -11,7 +11,7 @@ inherit dpkg
 
 DESCRIPTION = "Low Level Skeleton Library for Communication on GNU/Linux platforms"
 MAINTAINER = "le.jin@siemens.com"
-SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https \
+SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0001-gpio-Fix-JS-binding-regarding-interrupt-injections.patch \
             file://rules"
 SRCREV = "8b1c54934e80edc2d36abac9d9c96fe1e01cb669"

@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2021
+# Copyright (c) Siemens AG, 2021-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -11,7 +11,7 @@
 inherit dpkg
 
 SRC_URI = " \
-    git://github.com/siemens/k3-rti-wdt.git;protocol=https \
+    git://github.com/siemens/k3-rti-wdt.git;protocol=https;branch=master \
     file://rules"
 SRCREV = "33a6680184996074ca9731710161520edf334725"
 
