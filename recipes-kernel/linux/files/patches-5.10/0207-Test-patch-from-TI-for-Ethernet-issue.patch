@@ -1,0 +1,34 @@
+From 45f725e5721dc3c76e878a79f135b4c287d02b7b Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Fri, 24 Feb 2023 16:29:44 +0800
+Subject: [PATCH] Test patch from TI for Ethernet issue
+
+Issue:
+PINDSW-5438 - Rx stall seen when there is network traffic during startup
+
+Root Cause: The issue is caused by timing between RX PRU and RTU execution
+resulting RX PRU not processing any packets
+
+Fix: 1) Synchromize the startup sequence between the two cores to avoid the
+     lockup
+     2) Cleaned up the the init sequence by enabling the RX in MII after
+     completing the Firmware initialization
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ drivers/net/ethernet/ti/icssg_config.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index 564bafcd6fc3..d73c19105d37 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -163,7 +163,7 @@ static void icssg_config_mii_init(struct prueth_emac *emac)
+ 	else if (emac->phy_if != PHY_INTERFACE_MODE_MII && slice == ICSS_MII1)
+ 		txcfg |= PRUSS_MII_RT_TXCFG_TX_MUX_SEL;
+ 
+-	regmap_write(mii_rt, rxcfg_reg, rxcfg);
++	//regmap_write(mii_rt, rxcfg_reg, rxcfg);
+ 	regmap_write(mii_rt, txcfg_reg, txcfg);
+ 	regmap_write(mii_rt, pcnt_reg, 0x1);
+ }
