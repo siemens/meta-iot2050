@@ -17,7 +17,6 @@ import fcntl
 import struct
 import tty
 import termios
-import select
 
 class ansicolors:
     clear = '\033[2J'
@@ -698,7 +697,6 @@ class TerminalResize:
             # Save the terminal state
             fileno = sys.stdin.fileno()
             stty_sav = termios.tcgetattr(sys.stdin)
-            fc_sav = fcntl.fcntl(fileno, fcntl.F_GETFL)
 
             # Turn off echo.
             stty_new = termios.tcgetattr(sys.stdin)
@@ -712,19 +710,13 @@ class TerminalResize:
             # Put stdin into cbreak mode.
             tty.setcbreak(sys.stdin)
 
-            # Nonblocking mode.
-            fcntl.fcntl(fileno, fcntl.F_SETFL, fc_sav | os.O_NONBLOCK)
-
             try:
-                while True:
-                    r, w, e = select.select([ttyfd], [], [])
-                    if r:
-                        output = sys.stdin.read()
-                        break
+                output = ''
+                while not output.endswith('R'):
+                    output += sys.stdin.read(1)
             finally:
                 # Reset the terminal back to normal cooked mode
                 termios.tcsetattr(fileno, termios.TCSAFLUSH, stty_sav)
-                fcntl.fcntl(fileno, fcntl.F_SETFL, fc_sav)
 
             rows, cols = list(map(int, re.findall(r'\d+', output)))
 
