@@ -33,7 +33,7 @@ repos:
 
   meta-coral:
     url: https://github.com/siemens/meta-coral
-    refspec: 66a85fc4958524526d4a5e2eda0588de2a5f46f9
+    refspec: d25937753d1c3b038c9991eba6b644f00c7b335e
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
