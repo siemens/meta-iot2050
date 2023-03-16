@@ -42,6 +42,9 @@ IMAGE_INSTALL += " \
     node-red-gpio \
     node-red-preinstalled-nodes \
     board-conf-tools \
+    libteec1 \
+    optee-client-dev \
+    tee-supplicant \
     "
 
 IOT2050_CORAL_SUPPORT ?= "1"
