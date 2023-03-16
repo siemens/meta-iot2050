@@ -1,0 +1,82 @@
+From 8f31ccb04cb26a8f25c5f6928c5d50879eaf47e6 Mon Sep 17 00:00:00 2001
+From: Jens Wiklander <jens.wiklander@linaro.org>
+Date: Wed, 25 Jan 2023 09:21:03 +0100
+Subject: [PATCH] core: add StMM to reported services
+
+Adds StMM to the list of services reported by the device pseudo TA.
+
+Acked-by: Etienne Carriere <etienne.carriere@linaro.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+---
+ core/arch/arm/include/kernel/stmm_sp.h   | 6 ++++++
+ core/arch/arm/kernel/stmm_sp.c           | 5 +++++
+ core/arch/riscv/include/kernel/stmm_sp.h | 2 ++
+ core/pta/device.c                        | 5 +++++
+ 4 files changed, 18 insertions(+)
+
+diff --git a/core/arch/arm/include/kernel/stmm_sp.h b/core/arch/arm/include/kernel/stmm_sp.h
+index 2c089e481..f9da6a027 100644
+--- a/core/arch/arm/include/kernel/stmm_sp.h
++++ b/core/arch/arm/include/kernel/stmm_sp.h
+@@ -165,4 +165,10 @@ stmm_init_session(const TEE_UUID *uuid __unused,
+ }
+ #endif
+ 
++#ifdef CFG_WITH_STMM_SP
++const TEE_UUID *stmm_get_uuid(void);
++#else
++static inline const TEE_UUID *stmm_get_uuid(void) { return NULL; }
++#endif
++
+ #endif /*__KERNEL_STMM_SP_H*/
+diff --git a/core/arch/arm/kernel/stmm_sp.c b/core/arch/arm/kernel/stmm_sp.c
+index 01652cfa3..eb6b2f071 100644
+--- a/core/arch/arm/kernel/stmm_sp.c
++++ b/core/arch/arm/kernel/stmm_sp.c
+@@ -76,6 +76,11 @@ extern unsigned char stmm_image[];
+ extern const unsigned int stmm_image_size;
+ extern const unsigned int stmm_image_uncompressed_size;
+ 
++const TEE_UUID *stmm_get_uuid(void)
++{
++	return &stmm_uuid;
++}
++
+ static struct stmm_ctx *stmm_alloc_ctx(const TEE_UUID *uuid)
+ {
+ 	TEE_Result res = TEE_SUCCESS;
+diff --git a/core/arch/riscv/include/kernel/stmm_sp.h b/core/arch/riscv/include/kernel/stmm_sp.h
+index ab8d35551..9b5b09d01 100644
+--- a/core/arch/riscv/include/kernel/stmm_sp.h
++++ b/core/arch/riscv/include/kernel/stmm_sp.h
+@@ -35,4 +35,6 @@ stmm_init_session(const TEE_UUID *uuid __unused,
+ 	return TEE_ERROR_ITEM_NOT_FOUND;
+ }
+ 
++static inline const TEE_UUID *stmm_get_uuid(void) { return NULL; }
++
+ #endif /*__KERNEL_STMM_SP_H*/
+diff --git a/core/pta/device.c b/core/pta/device.c
+index d4c665194..1a026a62b 100644
+--- a/core/pta/device.c
++++ b/core/pta/device.c
+@@ -12,6 +12,7 @@
+ #include <kernel/early_ta.h>
+ #include <kernel/linker.h>
+ #include <kernel/pseudo_ta.h>
++#include <kernel/stmm_sp.h>
+ #include <kernel/tee_ta_manager.h>
+ #include <pta_device.h>
+ #include <string.h>
+@@ -62,6 +63,10 @@ static TEE_Result get_devices(uint32_t types,
+ 	SCATTERED_ARRAY_FOREACH(ta, pseudo_tas, struct pseudo_ta_head)
+ 		add_ta(ta->flags, &ta->uuid, buf, blen, &pos, rflags);
+ 
++	if (stmm_get_uuid())
++		add_ta(TA_FLAG_DEVICE_ENUM_SUPP, stmm_get_uuid(), buf, blen,
++		       &pos, rflags);
++
+ 	if (IS_ENABLED(CFG_EARLY_TA))
+ 		for_each_early_ta(eta)
+ 			add_ta(eta->flags, &eta->uuid, buf, blen, &pos,
