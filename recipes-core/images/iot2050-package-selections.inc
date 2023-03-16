@@ -56,6 +56,7 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     sudo \
     usb-modeswitch \
     systemd-timesyncd \
+    efitools \
     "
 
 # wifi support
