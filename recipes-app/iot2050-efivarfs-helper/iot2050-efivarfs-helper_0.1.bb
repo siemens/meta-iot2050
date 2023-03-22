@@ -12,7 +12,8 @@ inherit dpkg-raw
 DESCRIPTION = "Efivarfs Helper"
 MAINTAINER = "baocheng.su@siemens.com"
 
-SRC_URI = "file://iot2050-efivarfs-helper.tmpl"
+SRC_URI = "file://iot2050-efivarfs-helper.tmpl \
+    file://postinst"
 
 TEMPLATE_FILES = "iot2050-efivarfs-helper.tmpl"
 

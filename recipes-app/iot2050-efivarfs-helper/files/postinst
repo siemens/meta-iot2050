@@ -1,0 +1,12 @@
+#
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Baocheng <baocheng.su@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+# mount efivarfs as read and write
+echo "efivarfs /sys/firmware/efi/efivars efivarfs rw,nosuid,nodev,noexec  0 0" >> /etc/fstab
