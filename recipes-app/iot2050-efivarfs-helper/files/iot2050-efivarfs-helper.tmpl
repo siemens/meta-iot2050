@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+import os
+import sys
+import argparse
+import subprocess
+import shutil
+import fcntl
+from array import array
+import pystemd
+
+
+__version__ = "${PV}"
+
+
+def err_print(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
+def exit_on_failure(message, code=1):
+    err_print()
+    err_print(message)
+    err_print()
+    exit(code)
+
+
+def check_mod_tee_stmm_efi() -> bool:
+    '''Check if the kernel mod tee_stmm_efi is successfully loaded.'''
+    mod_name = 'tee_stmm_efi'
+
+    print(f"Checking for the kernel module {mod_name}... ", end='')
+
+    if not os.path.isdir(f"/sys/module/{mod_name}"):
+        print(f"ERROR: {mod_name} is not loaded!")
+        return False
+
+    print("Done.")
+    return True
+
+
+def check_srv_tee_supplicant() -> bool:
+    '''
+    Check if the tee-supplicant is loaded an running
+
+    tee-supplicant is used to serve the trusted applications running in
+    optee-os for accessing RPMB partition.
+    '''
+    print("Checking for the service tee-supplicant... ", end='')
+
+    with pystemd.systemd1.Unit(b"tee-supplicant.service") as ts_unit:
+        if ts_unit.Unit.ActiveState != b"active":
+            print(f"ERROR: service is {ts_unit.Unit.ActiveState.decode('UTF-8')}!")
+            return False
+
+    print("Done.")
+    return True
+
+
+def check_mount_efivarfs() -> bool:
+    '''
+    Check if efivarfs is correctly mounted.
+
+    efivarfs must be mounted with read & write option.
+    '''
+    print("Checking for efivarfs mounting... ", end='')
+    mount_err_msg = 'not mounted.'
+    with open('/proc/mounts', encoding="utf-8") as f_mnt:
+        for a_mount in f_mnt.readlines():
+            if a_mount.startswith('efivarfs '):
+                _, _, _, mount_options, *_ = a_mount.split(' ')
+                if 'rw' in mount_options and 'ro' not in mount_options:
+                    mount_err_msg = ''
+                else:
+                    mount_err_msg = 'not mounted as read & write.'
+                break
+
+    if mount_err_msg == '':
+        print("Done.")
+        return True
+
+    print(f"ERROR: efivarfs is {mount_err_msg}")
+    return False
+
+
+def check_efitools_installation() -> bool:
+    '''
+    Check if efitools is installed.
+
+    efitools provides convenient commands to manipulate the UEFI authenticated
+    variables.
+    '''
+    print("Checking for the efitools installation... ", end='')
+
+    if shutil.which('efi-readvar'):
+        print("Done.")
+        return True
+
+    print("ERROR: not installed!")
+    return False
+
+
+# Refer to https://www.geeklab.info/2021/04/chattr-and-lsattr-in-python/
+# FS constants - see /uapi/linux/fs.h in kernel source
+# or <elixir.free-electrons.com/linux/latest/source/include/uapi/linux/fs.h>
+FS_IOC_GETFLAGS = 0x80086601
+FS_IOC_SETFLAGS = 0x40086602
+FS_IMMUTABLE_FL = 0x010
+
+
+def chattr_i(file_path: str, value: bool):
+    '''Python equivalent to chattr +/-i shell command'''
+    with open(file_path, encoding="utf-8") as f:
+        arg = array('L', [0])
+        fcntl.ioctl(f.fileno(), FS_IOC_GETFLAGS, arg, True)
+        if value:
+            arg[0] = arg[0] | FS_IMMUTABLE_FL
+        else:
+            arg[0] = arg[0] & ~ FS_IMMUTABLE_FL
+        fcntl.ioctl(f.fileno(), FS_IOC_SETFLAGS, arg, True)
+
+
+def change_efivarfs_immutable_flag(immutable: bool):
+    if immutable:
+        action = 'Adding'
+    else:
+        action = 'Removing'
+
+    efivarfs_mount_point = '/sys/firmware/efi/efivars'
+    for file in os.listdir(efivarfs_mount_point):
+        if (file.startswith('db-')
+                or file.startswith('KEK-')
+                or file.startswith('PK-')):
+            filepath = os.path.join(efivarfs_mount_point, file)
+            print(f"{action} the immutable flag of {filepath}... ", end='')
+
+            chattr_i(filepath, immutable)
+            print("Done.")
+
+
+def do_prepare():
+    '''Prepare the operation environment for manipulating efivarfs'''
+    message_prepare_fail = "Fail to prepare the efivarfs for manipulating. \
+You may need to check the environment."
+
+    if (not check_mod_tee_stmm_efi() or
+            not check_srv_tee_supplicant() or
+            not check_mount_efivarfs() or
+            not check_efitools_installation()):
+        exit_on_failure(message_prepare_fail)
+
+    # By default the UEFI authenticated variable files in efivarfs have the
+    # immutable flag. This prevents from modifying it.
+    change_efivarfs_immutable_flag(immutable=False)
+
+
+def do_efi_updatevar(options):
+    exit_code = 0
+    options_str = ' '.join(options)
+    cmd = f"efi-updatevar {options_str}"
+    try:
+        print(f"Performing {cmd}... ", end='')
+        result = subprocess.run(
+            cmd, shell=True, capture_output=True, check=True, text=True)
+    except subprocess.CalledProcessError as err:
+        print("ERROR: failed to run efi-updatevar!")
+        err_print()
+        err_print("ERROR:\t" + str(err).strip())
+        stdout = str(err.stdout).strip()
+        stderr = str(err.stderr).strip()
+        if stdout != '':
+            err_print(f"ERROR:\tSTDOUT: {stdout}")
+        if stderr != '':
+            err_print(f"ERROR:\tSTDERR: {stderr}")
+        err_print()
+        exit_code = 1
+    else:
+        print("Done.")
+        print()
+        print(f"Return code:\t{result.returncode}")
+        if result.stdout:
+            print(f"Return STDOUT:\t{result.stdout}")
+        if result.stderr:
+            print(f"Return STDERR:\t{result.stderr}")
+        print()
+    finally:
+        # command finished, need to change back the immutable flag.
+        change_efivarfs_immutable_flag(immutable=True)
+
+    sys.exit(exit_code)
+
+
+if __name__ == '__main__':
+    EXAMPLE_TEXT = '''
+examples:
+  %(prog)s -- -f PK.auth PK
+  %(prog)s -- -f KEK.auth KEK
+  %(prog)s -- -f db.auth db
+'''
+
+    parser = argparse.ArgumentParser(
+        description="Helper for manipulating efivarfs",
+        epilog=EXAMPLE_TEXT,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    parser.add_argument('efi_updatevar_opts', nargs='*',
+                        metavar='-- efitools-opts',
+                        help='Options passed to efi-updatevar')
+    parser.add_argument('-f', '--force',
+                        help='Force mode, ignore the root privilege checking',
+                        action='store_true')
+    parser.add_argument('-v', '--version', action='version',
+                        version=f'%(prog)s {__version__}')
+    args = parser.parse_args()
+
+    if os.geteuid() != 0 and not args.force:
+        exit_on_failure('You have to be root to run this program. \
+If you really want to run as non-root, please use the --force option.')
+
+    do_prepare()
+
+    do_efi_updatevar(args.efi_updatevar_opts)
