@@ -45,6 +45,7 @@ SRC_URI += " \
     file://0030-efi_loader-signature-export-efi_hash_regions.patch \
     file://0031-efi_loader-image_loader-add-a-missing-digest-verific.patch \
     file://0032-spl-fit-Report-fdt-error-for-loading-u-boot.patch \
+    file://0033-iot2050-Refactor-the-m.2-and-minipcie-power-pin.patch \
     "
 
 SRC_URI[sha256sum] = "81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413"
