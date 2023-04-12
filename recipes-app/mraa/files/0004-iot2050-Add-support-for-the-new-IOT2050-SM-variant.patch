@@ -1,0 +1,143 @@
+From 445293997f45f30cd82f24b638bd1c23078b4115 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Wed, 19 Apr 2023 11:54:37 +0800
+Subject: [PATCH] iot2050: Add support for the new IOT2050-SM variant
+
+IOT2050-SM board was added into IOT2050 series, in contrast to existing
+variants, the IOT2050-SM board comes without a Arduino interfaces.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ api/mraa/types.h              |  1 +
+ include/arm/siemens/iot2050.h |  4 +++
+ src/arm/arm.c                 |  5 +++
+ src/arm/siemens/iot2050.c     | 65 +++++++++++++++++++++++++++++++++++
+ 4 files changed, 75 insertions(+)
+
+diff --git a/api/mraa/types.h b/api/mraa/types.h
+index 8c9a306..1c1dd33 100644
+--- a/api/mraa/types.h
++++ b/api/mraa/types.h
+@@ -69,6 +69,7 @@ typedef enum {
+     MRAA_UPXTREME = 24,             /**< The UPXTREME Board */
+     MRAA_INTEL_ILK = 25,            /**< Intel Learning Kit */
+     MRAA_SIEMENS_IOT2050 = 26,      /**< Siemens IOT2050 board */
++    MRAA_SIEMENS_IOT2050_SM = 27,   /**< Siemens IOT2050-SM board */
+     // USB platform extenders start at 256
+     MRAA_FTDI_FT4222 = 256,         /**< FTDI FT4222 USB to i2c bridge */
+ 
+diff --git a/include/arm/siemens/iot2050.h b/include/arm/siemens/iot2050.h
+index 76df024..e799186 100644
+--- a/include/arm/siemens/iot2050.h
++++ b/include/arm/siemens/iot2050.h
+@@ -31,10 +31,14 @@ extern "C" {
+ 
+ #define PLATFORM_NAME                   "SIMATIC IOT2050"
+ #define MRAA_IOT2050_PINCOUNT          21
++#define MRAA_IOT2050_SM_PINCOUNT       1
+ 
+ mraa_board_t *
+         mraa_siemens_iot2050();
+ 
++mraa_board_t *
++        mraa_siemens_iot2050_sm();
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/src/arm/arm.c b/src/arm/arm.c
+index 0a44d0f..50b3d4d 100644
+--- a/src/arm/arm.c
++++ b/src/arm/arm.c
+@@ -99,6 +99,8 @@ mraa_arm_platform()
+             platform_type = MRAA_RASPBERRY_PI;
+         else if (mraa_file_contains("/proc/device-tree/model", "ADLINK ARM, LEC-PX30"))
+             platform_type = MRAA_ADLINK_IPI;
++        else if (mraa_file_contains("/proc/device-tree/model", "SIMATIC IOT2050 Advanced SM"))
++            platform_type = MRAA_SIEMENS_IOT2050_SM;
+         else if (mraa_file_contains("/proc/device-tree/model", "SIMATIC IOT2050"))
+             platform_type = MRAA_SIEMENS_IOT2050;
+     }
+@@ -130,6 +132,9 @@ mraa_arm_platform()
+         case MRAA_SIEMENS_IOT2050:
+             plat = mraa_siemens_iot2050();
+             break;
++        case MRAA_SIEMENS_IOT2050_SM:
++            plat = mraa_siemens_iot2050_sm();
++            break;
+         default:
+             plat = NULL;
+             syslog(LOG_ERR, "Unknown Platform, currently not supported by MRAA");
+diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
+index cec25fa..fb36184 100644
+--- a/src/arm/siemens/iot2050.c
++++ b/src/arm/siemens/iot2050.c
+@@ -1259,3 +1259,68 @@ error:
+     free(b);
+     return NULL;
+ }
++
++mraa_board_t*
++mraa_siemens_iot2050_sm()
++{
++    int pin_index = 0;
++    unsigned wkup_gpio0_chip, wkup_gpio0_base;
++    unsigned line_offset;
++    mraa_board_t* b = (mraa_board_t*) calloc(1, sizeof(mraa_board_t));
++
++    if (NULL == b) {
++        goto error_board;
++    }
++
++    if (mraa_find_gpio_line_by_name("wkup_gpio0-base", &wkup_gpio0_chip, &line_offset) < 0 || line_offset != 0) {
++        goto error;
++    }
++    wkup_gpio0_base = mraa_get_chip_base_by_number(wkup_gpio0_chip);
++    if (wkup_gpio0_base < 0) {
++        goto error;
++    }
++
++    b->adv_func = (mraa_adv_func_t*) calloc(1, sizeof(mraa_adv_func_t));
++    if(b->adv_func == NULL) {
++        goto error;
++    }
++    b->platform_name = PLATFORM_NAME;
++    b->phy_pin_count = MRAA_IOT2050_SM_PINCOUNT;
++    b->pins = (mraa_pininfo_t*) calloc(MRAA_IOT2050_SM_PINCOUNT, sizeof(mraa_pininfo_t));
++    if(b->pins == NULL) {
++        free(b->adv_func);
++        goto error;
++    }
++
++    /* USER BUTTON */
++    iot2050_setup_pins(b, pin_index, "USER",
++                        (mraa_pincapabilities_t) {
++                            .valid = 1,
++                            .gpio = 1,
++                            .pwm = 0,
++                            .fast_gpio = 0,
++                            .spi = 0,
++                            .i2c = 0,
++                            .aio = 0,
++                            .uart = 0},
++                        (regmux_info_t) {
++                            .group = -1,
++                            .index = -1,
++                            .pinmap = wkup_gpio0_base+25,
++                            .mode = {}
++                        });
++    iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 25, -1, -1, NULL, 0);
++
++    /* LED */
++    iot2050_setup_led(b, "user-led1-green");
++    iot2050_setup_led(b, "user-led1-red");
++    iot2050_setup_led(b, "user-led2-green");
++    iot2050_setup_led(b, "user-led2-red");
++
++    return b;
++error:
++    free(b);
++error_board:
++    syslog(LOG_CRIT, "iot2050: Platform failed to initialise");
++    return NULL;
++}

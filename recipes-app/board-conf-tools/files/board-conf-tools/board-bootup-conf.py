@@ -67,10 +67,14 @@ def initExternalSerialMode():
     subprocess.call("switchserialmode -m " +
                     initMode + terminateOpt, shell=True)
 
+def getBoardModel():
+    return subprocess.check_output('grep -a -o -P "IOT2050[\w\s]+" /proc/device-tree/model',
+            shell=True).lstrip().rstrip().decode('utf-8')
 
 def main():
     initExternalSerialMode()
-    initAruinoPins()
+    if "IOT2050 Advanced SM" != getBoardModel():
+        initAruinoPins()
 
 
 if __name__ == '__main__':
