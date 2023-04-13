@@ -18,6 +18,7 @@ NPM_INSTALL_FLAGS ?= ""
 NPM_REBUILD ?= "1"
 
 ISAR_CROSS_COMPILE = "0"
+SBUILD_FLAVOR = "npm"
 
 SRC_URI = "npm://registry.npmjs.org;name=${NPMPN};version=${PV} \
     ${NPM_SHRINKWRAP}"
