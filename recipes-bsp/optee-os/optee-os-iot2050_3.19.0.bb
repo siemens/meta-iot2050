@@ -11,6 +11,13 @@
 
 require optee-os-iot2050_3.19.0.inc
 
+DEPENDS += "optee-ftpm"
+DEBIAN_BUILD_DEPENDS += ", optee-ftpm"
+
+FTPM_UUID="bc50d971-d4c9-42c4-82cb-343fb7f37896"
+
+OPTEE_EXTRA_BUILDARGS += " CFG_EARLY_TA=y EARLY_TA_PATHS=/usr/lib/optee/${FTPM_UUID}.stripped.elf"
+
 python() {
     import re
 
