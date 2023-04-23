@@ -30,7 +30,10 @@ repos:
     refspec: f95f69d3b83cc28976ef81eeefb5ec5dd17e544f
     layers:
       meta:
-
+    patches:
+      optee-os-tadevkit:
+        path: isar-patches/0001-optee-os-Add-package-optee-os-tadevkit.patch
+  
   meta-coral:
     url: https://github.com/siemens/meta-coral
     refspec: 1ffa0aa8d3f4c0427bf274c0e0280ef7553adc96
