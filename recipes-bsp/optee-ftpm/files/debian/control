@@ -1,0 +1,11 @@
+Source: optee-ftpm
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Maintainer: Unknown maintainer <unknown@example.com>
+Build-Depends: debhelper (>= 10), optee-os-tadevkit-iot2050, python3-cryptography:native
+
+Package: optee-ftpm
+Architecture: any
+Depends:
+Description: TCG reference implementation of the TPM 2.0 Specification.
