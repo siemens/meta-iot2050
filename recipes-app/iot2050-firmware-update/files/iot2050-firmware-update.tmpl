@@ -233,12 +233,6 @@ class FirmwareUpdate(object):
 
         self.firmware_integrity_check()
 
-        reboot_input = input(
-            "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
-        if not reboot_input == "y":
-            sys.exit(1)
-        os.system('reboot')
-
     def flash_md5_digest(self, firmware_len, mtd_num=0):
         flash_md5 = hashlib.md5()
 
@@ -694,6 +688,12 @@ def main(argv):
                 "\nWarning: Preserve the above env variables. Confirm(Y/n)? ")
             if not preserved_env_input == "n":
                 updater.update_uboot_env(envlist)
+
+        reboot_input = input(
+            "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
+        if not reboot_input == "y":
+            sys.exit(1)
+        os.system('reboot')
     except UpgradeError as e:
         print(e)
         intput_reminder = '''
