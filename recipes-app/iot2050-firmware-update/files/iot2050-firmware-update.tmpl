@@ -112,7 +112,7 @@ import tempfile
 import hashlib
 import io
 from enum import Enum
-
+from io import StringIO
 
 class UpgradeError(Exception):
     def __init__(self, ErrorInfo):
@@ -478,10 +478,10 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
             for n in firmware_names:
                 print("{}\t{}".format(firmware_names.index(n) + 1, n))
 
-            choice = int(input("-> "))
+            choice = int(the_input(False, "-> "))
             while choice > len(firmware_names) or choice < 1:
                 print("Out of range, please reinput your choice:")
-                choice = int(input("-> "))
+                choice = int(the_input(False, "-> "))
 
             firmware_name = firmware_names[choice - 1]
 
@@ -617,6 +617,21 @@ class RollbackFirmware(FirmwareUpdate):
 
 __version__ = "${PV}"
 
+def the_input(is_quiet, *args):
+    if is_quiet:
+        the_stdin = sys.stdin
+        sys.stdin = StringIO(args[0])
+        info = args[1]
+    else:
+        if len(args) > 1:
+            info = args[1];
+        else:
+            info = args[0];
+    ret = input(info)
+    if is_quiet:
+        print(args[0] + '\n', end="")
+        sys.stdin = the_stdin
+    return ret
 
 def main(argv):
     description=textwrap.dedent('''\
@@ -674,19 +689,24 @@ def main(argv):
                         help='Specify the firmware backup directory',
                         nargs=1,
                         default=os.getenv('HOME'))
+    parser.add_argument('-q', '--quiet',
+                        help='Update firmware quietly with the original firmware auto backed up \
+                        and rollback in case of failure, and without automatic rebooting',
+                        action='store_true')
     try:
         args = parser.parse_args()
     except IOError as e:
         print(e.strerror, file=sys.stderr)
         return ErrorCode.INVALID_ARG.value
 
-    update_input = input(
+    update_input = the_input(args.quiet, 'y',
         "\nWarning: Update may render device unbootable. Continue (y/N)? ")
     if not update_input == "y":
         return ErrorCode.CANCELED.value
 
     if args.force or args.reset:
-        erase_env_input = input("\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
+        erase_env_input = the_input(args.quiet, 'y',
+                "\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
         if not erase_env_input == "y":
             return ErrorCode.CANCELED.value
     try:
@@ -699,7 +719,8 @@ def main(argv):
             updater = ManagedFirmwareUpdate(args.firmware, args.backup_dir)
 
         if args.rollback:
-            rollback_confirm = input("\nRollback the firmware to the version before the upgrade (y/N)?")
+            rollback_confirm = the_input(args.quiet, 'y',
+                    "\nRollback the firmware to the version before the upgrade (y/N)?")
             if not rollback_confirm == "y":
                 return ErrorCode.CANCELED.value
             return updater.rollback_firmware()
@@ -717,12 +738,12 @@ def main(argv):
             print("\n")
             for env in envlist:
                 print(env)
-            preserved_env_input = input(
+            preserved_env_input = the_input(args.quiet, 'y',
                 "\nWarning: Preserve the above env variables. Confirm(Y/n)? ")
             if not preserved_env_input == "n":
                 updater.update_uboot_env(envlist)
 
-        reboot_input = input(
+        reboot_input = the_input(args.quiet, 'n',
             "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
         if not reboot_input == "y":
             return ErrorCode.SUCCESS.value
@@ -747,7 +768,7 @@ Hit the Enter Key to Exit:
             except (UpgradeError, UpgradeRollbackError) as e:
                 print(e)
 
-        input(intput_reminder)
+        the_input(args.quiet, " ", intput_reminder)
         return ErrorCode.FLASHING_FAILED.value
     except UpgradeRollbackError as e:
         print(e)
@@ -760,6 +781,7 @@ Hit the Enter Key to Exit:
 Hit the Enter Key to Exit:
         '''
 
+        the_input(args.quiet, " ", intput_reminder)
         return ErrorCode.ROLLBACK_FAILED.value
 
 if __name__ == '__main__':
