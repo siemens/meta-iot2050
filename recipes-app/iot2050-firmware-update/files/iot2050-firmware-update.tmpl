@@ -114,6 +114,9 @@ import io
 from enum import Enum
 from io import StringIO
 
+BOLD = "\033[1m"
+ENDC = "\033[0m"
+
 class UpgradeError(Exception):
     def __init__(self, ErrorInfo):
         super().__init__(self)
@@ -700,13 +703,13 @@ def main(argv):
         return ErrorCode.INVALID_ARG.value
 
     update_input = the_input(args.quiet, 'y',
-        "\nWarning: Update may render device unbootable. Continue (y/N)? ")
+        "\n" + BOLD + "Warning: Update may render device unbootable." + ENDC + " Continue (y/N)? ")
     if not update_input == "y":
         return ErrorCode.CANCELED.value
 
     if args.force or args.reset:
         erase_env_input = the_input(args.quiet, 'y',
-                "\nWarning: All U-Boot environment variables will be reset to factory settings. Continue (y/N)? ")
+                "\n" + BOLD + "Warning: All U-Boot environment variables will be reset to factory settings." + ENDC + " Continue (y/N)? ")
         if not erase_env_input == "y":
             return ErrorCode.CANCELED.value
     try:
@@ -739,12 +742,12 @@ def main(argv):
             for env in envlist:
                 print(env)
             preserved_env_input = the_input(args.quiet, 'y',
-                "\nWarning: Preserve the above env variables. Confirm(Y/n)? ")
+                "\n" + BOLD + "Warning: Preserve the above env variables." + ENDC + " Continue (y/N)? ")
             if not preserved_env_input == "n":
                 updater.update_uboot_env(envlist)
 
         reboot_input = the_input(args.quiet, 'n',
-            "\nWarning: Completed. Please reboot the device. Reboot now(y/N)? ")
+            "\n" + BOLD + "Warning: Completed. Please reboot the device." + ENDC + " Reboot now (y/N)? ")
         if not reboot_input == "y":
             return ErrorCode.SUCCESS.value
         os.system('reboot')
@@ -761,7 +764,7 @@ Hit the Enter Key to Exit:
         if not "No firmware image could be updated on this board" == str(e):
             # Rollback the firmware when the upgrade fails
             try:
-                print('Warning: Upgrade failed, rollback started')
+                print(BOLD + 'Warning: Upgrade failed, rollback started' + ENDC + '\n')
                 updater = RollbackFirmware(args.firmware, args.backup_dir)
                 if ErrorCode.ROLLBACK_FAILED.value == updater.rollback_firmware():
                     return ErrorCode.ROLLBACK_FAILED.value
