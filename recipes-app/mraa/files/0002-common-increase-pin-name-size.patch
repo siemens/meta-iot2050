@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+Date: Mon, 27 Feb 2023 16:31:13 +0100
+Subject: [PATCH] common: increase pin name size
+
+Some pin names are longer than 12 characters.
+32 characters should be enough while consuming not too
+much space.
+
+Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+---
+ api/mraa/common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/api/mraa/common.h b/api/mraa/common.h
+index 6675f2d15771..13df2f1681fe 100644
+--- a/api/mraa/common.h
++++ b/api/mraa/common.h
+@@ -32,7 +32,7 @@
+ /** Max size off Mraa Platform name */
+ #define MRAA_PLATFORM_NAME_MAX_SIZE 64
+ /** Size off Mraa pin name */
+-#define MRAA_PIN_NAME_SIZE 12
++#define MRAA_PIN_NAME_SIZE 32
+ 
+ /** Bit Shift for Mraa sub platform */
+ #define MRAA_SUB_PLATFORM_BIT_SHIFT 9
