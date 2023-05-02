@@ -13,6 +13,8 @@ DESCRIPTION = "Low Level Skeleton Library for Communication on GNU/Linux platfor
 MAINTAINER = "le.jin@siemens.com"
 SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0001-gpio-Fix-JS-binding-regarding-interrupt-injections.patch \
+            file://0002-common-increase-pin-name-size.patch \
+            file://0003-iot2050-add-debugfs-pinmux-support.patch \
             file://rules"
 SRCREV = "8b1c54934e80edc2d36abac9d9c96fe1e01cb669"
 
