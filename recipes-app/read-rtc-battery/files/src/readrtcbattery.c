@@ -1,3 +1,13 @@
+/**
+* Copyright (c) Siemens AG, 2019-2023
+*
+* Authors:
+*  Torsten Hahn <torsten.hahn.extern@siemens.com>
+*
+* This file is subject to the terms and conditions of the MIT License.  See
+* COPYING.MIT file in the top-level directory.
+*
+**/
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <linux/rtc.h>
@@ -17,31 +27,31 @@ int main()
     int retval = 0; // Return value of ioctl function (-1 = Error)
 
     // 1st step: Open Driver
-    printf("\nOpening Driver\n");
     fd = open("/dev/rtc", O_RDONLY);
 
     // 2nd step: Display error in command line if the device
     // file wasn't found and close application
-    if(fd < 0) {
-        printf("Device file not found n\n");
-        return 0;
+    if (fd < 0) {
+        printf("Device file not found\n");
+        return EXIT_FAILURE;
     }
-
 
     // 3rd step: Read out 
     printf("Process ioctl access to read battery status\n");
     retval = ioctl(fd, RTC_VL_DATA_INVALID, &batteryStatus);
 
-    if (retval == -1){
+    if (retval == -1) {
         // 4th step: Display error in command line if the ioctl function isn't able to access 
         // the specific function
         printf("Error access ioctl function \n");
-        return 0; 
+        return EXIT_FAILURE; 
     } else {
         // 5th step: Print battery status
         printf("Battery status (1 = Error) %d\n", batteryStatus);
     }
-        // Close driver
-        printf("Closing Driver\n");
-        close(fd);
+    // Close driver
+    printf("Closing Driver\n");
+    close(fd);
+
+    return EXIT_SUCCESS;
 } // main
