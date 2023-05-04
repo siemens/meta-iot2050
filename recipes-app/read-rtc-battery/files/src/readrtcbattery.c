@@ -37,7 +37,6 @@ int main()
     }
 
     // 3rd step: Read out 
-    printf("Process ioctl access to read battery status\n");
     retval = ioctl(fd, RTC_VL_DATA_INVALID, &batteryStatus);
 
     if (retval == -1) {
@@ -49,8 +48,6 @@ int main()
         // 5th step: Print battery status
         printf("Battery status (1 = Error) %d\n", batteryStatus);
     }
-    // Close driver
-    printf("Closing Driver\n");
     close(fd);
 
     return EXIT_SUCCESS;
