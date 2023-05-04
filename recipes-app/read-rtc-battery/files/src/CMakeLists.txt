@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.2)
+project(read-rtc-battery)
+include_directories(.)
+add_executable(readrtcbattery readrtcbattery.c)
+set(CMAKE_INSTALL_PREFIX "/usr")
+# target_link_libraries(switchserialmode usb-1.0 gpiod)
+install(TARGETS readrtcbattery RUNTIME DESTINATION bin)
