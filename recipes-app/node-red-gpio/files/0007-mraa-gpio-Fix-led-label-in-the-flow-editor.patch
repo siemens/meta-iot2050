@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 28 Dec 2023 11:00:06 +0800
+Subject: [PATCH] mraa-gpio: Fix led label in the flow editor
+
+The default label for led node is 'led', which is almost useless.
+Change it to pattern "USER<n> LED <color>".
+
+BTW, this name scheme is only valid because the IOT2050 is the
+only user of the led module.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-gpio-led.html | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+index aabf13207a45..e1c8109897bd 100644
+--- a/hardware/intel/mraa-gpio-led.html
++++ b/hardware/intel/mraa-gpio-led.html
+@@ -15,7 +15,18 @@
+             icon: "arrow.png",
+             align: "right",
+             label: function() {
+-                return this.name || "led";
++                if (this.name) {
++                    return this.name;
++                }
++
++                var pinNum = this.pin ? (parseInt(this.pin, 10) + 1) : "";
++                var colour = "";
++                switch (this.color) {
++                    case "0": colour = "GREEN"; break;
++                    case "1": colour = "RED"; break;
++                    case "2": colour = "ORANGE"; break;
++                }
++                return this.name || "USER" + pinNum + " LED " + colour;
+             },
+             labelStyle: function() {
+                 return this.name?"node_label_italic":"";

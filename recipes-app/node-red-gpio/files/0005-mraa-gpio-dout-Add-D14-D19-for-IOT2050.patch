@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 28 Dec 2023 10:19:31 +0800
+Subject: [PATCH] mraa-gpio: dout: Add D14-D19 for IOT2050
+
+This was lost during the upstreaming.
+
+Fixes: 25d7d668ef11 ("Add IOT2050 board into mraa Intel nodes (#940)")
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-gpio-dout.html | 9 ++++++++-
+ hardware/intel/mraa-gpio-dout.js   | 5 +++--
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
+index 8b6e961d5dd2..f4404fde9080 100644
+--- a/hardware/intel/mraa-gpio-dout.html
++++ b/hardware/intel/mraa-gpio-dout.html
+@@ -15,7 +15,7 @@
+         icon: "arrow.png",
+         align: "right",
+         label: function() {
+-            if (this.pin === "14") {
++            if (this.pin === "14" && RED.settings.mraaGpioDoutBoardType !== "IOT2050") {
+                 return "LED";
+             } else {
+                 return this.name||"D"+this.pin;
+@@ -28,6 +28,13 @@
+             if (RED.settings.mraaGpioDoutBoardType === 'Galileo v1') {
+                 $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
+             }
++
++            if (RED.settings.mraaGpioDoutBoardType === "IOT2050") {
++                for (let i = 14; i <= 19; i++) {
++                    $('#node-input-pin').append($("<option></option>").attr("value", i).text("D" + i));
++                }
++            }
++
+             $('#node-input-pin').val(this.pin);
+             $('#btype').text(RED.settings.mraaGpioDoutBoardType);
+             $('#ver-tip').text(RED.settings.mraaGpioDoutMraaVersion);
+diff --git a/hardware/intel/mraa-gpio-dout.js b/hardware/intel/mraa-gpio-dout.js
+index 3af1c3b85f8e..518dc4004f56 100644
+--- a/hardware/intel/mraa-gpio-dout.js
++++ b/hardware/intel/mraa-gpio-dout.js
+@@ -2,6 +2,7 @@
+ module.exports = function(RED) {
+     var m = require('mraa');
+     var mraaContext = require('./mraa-context');
++    var platformTypeStr = mraaContext.getPlatformTypeStr();
+ 
+     function gpioDout(n) {
+         RED.nodes.createNode(this, n);
+@@ -9,7 +10,7 @@ module.exports = function(RED) {
+         this.set = n.set;
+         this.level = Number(n.level);
+         var node = this;
+-        if (node.pin === 14) {
++        if (node.pin === 14 && platformTypeStr !== "IOT2050") {
+             node.p = new m.Gpio(3,false,true);  // special for onboard LED v1
+         }
+         else {
+@@ -36,7 +37,7 @@ module.exports = function(RED) {
+     RED.nodes.registerType("mraa-gpio-dout", gpioDout, {
+         settings: {
+             mraaGpioDoutBoardType: {
+-                value: mraaContext.getPlatformTypeStr(),
++                value: platformTypeStr,
+                 exportable: true
+             },
+             mraaGpioDoutMraaVersion: {

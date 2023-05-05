@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 28 Dec 2023 09:56:02 +0800
+Subject: [PATCH] mraa-gpio: din: Make D14-D19 IOT2050 only
+
+Pins D14-D19 are IOT2050 only.
+
+Fixes: 25d7d668ef11 ("Add IOT2050 board into mraa Intel nodes (#940)")
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-gpio-din.html | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
+index c7fb92e0e9b4..a22cb05b3617 100644
+--- a/hardware/intel/mraa-gpio-din.html
++++ b/hardware/intel/mraa-gpio-din.html
+@@ -22,6 +22,9 @@
+         },
+         oneditprepare: function() {
+             if (RED.settings.mraaGpioDinBoardType === "IOT2050") {
++                for (let i = 14; i <= 19; i++) {
++                    $('#node-input-pin').append($("<option></option>").attr("value", i).text("D" + i));
++                }
+                 $('#node-input-pin').append($("<option></option>").attr("value", 20).text("USER button"));
+             }
+             $('#node-input-pin').val(this.pin);
+@@ -50,12 +53,6 @@
+             <option value="11">D11</option>
+             <option value="12">D12</option>
+             <option value="13">D13</option>
+-            <option value="14">D14</option>
+-            <option value="15">D15</option>
+-            <option value="16">D16</option>
+-            <option value="17">D17</option>
+-            <option value="18">D18</option>
+-            <option value="19">D19</option>
+         </select>
+     </div>
+     <div class="form-row">

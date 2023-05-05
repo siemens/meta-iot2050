@@ -1,0 +1,102 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 28 Dec 2023 10:24:37 +0800
+Subject: [PATCH] mraa-gpio: Make led node IOT2050 only
+
+Only IOT2050 provides such kind of led.
+
+Fixes: 25d7d668ef11 ("Add IOT2050 board into mraa Intel nodes (#940)")
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-gpio-led.html | 72 ++++++++++++++++---------------
+ 1 file changed, 37 insertions(+), 35 deletions(-)
+
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+index fdbc0f63788f..aabf13207a45 100644
+--- a/hardware/intel/mraa-gpio-led.html
++++ b/hardware/intel/mraa-gpio-led.html
+@@ -1,40 +1,42 @@
+ 
+ <script type="text/javascript">
+-    RED.nodes.registerType('mraa-gpio-led',{
+-        category: 'GPIO',
+-        color: '#a6bbcf',
+-        paletteLabel: 'led',
+-        defaults: {
+-            name: {value:""},
+-            pin:  {value:"", required: true},
+-            color:  {value:"", required: true},
+-        },
+-        inputs:1,
+-        outputs:0,
+-        icon: "arrow.png",
+-        align: "right",
+-        label: function() {
+-            return this.name || "led";
+-        },
+-        labelStyle: function() {
+-            return this.name?"node_label_italic":"";
+-        },
+-        oneditprepare: function() {
+-            $('#node-input-pin').val(this.pin);
+-            $('#btype').text(RED.settings.mraaGpioLedBoardType);
+-            $('#ver-tip').text(RED.settings.mraaGpioLedMraaVersion);
++    if (RED.settings.mraaGpioLedBoardType === "IOT2050") {
++        RED.nodes.registerType('mraa-gpio-led',{
++            category: 'GPIO',
++            color: '#a6bbcf',
++            paletteLabel: 'led',
++            defaults: {
++                name: {value:""},
++                pin:  {value:"", required: true},
++                color:  {value:"", required: true},
++            },
++            inputs:1,
++            outputs:0,
++            icon: "arrow.png",
++            align: "right",
++            label: function() {
++                return this.name || "led";
++            },
++            labelStyle: function() {
++                return this.name?"node_label_italic":"";
++            },
++            oneditprepare: function() {
++                $('#node-input-pin').val(this.pin);
++                $('#btype').text(RED.settings.mraaGpioLedBoardType);
++                $('#ver-tip').text(RED.settings.mraaGpioLedMraaVersion);
+ 
+-            var setstate = function () {
+-                if ($('#node-input-set').is(":checked")) {
+-                    $("#node-set-state").show();
+-                } else {
+-                    $("#node-set-state").hide();
+-                }
+-            };
+-            $("#node-input-set").change(function () { setstate(); });
+-            setstate();
+-        }
+-    });
++                var setstate = function () {
++                    if ($('#node-input-set').is(":checked")) {
++                        $("#node-set-state").show();
++                    } else {
++                        $("#node-set-state").hide();
++                    }
++                };
++                $("#node-input-set").change(function () { setstate(); });
++                setstate();
++            }
++        });
++    }
+ </script>
+ 
+ <script type="text/html" data-template-name="mraa-gpio-led">
+@@ -65,6 +67,6 @@
+ </script>
+ 
+ <script type="text/html" data-help-name="mraa-gpio-led">
+-    <p>Led Control for a board.</p>
++    <p>Led Control for IOT2050 series.</p>
+     <p>The <code>msg.payload</code> should contain the value 0 or 1.</p>
+ </script>
