@@ -1,0 +1,395 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 27 Dec 2023 15:52:20 +0800
+Subject: [PATCH] mraa-gpio: Pass settings from js to html
+
+Previously the mraa board type and version are retrieved through
+httpAdmin interfaces provided by the js. However, node-red provides a
+method to expose settings to the editor, taking this way could reduce
+two httpAdmin interfaces.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-context.js     | 20 ++++++++++++++++++++
+ hardware/intel/mraa-gpio-ain.html  | 21 +++------------------
+ hardware/intel/mraa-gpio-ain.js    | 14 +++++++++++++-
+ hardware/intel/mraa-gpio-din.html  | 27 ++++++---------------------
+ hardware/intel/mraa-gpio-din.js    | 14 +++++++++++++-
+ hardware/intel/mraa-gpio-dout.html | 27 ++++++---------------------
+ hardware/intel/mraa-gpio-dout.js   | 20 ++++++++++++--------
+ hardware/intel/mraa-gpio-led.html  | 21 +++------------------
+ hardware/intel/mraa-gpio-led.js    | 21 +++++++++++++--------
+ hardware/intel/mraa-gpio-pwm.html  | 21 +++------------------
+ hardware/intel/mraa-gpio-pwm.js    | 20 ++++++++++++--------
+ 11 files changed, 104 insertions(+), 122 deletions(-)
+ create mode 100644 hardware/intel/mraa-context.js
+
+diff --git a/hardware/intel/mraa-context.js b/hardware/intel/mraa-context.js
+new file mode 100644
+index 000000000000..ba780edadd9b
+--- /dev/null
++++ b/hardware/intel/mraa-context.js
+@@ -0,0 +1,20 @@
++var mraa = require('mraa');
++
++module.exports.getPlatformTypeStr = function() {
++    switch (mraa.getPlatformType()) {
++        case 0: return "Galileo v1";
++        case 1: return "Galileo v2";
++        case 2: return "Edison Fab C";
++        case 3: return "DE3813 Baytrail";
++        case 4: return "Minnow Max";
++        case 5: return "Raspberry Pi";
++        case 6: return "Beaglebone";
++        case 7: return "Banana";
++        case 26: return "IOT2050";
++        default: return "unknown";
++    }
++}
++
++module.exports.getVersion = function() {
++    return mraa.getVersion();
++}
+diff --git a/hardware/intel/mraa-gpio-ain.html b/hardware/intel/mraa-gpio-ain.html
+index 634c824fa78b..91aa302bef9f 100644
+--- a/hardware/intel/mraa-gpio-ain.html
++++ b/hardware/intel/mraa-gpio-ain.html
+@@ -16,24 +16,9 @@
+             return this.name||"A"+this.pin;
+         },
+         oneditprepare: function() {
+-            var pinnow = this.pin;
+-            $.getJSON('mraa-gpio/'+this.id,function(data) {
+-                var t = "unknown";
+-                if (data === 0) { t = "Galileo v1"; }
+-                if (data === 1) { t = "Galileo v2"; }
+-                if (data === 2) { t = "Edison Fab C"; }
+-                if (data === 3) { t = "DE3813 Baytrail"; }
+-                if (data === 4) { t = "Minnow Max"; }
+-                if (data === 5) { t = "Raspberry Pi"; }
+-                if (data === 6) { t = "Beaglebone"; }
+-                if (data === 7) { t = "Banana"; }
+-                if (data === 26) { t = "IOT2050"; }
+-                $('#btype').text(t);
+-                $('#node-input-pin').val(pinnow);
+-            });
+-            $.getJSON('mraa-version/'+this.id,function(data) {
+-                $('#ver-tip').text(data);
+-            });
++            $('#node-input-pin').val(this.pin);
++            $('#btype').text(RED.settings.mraaGpioAinBoardType);
++            $('#ver-tip').text(RED.settings.mraaGpioAinMraaVersion);
+         }
+     });
+ </script>
+diff --git a/hardware/intel/mraa-gpio-ain.js b/hardware/intel/mraa-gpio-ain.js
+index 6867db4df6a1..8d3b19bc53e6 100644
+--- a/hardware/intel/mraa-gpio-ain.js
++++ b/hardware/intel/mraa-gpio-ain.js
+@@ -1,6 +1,7 @@
+ 
+ module.exports = function(RED) {
+     var m = require('mraa');
++    var mraaContext = require('./mraa-context');
+ 
+     function gpioAin(n) {
+         RED.nodes.createNode(this, n);
+@@ -28,5 +29,16 @@ module.exports = function(RED) {
+             node.x.close();
+         });
+     }
+-    RED.nodes.registerType("mraa-gpio-ain", gpioAin);
++    RED.nodes.registerType("mraa-gpio-ain", gpioAin, {
++        settings: {
++            mraaGpioAinBoardType: {
++                value: mraaContext.getPlatformTypeStr(),
++                exportable: true
++            },
++            mraaGpioAinMraaVersion: {
++                value: mraaContext.getVersion(),
++                exportable: true
++            }
++        }
++    });
+ }
+diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
+index 9300a051fafc..c7fb92e0e9b4 100644
+--- a/hardware/intel/mraa-gpio-din.html
++++ b/hardware/intel/mraa-gpio-din.html
+@@ -21,27 +21,12 @@
+             return this.name?"node_label_italic":"";
+         },
+         oneditprepare: function() {
+-            var pinnow = this.pin;
+-            $.getJSON('mraa-gpio/'+this.id,function(data) {
+-                var t = "unknown";
+-                if (data === 0) { t = "Galileo v1"; }
+-                if (data === 1) { t = "Galileo v2"; }
+-                if (data === 2) { t = "Edison Fab C"; }
+-                if (data === 3) { t = "DE3813 Baytrail"; }
+-                if (data === 4) { t = "Minnow Max"; }
+-                if (data === 5) { t = "Raspberry Pi"; }
+-                if (data === 6) { t = "Beaglebone"; }
+-                if (data === 7) { t = "Banana"; }
+-                if (data === 26) { t = "IOT2050"; }
+-                $('#type-tip').text(t);
+-                if (data === 26) {
+-                    $('#node-input-pin').append($("<option></option>").attr("value",20).text("USER button"));
+-                }
+-                $('#node-input-pin').val(pinnow);
+-            });
+-            $.getJSON('mraa-version/'+this.id,function(data) {
+-                $('#ver-tip').text(data);
+-            });
++            if (RED.settings.mraaGpioDinBoardType === "IOT2050") {
++                $('#node-input-pin').append($("<option></option>").attr("value", 20).text("USER button"));
++            }
++            $('#node-input-pin').val(this.pin);
++            $('#type-tip').text(RED.settings.mraaGpioDinBoardType);
++            $('#ver-tip').text(RED.settings.mraaGpioDinMraaVersion);
+         }
+     });
+ </script>
+diff --git a/hardware/intel/mraa-gpio-din.js b/hardware/intel/mraa-gpio-din.js
+index cfb79612d65c..738db578521c 100644
+--- a/hardware/intel/mraa-gpio-din.js
++++ b/hardware/intel/mraa-gpio-din.js
+@@ -1,6 +1,7 @@
+ 
+ module.exports = function(RED) {
+     var m = require('mraa');
++    var mraaContext = require('./mraa-context');
+     //console.log("BOARD :",m.getPlatformName());
+ 
+     function gpioDin(n) {
+@@ -71,5 +72,16 @@ module.exports = function(RED) {
+             node.x.close();
+         });
+     }
+-    RED.nodes.registerType("mraa-gpio-din", gpioDin);
++    RED.nodes.registerType("mraa-gpio-din", gpioDin, {
++        settings: {
++            mraaGpioDinBoardType: {
++                value: mraaContext.getPlatformTypeStr(),
++                exportable: true
++            },
++            mraaGpioDinMraaVersion: {
++                value: mraaContext.getVersion(),
++                exportable: true
++            }
++        }
++    });
+ }
+diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
+index 5021024aef4c..8b6e961d5dd2 100644
+--- a/hardware/intel/mraa-gpio-dout.html
++++ b/hardware/intel/mraa-gpio-dout.html
+@@ -25,27 +25,12 @@
+             return this.name?"node_label_italic":"";
+         },
+         oneditprepare: function() {
+-            var pinnow = this.pin;
+-            $.getJSON('mraa-gpio/'+this.id,function(data) {
+-                var t = "unknown";
+-                if (data === 0) { t = "Galileo v1"; }
+-                if (data === 1) { t = "Galileo v2"; }
+-                if (data === 2) { t = "Edison Fab C"; }
+-                if (data === 3) { t = "DE3813 Baytrail"; }
+-                if (data === 4) { t = "Minnow Max"; }
+-                if (data === 5) { t = "Raspberry Pi"; }
+-                if (data === 6) { t = "Beaglebone"; }
+-                if (data === 7) { t = "Banana"; }
+-                if (data === 26) { t = "IOT2050"; }
+-                $('#btype').text(t);
+-                if (data === 0) {
+-                    $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
+-                }
+-                $('#node-input-pin').val(pinnow);
+-            });
+-            $.getJSON('mraa-version/'+this.id,function(data) {
+-                $('#ver-tip').text(data);
+-            });
++            if (RED.settings.mraaGpioDoutBoardType === 'Galileo v1') {
++                $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
++            }
++            $('#node-input-pin').val(this.pin);
++            $('#btype').text(RED.settings.mraaGpioDoutBoardType);
++            $('#ver-tip').text(RED.settings.mraaGpioDoutMraaVersion);
+ 
+             var setstate = function () {
+                 if ($('#node-input-set').is(":checked")) {
+diff --git a/hardware/intel/mraa-gpio-dout.js b/hardware/intel/mraa-gpio-dout.js
+index 6bb833d3a721..3af1c3b85f8e 100644
+--- a/hardware/intel/mraa-gpio-dout.js
++++ b/hardware/intel/mraa-gpio-dout.js
+@@ -1,6 +1,7 @@
+ 
+ module.exports = function(RED) {
+     var m = require('mraa');
++    var mraaContext = require('./mraa-context');
+ 
+     function gpioDout(n) {
+         RED.nodes.createNode(this, n);
+@@ -32,13 +33,16 @@ module.exports = function(RED) {
+             node.p.close();
+         });
+     }
+-    RED.nodes.registerType("mraa-gpio-dout", gpioDout);
+-
+-    RED.httpAdmin.get('/mraa-gpio/:id', RED.auth.needsPermission('mraa-gpio.read'), function(req,res) {
+-        res.json(m.getPlatformType());
+-    });
+-
+-    RED.httpAdmin.get('/mraa-version/:id', RED.auth.needsPermission('mraa-version.read'), function(req,res) {
+-        res.json(m.getVersion());
++    RED.nodes.registerType("mraa-gpio-dout", gpioDout, {
++        settings: {
++            mraaGpioDoutBoardType: {
++                value: mraaContext.getPlatformTypeStr(),
++                exportable: true
++            },
++            mraaGpioDoutMraaVersion: {
++                value: mraaContext.getVersion(),
++                exportable: true
++            }
++        }
+     });
+ }
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+index c0b9eb2504c5..fdbc0f63788f 100644
+--- a/hardware/intel/mraa-gpio-led.html
++++ b/hardware/intel/mraa-gpio-led.html
+@@ -20,24 +20,9 @@
+             return this.name?"node_label_italic":"";
+         },
+         oneditprepare: function() {
+-            var pinnow = this.pin;
+-            $.getJSON('mraa-gpio/'+this.id,function(data) {
+-                var t = "unknown";
+-                if (data === 0) { t = "Galileo v1"; }
+-                if (data === 1) { t = "Galileo v2"; }
+-                if (data === 2) { t = "Edison Fab C"; }
+-                if (data === 3) { t = "DE3813 Baytrail"; }
+-                if (data === 4) { t = "Minnow Max"; }
+-                if (data === 5) { t = "Raspberry Pi"; }
+-                if (data === 6) { t = "Beaglebone"; }
+-                if (data === 7) { t = "Banana"; }
+-                if (data === 26) { t = "IOT2050"; }
+-                $('#btype').text(t);
+-                $('#node-input-pin').val(pinnow);
+-            });
+-            $.getJSON('mraa-version/'+this.id,function(data) {
+-                $('#ver-tip').text(data);
+-            });
++            $('#node-input-pin').val(this.pin);
++            $('#btype').text(RED.settings.mraaGpioLedBoardType);
++            $('#ver-tip').text(RED.settings.mraaGpioLedMraaVersion);
+ 
+             var setstate = function () {
+                 if ($('#node-input-set').is(":checked")) {
+diff --git a/hardware/intel/mraa-gpio-led.js b/hardware/intel/mraa-gpio-led.js
+index d9a4ce0819e5..57e682efc0ce 100644
+--- a/hardware/intel/mraa-gpio-led.js
++++ b/hardware/intel/mraa-gpio-led.js
+@@ -1,5 +1,7 @@
+ module.exports = function(RED) {
+     var m = require('mraa');
++    var mraaContext = require('./mraa-context');
++
+     function LEDNode(n) {
+         RED.nodes.createNode(this, n);
+         this.pin = Number(n.pin);
+@@ -74,13 +76,16 @@ module.exports = function(RED) {
+             }
+         });
+     }
+-    RED.nodes.registerType("mraa-gpio-led", LEDNode);
+-
+-    RED.httpAdmin.get('/mraa-gpio/:id', RED.auth.needsPermission('mraa-gpio.read'), function(req,res) {
+-        res.json(m.getPlatformType());
+-    });
+-
+-    RED.httpAdmin.get('/mraa-version/:id', RED.auth.needsPermission('mraa-version.read'), function(req,res) {
+-        res.json(m.getVersion());
++    RED.nodes.registerType("mraa-gpio-led", LEDNode, {
++        settings: {
++            mraaGpioLedBoardType: {
++                value: mraaContext.getPlatformTypeStr(),
++                exportable: true
++            },
++            mraaGpioLedMraaVersion: {
++                value: mraaContext.getVersion(),
++                exportable: true
++            }
++        }
+     });
+ }
+diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-pwm.html
+index ad60d90d0841..1ed91397cf4f 100644
+--- a/hardware/intel/mraa-gpio-pwm.html
++++ b/hardware/intel/mraa-gpio-pwm.html
+@@ -24,24 +24,9 @@
+             return this.name?"node_label_italic":"";
+         },
+         oneditprepare: function() {
+-            var pinnow = this.pin;
+-            $.getJSON('mraa-gpio/'+this.id,function(data) {
+-                var t = "unknown";
+-                if (data === 0) { t = "Galileo v1"; }
+-                if (data === 1) { t = "Galileo v2"; }
+-                if (data === 2) { t = "Edison Fab C"; }
+-                if (data === 3) { t = "DE3813 Baytrail"; }
+-                if (data === 4) { t = "Minnow Max"; }
+-                if (data === 5) { t = "Raspberry Pi"; }
+-                if (data === 6) { t = "Beaglebone"; }
+-                if (data === 7) { t = "Banana"; }
+-                if (data === 26) { t = "IOT2050"; }
+-                $('#type-tip').text(t);
+-                $('#node-input-pin').val(pinnow);
+-            });
+-            $.getJSON('mraa-version/'+this.id,function(data) {
+-                $('#ver-tip').text(data);
+-            });
++            $('#node-input-pin').val(this.pin);
++            $('#type-tip').text(RED.settings.mraaGpioPwmBoardType);
++            $('#ver-tip').text(RED.settings.mraaGpioPwmMraaVersion);
+ 
+             var setstate = function () {
+                 if ($('#node-input-set').is(":checked")) {
+diff --git a/hardware/intel/mraa-gpio-pwm.js b/hardware/intel/mraa-gpio-pwm.js
+index 6a2469f27b81..5f7714a95ba2 100644
+--- a/hardware/intel/mraa-gpio-pwm.js
++++ b/hardware/intel/mraa-gpio-pwm.js
+@@ -1,6 +1,7 @@
+ 
+ module.exports = function(RED) {
+     var m = require('mraa');
++    var mraaContext = require('./mraa-context');
+ 
+     function gpioPWM(n) {
+         RED.nodes.createNode(this, n);
+@@ -24,13 +25,16 @@ module.exports = function(RED) {
+             node.p.close();
+         });
+     }
+-    RED.nodes.registerType("mraa-gpio-pwm", gpioPWM);
+-
+-    RED.httpAdmin.get('/mraa-gpio/:id', RED.auth.needsPermission('mraa-gpio.read'), function(req,res) {
+-        res.json(m.getPlatformType());
+-    });
+-
+-    RED.httpAdmin.get('/mraa-version/:id', RED.auth.needsPermission('mraa-version.read'), function(req,res) {
+-        res.json(m.getVersion());
++    RED.nodes.registerType("mraa-gpio-pwm", gpioPWM, {
++        settings: {
++            mraaGpioPwmBoardType: {
++                value: mraaContext.getPlatformTypeStr(),
++                exportable: true
++            },
++            mraaGpioPwmMraaVersion: {
++                value: mraaContext.getVersion(),
++                exportable: true
++            }
++        }
+     });
+ }

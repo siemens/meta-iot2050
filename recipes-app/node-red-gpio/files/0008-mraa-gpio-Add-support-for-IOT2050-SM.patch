@@ -1,0 +1,349 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 28 Dec 2023 13:00:02 +0800
+Subject: [PATCH] mraa-gpio: Add support for IOT2050 SM
+
+The new board type IOT2050 SM reduces the Arduino interface, only keeps
+the USER LEDs and the USER button.
+
+Based on the original patch from Chao.
+
+Signed-off-by: Chao Zeng <chao.zeng@siemens.com>
+[Baocheng: Adapt the new pattern of exposing settings]
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-context.js     |  1 +
+ hardware/intel/mraa-gpio-ain.html  | 44 +++++++-------
+ hardware/intel/mraa-gpio-din.html  | 31 +++++-----
+ hardware/intel/mraa-gpio-dout.html | 94 +++++++++++++++---------------
+ hardware/intel/mraa-gpio-led.html  |  3 +-
+ hardware/intel/mraa-gpio-pwm.html  | 76 ++++++++++++------------
+ 6 files changed, 127 insertions(+), 122 deletions(-)
+
+diff --git a/hardware/intel/mraa-context.js b/hardware/intel/mraa-context.js
+index ba780edadd9b..f8730d1309ee 100644
+--- a/hardware/intel/mraa-context.js
++++ b/hardware/intel/mraa-context.js
+@@ -11,6 +11,7 @@ module.exports.getPlatformTypeStr = function() {
+         case 6: return "Beaglebone";
+         case 7: return "Banana";
+         case 26: return "IOT2050";
++        case 27: return "IOT2050 SM";
+         default: return "unknown";
+     }
+ }
+diff --git a/hardware/intel/mraa-gpio-ain.html b/hardware/intel/mraa-gpio-ain.html
+index 91aa302bef9f..59bc689e85db 100644
+--- a/hardware/intel/mraa-gpio-ain.html
++++ b/hardware/intel/mraa-gpio-ain.html
+@@ -1,26 +1,28 @@
+ 
+ <script type="text/javascript">
+-    RED.nodes.registerType('mraa-gpio-ain',{
+-        category: 'GPIO',
+-        color: '#a6bbcf',
+-        paletteLabel: 'analogue',
+-        defaults: {
+-            name: {value:""},
+-            pin:  {value:"", required: true, validate:RED.validators.number()},
+-            interval: {value:"100", required: true, validate:RED.validators.number()}
+-        },
+-        inputs:0,
+-        outputs:1,
+-        icon: "arrow.png",
+-        label: function() {
+-            return this.name||"A"+this.pin;
+-        },
+-        oneditprepare: function() {
+-            $('#node-input-pin').val(this.pin);
+-            $('#btype').text(RED.settings.mraaGpioAinBoardType);
+-            $('#ver-tip').text(RED.settings.mraaGpioAinMraaVersion);
+-        }
+-    });
++    if (RED.settings.mraaGpioAinBoardType !== "IOT2050 SM") {
++        RED.nodes.registerType('mraa-gpio-ain',{
++            category: 'GPIO',
++            color: '#a6bbcf',
++            paletteLabel: 'analogue',
++            defaults: {
++                name: {value:""},
++                pin:  {value:"", required: true, validate:RED.validators.number()},
++                interval: {value:"100", required: true, validate:RED.validators.number()}
++            },
++            inputs:0,
++            outputs:1,
++            icon: "arrow.png",
++            label: function() {
++                return this.name||"A"+this.pin;
++            },
++            oneditprepare: function() {
++                $('#node-input-pin').val(this.pin);
++                $('#btype').text(RED.settings.mraaGpioAinBoardType);
++                $('#ver-tip').text(RED.settings.mraaGpioAinMraaVersion);
++            }
++        });
++    }
+ </script>
+ 
+ <script type="text/html" data-template-name="mraa-gpio-ain">
+diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
+index 225aa47690d3..edb0b75b1b66 100644
+--- a/hardware/intel/mraa-gpio-din.html
++++ b/hardware/intel/mraa-gpio-din.html
+@@ -21,12 +21,23 @@
+             return this.name?"node_label_italic":"";
+         },
+         oneditprepare: function() {
+-            if (RED.settings.mraaGpioDinBoardType === "IOT2050") {
+-                for (let i = 14; i <= 19; i++) {
++            if (RED.settings.mraaGpioDinBoardType === "IOT2050 SM") {
++                $('#node-input-pin').append($("<option></option>").attr("value", 0).text("USER button"));
++            } else {
++                var maxPinNum = 13;
++                if (RED.settings.mraaGpioDinBoardType === "IOT2050") {
++                    maxPinNum = 19;
++                }
++
++                for (let i = 0; i <= maxPinNum; i++) {
+                     $('#node-input-pin').append($("<option></option>").attr("value", i).text("D" + i));
+                 }
+-                $('#node-input-pin').append($("<option></option>").attr("value", 20).text("USER button"));
++
++                if (RED.settings.mraaGpioDinBoardType === "IOT2050") {
++                    $('#node-input-pin').append($("<option></option>").attr("value", 20).text("USER button"));
++                }
+             }
++
+             $('#node-input-pin').val(this.pin);
+             $('#type-tip').text(RED.settings.mraaGpioDinBoardType);
+             $('#ver-tip').text(RED.settings.mraaGpioDinMraaVersion);
+@@ -39,20 +50,6 @@
+         <label for="node-input-pin"><i class="fa fa-circle"></i> Pin</label>
+         <select type="text" id="node-input-pin" style="width: 250px;">
+             <option value='' disabled selected style='display:none;'><span data-i18n="rpi-gpio.label.selectpin"></span></option>
+-            <option value="0">D0</option>
+-            <option value="1">D1</option>
+-            <option value="2">D2</option>
+-            <option value="3">D3</option>
+-            <option value="4">D4</option>
+-            <option value="5">D5</option>
+-            <option value="6">D6</option>
+-            <option value="7">D7</option>
+-            <option value="8">D8</option>
+-            <option value="9">D9</option>
+-            <option value="10">D10</option>
+-            <option value="11">D11</option>
+-            <option value="12">D12</option>
+-            <option value="13">D13</option>
+         </select>
+     </div>
+     <div class="form-row">
+diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
+index f4404fde9080..79c440b52bbb 100644
+--- a/hardware/intel/mraa-gpio-dout.html
++++ b/hardware/intel/mraa-gpio-dout.html
+@@ -1,55 +1,57 @@
+ 
+ <script type="text/javascript">
+-    RED.nodes.registerType('mraa-gpio-dout',{
+-        category: 'GPIO',
+-        color: '#a6bbcf',
+-        paletteLabel: 'digital',
+-        defaults: {
+-            name: {value:""},
+-            pin:  {value:"", required: true},
+-            set: { value:"" },
+-            level: { value:"0" }
+-        },
+-        inputs:1,
+-        outputs:0,
+-        icon: "arrow.png",
+-        align: "right",
+-        label: function() {
+-            if (this.pin === "14" && RED.settings.mraaGpioDoutBoardType !== "IOT2050") {
+-                return "LED";
+-            } else {
+-                return this.name||"D"+this.pin;
+-            }
+-        },
+-        labelStyle: function() {
+-            return this.name?"node_label_italic":"";
+-        },
+-        oneditprepare: function() {
+-            if (RED.settings.mraaGpioDoutBoardType === 'Galileo v1') {
+-                $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
+-            }
++    if (RED.settings.mraaGpioDoutBoardType !== "IOT2050 SM") {
++        RED.nodes.registerType('mraa-gpio-dout',{
++            category: 'GPIO',
++            color: '#a6bbcf',
++            paletteLabel: 'digital',
++            defaults: {
++                name: {value:""},
++                pin:  {value:"", required: true},
++                set: { value:"" },
++                level: { value:"0" }
++            },
++            inputs:1,
++            outputs:0,
++            icon: "arrow.png",
++            align: "right",
++            label: function() {
++                if (this.pin === "14" && RED.settings.mraaGpioDoutBoardType !== "IOT2050") {
++                    return "LED";
++                } else {
++                    return this.name || "D" + this.pin;
++                }
++            },
++            labelStyle: function() {
++                return this.name?"node_label_italic":"";
++            },
++            oneditprepare: function() {
++                if (RED.settings.mraaGpioDoutBoardType === 'Galileo v1') {
++                    $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
++                }
+ 
+-            if (RED.settings.mraaGpioDoutBoardType === "IOT2050") {
+-                for (let i = 14; i <= 19; i++) {
+-                    $('#node-input-pin').append($("<option></option>").attr("value", i).text("D" + i));
++                if (RED.settings.mraaGpioDoutBoardType === "IOT2050") {
++                    for (let i = 14; i <= 19; i++) {
++                        $('#node-input-pin').append($("<option></option>").attr("value", i).text("D" + i));
++                    }
+                 }
+-            }
+ 
+-            $('#node-input-pin').val(this.pin);
+-            $('#btype').text(RED.settings.mraaGpioDoutBoardType);
+-            $('#ver-tip').text(RED.settings.mraaGpioDoutMraaVersion);
++                $('#node-input-pin').val(this.pin);
++                $('#btype').text(RED.settings.mraaGpioDoutBoardType);
++                $('#ver-tip').text(RED.settings.mraaGpioDoutMraaVersion);
+ 
+-            var setstate = function () {
+-                if ($('#node-input-set').is(":checked")) {
+-                    $("#node-set-state").show();
+-                } else {
+-                    $("#node-set-state").hide();
+-                }
+-            };
+-            $("#node-input-set").change(function () { setstate(); });
+-            setstate();
+-        }
+-    });
++                var setstate = function () {
++                    if ($('#node-input-set').is(":checked")) {
++                        $("#node-set-state").show();
++                    } else {
++                        $("#node-set-state").hide();
++                    }
++                };
++                $("#node-input-set").change(function () { setstate(); });
++                setstate();
++            }
++        });
++    }
+ </script>
+ 
+ <script type="text/html" data-template-name="mraa-gpio-dout">
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+index e1c8109897bd..07e5cf1db47a 100644
+--- a/hardware/intel/mraa-gpio-led.html
++++ b/hardware/intel/mraa-gpio-led.html
+@@ -1,6 +1,7 @@
+ 
+ <script type="text/javascript">
+-    if (RED.settings.mraaGpioLedBoardType === "IOT2050") {
++    if (RED.settings.mraaGpioLedBoardType === "IOT2050" ||
++        RED.settings.mraaGpioLedBoardType === "IOT2050 SM") {
+         RED.nodes.registerType('mraa-gpio-led',{
+             category: 'GPIO',
+             color: '#a6bbcf',
+diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-pwm.html
+index 1ed91397cf4f..2ec79961fc83 100644
+--- a/hardware/intel/mraa-gpio-pwm.html
++++ b/hardware/intel/mraa-gpio-pwm.html
+@@ -1,44 +1,46 @@
+ 
+ <script type="text/javascript">
+-    RED.nodes.registerType('mraa-gpio-pwm',{
+-        category: 'GPIO',
+-        color: '#a6bbcf',
+-        paletteLabel: 'pwm',
+-        defaults: {
+-            name: {value:""},
+-            pin:  {value:"", required: true},
+-            period: { value:"100", required: true }
+-        },
+-        inputs:1,
+-        outputs:0,
+-        icon: "arrow.png",
+-        align: "right",
+-        label: function() {
+-            if (this.pin === "14") {
+-                return "LED";
+-            } else {
+-                return this.name||"PWM D"+this.pin;
+-            }
+-        },
+-        labelStyle: function() {
+-            return this.name?"node_label_italic":"";
+-        },
+-        oneditprepare: function() {
+-            $('#node-input-pin').val(this.pin);
+-            $('#type-tip').text(RED.settings.mraaGpioPwmBoardType);
+-            $('#ver-tip').text(RED.settings.mraaGpioPwmMraaVersion);
+-
+-            var setstate = function () {
+-                if ($('#node-input-set').is(":checked")) {
+-                    $("#node-set-state").show();
++    if (RED.settings.mraaGpioPwmBoardType !== "IOT2050 SM") {
++        RED.nodes.registerType('mraa-gpio-pwm',{
++            category: 'GPIO',
++            color: '#a6bbcf',
++            paletteLabel: 'pwm',
++            defaults: {
++                name: {value:""},
++                pin:  {value:"", required: true},
++                period: { value:"100", required: true }
++            },
++            inputs:1,
++            outputs:0,
++            icon: "arrow.png",
++            align: "right",
++            label: function() {
++                if (this.pin === "14") {
++                    return "LED";
+                 } else {
+-                    $("#node-set-state").hide();
++                    return this.name||"PWM D"+this.pin;
+                 }
+-            };
+-            $("#node-input-set").change(function () { setstate(); });
+-            setstate();
+-        }
+-    });
++            },
++            labelStyle: function() {
++                return this.name?"node_label_italic":"";
++            },
++            oneditprepare: function() {
++                $('#node-input-pin').val(this.pin);
++                $('#type-tip').text(RED.settings.mraaGpioPwmBoardType);
++                $('#ver-tip').text(RED.settings.mraaGpioPwmMraaVersion);
++
++                var setstate = function () {
++                    if ($('#node-input-set').is(":checked")) {
++                        $("#node-set-state").show();
++                    } else {
++                        $("#node-set-state").hide();
++                    }
++                };
++                $("#node-input-set").change(function () { setstate(); });
++                setstate();
++            }
++        });
++    }
+ </script>
+ 
+ <script type="text/html" data-template-name="mraa-gpio-pwm">

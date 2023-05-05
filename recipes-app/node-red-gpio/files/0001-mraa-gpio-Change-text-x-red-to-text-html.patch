@@ -1,0 +1,133 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 27 Dec 2023 15:06:42 +0800
+Subject: [PATCH] mraa-gpio: Change text/x-red to text/html
+
+Arrording to latest document [1]:
+
+The <script> tag should have a type of text/html - this will help most
+text editors to provide proper syntax highlighting. It also prevents
+the browser from treating it like normal HTML content when the node is
+loaded into the editor.
+
+1. https://nodered.org/docs/creating-nodes/edit-dialog
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-gpio-ain.html  | 4 ++--
+ hardware/intel/mraa-gpio-din.html  | 4 ++--
+ hardware/intel/mraa-gpio-dout.html | 4 ++--
+ hardware/intel/mraa-gpio-led.html  | 4 ++--
+ hardware/intel/mraa-gpio-pwm.html  | 4 ++--
+ 5 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/hardware/intel/mraa-gpio-ain.html b/hardware/intel/mraa-gpio-ain.html
+index 57b196273a52..634c824fa78b 100644
+--- a/hardware/intel/mraa-gpio-ain.html
++++ b/hardware/intel/mraa-gpio-ain.html
+@@ -38,7 +38,7 @@
+     });
+ </script>
+ 
+-<script type="text/x-red" data-template-name="mraa-gpio-ain">
++<script type="text/html" data-template-name="mraa-gpio-ain">
+     <div class="form-row">
+         <label for="node-input-pin"><i class="fa fa-circle"></i> Pin</label>
+         <select type="text" id="node-input-pin" style="width:250px;">
+@@ -62,7 +62,7 @@
+     <div class="form-tips">Board : <span id="btype">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
+ </script>
+ 
+-<script type="text/x-red" data-help-name="mraa-gpio-ain">
++<script type="text/html" data-help-name="mraa-gpio-ain">
+     <p>An analogue input pin for a board that is read every <i>interval</i> milliseconds.</p>
+     <p>The <code>msg.payload</code> will contain the value, and <code>msg.topic</code>
+     contains "{the_board_name}/A{the pin number}".</p>
+diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
+index 83ef75fe2398..9300a051fafc 100644
+--- a/hardware/intel/mraa-gpio-din.html
++++ b/hardware/intel/mraa-gpio-din.html
+@@ -46,7 +46,7 @@
+     });
+ </script>
+ 
+-<script type="text/x-red" data-template-name="mraa-gpio-din">
++<script type="text/html" data-template-name="mraa-gpio-din">
+     <div class="form-row">
+         <label for="node-input-pin"><i class="fa fa-circle"></i> Pin</label>
+         <select type="text" id="node-input-pin" style="width: 250px;">
+@@ -104,7 +104,7 @@
+     <div class="form-tips">Board : <span id="type-tip">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
+ </script>
+ 
+-<script type="text/x-red" data-help-name="mraa-gpio-din">
++<script type="text/html" data-help-name="mraa-gpio-din">
+     <p>A digital input pin for an Intel Galileo/Edison/Siemens IOT2050 board.</p>
+     <p>The <code>msg.payload</code> contains the value (0 or 1), and <code>msg.topic</code>
+     contains "{the_board_name}/D{the pin number}".</p>
+diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
+index b980861712c2..5021024aef4c 100644
+--- a/hardware/intel/mraa-gpio-dout.html
++++ b/hardware/intel/mraa-gpio-dout.html
+@@ -60,7 +60,7 @@
+     });
+ </script>
+ 
+-<script type="text/x-red" data-template-name="mraa-gpio-dout">
++<script type="text/html" data-template-name="mraa-gpio-dout">
+     <div class="form-row">
+         <label for="node-input-pin"><i class="fa fa-circle"></i> Pin</label>
+         <select type="text" id="node-input-pin" style="width: 250px;">
+@@ -100,7 +100,7 @@
+     <div class="form-tips">Board : <span id="btype">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
+ </script>
+ 
+-<script type="text/x-red" data-help-name="mraa-gpio-dout">
++<script type="text/html" data-help-name="mraa-gpio-dout">
+     <p>A digital output pin for a board.</p>
+     <p>The <code>msg.payload</code> should contain the value 0 or 1.</p>
+ </script>
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+index 985774fa2d7e..c0b9eb2504c5 100644
+--- a/hardware/intel/mraa-gpio-led.html
++++ b/hardware/intel/mraa-gpio-led.html
+@@ -52,7 +52,7 @@
+     });
+ </script>
+ 
+-<script type="text/x-red" data-template-name="mraa-gpio-led">
++<script type="text/html" data-template-name="mraa-gpio-led">
+     <div class="form-row">
+         <label for="node-input-pin"><i class="fa fa-circle"></i> Led</label>
+         <select type="text" id="node-input-pin" style="width: 250px;">
+@@ -79,7 +79,7 @@
+     <div class="form-tips">Board : <span id="btype">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
+ </script>
+ 
+-<script type="text/x-red" data-help-name="mraa-gpio-led">
++<script type="text/html" data-help-name="mraa-gpio-led">
+     <p>Led Control for a board.</p>
+     <p>The <code>msg.payload</code> should contain the value 0 or 1.</p>
+ </script>
+diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-pwm.html
+index c1d078bc449c..ad60d90d0841 100644
+--- a/hardware/intel/mraa-gpio-pwm.html
++++ b/hardware/intel/mraa-gpio-pwm.html
+@@ -56,7 +56,7 @@
+     });
+ </script>
+ 
+-<script type="text/x-red" data-template-name="mraa-gpio-pwm">
++<script type="text/html" data-template-name="mraa-gpio-pwm">
+     <div class="form-row">
+         <label for="node-input-pin"><i class="fa fa-circle"></i> Pin</label>
+         <select type="text" id="node-input-pin" style="width: 250px;">
+@@ -90,7 +90,7 @@
+     <div class="form-tips">Board : <span id="type-tip">n/a</span><br/>mraa version : <span id="ver-tip">n/a</span></div>
+ </script>
+ 
+-<script type="text/x-red" data-help-name="mraa-gpio-pwm">
++<script type="text/html" data-help-name="mraa-gpio-pwm">
+     <p>A pulse width modulation (PWM) output pin for a board.</p>
+     <p>The <code>msg.payload</code> should contain a floating point number value
+     between 0 and 1, (or a string representation thereof.)</p>

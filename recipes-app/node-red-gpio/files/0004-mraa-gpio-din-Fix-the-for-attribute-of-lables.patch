@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 28 Dec 2023 09:59:51 +0800
+Subject: [PATCH] mraa-gpio: din: Fix the 'for' attribute of lables
+
+Seems no significant impact on the UI, however it's against the
+html standard.
+
+Fixes: 983dafff137f ("mraa gpio din features (#929)")
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ hardware/intel/mraa-gpio-din.html | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
+index a22cb05b3617..225aa47690d3 100644
+--- a/hardware/intel/mraa-gpio-din.html
++++ b/hardware/intel/mraa-gpio-din.html
+@@ -56,7 +56,7 @@
+         </select>
+     </div>
+     <div class="form-row">
+-        <label for="node-input-name"><i class="fa-level-up"></i> Mode</label>
++        <label for="node-input-mode"><i class="fa-level-up"></i> Mode</label>
+         <select type="text" id="node-input-mode" style="width: 250px;">
+             <option value='' disabled selected style='display:none;'>select mode</option>
+             <option value="0">Strong </option>
+@@ -66,7 +66,7 @@
+         </select>
+     </div>
+     <div class="form-row">
+-        <label for="node-input-name"><i class="fa-level-up"></i> Interrupt</label>
++        <label for="node-input-interrupt"><i class="fa-level-up"></i> Interrupt</label>
+         <select type="text" id="node-input-interrupt" style="width: 250px;">
+             <option value='' disabled selected style='display:none;'>select interrupt</option>
+             <option value="r">Rising </option>
