@@ -15,7 +15,9 @@ inherit node-red-module
 DESCRIPTION = "node-red-gpio-integration"
 MAINTAINER = "chao.zeng@siemens.com"
 
-SRC_URI = "git://github.com/node-red/node-red-nodes;protocol=https;branch=master"
+SRC_URI = "git://github.com/node-red/node-red-nodes;protocol=https;branch=master \
+           file://0001-Dynamic-add-user-button-label.patch \
+           "
 
 SRCREV="c15fa79e9535d029d206dfb76474d56bf979504b"
 
