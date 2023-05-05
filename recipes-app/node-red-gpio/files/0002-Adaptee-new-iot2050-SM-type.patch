@@ -1,0 +1,128 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: chao zeng <chao.zeng@siemens.com>
+Date: Thu, 4 May 2023 11:51:20 +0800
+Subject: [PATCH] Adaptee new iot2050 SM type
+
+Adaptee new board iot2050 sm, new board reduce arduino interfaces.
+Only keep the led and button control. So need to remove those node
+in the node-red-gpios according to the board type
+
+Signed-off-by: chao zeng <chao.zeng@siemens.com>
+---
+ hardware/intel/mraa-gpio-ain.html  | 8 ++++++++
+ hardware/intel/mraa-gpio-din.html  | 5 +++++
+ hardware/intel/mraa-gpio-dout.html | 8 ++++++++
+ hardware/intel/mraa-gpio-led.html  | 1 +
+ hardware/intel/mraa-gpio-pwm.html  | 8 ++++++++
+ 5 files changed, 30 insertions(+)
+
+diff --git a/hardware/intel/mraa-gpio-ain.html b/hardware/intel/mraa-gpio-ain.html
+index 57b1962..eadf003 100644
+--- a/hardware/intel/mraa-gpio-ain.html
++++ b/hardware/intel/mraa-gpio-ain.html
+@@ -15,6 +15,13 @@
+         label: function() {
+             return this.name||"A"+this.pin;
+         },
++        onpaletteadd : function() {
++            $.getJSON('mraa-gpio/'+this.id,function(data) {
++                if (data === 27) {
++                    $("#red-ui-palette-GPIO div[data-palette-type='mraa-gpio-ain']").hide();
++                }
++            });
++        },
+         oneditprepare: function() {
+             var pinnow = this.pin;
+             $.getJSON('mraa-gpio/'+this.id,function(data) {
+@@ -28,6 +35,7 @@
+                 if (data === 6) { t = "Beaglebone"; }
+                 if (data === 7) { t = "Banana"; }
+                 if (data === 26) { t = "IOT2050"; }
++                if (data === 27) { t = "IOT2050 SM"; }
+                 $('#btype').text(t);
+                 $('#node-input-pin').val(pinnow);
+             });
+diff --git a/hardware/intel/mraa-gpio-din.html b/hardware/intel/mraa-gpio-din.html
+index 83ef75f..5ff61cc 100644
+--- a/hardware/intel/mraa-gpio-din.html
++++ b/hardware/intel/mraa-gpio-din.html
+@@ -33,10 +33,15 @@
+                 if (data === 6) { t = "Beaglebone"; }
+                 if (data === 7) { t = "Banana"; }
+                 if (data === 26) { t = "IOT2050"; }
++                if (data === 27) { t = "IOT2050 SM"; }
+                 $('#type-tip').text(t);
+                 if (data === 26) {
+                     $('#node-input-pin').append($("<option></option>").attr("value",20).text("USER button"));
+                 }
++                if (data === 27) {
++                    $('#node-input-pin').children().remove()
++                    $('#node-input-pin').append($("<option></option>").attr("value",0).text("USER button"));
++                }
+                 $('#node-input-pin').val(pinnow);
+             });
+             $.getJSON('mraa-version/'+this.id,function(data) {
+diff --git a/hardware/intel/mraa-gpio-dout.html b/hardware/intel/mraa-gpio-dout.html
+index b980861..33d1411 100644
+--- a/hardware/intel/mraa-gpio-dout.html
++++ b/hardware/intel/mraa-gpio-dout.html
+@@ -24,6 +24,13 @@
+         labelStyle: function() {
+             return this.name?"node_label_italic":"";
+         },
++        onpaletteadd : function() {
++            $.getJSON('mraa-gpio/'+this.id,function(data) {
++                if (data === 27) {
++                    $("#red-ui-palette-GPIO div[data-palette-type='mraa-gpio-dout']").hide();
++                }
++            });
++        },
+         oneditprepare: function() {
+             var pinnow = this.pin;
+             $.getJSON('mraa-gpio/'+this.id,function(data) {
+@@ -37,6 +44,7 @@
+                 if (data === 6) { t = "Beaglebone"; }
+                 if (data === 7) { t = "Banana"; }
+                 if (data === 26) { t = "IOT2050"; }
++                if (data === 27) { t = "IOT2050 SM"; }
+                 $('#btype').text(t);
+                 if (data === 0) {
+                     $('#node-input-pin').append($("<option></option>").attr("value",14).text("LED - Galileo v1"));
+diff --git a/hardware/intel/mraa-gpio-led.html b/hardware/intel/mraa-gpio-led.html
+index 985774f..1efce77 100644
+--- a/hardware/intel/mraa-gpio-led.html
++++ b/hardware/intel/mraa-gpio-led.html
+@@ -32,6 +32,7 @@
+                 if (data === 6) { t = "Beaglebone"; }
+                 if (data === 7) { t = "Banana"; }
+                 if (data === 26) { t = "IOT2050"; }
++                if (data === 27) { t = "IOT2050 SM"; }
+                 $('#btype').text(t);
+                 $('#node-input-pin').val(pinnow);
+             });
+diff --git a/hardware/intel/mraa-gpio-pwm.html b/hardware/intel/mraa-gpio-pwm.html
+index c1d078b..3d8bf1f 100644
+--- a/hardware/intel/mraa-gpio-pwm.html
++++ b/hardware/intel/mraa-gpio-pwm.html
+@@ -23,6 +23,13 @@
+         labelStyle: function() {
+             return this.name?"node_label_italic":"";
+         },
++        onpaletteadd : function() {
++            $.getJSON('mraa-gpio/'+this.id,function(data) {
++                if (data === 27) {
++                    $("#red-ui-palette-GPIO div[data-palette-type='mraa-gpio-pwm']").hide();
++                }
++            });
++        },
+         oneditprepare: function() {
+             var pinnow = this.pin;
+             $.getJSON('mraa-gpio/'+this.id,function(data) {
+@@ -36,6 +43,7 @@
+                 if (data === 6) { t = "Beaglebone"; }
+                 if (data === 7) { t = "Banana"; }
+                 if (data === 26) { t = "IOT2050"; }
++                if (data === 27) { t = "IOT2050 SM"; }
+                 $('#type-tip').text(t);
+                 $('#node-input-pin').val(pinnow);
+             });
