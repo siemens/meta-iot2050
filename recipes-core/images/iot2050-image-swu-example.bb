@@ -25,7 +25,9 @@ SWU_ROOTFS_TYPE:secureboot = "verity"
 WIC_IMAGER_INSTALL += "efibootguard"
 # watchdog is managed by U-Boot - disable
 WDOG_TIMEOUT = "0"
-WICVARS += "WDOG_TIMEOUT KERNEL_IMAGE INITRD_IMAGE DTB_FILES"
+WICVARS += "WDOG_TIMEOUT KERNEL_IMAGE INITRD_DEPLOY_FILE DTB_FILES"
+
+INITRD_DEPLOY_FILE = "${INITRAMFS_RECIPE}-${DISTRO}-${MACHINE}.initrd.img"
 
 # not compatible with SWUpdate images
 IMAGE_INSTALL:remove = "regen-rootfs-uuid"
