@@ -44,6 +44,8 @@ repos:
     patches:
       optee-client:
         path: cip-core-patches/0001-Add-recipe-for-optee-client.patch
+      initramfs-ms-tpm-hook:
+        path: cip-core-patches/0002-initramfs-Add-recipe-for-optee-based-ftpm-hook.patch
 
 bblayers_conf_header:
   standard: |
