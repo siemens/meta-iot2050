@@ -14,5 +14,10 @@ INITRAMFS_INSTALL += " \
     initramfs-overlay-hook \
     initramfs-abrootfs-hook \
     "
-INITRAMFS_INSTALL:append:secureboot = " initramfs-verity-hook"
+
+INITRAMFS_INSTALL:append:secureboot = " \
+    initramfs-verity-hook \
+    initramfs-crypt-hook \
+    iot2050-initramfs-ftpm-hook \
+    "
 INITRAMFS_INSTALL:remove:secureboot = "initramfs-abrootfs-hook"
