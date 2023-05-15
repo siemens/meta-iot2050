@@ -112,7 +112,7 @@ endif
 
 # Provide two entries so that the help text can be adjusted to the image.
 config SECURE_BOOT
-	bool "Secure boot"
+	bool "Secure boot & Data encryption"
 	depends on IMAGE_SWUPDATE
 	help
 	  Enable signing of boot artifacts (boot loader, unified kernel image).
@@ -122,7 +122,11 @@ config SECURE_BOOT
 	  This uses the public custMpk.key and certificate by default. Do not
 	  use this key in production, it is for demonstration purposes only.
 
-	  Note: The persistent /var and /home partitions are not yet protected!
+	  The writable persistent /var and /home partitions are encrypted as
+	  LUKS2 partitions.
+
+	  The reason of coupling the data encryption with the secure boot is to
+	  have a proper integrity chain rooted in hardware (OTP, RPMB, etc.)
 
 config SECURE_BOOT
 	bool "Secure boot"
