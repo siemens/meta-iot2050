@@ -32,6 +32,7 @@ SRC_URI += " \
     file://0017-spl-fit-Report-fdt-error-for-loading-u-boot.patch \
     file://0018-iot2050-Select-DM_ETH-to-restore-UEFI-support.patch \
     file://0019-iot2050-Enable-eMMC-RPMB-based-secure-storage.patch \
+    file://0020-WIP-Debug.patch \
     "
 
 SRC_URI[sha256sum] = "50b4482a505bc281ba8470c399a3c26e145e29b23500bc35c50debd7fa46bdf8"

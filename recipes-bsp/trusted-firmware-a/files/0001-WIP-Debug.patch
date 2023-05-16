@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Tue, 16 May 2023 17:07:27 +0800
+Subject: [PATCH] WIP - Debug
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ plat/ti/k3/common/k3_bl31_setup.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/plat/ti/k3/common/k3_bl31_setup.c b/plat/ti/k3/common/k3_bl31_setup.c
+index 457c95dd6..68e224018 100644
+--- a/plat/ti/k3/common/k3_bl31_setup.c
++++ b/plat/ti/k3/common/k3_bl31_setup.c
+@@ -72,7 +72,18 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+ #ifdef BL32_BASE
+ 	/* Populate entry point information for BL32 */
+ 	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
+-	bl32_image_ep_info.pc = BL32_BASE;
++
++	volatile uint32_t *no_optee;
++    no_optee = (volatile uint32_t *)(0x70020004U);
++	if (*no_optee == 0x5A5A5A5AU) {
++		WARN("K3: Runtime configuration indicates no OPTee!\n");
++		bl32_image_ep_info.pc = 0;
++	}
++	else
++		bl32_image_ep_info.pc = BL32_BASE;
++
++	WARN("K3: bl32_image_ep_info.pc: %lu\n", bl32_image_ep_info.pc);
++
+ 	bl32_image_ep_info.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
+ 					  DISABLE_ALL_EXCEPTIONS);
+ 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);

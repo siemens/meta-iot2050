@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Tue, 16 May 2023 14:02:41 +0800
+Subject: [PATCH] WIP - Debug
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ arch/arm/dts/k3-am6528-iot2050-basic-common.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/dts/k3-am6528-iot2050-basic-common.dtsi b/arch/arm/dts/k3-am6528-iot2050-basic-common.dtsi
+index 0d215b4d66..8fb030a743 100644
+--- a/arch/arm/dts/k3-am6528-iot2050-basic-common.dtsi
++++ b/arch/arm/dts/k3-am6528-iot2050-basic-common.dtsi
+@@ -30,6 +30,10 @@
+ 	};
+ 
+ 	/delete-node/ l2-cache1;
++	
++	firmware {
++		/delete-node/ optee;
++	};
+ };
+ 
+ /* eMMC */
