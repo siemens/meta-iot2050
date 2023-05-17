@@ -707,12 +707,12 @@ Hit the Enter Key to Exit:
         # Rollback the firmware when the upgrade fails
         try:
             print('Warning: Upgrade failed, rollback started')
+            updater = RollbackFirmware(args.firmware, args.backup_dir)
             updater.rollback_firmware()
         except UpgradeError:
             print("Rollback failed")
 
         input(intput_reminder)
-
 
 if __name__ == '__main__':
     main(sys.argv)
