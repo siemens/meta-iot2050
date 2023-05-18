@@ -1,4 +1,4 @@
-From 5b951155feb25553db32941e645d2fa95d7fa3e2 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Mon, 10 May 2021 09:54:29 -0500
 Subject: [PATCH] arm64: dts: ti: k3-am65|j721e|am64: Map the dma / navigator

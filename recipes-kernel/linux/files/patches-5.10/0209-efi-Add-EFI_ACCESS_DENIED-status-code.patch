@@ -1,4 +1,4 @@
-From 7e405761e628aa75989b0d93dd5be7a717cf55f7 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Masahisa Kojima <masahisa.kojima@linaro.org>
 Date: Mon, 20 Feb 2023 14:17:20 +0900
 Subject: [PATCH] efi: Add EFI_ACCESS_DENIED status code

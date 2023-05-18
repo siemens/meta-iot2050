@@ -1,4 +1,4 @@
-From e0fb5245747ff5216c5342df8dfb7e751afe36c8 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@kernel.org>
 Date: Thu, 19 Jan 2023 17:15:29 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: introduce and use

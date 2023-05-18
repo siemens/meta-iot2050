@@ -1,4 +1,4 @@
-From 517e5c3ffa1862f5b49e85f7f86109fbb6d8bbe3 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vaishnav Achath <vaishnav.a@ti.com>
 Date: Tue, 11 Oct 2022 13:24:42 +0530
 Subject: [PATCH] dmaengine: ti: k3-udma: Respond TX done if DMA_PREP_INTERRUPT

@@ -1,4 +1,4 @@
-From 1b769481fba64d4fb62aca3e44e93583c4a03f9d Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 14 Feb 2022 07:05:15 +0100
 Subject: [PATCH] tools: Add script for converting public key into device tree

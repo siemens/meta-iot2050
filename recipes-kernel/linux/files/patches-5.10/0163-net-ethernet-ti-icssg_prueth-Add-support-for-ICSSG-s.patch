@@ -1,4 +1,4 @@
-From e764664761d48d1f3102c4e2625056c62402a311 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Thu, 14 Oct 2021 14:14:28 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: Add support for ICSSG switch

@@ -1,4 +1,4 @@
-From f073941ffe4ef831c17a2f59165f54f2d8ab2ae1 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 26 Mar 2021 13:05:28 -0500
 Subject: [PATCH] remoteproc: Introduce deny_sysfs_ops flag

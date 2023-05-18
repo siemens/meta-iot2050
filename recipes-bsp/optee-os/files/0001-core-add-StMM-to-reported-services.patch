@@ -1,4 +1,4 @@
-From 8f31ccb04cb26a8f25c5f6928c5d50879eaf47e6 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jens Wiklander <jens.wiklander@linaro.org>
 Date: Wed, 25 Jan 2023 09:21:03 +0100
 Subject: [PATCH] core: add StMM to reported services

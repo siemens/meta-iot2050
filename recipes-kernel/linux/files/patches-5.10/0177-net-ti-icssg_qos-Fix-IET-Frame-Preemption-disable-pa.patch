@@ -1,4 +1,4 @@
-From b64ad931b33e59b12b0e0af10258a18172920424 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Wed, 17 Nov 2021 20:27:53 +0530
 Subject: [PATCH] net: ti: icssg_qos: Fix IET Frame Preemption disable path

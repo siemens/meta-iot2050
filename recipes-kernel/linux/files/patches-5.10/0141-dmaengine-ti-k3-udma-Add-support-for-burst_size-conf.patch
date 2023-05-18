@@ -1,4 +1,4 @@
-From 23b3bad592edff45feb8223b46f815c5e1298dc7 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Wed, 13 Jan 2021 13:49:22 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Add support for burst_size

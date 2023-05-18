@@ -1,4 +1,4 @@
-From 79a5fdd8ea19469ccb68b6074bacbb33dd70b773 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Nitin Yadav <n-yadav@ti.com>
 Date: Mon, 28 Nov 2022 16:25:37 +0530
 Subject: [PATCH] drivers: mmc: host: sdhci_am654: update OTAP and ITAP delay

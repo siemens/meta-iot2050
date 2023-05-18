@@ -1,4 +1,4 @@
-From bb451cb41a623548fbe16aaef59d4145f6138d4b Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 31 May 2021 16:31:35 +0530
 Subject: [PATCH] arm64: dts: ti: k3-am65-main: fix DSS irq trigger type

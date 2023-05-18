@@ -1,4 +1,4 @@
-From 20d07e127954469db12b94e75055b77dc2f85f68 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: zengchao <chao.zeng@siemens.com>
 Date: Wed, 6 Nov 2019 11:21:49 +0800
 Subject: [PATCH] HACK: setting the RJ45 port led behavior

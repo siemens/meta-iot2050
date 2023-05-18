@@ -1,4 +1,4 @@
-From ec2ce6aa48892f24ccea0a80572cb62e646bbc62 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Oct 2022 13:59:53 +0200
 Subject: [PATCH] iot2050: Select DM_ETH to restore UEFI support

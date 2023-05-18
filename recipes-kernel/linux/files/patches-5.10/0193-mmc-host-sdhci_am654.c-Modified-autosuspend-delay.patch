@@ -1,4 +1,4 @@
-From e9c4ad511349c5ce886813b64427f1d64746dd98 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Bhavya Kapoor <b-kapoor@ti.com>
 Date: Fri, 12 Aug 2022 02:52:45 +0530
 Subject: [PATCH] mmc: host: sdhci_am654.c: Modified autosuspend delay

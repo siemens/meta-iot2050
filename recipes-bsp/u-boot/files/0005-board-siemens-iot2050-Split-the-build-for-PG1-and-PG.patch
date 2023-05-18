@@ -1,4 +1,4 @@
-From 815feaf7730ffd7ec955cdf3ea3822a10a0569ee Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 15:05:27 +0800
 Subject: [PATCH] board: siemens: iot2050: Split the build for PG1 and PG2

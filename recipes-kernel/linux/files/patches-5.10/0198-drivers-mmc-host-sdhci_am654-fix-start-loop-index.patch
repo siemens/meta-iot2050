@@ -1,4 +1,4 @@
-From 5dc49563d373ef40071bda1eca5d300298903462 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Nitin Yadav <n-yadav@ti.com>
 Date: Mon, 28 Nov 2022 16:25:36 +0530
 Subject: [PATCH] drivers: mmc: host: sdhci_am654: fix start loop index

@@ -1,4 +1,4 @@
-From 4fca8c6337deb984cff5360e4f8cb768338daaaa Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Tue, 11 Oct 2022 13:23:21 +0200
 Subject: [PATCH] iot2050: Add support for configuring M.2 connector

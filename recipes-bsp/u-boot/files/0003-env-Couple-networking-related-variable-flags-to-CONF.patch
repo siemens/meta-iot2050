@@ -1,4 +1,4 @@
-From b04d5be1ad9647398e34fd34d5ecbe3157ac7e07 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 11:15:36 +0200
 Subject: [PATCH] env: Couple networking-related variable flags to CONFIG_NET

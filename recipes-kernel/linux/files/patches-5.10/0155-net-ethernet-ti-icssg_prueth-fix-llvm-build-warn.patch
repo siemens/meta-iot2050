@@ -1,4 +1,4 @@
-From faac3a8d7d77bfc178d7257307a3a2bf74eb1939 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 17 Sep 2021 17:00:21 +0300
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: fix llvm build warn

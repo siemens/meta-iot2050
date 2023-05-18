@@ -1,4 +1,4 @@
-From e033bf089a665b91a35341552cab991a158c4ab6 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Baocheng Su <baocheng.su@siemens.com>
 Date: Wed, 26 Oct 2022 16:51:36 +0800
 Subject: [PATCH] iot2050: Enable eMMC RPMB based secure storage

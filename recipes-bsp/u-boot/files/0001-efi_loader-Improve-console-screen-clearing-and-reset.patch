@@ -1,4 +1,4 @@
-From 3374f9d3d8cb74cbd55947518dd0d3bdcc7ccd63 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 25 Apr 2022 10:33:15 +0200
 Subject: [PATCH] efi_loader: Improve console screen clearing and reset

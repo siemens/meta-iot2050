@@ -1,4 +1,4 @@
-From 09664994cdbdeb5f9ee4b2488427ff230b9e9e6f Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Wang Sheng Long <shenglong.wang.ext@siemens.com>
 Date: Mon, 18 Jan 2021 12:13:26 +0100
 Subject: [PATCH] USB: serial: cp210x: add support for software flow control

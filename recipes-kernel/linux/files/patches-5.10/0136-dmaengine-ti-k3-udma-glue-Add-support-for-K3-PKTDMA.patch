@@ -1,4 +1,4 @@
-From a253745a384f6beb50f5ff2babef269a6916ddee Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 8 Dec 2020 11:04:40 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: Add support for K3 PKTDMA

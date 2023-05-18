@@ -1,4 +1,4 @@
-From d46748aa9114701e5abbfbee6c2687de67218265 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Mon, 20 Sep 2021 17:51:17 +0300
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: do not create glue dma devices

@@ -1,4 +1,4 @@
-From cfa066491c90fad412d4adccec3cb436703156a8 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:34 +0300
 Subject: [PATCH] net: ethernet: ti: icss_iep: use readl/writel in

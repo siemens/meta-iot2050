@@ -1,4 +1,4 @@
-From 8850255c504be5daa59885b959ee9581980b4219 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:39 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Initial support for K3 PKTDMA

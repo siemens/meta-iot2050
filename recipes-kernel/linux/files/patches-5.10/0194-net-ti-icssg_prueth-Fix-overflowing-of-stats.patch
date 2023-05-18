@@ -1,4 +1,4 @@
-From d7e56d6a839247fdf8c5a76d36819d9bdfd50d07 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: MD Danish Anwar <danishanwar@ti.com>
 Date: Tue, 16 Aug 2022 11:57:43 +0530
 Subject: [PATCH] net: ti: icssg_prueth: Fix overflowing of stats

@@ -1,4 +1,4 @@
-From 24451a755874586f1211154ed52b6341b4c3b787 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Sat, 13 Nov 2021 13:35:06 +0530
 Subject: [PATCH] net: ti: icssg_prueth: Fix NULL pointer deference during

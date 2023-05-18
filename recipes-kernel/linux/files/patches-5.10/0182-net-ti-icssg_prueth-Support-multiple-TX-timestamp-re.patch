@@ -1,4 +1,4 @@
-From b8cf5e32e5010283ded59158cc17247c18784bc8 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@kernel.org>
 Date: Thu, 10 Feb 2022 11:03:53 +0200
 Subject: [PATCH] net: ti: icssg_prueth: Support multiple TX timestamp requests

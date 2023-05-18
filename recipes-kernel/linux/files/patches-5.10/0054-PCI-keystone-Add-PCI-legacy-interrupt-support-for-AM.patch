@@ -1,4 +1,4 @@
-From 384992832bb4a1b0660bca5f1364b52ddd5bb282 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:24:48 +0530
 Subject: [PATCH] PCI: keystone: Add PCI legacy interrupt support for AM654

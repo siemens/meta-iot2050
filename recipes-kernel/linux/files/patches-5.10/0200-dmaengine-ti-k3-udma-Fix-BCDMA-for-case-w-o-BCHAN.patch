@@ -1,4 +1,4 @@
-From f4f350b361d858131ca67f2b13ab3815e1a5ad26 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 13 Dec 2022 22:49:03 +0530
 Subject: [PATCH] dmaengine: ti: k3-udma: Fix BCDMA for case w/o BCHAN

@@ -1,4 +1,4 @@
-From 088c3c3ff72607117d4301a25a5932f500bce2a4 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:23 +0100
 Subject: [PATCH] USB: serial: cp210x: set terminal settings on open

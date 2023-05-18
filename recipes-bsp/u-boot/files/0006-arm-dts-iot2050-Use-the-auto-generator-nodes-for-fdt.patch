@@ -1,4 +1,4 @@
-From 84bb7b32cf88ab89b97c930254545d90f4783c13 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Su Baocheng <baocheng.su@siemens.com>
 Date: Wed, 12 Jan 2022 14:52:01 +0800
 Subject: [PATCH] arm: dts: iot2050: Use the auto generator nodes for fdt

@@ -1,4 +1,4 @@
-From 12df3b5de229b3390948c70f75735b1e9bddf02e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Aswath Govindraju <a-govindraju@ti.com>
 Date: Wed, 13 Apr 2022 18:44:03 +0530
 Subject: [PATCH] mmc: sdhci_am654: Disable data error interrupts while tuning

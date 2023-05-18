@@ -1,4 +1,4 @@
-From 57097d1701c3803790af02f8ee5fd828fc9153c4 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 15 Jan 2021 21:30:16 +0200
 Subject: [PATCH] arm64: dts: ti: k3: mmc: fix dtbs_check warnings

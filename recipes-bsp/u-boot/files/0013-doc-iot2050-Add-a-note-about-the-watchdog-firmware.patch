@@ -1,4 +1,4 @@
-From c93ead0e995e351c2c392ab1f30edc170086ee66 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 May 2022 11:35:45 +0200
 Subject: [PATCH] doc: iot2050: Add a note about the watchdog firmware

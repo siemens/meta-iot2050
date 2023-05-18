@@ -1,4 +1,4 @@
-From cfdbb79aa67cf1eb7ce4fe4e7d442d6059083488 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 29 Apr 2021 18:13:29 +0300
 Subject: [PATCH] net: ethernet: ti: icss_iep: fix access to x_REG1 in non

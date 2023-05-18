@@ -1,4 +1,4 @@
-From 657e5f5677d978f96dd1877fd38f871c7e3d484d Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 5 Jul 2021 10:20:10 +0200
 Subject: [PATCH] USB: serial: cp210x: fix control-characters error handling

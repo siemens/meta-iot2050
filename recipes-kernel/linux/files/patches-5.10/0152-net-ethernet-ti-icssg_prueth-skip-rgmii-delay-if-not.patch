@@ -1,4 +1,4 @@
-From f46aac45fdc9028cae646cd96e2d3f988af1e5d7 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Mon, 13 Sep 2021 18:19:54 +0300
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: skip rgmii delay if not

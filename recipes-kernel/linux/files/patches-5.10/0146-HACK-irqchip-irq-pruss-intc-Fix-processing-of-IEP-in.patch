@@ -1,4 +1,4 @@
-From 669674a50fcc32ab500ebb6c658078e61382541b Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 28 May 2021 15:51:37 -0500
 Subject: [PATCH] HACK: irqchip/irq-pruss-intc: Fix processing of IEP

@@ -1,4 +1,4 @@
-From b10341fae399f8c25887c348af9577640b1e233e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 5 Dec 2022 11:45:15 +0100
 Subject: [PATCH] gpio: Fix JS binding regarding interrupt injections
@@ -133,6 +133,3 @@ index 8fc0881..c41d527 100644
      v8::Persistent<v8::Function> m_v8isr;
  #endif
  };
--- 
-2.35.3
-

@@ -1,4 +1,4 @@
-From 34e3319c7e0c647c2218da0ef53135a743580021 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@kernel.org>
 Date: Wed, 22 Jun 2022 14:36:34 +0300
 Subject: [PATCH] net: ti: icssg_prueth: support larger MTU of upto 1982 bytes
