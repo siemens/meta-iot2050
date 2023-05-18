@@ -1,4 +1,4 @@
-From 454110edfce60be1c84165fbd01ee8458374d609 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 5 Mar 2021 19:14:09 +0200
 Subject: [PATCH] net: phy: dp83867: add w/a for packet errors seen with short

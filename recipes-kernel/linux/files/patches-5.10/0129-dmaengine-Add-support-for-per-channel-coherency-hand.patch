@@ -1,4 +1,4 @@
-From 448bf2a908500a01c78142cf942448e3651cd749 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:28 +0200
 Subject: [PATCH] dmaengine: Add support for per channel coherency handling

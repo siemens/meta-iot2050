@@ -1,4 +1,4 @@
-From 0645d69bced1b73566fedecdfb09bdcb86997c5e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Tero Kristo <t-kristo@ti.com>
 Date: Sat, 27 Mar 2021 09:24:51 -0500
 Subject: [PATCH] soc: ti: pruss: Add helper functions to get/set

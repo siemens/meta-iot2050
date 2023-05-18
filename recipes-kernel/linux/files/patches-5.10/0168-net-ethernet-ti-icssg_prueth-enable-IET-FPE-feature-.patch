@@ -1,4 +1,4 @@
-From de9939a769652dd7270d12c5f098483ded0932ed Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Thu, 14 Oct 2021 14:26:58 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: enable IET/FPE feature

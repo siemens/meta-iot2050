@@ -1,4 +1,4 @@
-From 6b83032ac7c35ad60f82316cf87264c6e6bc8b83 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Tue, 30 Mar 2021 17:38:07 +0530
 Subject: [PATCH] arm64: dts: ti: k3-am65-main: Add properties to support

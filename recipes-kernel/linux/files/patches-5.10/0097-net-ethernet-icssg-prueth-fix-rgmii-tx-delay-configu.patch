@@ -1,4 +1,4 @@
-From 87d805f9ab551d6d9c5bec94c633ac0d30343f85 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 18 Jun 2021 20:51:47 +0300
 Subject: [PATCH] net: ethernet: icssg-prueth: fix rgmii tx delay configuration

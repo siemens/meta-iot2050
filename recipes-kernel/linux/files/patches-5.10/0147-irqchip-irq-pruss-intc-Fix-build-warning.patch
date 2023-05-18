@@ -1,4 +1,4 @@
-From 8cb1eabeb30d079316cbc3d9d9b9f692a8575c4d Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 9 Jul 2021 17:12:24 +0300
 Subject: [PATCH] irqchip/irq-pruss-intc: Fix build warning

@@ -1,4 +1,4 @@
-From 5bb41d6db05c982f8f7b929d70d689b47267be03 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 14 Jan 2022 18:52:06 +0100
 Subject: [PATCH] iot2050: Update firmware layout

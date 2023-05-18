@@ -1,4 +1,4 @@
-From 31fa3764f9decc685ef40d460f12d357ccc5f070 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Mon, 14 Dec 2020 08:54:21 +0200
 Subject: [PATCH] soc: ti: k3-ringacc: Use correct error casting in

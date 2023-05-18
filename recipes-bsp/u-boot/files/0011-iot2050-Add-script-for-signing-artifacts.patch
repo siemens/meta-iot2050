@@ -1,4 +1,4 @@
-From 398ed6161336f9c857dbba1f98c39cb82017b655 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 18 Nov 2021 10:56:22 +0100
 Subject: [PATCH] iot2050: Add script for signing artifacts

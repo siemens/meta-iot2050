@@ -1,4 +1,4 @@
-From 5a787ba2a83e7c3f97b17a3e85feba1194bff3b1 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:16 +0200
 Subject: [PATCH] arm64: dts: ti: iot2050: Prepare for adding 2nd-generation

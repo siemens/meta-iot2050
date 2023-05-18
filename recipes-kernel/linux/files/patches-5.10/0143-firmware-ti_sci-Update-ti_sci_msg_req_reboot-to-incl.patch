@@ -1,4 +1,4 @@
-From 5d2399c935f51c55d1fe07a245ae3b59a4a89fde Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Fri, 23 Oct 2020 14:36:43 -0500
 Subject: [PATCH] firmware: ti_sci: Update ti_sci_msg_req_reboot to include

@@ -1,4 +1,4 @@
-From 326b93e726ab4a9850ead2a177530abcd47e4cf7 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:03 -0700
 Subject: [PATCH] firmware: ti_sci: rm: Add support for second resource range

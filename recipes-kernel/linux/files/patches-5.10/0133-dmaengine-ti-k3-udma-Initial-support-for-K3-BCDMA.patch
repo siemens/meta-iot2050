@@ -1,4 +1,4 @@
-From fab5707a8ac74c5d0e092ad1837167babc2a4e9b Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:37 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Initial support for K3 BCDMA

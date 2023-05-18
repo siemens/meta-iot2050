@@ -1,4 +1,4 @@
-From c8be67df79ed8ed0735303ef58001d6a31a7dc75 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Thu, 11 Feb 2021 20:32:56 +0100
 Subject: [PATCH] arm64: dts: ti: k3-am65-main: Add device_type to pcie*_rc

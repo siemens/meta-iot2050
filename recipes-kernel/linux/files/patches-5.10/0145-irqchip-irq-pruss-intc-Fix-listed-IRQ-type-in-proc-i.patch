@@ -1,4 +1,4 @@
-From 8186db7a4e1057fb845d4d1f5ef7dce69d6b9e16 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 28 May 2021 14:10:24 -0500
 Subject: [PATCH] irqchip/irq-pruss-intc: Fix listed IRQ type in

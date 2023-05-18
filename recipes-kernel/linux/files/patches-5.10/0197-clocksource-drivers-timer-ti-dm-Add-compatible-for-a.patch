@@ -1,4 +1,4 @@
-From 27037773ce4dc597ce772a02898b3b6f69179435 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Tony Lindgren <tony@atomide.com>
 Date: Fri, 28 Oct 2022 14:29:42 -0500
 Subject: [PATCH] clocksource/drivers/timer-ti-dm: Add compatible for am6 SoCs

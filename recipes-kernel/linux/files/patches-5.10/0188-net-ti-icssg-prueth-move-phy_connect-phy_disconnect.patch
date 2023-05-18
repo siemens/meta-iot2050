@@ -1,4 +1,4 @@
-From c5bb2634f801d61127363c3fa6e4f391234fa02d Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Puranjay Mohan <p-mohan@ti.com>
 Date: Mon, 9 May 2022 11:09:31 +0530
 Subject: [PATCH] net: ti: icssg-prueth: move phy_connect()/phy_disconnect()

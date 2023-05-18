@@ -1,4 +1,4 @@
-From 187ddbf1c2b3ad2e0c4dd755fe1e240a4c85564c Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Fri, 13 Nov 2020 15:18:24 -0600
 Subject: [PATCH] arm64: dts: ti: am65/j721e: Fix up un-necessary status set to

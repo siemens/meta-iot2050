@@ -1,4 +1,4 @@
-From 70d6e847cda8acf818e7ca5f795e029071f0ca00 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Mon, 7 Feb 2022 13:18:53 +0530
 Subject: [PATCH] net: ethernet: ti: icss_iep: Add missing spin_lock_init()

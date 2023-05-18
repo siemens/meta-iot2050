@@ -1,4 +1,4 @@
-From b6eb3be2108cb599ebd3613dfc5fd6654ac113c9 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Fri, 30 Oct 2020 22:30:00 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma-glue: move psi-l pairing in channel

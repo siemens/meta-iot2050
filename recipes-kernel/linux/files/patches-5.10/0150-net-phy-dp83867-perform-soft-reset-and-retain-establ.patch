@@ -1,4 +1,4 @@
-From 5e2232ac4a852f15f4ca1c6c423350403d26e7b4 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Praneeth Bajjuri <praneeth@ti.com>
 Date: Wed, 9 Jun 2021 19:43:42 -0500
 Subject: [PATCH] net: phy: dp83867: perform soft reset and retain established

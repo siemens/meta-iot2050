@@ -1,4 +1,4 @@
-From f7a7510e74747eab9f009a9e1f67cb076d044ce4 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Wed, 7 Apr 2021 10:56:40 -0500
 Subject: [PATCH] remoteproc: pru: Fix wrong success return value for fw events

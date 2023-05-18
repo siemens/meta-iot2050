@@ -1,4 +1,4 @@
-From 680e197507b8637fbe7487ded9573c2df36ce42d Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Date: Fri, 20 Nov 2020 17:23:03 +0100
 Subject: [PATCH] dmaengine: ti: drop of_match_ptr and mark of_device_id table

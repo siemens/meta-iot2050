@@ -1,4 +1,4 @@
-From b13c7c2b31af878ae61be1f72710f708c8631a47 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Wed, 3 Nov 2021 19:46:58 +0200
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: fix init after adding

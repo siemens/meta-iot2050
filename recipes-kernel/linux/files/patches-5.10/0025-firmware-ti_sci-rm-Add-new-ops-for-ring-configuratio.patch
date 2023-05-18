@@ -1,4 +1,4 @@
-From db5dded64c9de553bed288acc9cacc8d49b5ea97 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:06 -0700
 Subject: [PATCH] firmware: ti_sci: rm: Add new ops for ring configuration

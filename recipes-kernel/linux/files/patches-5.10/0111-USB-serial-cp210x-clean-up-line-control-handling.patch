@@ -1,4 +1,4 @@
-From 3f6f5141142b68b62cd3acf96ee99fe6b0851925 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:22 +0100
 Subject: [PATCH] USB: serial: cp210x: clean up line-control handling

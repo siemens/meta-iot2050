@@ -1,4 +1,4 @@
-From 4ac8403a21d9ae4deeb0872133ad15243babff98 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sun, 26 Sep 2021 14:05:17 +0200
 Subject: [PATCH] arm64: dts: ti: iot2050: Add support for product generation 2

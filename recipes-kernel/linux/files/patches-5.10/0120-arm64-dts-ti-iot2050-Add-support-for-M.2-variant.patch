@@ -1,4 +1,4 @@
-From fa50220b95a2fbc55ef88c28055acd0cfca82947 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Tue, 11 Jan 2022 11:28:24 +0800
 Subject: [PATCH] arm64: dts: ti: iot2050: Add support for M.2 variant

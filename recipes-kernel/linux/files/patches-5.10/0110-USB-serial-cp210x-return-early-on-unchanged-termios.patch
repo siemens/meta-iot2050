@@ -1,4 +1,4 @@
-From 9a156da7d481a55c2090aaf6805f17ed29bca1d9 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:21 +0100
 Subject: [PATCH] USB: serial: cp210x: return early on unchanged termios

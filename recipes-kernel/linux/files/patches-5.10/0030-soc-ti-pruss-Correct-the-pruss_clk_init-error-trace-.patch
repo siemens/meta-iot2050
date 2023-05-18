@@ -1,4 +1,4 @@
-From eb15c044dcb42f89a094bf02ccced2b1e54535e5 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Sun, 24 Jan 2021 20:51:37 -0800
 Subject: [PATCH] soc: ti: pruss: Correct the pruss_clk_init error trace text

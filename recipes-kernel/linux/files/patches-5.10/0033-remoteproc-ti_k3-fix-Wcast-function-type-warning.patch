@@ -1,4 +1,4 @@
-From 05fa83d5672bc9469f05f678ddca541982d202d7 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Arnd Bergmann <arnd@arndb.de>
 Date: Mon, 26 Oct 2020 17:05:23 +0100
 Subject: [PATCH] remoteproc: ti_k3: fix -Wcast-function-type warning

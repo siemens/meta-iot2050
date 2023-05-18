@@ -1,4 +1,4 @@
-From 8745847774b6fe1b4d4e5b4fb0259d38f79230e0 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Tue, 8 Dec 2020 11:04:22 +0200
 Subject: [PATCH] dmaengine: ti: k3-udma: Wait for peer teardown completion if

@@ -1,4 +1,4 @@
-From bcc2ccf02444bd6a99c812e9000388d1b65aa127 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Sat, 29 Aug 2020 21:41:39 +0300
 Subject: [PATCH] arm64: dts: ti: k3-am65: ringacc: drop ti,

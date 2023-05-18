@@ -1,4 +1,4 @@
-From 91a4736e8f62d949ebac3edba5bfc8380960e3ca Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Mon, 28 Feb 2022 12:00:14 +0100
 Subject: [PATCH] env: Complete generic support for writable list

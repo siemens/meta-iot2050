@@ -1,4 +1,4 @@
-From 70909404eeaa14600f3e7f8ead1122b356bbe8bd Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Wed, 12 Jan 2022 10:34:18 +0800
 Subject: [PATCH] board: siemens: iot2050: use the named gpio to control the

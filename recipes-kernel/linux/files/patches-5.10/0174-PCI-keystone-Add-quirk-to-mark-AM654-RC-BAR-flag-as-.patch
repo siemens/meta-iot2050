@@ -1,4 +1,4 @@
-From c5994894f089bf55ff5cda47d29b69a7bd03cd13 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kishon Vijay Abraham I <kishon@ti.com>
 Date: Wed, 10 Nov 2021 13:13:43 +0530
 Subject: [PATCH] PCI: keystone: Add quirk to mark AM654 RC BAR flag as

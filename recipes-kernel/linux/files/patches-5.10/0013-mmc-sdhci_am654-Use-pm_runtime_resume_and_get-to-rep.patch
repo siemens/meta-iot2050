@@ -1,4 +1,4 @@
-From 861c9deeb47fc980c7dc498cb5342fbe3388eef1 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Tian Tao <tiantao6@hisilicon.com>
 Date: Fri, 21 May 2021 08:59:35 +0800
 Subject: [PATCH] mmc: sdhci_am654: Use pm_runtime_resume_and_get() to replace

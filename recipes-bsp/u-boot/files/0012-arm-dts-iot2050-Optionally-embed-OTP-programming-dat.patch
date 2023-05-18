@@ -1,4 +1,4 @@
-From 4fc53fb6932fbc791c205c9b3c08c9e64844af12 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Fri, 27 May 2022 11:29:20 +0200
 Subject: [PATCH] arm: dts: iot2050: Optionally embed OTP programming data into

@@ -1,4 +1,4 @@
-From 6dd5475611a219c2f274c435368763c3169a1d25 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Thu, 28 Oct 2021 17:08:35 +0300
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: move phy init in

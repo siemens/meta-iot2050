@@ -1,4 +1,4 @@
-From 9b618828e9bed15f18e06f439dd5e31522f5d545 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Baocheng Su <baocheng.su@siemens.com>
 Date: Sat, 30 Jul 2022 10:53:55 +0800
 Subject: [PATCH] spl: fit: Report fdt error for loading u-boot

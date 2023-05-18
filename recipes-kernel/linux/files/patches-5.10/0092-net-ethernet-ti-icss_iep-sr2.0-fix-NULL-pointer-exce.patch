@@ -1,4 +1,4 @@
-From 29e18feaf6b050bafabb46a35a8da995872fe0bf Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Tue, 18 May 2021 23:37:29 +0300
 Subject: [PATCH] net: ethernet: ti: icss_iep: sr2.0 fix NULL pointer exception

@@ -1,4 +1,4 @@
-From f083dfac25e88361969f4b7b52f4fa874de1ae75 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 Date: Mon, 13 Sep 2021 18:19:56 +0300
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: add mii phy interface mode

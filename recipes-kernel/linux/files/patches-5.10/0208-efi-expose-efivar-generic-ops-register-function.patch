@@ -1,4 +1,4 @@
-From 2cc74e0aee55d1ebfc4780847d284317630ea561 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Masahisa Kojima <masahisa.kojima@linaro.org>
 Date: Mon, 20 Feb 2023 14:17:19 +0900
 Subject: [PATCH] efi: expose efivar generic ops register function

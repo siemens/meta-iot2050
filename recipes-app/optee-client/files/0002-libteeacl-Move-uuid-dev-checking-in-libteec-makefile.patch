@@ -1,4 +1,4 @@
-From dd2d39b49975d2ada7870fe2b7f5a84d0d3860dc Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Baocheng Su <baocheng.su@siemens.com>
 Date: Mon, 7 Nov 2022 20:19:29 +0800
 Subject: [PATCH] libteeacl: Move uuid-dev checking in libteec makefile

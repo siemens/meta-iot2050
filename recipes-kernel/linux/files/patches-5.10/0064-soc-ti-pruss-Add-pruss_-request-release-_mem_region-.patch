@@ -1,4 +1,4 @@
-From 5656404835fbe4b6f5d756826e9d0d5f011ede11 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "Andrew F. Davis" <afd@ti.com>
 Date: Fri, 26 Mar 2021 16:11:42 -0500
 Subject: [PATCH] soc: ti: pruss: Add pruss_{request,release}_mem_region() API

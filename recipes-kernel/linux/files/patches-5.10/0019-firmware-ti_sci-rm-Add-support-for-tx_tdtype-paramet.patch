@@ -1,4 +1,4 @@
-From 7288ba471be4e1025c286d5673b3a177409316a0 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Date: Sun, 25 Oct 2020 12:10:02 -0700
 Subject: [PATCH] firmware: ti_sci: rm: Add support for tx_tdtype parameter for

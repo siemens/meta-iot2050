@@ -1,4 +1,4 @@
-From 6755af4bc6a4a4dfa7a39f386feb383d33de7e0a Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Tue, 12 Jan 2021 19:44:03 +0530
 Subject: [PATCH] dmaengine: ti: k3-udma: Set rflow count for BCDMA split

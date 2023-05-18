@@ -1,4 +1,4 @@
-From d448e8bb2e526ba132311a61927f0a9177ae8c4d Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "Ying-Chun Liu (PaulLiu)" <paul.liu@linaro.org>
 Date: Mon, 21 Nov 2022 22:14:05 +0800
 Subject: [PATCH] Allow cross-compile pkg-config

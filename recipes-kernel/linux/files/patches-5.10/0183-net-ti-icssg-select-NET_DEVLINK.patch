@@ -1,4 +1,4 @@
-From 21a874e0fae1b673480d2e54b8b6db13d65cab94 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: chao zeng <chao.zeng@siemens.com>
 Date: Fri, 11 Nov 2022 11:17:47 +0800
 Subject: [PATCH] net:ti:icssg: select NET_DEVLINK

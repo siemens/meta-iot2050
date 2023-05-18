@@ -1,4 +1,4 @@
-From f15978a76c0d6a6e80db1778f5debc2365b929fc Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Vignesh Raghavendra <vigneshr@ti.com>
 Date: Thu, 14 Oct 2021 14:26:54 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: Export prueth_iep_gettime()

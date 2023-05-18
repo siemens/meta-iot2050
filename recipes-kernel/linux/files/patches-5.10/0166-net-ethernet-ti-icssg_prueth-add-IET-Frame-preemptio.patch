@@ -1,4 +1,4 @@
-From d82ae09ebd64618a4bbaf94828fe0f9360b767ea Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Murali Karicheri <m-karicheri2@ti.com>
 Date: Thu, 14 Oct 2021 14:26:56 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: add IET Frame preemption

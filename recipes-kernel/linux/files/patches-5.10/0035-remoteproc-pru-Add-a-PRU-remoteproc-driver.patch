@@ -1,4 +1,4 @@
-From d375626600519e750876cafd521c7ea02072ccd2 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
 Date: Tue, 8 Dec 2020 15:09:58 +0100
 Subject: [PATCH] remoteproc: pru: Add a PRU remoteproc driver

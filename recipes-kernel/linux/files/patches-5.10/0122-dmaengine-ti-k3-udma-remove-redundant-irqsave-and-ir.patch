@@ -1,4 +1,4 @@
-From 83d144a32d32773b1d1be2f254e2c41426f83dd0 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Barry Song <song.bao.hua@hisilicon.com>
 Date: Wed, 28 Oct 2020 10:52:44 +1300
 Subject: [PATCH] dmaengine: ti: k3-udma: remove redundant irqsave and

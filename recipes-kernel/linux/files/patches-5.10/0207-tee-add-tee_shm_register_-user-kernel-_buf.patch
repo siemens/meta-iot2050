@@ -1,4 +1,4 @@
-From f70ef635cf0edb236909ebd24d46f90358f31fc6 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jens Wiklander <jens.wiklander@linaro.org>
 Date: Fri, 4 Feb 2022 10:33:56 +0100
 Subject: [PATCH] tee: add tee_shm_register_{user,kernel}_buf()

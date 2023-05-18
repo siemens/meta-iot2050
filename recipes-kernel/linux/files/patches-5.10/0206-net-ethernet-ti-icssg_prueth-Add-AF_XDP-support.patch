@@ -1,4 +1,4 @@
-From 5d28f8873d73b4744dc21dae1fdee808e21cb217 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@kernel.org>
 Date: Thu, 19 Jan 2023 17:15:30 +0530
 Subject: [PATCH] net: ethernet: ti: icssg_prueth: Add AF_XDP support

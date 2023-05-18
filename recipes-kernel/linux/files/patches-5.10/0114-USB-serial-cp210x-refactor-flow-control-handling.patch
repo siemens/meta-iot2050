@@ -1,4 +1,4 @@
-From 59ccb60a9b21870c419465545f43f7c9773123b5 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
 Date: Mon, 16 Nov 2020 17:18:25 +0100
 Subject: [PATCH] USB: serial: cp210x: refactor flow-control handling
