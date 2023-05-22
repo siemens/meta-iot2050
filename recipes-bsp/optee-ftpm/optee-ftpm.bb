@@ -28,8 +28,8 @@ SRC_URI[wolfssl.sha256sum] = "a68c301fa0ee6197158912d808c4258605a2d001e458fd9582
 
 S = "${WORKDIR}/ms-tpm-20-ref-${SRCREV}"
 
-DEPENDS += "optee-os-tadevkit"
-DEBIAN_BUILD_DEPENDS = "optee-os-tadevkit, python3-cryptography:native,"
+DEPENDS += "optee-os-tadevkit-iot2050"
+DEBIAN_BUILD_DEPENDS = "optee-os-tadevkit-iot2050, python3-cryptography:native,"
 
 OPTEE_FTPM_BUILD_ARGS = " \
     TA_CPU=cortex-a53 \

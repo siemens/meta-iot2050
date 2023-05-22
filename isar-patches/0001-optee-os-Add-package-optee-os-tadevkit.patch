@@ -1,0 +1,151 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Tue, 23 May 2023 00:32:15 +0800
+Subject: [PATCH] optee-os: Add package optee-os-tadevkit
+
+The TA dev kit is used to build trusted applications, details refer to
+[1]. A typical use case of this devkit is a firmware TPM reference
+implementation, see [2].
+
+1. https://optee.readthedocs.io/en/3.21.0/building/trusted_applications.html
+2. https://github.com/microsoft/ms-tpm-20-ref
+
+Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
+---
+ .../optee-os/files/debian/control.tmpl        |  4 +--
+ meta/recipes-bsp/optee-os/optee-os-custom.inc | 29 +++----------------
+ .../optee-os/optee-os-tadevkit-custom.inc     | 20 +++++++++++++
+ .../{optee-os-custom.inc => optee-os.inc}     | 14 +++------
+ 4 files changed, 30 insertions(+), 37 deletions(-)
+ create mode 100644 meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
+ copy meta/recipes-bsp/optee-os/{optee-os-custom.inc => optee-os.inc} (62%)
+
+diff --git a/meta/recipes-bsp/optee-os/files/debian/control.tmpl b/meta/recipes-bsp/optee-os/files/debian/control.tmpl
+index 60b3927..fdf898e 100644
+--- a/meta/recipes-bsp/optee-os/files/debian/control.tmpl
++++ b/meta/recipes-bsp/optee-os/files/debian/control.tmpl
+@@ -5,6 +5,6 @@ Standards-Version: 3.9.6
+ Build-Depends: ${DEBIAN_BUILD_DEPENDS}
+ Maintainer: ISAR project <isar-users@googlegroups.com>
+ 
+-Package: optee-os-${OPTEE_NAME}
++Package: ${DEBIAN_PACKAGE_NAME}
+ Architecture: ${DISTRO_ARCH}
+-Description: ${DESCRIPTION}, firmware binaries
++Description: ${DESCRIPTION}
+diff --git a/meta/recipes-bsp/optee-os/optee-os-custom.inc b/meta/recipes-bsp/optee-os/optee-os-custom.inc
+index d48827a..abe46e8 100644
+--- a/meta/recipes-bsp/optee-os/optee-os-custom.inc
++++ b/meta/recipes-bsp/optee-os/optee-os-custom.inc
+@@ -1,38 +1,17 @@
+ # Custom OP-TEE OS build
+ #
+ # This software is a part of ISAR.
+-# Copyright (c) Siemens AG, 2020
++# Copyright (c) Siemens AG, 2020-2023
+ #
+ # SPDX-License-Identifier: MIT
+ 
+-inherit dpkg
++require optee-os.inc
+ 
+-FILESEXTRAPATHS:prepend := "${FILE_DIRNAME}/files:"
+-
+-SRC_URI += "file://debian/"
+-
+-DESCRIPTION ?= "Custom OP-TEE OS"
+-
+-OPTEE_NAME ?= "${MACHINE}"
+-OPTEE_PLATFORM ?= "unknown"
+-OPTEE_EXTRA_BUILDARGS ?= ""
+-OPTEE_BINARIES ?= "tee-pager_v2.bin"
+-
+-DEBIAN_BUILD_DEPENDS ?= "python3-pycryptodome:native, python3-pyelftools"
++DESCRIPTION:append = ", firmware binaries"
+ 
+ PROVIDES += "optee-os-${OPTEE_NAME}"
+ 
+-TEMPLATE_FILES = "debian/control.tmpl debian/rules.tmpl"
+-TEMPLATE_VARS += "OPTEE_NAME DEBIAN_BUILD_DEPENDS OPTEE_PLATFORM OPTEE_EXTRA_BUILDARGS"
+-
+-# split strip platform flavor, if any, from the specified platform string
+-OPTEE_PLATFORM_BASE = "${@d.getVar('OPTEE_PLATFORM').split('-')[0]}"
+-
+-do_prepare_build() {
+-    cp -r ${WORKDIR}/debian ${S}/
+-
+-    deb_add_changelog
+-
++do_prepare_build:append() {
+     rm -f ${S}/debian/optee-os-${OPTEE_NAME}.install
+     for binary in ${OPTEE_BINARIES}; do
+         echo "out/arm-plat-${OPTEE_PLATFORM_BASE}/core/$binary /usr/lib/optee-os/${OPTEE_NAME}/" >> \
+diff --git a/meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc b/meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
+new file mode 100644
+index 0000000..85d6c25
+--- /dev/null
++++ b/meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
+@@ -0,0 +1,20 @@
++
++# Custom OP-TEE OS build
++#
++# This software is a part of ISAR.
++# Copyright (c) Siemens AG, 2023
++#
++# SPDX-License-Identifier: MIT
++
++require optee-os.inc
++
++DEBIAN_PACKAGE_NAME = "optee-os-tadevkit-${OPTEE_NAME}"
++DESCRIPTION:append = ", trust application development kit."
++
++PROVIDES += "${DEBIAN_PACKAGE_NAME}"
++
++do_prepare_build:append() {
++    rm -f ${S}/debian/optee-os-tadevkit-${OPTEE_NAME}.install
++    echo "out/arm-plat-${OPTEE_PLATFORM_BASE}/export-ta_${DISTRO_ARCH} /usr/lib/optee-os/" > \
++        ${S}/debian/optee-os-tadevkit-${OPTEE_NAME}.install
++}
+diff --git a/meta/recipes-bsp/optee-os/optee-os-custom.inc b/meta/recipes-bsp/optee-os/optee-os.inc
+similarity index 62%
+copy from meta/recipes-bsp/optee-os/optee-os-custom.inc
+copy to meta/recipes-bsp/optee-os/optee-os.inc
+index d48827a..198746b 100644
+--- a/meta/recipes-bsp/optee-os/optee-os-custom.inc
++++ b/meta/recipes-bsp/optee-os/optee-os.inc
+@@ -1,7 +1,7 @@
+ # Custom OP-TEE OS build
+ #
+ # This software is a part of ISAR.
+-# Copyright (c) Siemens AG, 2020
++# Copyright (c) Siemens AG, 2020-2023
+ #
+ # SPDX-License-Identifier: MIT
+ 
+@@ -18,12 +18,12 @@ OPTEE_PLATFORM ?= "unknown"
+ OPTEE_EXTRA_BUILDARGS ?= ""
+ OPTEE_BINARIES ?= "tee-pager_v2.bin"
+ 
+-DEBIAN_BUILD_DEPENDS ?= "python3-pycryptodome:native, python3-pyelftools"
++DEBIAN_PACKAGE_NAME ?= "optee-os-${OPTEE_NAME}"
+ 
+-PROVIDES += "optee-os-${OPTEE_NAME}"
++DEBIAN_BUILD_DEPENDS ?= "python3-pycryptodome:native, python3-pyelftools"
+ 
+ TEMPLATE_FILES = "debian/control.tmpl debian/rules.tmpl"
+-TEMPLATE_VARS += "OPTEE_NAME DEBIAN_BUILD_DEPENDS OPTEE_PLATFORM OPTEE_EXTRA_BUILDARGS"
++TEMPLATE_VARS += "DEBIAN_PACKAGE_NAME OPTEE_NAME DEBIAN_BUILD_DEPENDS OPTEE_PLATFORM OPTEE_EXTRA_BUILDARGS"
+ 
+ # split strip platform flavor, if any, from the specified platform string
+ OPTEE_PLATFORM_BASE = "${@d.getVar('OPTEE_PLATFORM').split('-')[0]}"
+@@ -32,10 +32,4 @@ do_prepare_build() {
+     cp -r ${WORKDIR}/debian ${S}/
+ 
+     deb_add_changelog
+-
+-    rm -f ${S}/debian/optee-os-${OPTEE_NAME}.install
+-    for binary in ${OPTEE_BINARIES}; do
+-        echo "out/arm-plat-${OPTEE_PLATFORM_BASE}/core/$binary /usr/lib/optee-os/${OPTEE_NAME}/" >> \
+-            ${S}/debian/optee-os-${OPTEE_NAME}.install
+-    done
+ }
