@@ -16,6 +16,8 @@ SRC_URI = " \
     "
 CHANGELOG_V="<orig-version>+iot2050"
 
+PROVIDES += "libssl1.1"
+
 DEB_BUILD_OPTIONS += "nocheck"
 
 do_prepare_build() {
