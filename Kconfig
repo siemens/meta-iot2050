@@ -3,6 +3,7 @@
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -42,6 +43,13 @@ config IMAGE_BOOT
 	  that it fits AND you have an external flash programmer at hand that
 	  allows to recover. Otherwise you risk to BRICK THE IOT2050!
 
+config IMAGE_FWU_PKG
+	bool "Firmware update package for all devices"
+	help
+	  This is the official firmware update package in
+	  IOT2050-FW-Update-PKG-Vx.x.x.tar.xz format, which includes firmware bins,
+	  and update criteria, and builtin env, and it is for all IOT2050 devices.
+
 endchoice
 
 config KAS_INCLUDE_MAIN
@@ -49,6 +57,7 @@ config KAS_INCLUDE_MAIN
 	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
 	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
 	default "kas-iot2050-boot.yml" if IMAGE_BOOT
+	default "kas-iot2050-fwu-package.yml" if IMAGE_FWU_PKG
 
 comment "Image features"
 
