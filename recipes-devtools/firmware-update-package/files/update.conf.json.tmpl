@@ -1,0 +1,38 @@
+{
+    "firmware": [
+        {
+            "description": "IOT2050 PG1 Bootloader Release V01.01.01",
+            "name": "iot2050-pg1-image-boot.bin",
+            "version": "V01.01.01",
+            "type": "uboot",
+            "target_boards": [
+                "SIMATIC IOT2050-BASIC",
+                "SIMATIC IOT2050 Basic",
+                "SIMATIC IOT2050-ADVANCED",
+                "SIMATIC IOT2050 Advanced"
+            ]
+        },
+        {
+            "description": "IOT2050 PG2 Bootloader Release V01.01.01",
+            "name": "iot2050-pg2-image-boot.bin",
+            "version": "V01.01.01",
+            "type": "uboot",
+            "target_boards": [
+                "SIMATIC IOT2050 Basic PG2",
+                "SIMATIC IOT2050 Advanced PG2",
+                "SIMATIC IOT2050 Advanced M2",
+                "SIMATIC IOT2050 Advanced SM"
+            ]
+        }
+    ],
+    "target_os": [
+        {
+            "type": "Example Image",
+            "key": "BUILD_ID",
+            "min_version": "V01.01.01"
+        }
+    ],
+    "suggest_preserved_uboot_env": [
+        "boot_targets"
+    ]
+}
