@@ -1,0 +1,30 @@
+--- linux-cip-5.10.162-cip24/drivers/net/ethernet/ti/icssg_prueth.c.orig	2023-05-08 16:22:22.805004920 +0200
++++ linux-cip-5.10.162-cip24/drivers/net/ethernet/ti/icssg_prueth.c	2023-05-24 06:39:39.072977487 +0200
+@@ -2082,7 +2082,13 @@ static int emac_ndo_stop(struct net_devi
+ 	netif_tx_stop_all_queues(ndev);
+ 
+ 	/* block packets from wire */
+-	phy_stop(emac->phydev);
++	if (emac->phydev) { // THa: sometimes phydev is NULL, why ?
++		phy_stop(emac->phydev);
++	} else {
++		printk(KERN_WARNING
++		       "phydev is NULL after netdev_priv() call on device %s, line %d, function %s \n",
++		       ndev->name, __LINE__, __func__);
++	}
+ 
+ 	icssg_class_disable(prueth->miig_rt, prueth_emac_slice(emac));
+ 
+@@ -3507,10 +3513,10 @@ static int prueth_remove(struct platform
+ 	prueth_unregister_notifiers(prueth);
+ 
+ 	for (i = 0; i < PRUETH_NUM_MACS; i++) {
+-		if (!prueth->registered_netdevs[i])
+-			continue;
+ 		phy_disconnect(prueth->emac[i]->phydev);
+ 		prueth->emac[i]->phydev = NULL;
++		if (!prueth->registered_netdevs[i])
++			continue;
+ 		unregister_netdev(prueth->registered_netdevs[i]);
+ 	}
+ 	prueth_unregister_devlink(prueth);
