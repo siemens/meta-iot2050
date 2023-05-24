@@ -1,0 +1,171 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Tue, 23 May 2023 17:14:04 +0800
+Subject: [PATCH] Add recipe for optee-client
+
+This brings the libteec1, optee-client-dev and most important,
+tee-supplicant.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ recipes-bsp/optee-client/files/control.tmpl   | 51 +++++++++++++++++++
+ recipes-bsp/optee-client/files/rules.tmpl     | 20 ++++++++
+ .../optee-client/files/tee-supplicant.service |  9 ++++
+ .../optee-client/optee-client_3.20.0.bb       | 47 +++++++++++++++++
+ 4 files changed, 127 insertions(+)
+ create mode 100644 recipes-bsp/optee-client/files/control.tmpl
+ create mode 100755 recipes-bsp/optee-client/files/rules.tmpl
+ create mode 100644 recipes-bsp/optee-client/files/tee-supplicant.service
+ create mode 100644 recipes-bsp/optee-client/optee-client_3.20.0.bb
+
+diff --git a/recipes-bsp/optee-client/files/control.tmpl b/recipes-bsp/optee-client/files/control.tmpl
+new file mode 100644
+index 0000000..b0c3756
+--- /dev/null
++++ b/recipes-bsp/optee-client/files/control.tmpl
+@@ -0,0 +1,51 @@
++Source: optee-client
++Priority: optional
++Maintainer: Unknown maintainer <unknown@example.com>
++Build-Depends: pkg-config, uuid-dev
++Standards-Version: 4.1.3
++Section: libs
++Homepage: https://github.com/OP-TEE/optee_client
++Rules-Requires-Root: no
++
++Package: optee-client-dev
++Section: libdevel
++Architecture: arm64
++Multi-Arch: same
++Depends: libteec1 (= ${binary:Version}),
++         ${misc:Depends}
++Description: normal world user space client APIs for OP-TEE (development)
++ OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
++ non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone
++ technology. OP-TEE implements TEE Internal Core API v1.1.x which is the API
++ exposed to Trusted Applications and the TEE Client API v1.0, which is the
++ API describing how to communicate with a TEE. This package provides the TEE
++ Client API library.
++ .
++ This package contains the development files OpTEE Client API
++
++Package: libteec1
++Architecture: arm64
++Multi-Arch: same
++Depends: ${misc:Depends}, ${shlibs:Depends}
++Description: normal world user space client APIs for OP-TEE
++ OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
++ non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone
++ technology. OP-TEE implements TEE Internal Core API v1.1.x which is the API
++ exposed to Trusted Applications and the TEE Client API v1.0, which is the
++ API describing how to communicate with a TEE. This package provides the TEE
++ Client API library.
++ .
++ This package contains libteec library.
++
++Package: tee-supplicant
++Architecture: arm64
++Depends: ${misc:Depends}, ${shlibs:Depends}
++Description: normal world user space client APIs for OP-TEE
++ OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
++ non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone
++ technology. OP-TEE implements TEE Internal Core API v1.1.x which is the API
++ exposed to Trusted Applications and the TEE Client API v1.0, which is the
++ API describing how to communicate with a TEE. This package provides the TEE
++ Client API library.
++ .
++ This package contains tee-supplicant executable.
+diff --git a/recipes-bsp/optee-client/files/rules.tmpl b/recipes-bsp/optee-client/files/rules.tmpl
+new file mode 100755
+index 0000000..a8f2afd
+--- /dev/null
++++ b/recipes-bsp/optee-client/files/rules.tmpl
+@@ -0,0 +1,20 @@
++#!/usr/bin/make -f
++
++ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
++export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
++endif
++
++%:
++	dh $@ --exclude=.a
++
++override_dh_auto_build:
++	dh_auto_build -- LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
++		CFG_TEE_FS_PARENT_PATH=${TEE_FS_PARENT_PATH} ${RPMB_EMU_BUILD_OPT}
++
++override_dh_auto_install:
++	dh_auto_install -- LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
++		CFG_TEE_FS_PARENT_PATH=${TEE_FS_PARENT_PATH} ${RPMB_EMU_BUILD_OPT}
++
++override_dh_auto_clean:
++	dh_auto_clean
++	rm -rf $(CURDIR)/out
+diff --git a/recipes-bsp/optee-client/files/tee-supplicant.service b/recipes-bsp/optee-client/files/tee-supplicant.service
+new file mode 100644
+index 0000000..7148515
+--- /dev/null
++++ b/recipes-bsp/optee-client/files/tee-supplicant.service
+@@ -0,0 +1,9 @@
++[Unit]
++Description=TEE Supplicant
++
++[Service]
++Type=simple
++ExecStart=/usr/sbin/tee-supplicant
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/recipes-bsp/optee-client/optee-client_3.20.0.bb b/recipes-bsp/optee-client/optee-client_3.20.0.bb
+new file mode 100644
+index 0000000..b760a2c
+--- /dev/null
++++ b/recipes-bsp/optee-client/optee-client_3.20.0.bb
+@@ -0,0 +1,47 @@
++#
++# CIP Core, generic profile
++#
++# Copyright (c) Siemens AG, 2023
++#
++# Authors:
++#  Su Bao Cheng <baocheng.su@siemens.com>
++#
++# SPDX-License-Identifier: MIT
++#
++
++inherit dpkg
++
++DESCRIPTION = "OPTee Client"
++
++PROVIDES = "libteec1 optee-client-dev tee-supplicant"
++
++SRC_URI += "https://github.com/OP-TEE/optee_client/archive/${PV}.tar.gz;downloadfilename=optee_client-${PV}.tar.gz \
++    file://control.tmpl \
++    file://rules.tmpl \
++    file://tee-supplicant.service"
++SRC_URI[sha256sum] = "69414c424b8dbed11ce1ae0d812817eda2ef4f42a1bef762e5ca3b6fed80764c"
++
++S = "${WORKDIR}/optee_client-${PV}"
++
++TEE_FS_PARENT_PATH ?= "/var/lib/optee-client/data/tee"
++# To use the builtin RPMB emulation, empty this
++RPMB_EMU_BUILD_OPT ?= "RPMB_EMU=0"
++
++TEMPLATE_FILES = "rules.tmpl control.tmpl"
++TEMPLATE_VARS += "TEE_FS_PARENT_PATH RPMB_EMU_BUILD_OPT"
++
++do_prepare_build[cleandirs] += "${S}/debian"
++do_prepare_build() {
++    deb_debianize
++
++    cp -f ${WORKDIR}/tee-supplicant.service \
++        ${S}/debian/tee-supplicant.service
++    echo "/usr/sbin/*" > ${S}/debian/tee-supplicant.install
++    echo "lib/optee_armtz/" > ${S}/debian/tee-supplicant.dirs
++    echo "usr/lib/tee-supplicant/plugins/" >> ${S}/debian/tee-supplicant.dirs
++
++    echo "usr/lib/*/libteec*.so.*" > ${S}/debian/libteec1.install
++
++    echo "usr/include/*" > ${S}/debian/optee-client-dev.install
++    echo "usr/lib/*/lib*.so" >> ${S}/debian/optee-client-dev.install
++}
