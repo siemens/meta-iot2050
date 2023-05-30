@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Drew Fustini <drew@beagleboard.org>
+Date: Mon, 1 Mar 2021 21:30:56 -0800
+Subject: [PATCH] pinctrl: use to octal permissions for debugfs files
+
+Switch over pinctrl debugfs files to use octal permissions as they are
+preferred over symbolic permissions. Refer to commit f90774e1fd27
+("checkpatch: look for symbolic permissions and suggest octal instead").
+
+Note: S_IFREG flag is added to the mode by __debugfs_create_file()
+in fs/debugfs/inode.c
+
+Suggested-by: Joe Perches <joe@perches.com>
+Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Drew Fustini <drew@beagleboard.org>
+Link: https://lore.kernel.org/r/20210302053059.1049035-2-drew@beagleboard.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/core.c    | 12 ++++++------
+ drivers/pinctrl/pinconf.c |  4 ++--
+ drivers/pinctrl/pinmux.c  |  4 ++--
+ 3 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
+index 840000870d5a..aa5a1178c8eb 100644
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -1892,11 +1892,11 @@ static void pinctrl_init_device_debugfs(struct pinctrl_dev *pctldev)
+ 			dev_name(pctldev->dev));
+ 		return;
+ 	}
+-	debugfs_create_file("pins", S_IFREG | S_IRUGO,
++	debugfs_create_file("pins", 0444,
+ 			    device_root, pctldev, &pinctrl_pins_fops);
+-	debugfs_create_file("pingroups", S_IFREG | S_IRUGO,
++	debugfs_create_file("pingroups", 0444,
+ 			    device_root, pctldev, &pinctrl_groups_fops);
+-	debugfs_create_file("gpio-ranges", S_IFREG | S_IRUGO,
++	debugfs_create_file("gpio-ranges", 0444,
+ 			    device_root, pctldev, &pinctrl_gpioranges_fops);
+ 	if (pctldev->desc->pmxops)
+ 		pinmux_init_device_debugfs(device_root, pctldev);
+@@ -1918,11 +1918,11 @@ static void pinctrl_init_debugfs(void)
+ 		return;
+ 	}
+ 
+-	debugfs_create_file("pinctrl-devices", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinctrl-devices", 0444,
+ 			    debugfs_root, NULL, &pinctrl_devices_fops);
+-	debugfs_create_file("pinctrl-maps", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinctrl-maps", 0444,
+ 			    debugfs_root, NULL, &pinctrl_maps_fops);
+-	debugfs_create_file("pinctrl-handles", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinctrl-handles", 0444,
+ 			    debugfs_root, NULL, &pinctrl_fops);
+ }
+ 
+diff --git a/drivers/pinctrl/pinconf.c b/drivers/pinctrl/pinconf.c
+index 02c075cc010b..d9d54065472e 100644
+--- a/drivers/pinctrl/pinconf.c
++++ b/drivers/pinctrl/pinconf.c
+@@ -370,9 +370,9 @@ DEFINE_SHOW_ATTRIBUTE(pinconf_groups);
+ void pinconf_init_device_debugfs(struct dentry *devroot,
+ 			 struct pinctrl_dev *pctldev)
+ {
+-	debugfs_create_file("pinconf-pins", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinconf-pins", 0444,
+ 			    devroot, pctldev, &pinconf_pins_fops);
+-	debugfs_create_file("pinconf-groups", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinconf-groups", 0444,
+ 			    devroot, pctldev, &pinconf_groups_fops);
+ }
+ 
+diff --git a/drivers/pinctrl/pinmux.c b/drivers/pinctrl/pinmux.c
+index 36a11c9e893a..9c0174520e78 100644
+--- a/drivers/pinctrl/pinmux.c
++++ b/drivers/pinctrl/pinmux.c
+@@ -676,9 +676,9 @@ DEFINE_SHOW_ATTRIBUTE(pinmux_pins);
+ void pinmux_init_device_debugfs(struct dentry *devroot,
+ 			 struct pinctrl_dev *pctldev)
+ {
+-	debugfs_create_file("pinmux-functions", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinmux-functions", 0444,
+ 			    devroot, pctldev, &pinmux_functions_fops);
+-	debugfs_create_file("pinmux-pins", S_IFREG | S_IRUGO,
++	debugfs_create_file("pinmux-pins", 0444,
+ 			    devroot, pctldev, &pinmux_pins_fops);
+ }
+ 

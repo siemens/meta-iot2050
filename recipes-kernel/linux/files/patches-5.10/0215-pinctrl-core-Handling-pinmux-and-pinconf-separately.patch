@@ -1,0 +1,62 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Michal Simek <michal.simek@xilinx.com>
+Date: Wed, 10 Mar 2021 09:16:54 +0100
+Subject: [PATCH] pinctrl: core: Handling pinmux and pinconf separately
+
+Right now the handling order depends on how entries are coming which is
+corresponding with order in DT. We have reached the case with DT overlays
+where conf and mux descriptions are exchanged which ends up in sequence
+that firmware has been asked to perform configuration before requesting the
+pin.
+
+The patch is enforcing the order that pin is requested all the time first
+followed by pin configuration. This change will ensure that firmware gets
+requests in the right order.
+
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/cfbe01f791c2dd42a596cbda57e15599969b57aa.1615364211.git.michal.simek@xilinx.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/core.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
+index aa5a1178c8eb..011e461a766a 100644
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -1258,13 +1258,34 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
+ 
+ 	p->state = NULL;
+ 
+-	/* Apply all the settings for the new state */
++	/* Apply all the settings for the new state - pinmux first */
+ 	list_for_each_entry(setting, &state->settings, node) {
+ 		switch (setting->type) {
+ 		case PIN_MAP_TYPE_MUX_GROUP:
+ 			ret = pinmux_enable_setting(setting);
+ 			break;
+ 		case PIN_MAP_TYPE_CONFIGS_PIN:
++		case PIN_MAP_TYPE_CONFIGS_GROUP:
++			break;
++		default:
++			ret = -EINVAL;
++			break;
++		}
++
++		if (ret < 0)
++			goto unapply_new_state;
++
++		/* Do not link hogs (circular dependency) */
++		if (p != setting->pctldev->p)
++			pinctrl_link_add(setting->pctldev, p->dev);
++	}
++
++	/* Apply all the settings for the new state - pinconf after */
++	list_for_each_entry(setting, &state->settings, node) {
++		switch (setting->type) {
++		case PIN_MAP_TYPE_MUX_GROUP:
++			break;
++		case PIN_MAP_TYPE_CONFIGS_PIN:
+ 		case PIN_MAP_TYPE_CONFIGS_GROUP:
+ 			ret = pinconf_apply_setting(setting);
+ 			break;
