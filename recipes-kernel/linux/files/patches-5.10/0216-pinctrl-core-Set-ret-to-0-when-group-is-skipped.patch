@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Michal Simek <michal.simek@xilinx.com>
+Date: Fri, 12 Mar 2021 08:31:34 +0100
+Subject: [PATCH] pinctrl: core: Set ret to 0 when group is skipped
+
+Static analyzer tool found that the ret variable is not initialized but
+code expects ret value >=0 when pinconf is skipped in the first pinmux
+loop. The same expectation is for pinmux in a pinconf loop.
+That's why initialize ret to 0 to avoid uninitialized ret value in first
+loop or reusing ret value from first loop in second.
+
+Addresses-Coverity: ("Uninitialized variables")
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/e5203bae68eb94b4b8b4e67e5e7b4d86bb989724.1615534291.git.michal.simek@xilinx.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
+index 011e461a766a..af9a3f967c99 100644
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -1266,6 +1266,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
+ 			break;
+ 		case PIN_MAP_TYPE_CONFIGS_PIN:
+ 		case PIN_MAP_TYPE_CONFIGS_GROUP:
++			ret = 0;
+ 			break;
+ 		default:
+ 			ret = -EINVAL;
+@@ -1284,6 +1285,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
+ 	list_for_each_entry(setting, &state->settings, node) {
+ 		switch (setting->type) {
+ 		case PIN_MAP_TYPE_MUX_GROUP:
++			ret = 0;
+ 			break;
+ 		case PIN_MAP_TYPE_CONFIGS_PIN:
+ 		case PIN_MAP_TYPE_CONFIGS_GROUP:

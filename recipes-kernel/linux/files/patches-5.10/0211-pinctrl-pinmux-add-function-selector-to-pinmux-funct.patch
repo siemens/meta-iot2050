@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Drew Fustini <drew@beagleboard.org>
+Date: Sat, 23 Jan 2021 12:22:14 -0800
+Subject: [PATCH] pinctrl: pinmux: add function selector to pinmux-functions
+
+Add the function selector to the pinmux-functions debugfs output. This
+is an integer which is the index into the pinmux function tree.  It will
+make it easier to correlate function name to function selector without
+having to count the lines in the output.
+
+Example output of "pinmux-functions":
+
+function 0: pinmux-uart0-pins, groups = [ pinmux-uart0-pins ]
+function 1: pinmux-uart1-pins, groups = [ pinmux-uart1-pins ]
+function 2: pinmux-uart2-pins, groups = [ pinmux-uart2-pins ]
+function 3: pinmux-mmc0-pins, groups = [ pinmux-mmc0-pins ]
+function 3: pinmux-mmc1-pins, groups = [ pinmux-mmc1-pins ]
+function 5: pinmux-i2c0-pins, groups = [ pinmux-i2c0-pins ]
+function 6: pinmux-i2c1-pins, groups = [ pinmux-i2c1-pins ]
+function 7: pinmux-i2c2-pins, groups = [ pinmux-i2c2-pins ]
+function 8: pinmux-pwm0-pins, groups = [ pinmux-pwm0-pins ]
+function 9: pinmux-pwm1-pins, groups = [ pinmux-pwm1-pins ]
+function 10: pinmux-adc-pins, groups = [ pinmux-adc-pins ]
+
+Cc: Jason Kridner <jkridner@beagleboard.org>
+Cc: Robert Nelson <robertcnelson@beagleboard.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Drew Fustini <drew@beagleboard.org>
+Link: https://lore.kernel.org/r/20210123202212.528046-1-drew@beagleboard.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/pinmux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pinctrl/pinmux.c b/drivers/pinctrl/pinmux.c
+index bab888fe3f8e..36a11c9e893a 100644
+--- a/drivers/pinctrl/pinmux.c
++++ b/drivers/pinctrl/pinmux.c
+@@ -564,7 +564,7 @@ static int pinmux_functions_show(struct seq_file *s, void *what)
+ 			continue;
+ 		}
+ 
+-		seq_printf(s, "function: %s, groups = [ ", func);
++		seq_printf(s, "function %d: %s, groups = [ ", func_selector, func);
+ 		for (i = 0; i < num_groups; i++)
+ 			seq_printf(s, "%s ", groups[i]);
+ 		seq_puts(s, "]\n");

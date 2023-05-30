@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Hanna Hawa <hhhawa@amazon.com>
+Date: Fri, 19 Mar 2021 17:21:31 +0200
+Subject: [PATCH] pinctrl: pinctrl-single: remove unused variable
+
+Remove unused parameter 'num_pins_in_register' from
+pcs_allocate_pin_table().
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Hanna Hawa <hhhawa@amazon.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Drew Fustini <drew@beagleboard.org>
+Link: https://lore.kernel.org/r/20210319152133.28705-2-hhhawa@amazon.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/pinctrl-single.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index e366bf9416ce..8b832c9a5876 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -722,14 +722,12 @@ static int pcs_add_pin(struct pcs_device *pcs, unsigned int offset)
+ static int pcs_allocate_pin_table(struct pcs_device *pcs)
+ {
+ 	int mux_bytes, nr_pins, i;
+-	int num_pins_in_register = 0;
+ 
+ 	mux_bytes = pcs->width / BITS_PER_BYTE;
+ 
+ 	if (pcs->bits_per_mux && pcs->fmask) {
+ 		pcs->bits_per_pin = fls(pcs->fmask);
+ 		nr_pins = (pcs->size * BITS_PER_BYTE) / pcs->bits_per_pin;
+-		num_pins_in_register = pcs->width / pcs->bits_per_pin;
+ 	} else {
+ 		nr_pins = pcs->size / mux_bytes;
+ 	}
