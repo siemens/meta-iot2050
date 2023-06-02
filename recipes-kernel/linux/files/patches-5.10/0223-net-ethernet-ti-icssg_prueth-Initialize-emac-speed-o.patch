@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 2 Jun 2023 08:07:13 +0200
+Subject: [PATCH] net: ethernet: ti: icssg_prueth: Initialize emac speed on
+ SR1.0
+
+This fixes zero delays in emac_stats_work_handler, thus high CPU loads
+if no cable is plugged.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ drivers/net/ethernet/ti/icssg_config.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ethernet/ti/icssg_config.c b/drivers/net/ethernet/ti/icssg_config.c
+index ada01cebf3e1..1d8806c6718e 100644
+--- a/drivers/net/ethernet/ti/icssg_config.c
++++ b/drivers/net/ethernet/ti/icssg_config.c
+@@ -284,6 +284,8 @@ void icssg_config_sr1(struct prueth *prueth, struct prueth_emac *emac,
+ 	}
+ 
+ 	memcpy_toio(va, &prueth->config[slice], sizeof(prueth->config[slice]));
++
++	emac->speed = SPEED_1000;
+ }
+ 
+ static void emac_r30_cmd_init(struct prueth_emac *emac)
