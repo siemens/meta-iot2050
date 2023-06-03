@@ -57,6 +57,7 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     usb-modeswitch \
     systemd-timesyncd \
     efitools \
+    mmc-utils \
     "
 
 # wifi support
