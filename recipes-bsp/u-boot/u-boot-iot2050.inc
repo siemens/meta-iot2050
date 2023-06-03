@@ -23,6 +23,8 @@ SRC_URI:append:secureboot = " \
     file://secure-boot.cfg"
 SRC_URI:append:otpcmd = " \
     file://otpcmd.cfg"
+SRC_URI:append:rpmb-setup = " \
+    file://rpmb-setup.cfg"
 
 U_BOOT_BIN = "flash.bin"
 U_BOOT_ENV = "u-boot-initial-env"
@@ -80,6 +82,14 @@ do_prepare_build:append:otpcmd() {
     ln -sf /usr/lib/secure-boot-otp-provisioning/otpcmd.bin ${S}
     sed -ni '/### OTP command config/q;p' ${S}/configs/${U_BOOT_CONFIG}
     cat ${WORKDIR}/otpcmd.cfg >> ${S}/configs/${U_BOOT_CONFIG}
+}
+
+do_prepare_build:append:rpmb-setup() {
+    if [ "${PRODUCT_GENERATION}" = "pg1" ]; then
+        bbwarn "PG1 devices do not support RPMB based secure storage"
+    fi
+    sed -ni '/### RPMB key pairing config/q;p' ${S}/configs/${U_BOOT_CONFIG}
+    cat ${WORKDIR}/rpmb-setup.cfg >> ${S}/configs/${U_BOOT_CONFIG}
 }
 
 do_deploy() {
