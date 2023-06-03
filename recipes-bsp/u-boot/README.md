@@ -95,9 +95,33 @@ key, together with a special U-Boot binary for kicking off the key programming.
 > To protected the programmed RPMB key, it is required to flash a signed image,
 > program secure boot keys and enable secure boot.
 
+When booting this special firmware, the RPMB key provisioning starts
+automatically. The result could be checked either:
 
-To kick off the key programming, when booting the special firmware, press any
-key to enter to the u-boot console and issue below commands:
+- By Linux `mmc` command (with `mmc-utils` installed):
+
+    ```shell
+    mmc rpmb read-counter /dev/mmcblk1rpmb
+    ```
+
+    Returned "RPMB operation failed, retcode 0x0007" means no RPMB key was
+    enrolled. on the other hand, the write counter value of RPMB will be read
+    out, for the very first time enrolled RPMB key, the message is like this:
+    "Counter value: 0x00000cef".
+
+- Or by checking the u-boot log, an successful provisioning is indicated with
+  something like:
+
+    ```
+    Wrote 2 bytes
+    Read 2 bytes, value = 1
+    ```
+
+    If failed, the log would print something like "Failed to write(read)
+    persistent value".
+
+You can also perform the key provisioning manually by breaking the u-boot
+autoboot then manually run below commands in u-boot console:
 
 ```
 mmc dev 1
@@ -108,14 +132,10 @@ optee_rpmb read_pvalue paired 2
 `mmc dev 1` is for setting the eMMC as the current mmc device.
 
 `optee_rpmb write_pvalue paired 1` triggers the RPMB key programming, then write
-a persistent value 1 named with `paired` to the RPMB based secure storage. A
-successful running of this command returns:
-```
-Wrote 2 bytes
-```
+a persistent value 1 named with `paired` to the RPMB based secure storage.
 
 `optee_rpmb read_pvalue paired 2` reads back the written persistent value for
-checking. It should return
-```
-Read 2 bytes, value = 1
-```
+checking.
+
+The auto provisioning is actually calling these three commands, so you would see
+similar return messages.
