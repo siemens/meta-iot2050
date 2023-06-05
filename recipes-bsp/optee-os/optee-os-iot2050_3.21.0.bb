@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 require recipes-bsp/optee-os/optee-os-custom.inc
-require optee-os-iot2050_3.19.0.inc
+require optee-os-iot2050_${PV}.inc
 
 # StMM integration
 DEPENDS += "edk2-standalonemm-rpmb"
