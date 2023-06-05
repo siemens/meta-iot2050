@@ -9,10 +9,8 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=${PN}-${PV}.tar.gz \
-    file://0001-core-add-StMM-to-reported-services.patch"
-
-SRC_URI[sha256sum] = "5e0c03bbc4d106f262a6bd33333c002c3380205ae6b82334aa7b644721ff7868"
+SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=${PN}-${PV}.tar.gz"
+SRC_URI[sha256sum] = "92a16e841b0bdb4bfcb1c20b6a1bd3309092203d534ed167dfdb5a5f395bf60b"
 
 S = "${WORKDIR}/optee_os-${PV}"
 
