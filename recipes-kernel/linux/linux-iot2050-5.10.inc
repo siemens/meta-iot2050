@@ -20,6 +20,7 @@ def get_patches(d, patchdir):
 SRC_URI += " \
     https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git/snapshot/linux-cip-${PV}.tar.gz \
     ${@get_patches(d, 'patches-5.10')} \
+    file://patches-5.10/ \
     file://${KERNEL_DEFCONFIG} \
     file://iot2050_defconfig_extra.cfg"
 
