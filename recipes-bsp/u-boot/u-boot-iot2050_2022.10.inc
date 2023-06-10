@@ -31,8 +31,7 @@ SRC_URI += " \
     file://0016-iot2050-Add-support-for-configuring-M.2-connector.patch \
     file://0017-spl-fit-Report-fdt-error-for-loading-u-boot.patch \
     file://0018-efi_loader-Let-networking-support-depend-on-NETDEVIC.patch \
-    file://0019-iot2050-Enable-eMMC-RPMB-based-secure-storage.patch \
-    file://0020-iot2050-Refactor-the-m.2-and-minipcie-power-pin.patch \
+    file://0019-iot2050-Refactor-the-m.2-and-minipcie-power-pin.patch \
     "
 
 SRC_URI[sha256sum] = "50b4482a505bc281ba8470c399a3c26e145e29b23500bc35c50debd7fa46bdf8"
