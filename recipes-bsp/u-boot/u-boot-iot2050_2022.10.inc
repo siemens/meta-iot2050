@@ -30,7 +30,7 @@ SRC_URI += " \
     file://0015-arm-dts-iot2050-Add-support-for-M.2-variant.patch \
     file://0016-iot2050-Add-support-for-configuring-M.2-connector.patch \
     file://0017-spl-fit-Report-fdt-error-for-loading-u-boot.patch \
-    file://0018-iot2050-Select-DM_ETH-to-restore-UEFI-support.patch \
+    file://0018-efi_loader-Let-networking-support-depend-on-NETDEVIC.patch \
     file://0019-iot2050-Enable-eMMC-RPMB-based-secure-storage.patch \
     file://0020-iot2050-Refactor-the-m.2-and-minipcie-power-pin.patch \
     "
