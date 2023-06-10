@@ -1,0 +1,101 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Fri, 14 Oct 2022 18:01:28 +0200
+Subject: [PATCH] efi_loader: Let networking support depend on NETDEVICES
+
+CONFIG_NET does not imply that there are actually network devices
+available, only CONFIG_NETDEVICES does. Changing to this dependency
+obsoletes the check in Kconfig because NETDEVICES means DM_ETH.
+
+Suggested-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ lib/efi_loader/Kconfig           | 1 -
+ lib/efi_loader/Makefile          | 2 +-
+ lib/efi_loader/efi_device_path.c | 6 +++---
+ lib/efi_loader/efi_setup.c       | 2 +-
+ lib/efi_selftest/Makefile        | 2 +-
+ 5 files changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index b8fb2701a7..94feadda5e 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -11,7 +11,6 @@ config EFI_LOADER
+ 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
+ 	depends on !EFI_STUB || !X86 || X86_64 || EFI_STUB_32BIT
+ 	depends on BLK
+-	depends on DM_ETH || !NET
+ 	depends on !EFI_APP
+ 	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
+ 	select CHARSET
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index e187d2a914..418db296b2 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -68,7 +68,7 @@ obj-y += efi_watchdog.o
+ obj-$(CONFIG_EFI_ESRT) += efi_esrt.o
+ obj-$(CONFIG_DM_VIDEO) += efi_gop.o
+ obj-$(CONFIG_BLK) += efi_disk.o
+-obj-$(CONFIG_NET) += efi_net.o
++obj-$(CONFIG_NETDEVICES) += efi_net.o
+ obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o
+ obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
+ obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index ebffb77122..179b36f321 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -613,7 +613,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
+ 		*vdp = ROOT;
+ 		return &vdp[1];
+ 	}
+-#ifdef CONFIG_NET
++#ifdef CONFIG_NETDEVICES
+ 	case UCLASS_ETH: {
+ 		struct efi_device_path_mac_addr *dp =
+ 			dp_fill(buf, dev->parent);
+@@ -1051,7 +1051,7 @@ struct efi_device_path *efi_dp_from_uart(void)
+ 	return buf;
+ }
+ 
+-#ifdef CONFIG_NET
++#ifdef CONFIG_NETDEVICES
+ struct efi_device_path *efi_dp_from_eth(void)
+ {
+ 	void *buf, *start;
+@@ -1168,7 +1168,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+ 		return EFI_INVALID_PARAMETER;
+ 
+ 	if (!strcmp(dev, "Net")) {
+-#ifdef CONFIG_NET
++#ifdef CONFIG_NETDEVICES
+ 		if (device)
+ 			*device = efi_dp_from_eth();
+ #endif
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index c633fcd91e..979acc0142 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -335,7 +335,7 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ #endif
+-#ifdef CONFIG_NET
++#ifdef CONFIG_NETDEVICES
+ 	ret = efi_net_register();
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index daac6c3968..e4d75420bf 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -50,7 +50,7 @@ efi_selftest_variables_runtime.o \
+ efi_selftest_watchdog.o
+ 
+ obj-$(CONFIG_EFI_ECPT) += efi_selftest_ecpt.o
+-obj-$(CONFIG_NET) += efi_selftest_snp.o
++obj-$(CONFIG_NETDEVICES) += efi_selftest_snp.o
+ 
+ obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_selftest_devicepath.o
+ obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += \
