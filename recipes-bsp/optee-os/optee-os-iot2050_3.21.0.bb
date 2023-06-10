@@ -12,17 +12,17 @@ require recipes-bsp/optee-os/optee-os-custom.inc
 require optee-os-iot2050_${PV}.inc
 
 # StMM integration
-DEPENDS += "edk2-standalonemm-rpmb"
-DEBIAN_BUILD_DEPENDS += ", edk2-standalonemm-rpmb"
-OPTEE_EXTRA_BUILDARGS += " \
+DEPENDS:append:secureboot = " edk2-standalonemm-rpmb"
+DEBIAN_BUILD_DEPENDS:append:secureboot = ", edk2-standalonemm-rpmb"
+OPTEE_EXTRA_BUILDARGS:append:secureboot = " \
     CFG_STMM_PATH=/usr/lib/edk2/BL32_AP_MM.fd \
     "
 
 # MS fTPM integration
-DEPENDS += "optee-ftpm"
-DEBIAN_BUILD_DEPENDS += ", optee-ftpm"
+DEPENDS:append:secureboot = " optee-ftpm"
+DEBIAN_BUILD_DEPENDS:append:secureboot = ", optee-ftpm"
 FTPM_UUID = "bc50d971-d4c9-42c4-82cb-343fb7f37896"
-OPTEE_EXTRA_BUILDARGS += " \
+OPTEE_EXTRA_BUILDARGS:append:secureboot = " \
     CFG_EARLY_TA=y \
     EARLY_TA_PATHS=/usr/lib/optee/${FTPM_UUID}.stripped.elf \
     "
