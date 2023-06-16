@@ -36,7 +36,7 @@ IMAGE_INSTALL:remove = "install-on-emmc"
 # EFI Boot Guard is used instead
 IMAGE_INSTALL:remove = "u-boot-script"
 
-IMAGE_INSTALL += "efibootguard"
+IMAGE_INSTALL += "efibootguard libebgenv0"
 IMAGE_INSTALL += "swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
