@@ -37,7 +37,7 @@ IMAGE_INSTALL:remove = "install-on-emmc"
 IMAGE_INSTALL:remove = "u-boot-script"
 
 IMAGE_INSTALL += "efibootguard libebgenv0"
-IMAGE_INSTALL += "swupdate"
+IMAGE_INSTALL += "customizations-swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
 IMAGE_INSTALL += "iot2050-watchdog"
