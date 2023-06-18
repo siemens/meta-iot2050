@@ -18,6 +18,7 @@ INITRAMFS_INSTALL += " \
 INITRAMFS_INSTALL:append:secureboot = " \
     initramfs-verity-hook \
     initramfs-crypt-hook \
-    initramfs-ms-ftpm-hook \
+    initramfs-tee-supplicant-hook \
+    initramfs-tee-ftpm-hook \
     "
 INITRAMFS_INSTALL:remove:secureboot = "initramfs-abrootfs-hook"
