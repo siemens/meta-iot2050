@@ -1,0 +1,246 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Sun, 18 Jun 2023 15:07:45 +0800
+Subject: [PATCH] Add recipe for optee ftpm
+
+This integrate Microsoft's reference implementation of the TCG TPM2.0 as an
+OPTee trusted application, see [1] and [2] for details, esp.
+meta-ts/layers/meta-arm/meta-arm/recipes-security/optee-ftpm
+
+Since the OPTee secure storage on IOT2050 is RPMB-based, and the RPMB accessing
+is provided by linux tee-supplicant, this TA is only discoverable when
+tee-supplicant is running.
+
+To help to gracefully manage the tee-supplicant, the kernel drive
+tpm_ftpm_tee should be compile as .ko and be loaded/unloaded dynamically.
+
+[1]: https://github.com/microsoft/ms-tpm-20-ref/
+[2]: https://gitlab.com/Linaro/trustedsubstrate/meta-ts
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ .../files/0001-add-enum-to-ta-flags.patch     | 27 +++++++++++
+ .../optee-ftpm-stm32mp15x_0~230316+git.bb     | 35 ++++++++++++++
+ .../optee-os/optee-os-stm32mp15x_3.21.0.bb    | 10 +++-
+ .../optee-ftpm/files/debian/compat            |  1 +
+ .../optee-ftpm/files/debian/control.tmpl      | 11 +++++
+ .../optee-ftpm/files/debian/rules.tmpl        | 25 ++++++++++
+ meta/recipes-bsp/optee-ftpm/optee-ftpm.inc    | 47 +++++++++++++++++++
+ 7 files changed, 155 insertions(+), 1 deletion(-)
+ create mode 100644 meta-isar/recipes-bsp/optee-ftpm/files/0001-add-enum-to-ta-flags.patch
+ create mode 100644 meta-isar/recipes-bsp/optee-ftpm/optee-ftpm-stm32mp15x_0~230316+git.bb
+ create mode 100644 meta/recipes-bsp/optee-ftpm/files/debian/compat
+ create mode 100644 meta/recipes-bsp/optee-ftpm/files/debian/control.tmpl
+ create mode 100755 meta/recipes-bsp/optee-ftpm/files/debian/rules.tmpl
+ create mode 100644 meta/recipes-bsp/optee-ftpm/optee-ftpm.inc
+
+diff --git a/meta-isar/recipes-bsp/optee-ftpm/files/0001-add-enum-to-ta-flags.patch b/meta-isar/recipes-bsp/optee-ftpm/files/0001-add-enum-to-ta-flags.patch
+new file mode 100644
+index 0000000..57917ba
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-ftpm/files/0001-add-enum-to-ta-flags.patch
+@@ -0,0 +1,27 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Maxim Uvarov <maxim.uvarov@linaro.org>
++Date: Fri, 17 Apr 2020 12:05:53 +0100
++Subject: [PATCH] add enum to ta flags
++
++If we compile this TA into OPTEE-OS we need to define a flag
++that this TA can be discovered on the optee bus.
++Upstream-Status: Submitted [https://github.com/microsoft/MSRSec/pull/34]
++
++Signed-off-by: Maxim Uvarov <maxim.uvarov@linaro.org>
++---
++ .../ARM32-FirmwareTPM/optee_ta/fTPM/user_ta_header_defines.h    | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/user_ta_header_defines.h b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/user_ta_header_defines.h
++index 92c33c1..e83619d 100644
++--- a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/user_ta_header_defines.h
+++++ b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/user_ta_header_defines.h
++@@ -44,7 +44,7 @@
++ 
++ #define TA_UUID                     TA_FTPM_UUID
++ 
++-#define TA_FLAGS                    (TA_FLAG_SINGLE_INSTANCE | TA_FLAG_INSTANCE_KEEP_ALIVE)
+++#define TA_FLAGS                    (TA_FLAG_SINGLE_INSTANCE | TA_FLAG_INSTANCE_KEEP_ALIVE | TA_FLAG_DEVICE_ENUM_SUPP)
++ #define TA_STACK_SIZE               (64 * 1024)
++ #define TA_DATA_SIZE                (32 * 1024)
++ 
+diff --git a/meta-isar/recipes-bsp/optee-ftpm/optee-ftpm-stm32mp15x_0~230316+git.bb b/meta-isar/recipes-bsp/optee-ftpm/optee-ftpm-stm32mp15x_0~230316+git.bb
+new file mode 100644
+index 0000000..de26ec3
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-ftpm/optee-ftpm-stm32mp15x_0~230316+git.bb
+@@ -0,0 +1,35 @@
++# Copyright (c) Siemens AG, 2023
++#
++# Authors:
++#  Su Bao Cheng <baocheng.su@siemens.com>
++#
++# SPDX-License-Identifier: MIT
++#
++require recipes-bsp/optee-ftpm/optee-ftpm.inc
++
++# CHANGELOG_V = "0.1+git+isar"
++
++SRC_URI += " \
++    https://github.com/Microsoft/ms-tpm-20-ref/archive/${SRCREV}.tar.gz \
++    https://github.com/wolfSSL/wolfssl/archive/${SRCREV-wolfssl}.tar.gz;name=wolfssl \
++    file://0001-add-enum-to-ta-flags.patch \
++    "
++
++SRCREV = "f74c0d9686625c02b0fdd5b2bbe792a22aa96cb6"
++# according to ms-tpm-20-ref submodules
++SRCREV-wolfssl = "9c87f979a7f1d3a6d786b260653d566c1d31a1c4"
++
++SRC_URI[sha256sum] = "16fabc6ad6cc700d947dbc96efc30ff8ae97e577944466f08193bb37bc1eb64d"
++SRC_URI[wolfssl.sha256sum] = "a68c301fa0ee6197158912d808c4258605a2d001e458fd958257cafba17bfd14"
++
++S = "${WORKDIR}/ms-tpm-20-ref-${SRCREV}"
++
++OPTEE_NAME = "${MACHINE}"
++TA_CPU = "cortex-a7"
++TA_DEV_KIT_DIR = "/usr/lib/optee-os/${OPTEE_NAME}/export-ta_arm32"
++OPTEE_FTPM_BUILD_ARGS_EXTRA = "CFG_FTPM_USE_WOLF=y"
++
++do_prepare_build:append() {
++    rm -rf ${S}/external/wolfssl
++    cp -a ${S}/../wolfssl-${SRCREV-wolfssl} ${S}/external/wolfssl
++}
+diff --git a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+index 7468ca6..1b920cd 100644
+--- a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
++++ b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+@@ -16,7 +16,7 @@ DEBIAN_BUILD_DEPENDS += " \
+     , optee-examples-stm32mp15x-random-ta \
+     , optee-examples-stm32mp15x-secure-storage-ta \
+     "
+-EARLY_TA_PATHS = " \
++EARLY_TA_PATHS += " \
+     /usr/lib/optee-os/${OPTEE_NAME}/ta/a734eed9-d6a1-4244-aa50-7c99719e7b7b.stripped.elf \
+     /usr/lib/optee-os/${OPTEE_NAME}/ta/5dbac793-f574-4871-8ad3-04331ec17f24.stripped.elf \
+     /usr/lib/optee-os/${OPTEE_NAME}/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.stripped.elf \
+@@ -24,6 +24,14 @@ EARLY_TA_PATHS = " \
+     /usr/lib/optee-os/${OPTEE_NAME}/ta/b6c53aba-9669-4668-a7f2-205629d00f86.stripped.elf \
+     /usr/lib/optee-os/${OPTEE_NAME}/ta/f4e750bb-1437-4fbf-8785-8d3580c34994.stripped.elf \
+     "
++
++# optee-ftpm integration
++DEPENDS += "optee-ftpm-stm32mp15x"
++DEBIAN_BUILD_DEPENDS += ", optee-ftpm-stm32mp15x"
++EARLY_TA_PATHS += " \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
++    "
++
+ OPTEE_EXTRA_BUILDARGS += " \
+     CFG_EARLY_TA=y \
+     EARLY_TA_PATHS='${EARLY_TA_PATHS}' \
+diff --git a/meta/recipes-bsp/optee-ftpm/files/debian/compat b/meta/recipes-bsp/optee-ftpm/files/debian/compat
+new file mode 100644
+index 0000000..f599e28
+--- /dev/null
++++ b/meta/recipes-bsp/optee-ftpm/files/debian/compat
+@@ -0,0 +1 @@
++10
+diff --git a/meta/recipes-bsp/optee-ftpm/files/debian/control.tmpl b/meta/recipes-bsp/optee-ftpm/files/debian/control.tmpl
+new file mode 100644
+index 0000000..abab42e
+--- /dev/null
++++ b/meta/recipes-bsp/optee-ftpm/files/debian/control.tmpl
+@@ -0,0 +1,11 @@
++Source: ${PN}
++Section: misc
++Priority: optional
++Standards-Version: 3.9.6
++Maintainer: Unknown maintainer <unknown@example.com>
++Build-Depends: debhelper (>= 10), ${DEBIAN_BUILD_DEPENDS}
++
++Package: ${PN}
++Architecture: any
++Depends:
++Description: TCG reference implementation of the TPM 2.0 Specification.
+diff --git a/meta/recipes-bsp/optee-ftpm/files/debian/rules.tmpl b/meta/recipes-bsp/optee-ftpm/files/debian/rules.tmpl
+new file mode 100755
+index 0000000..19d4e08
+--- /dev/null
++++ b/meta/recipes-bsp/optee-ftpm/files/debian/rules.tmpl
+@@ -0,0 +1,25 @@
++#!/usr/bin/make -f
++# Debian rules for optee-ftpm
++#
++# Copyright (c) Siemens AG, 2023
++#
++# Authors:
++#  Su Bao Cheng <baocheng.su@siemens.com>
++#
++# SPDX-License-Identifier: MIT
++
++ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
++export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
++endif
++
++override_dh_auto_build:
++	cd Samples/ARM32-FirmwareTPM/optee_ta && \
++		TA_CROSS_COMPILE=${CROSS_COMPILE} \
++		TA_CPU=${TA_CPU} \
++		TA_DEV_KIT_DIR=${TA_DEV_KIT_DIR} \
++		CFG_TEE_TA_LOG_LEVEL=2 \
++		${OPTEE_FTPM_BUILD_ARGS_EXTRA} \
++		$(MAKE) $(PARALLEL_MAKE)
++
++%:
++	dh $@
+diff --git a/meta/recipes-bsp/optee-ftpm/optee-ftpm.inc b/meta/recipes-bsp/optee-ftpm/optee-ftpm.inc
+new file mode 100644
+index 0000000..2f6dc30
+--- /dev/null
++++ b/meta/recipes-bsp/optee-ftpm/optee-ftpm.inc
+@@ -0,0 +1,47 @@
++# Copyright (c) Siemens AG, 2023
++#
++# Authors:
++#  Su Bao Cheng <baocheng.su@siemens.com>
++#
++# SPDX-License-Identifier: MIT
++#
++inherit dpkg
++
++SUMMARY = "OPTEE fTPM Microsoft TA"
++DESCRIPTION = "TCG reference implementation of the TPM 2.0 Specification."
++HOMEPAGE = "https://github.com/microsoft/ms-tpm-20-ref/"
++
++FILESEXTRAPATHS:prepend := "${FILE_DIRNAME}/files:"
++
++SRC_URI += "file://debian"
++
++OPTEE_NAME ?= "${MACHINE}"
++
++DEPENDS = "optee-os-tadevkit-${OPTEE_NAME}"
++DEBIAN_BUILD_DEPENDS ?= " \
++    python3-cryptography:native,                                        \
++    optee-os-tadevkit-${OPTEE_NAME}                                     \
++    "
++
++TA_CPU ?= "unknown"
++TA_DEV_KIT_DIR ?= "unknown"
++OPTEE_FTPM_BUILD_ARGS_EXTRA ?= " "
++
++TEMPLATE_FILES = "debian/rules.tmpl debian/control.tmpl"
++TEMPLATE_VARS += "DEBIAN_BUILD_DEPENDS \
++    OPTEE_FTPM_BUILD_ARGS_EXTRA \
++    TA_CPU \
++    TA_DEV_KIT_DIR"
++
++do_prepare_build() {
++    rm -rf ${S}/debian
++    cp -r ${WORKDIR}/debian ${S}/
++
++    deb_add_changelog
++
++    rm -f ${S}/debian/optee-ftpm-${OPTEE_NAME}.install
++    echo "Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/optee-ftpm-${OPTEE_NAME}.install
++    echo "Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/optee-ftpm-${OPTEE_NAME}.install
++}

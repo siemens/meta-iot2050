@@ -19,12 +19,12 @@ OPTEE_EXTRA_BUILDARGS:append:secureboot = " \
     "
 
 # MS fTPM integration
-DEPENDS:append:secureboot = " optee-ftpm"
-DEBIAN_BUILD_DEPENDS:append:secureboot = ", optee-ftpm"
+DEPENDS:append:secureboot = " optee-ftpm-${OPTEE_NAME}"
+DEBIAN_BUILD_DEPENDS:append:secureboot = ", optee-ftpm-${OPTEE_NAME}"
 FTPM_UUID = "bc50d971-d4c9-42c4-82cb-343fb7f37896"
 OPTEE_EXTRA_BUILDARGS:append:secureboot = " \
     CFG_EARLY_TA=y \
-    EARLY_TA_PATHS=/usr/lib/optee/${FTPM_UUID}.stripped.elf \
+    EARLY_TA_PATHS=/usr/lib/optee-os/${OPTEE_NAME}/ta/${FTPM_UUID}.stripped.elf \
     "
 
 # RPMB key pairing

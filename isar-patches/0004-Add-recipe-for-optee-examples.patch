@@ -1,0 +1,343 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Fri, 16 Jun 2023 11:46:18 +0800
+Subject: [PATCH] Add recipe for optee examples
+
+The optee-examples repo is provided to demostrate the trusted
+application and the host counterpart.
+
+The stm32mp15x is used as the demo platform.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ meta-isar/conf/machine/stm32mp15x.conf        |   9 +-
+ .../optee-examples/files/debian/compat        |   1 +
+ .../optee-examples/files/debian/control.tmpl  | 112 ++++++++++++++++++
+ .../optee-examples/files/debian/rules.tmpl    |  21 ++++
+ .../optee-examples-stm32mp15x_3.21.0.bb       | 100 ++++++++++++++++
+ .../optee-os/optee-os-stm32mp15x_3.21.0.bb    |  22 ++++
+ .../lib/wic/canned-wks/stm32mp15x.wks.in      |   2 +-
+ 7 files changed, 265 insertions(+), 2 deletions(-)
+ create mode 100644 meta-isar/recipes-bsp/optee-examples/files/debian/compat
+ create mode 100644 meta-isar/recipes-bsp/optee-examples/files/debian/control.tmpl
+ create mode 100644 meta-isar/recipes-bsp/optee-examples/files/debian/rules.tmpl
+ create mode 100644 meta-isar/recipes-bsp/optee-examples/optee-examples-stm32mp15x_3.21.0.bb
+
+diff --git a/meta-isar/conf/machine/stm32mp15x.conf b/meta-isar/conf/machine/stm32mp15x.conf
+index 0b200d2..4e8142e 100644
+--- a/meta-isar/conf/machine/stm32mp15x.conf
++++ b/meta-isar/conf/machine/stm32mp15x.conf
+@@ -16,4 +16,11 @@ WKS_FILE ?= "stm32mp15x.wks.in"
+ IMAGER_INSTALL += "trusted-firmware-a-stm32mp15x optee-os-stm32mp15x u-boot-stm32mp15x"
+ IMAGER_BUILD_DEPS += "trusted-firmware-a-stm32mp15x optee-os-stm32mp15x u-boot-stm32mp15x"
+ 
+-IMAGE_INSTALL += "u-boot-script tee-supplicant"
++IMAGE_INSTALL += "u-boot-script \
++    optee-examples-stm32mp15x-acipher-host \
++    optee-examples-stm32mp15x-aes-host \
++    optee-examples-stm32mp15x-hello-world-host \
++    optee-examples-stm32mp15x-hotp-host \
++    optee-examples-stm32mp15x-random-host \
++    optee-examples-stm32mp15x-secure-storage-host \
++    "
+diff --git a/meta-isar/recipes-bsp/optee-examples/files/debian/compat b/meta-isar/recipes-bsp/optee-examples/files/debian/compat
+new file mode 100644
+index 0000000..f599e28
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-examples/files/debian/compat
+@@ -0,0 +1 @@
++10
+diff --git a/meta-isar/recipes-bsp/optee-examples/files/debian/control.tmpl b/meta-isar/recipes-bsp/optee-examples/files/debian/control.tmpl
+new file mode 100644
+index 0000000..b0e7039
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-examples/files/debian/control.tmpl
+@@ -0,0 +1,112 @@
++Source: ${PN}
++Section: admin
++Priority: optional
++Standards-Version: 3.9.6
++Build-Depends: ${DEBIAN_BUILD_DEPENDS}
++Maintainer: ISAR project <isar-users@googlegroups.com>
++
++Package: ${PN}-acipher-ta
++Architecture: ${DISTRO_ARCH}
++Description: OP-TEE Trusted Application example - acipher
++ Generates an RSA key pair of specified size and encrypts a supplied string with
++ it using the GlobalPlatform TEE Internal Core API.
++ .
++ UUID: a734eed9-d6a1-4244-aa50-7c99719e7b7b
++
++Package: ${PN}-acipher-host
++Architecture: ${DISTRO_ARCH}
++Depends: libteec1, tee-supplicant,
++         ${misc:Depends}
++Description: OP-TEE Trusted Application example - acipher (host application)
++ Generates an RSA key pair of specified size and encrypts a supplied string with
++ it using the GlobalPlatform TEE Internal Core API.
++ .
++ UUID: a734eed9-d6a1-4244-aa50-7c99719e7b7b
++
++Package: ${PN}-aes-ta
++Architecture: ${DISTRO_ARCH}
++Description: OP-TEE Trusted Application example - aes
++ Runs an AES encryption and decryption from a TA using the GlobalPlatform TEE
++ Internal Core API. Non secure test application provides the key, initial vector
++ and ciphered data.
++ .
++ UUID: 5dbac793-f574-4871-8ad3-04331ec17f24
++
++Package: ${PN}-aes-host
++Architecture: ${DISTRO_ARCH}
++Depends: libteec1, tee-supplicant,
++         ${misc:Depends}
++Description: OP-TEE Trusted Application example - aes (host application)
++ Runs an AES encryption and decryption from a TA using the GlobalPlatform TEE
++ Internal Core API. Non secure test application provides the key, initial vector
++ and ciphered data.
++ .
++ UUID: 5dbac793-f574-4871-8ad3-04331ec17f24
++
++Package: ${PN}-hello-world-ta
++Architecture: ${DISTRO_ARCH}
++Description: OP-TEE Trusted Application example - hello_world
++ This is a very simple Trusted Application to answer a hello command and
++ incrementing an integer value.
++ .
++ UUID: 8aaaf200-2450-11e4-abe2-0002a5d5c51b
++
++Package: ${PN}-hello-world-host
++Architecture: ${DISTRO_ARCH}
++Depends: libteec1, tee-supplicant,
++         ${misc:Depends}
++Description: OP-TEE Trusted Application example - hello_world (host application)
++ This is a very simple Trusted Application to answer a hello command and
++ incrementing an integer value.
++ .
++ UUID: 8aaaf200-2450-11e4-abe2-0002a5d5c51b
++
++Package: ${PN}-hotp-ta
++Architecture: ${DISTRO_ARCH}
++Description: OP-TEE Trusted Application example - hotp
++ HMAC based One Time Password in OP-TEE.
++ .
++ UUID: 484d4143-2d53-4841-3120-4a6f636b6542
++
++Package: ${PN}-hotp-host
++Architecture: ${DISTRO_ARCH}
++Depends: libteec1, tee-supplicant,
++         ${misc:Depends}
++Description: OP-TEE Trusted Application example - hotp (host application)
++ HMAC based One Time Password in OP-TEE.
++ .
++ UUID: 484d4143-2d53-4841-3120-4a6f636b6542
++
++Package: ${PN}-random-ta
++Architecture: ${DISTRO_ARCH}
++Description: OP-TEE Trusted Application example - random
++ Generates a random UUID using capabilities of TEE API (TEE_GenerateRandom()).
++ .
++ UUID: b6c53aba-9669-4668-a7f2-205629d00f86
++
++Package: ${PN}-random-host
++Architecture: ${DISTRO_ARCH}
++Depends: libteec1, tee-supplicant,
++         ${misc:Depends}
++Description: OP-TEE Trusted Application example - random (host application)
++ Generates a random UUID using capabilities of TEE API (TEE_GenerateRandom()).
++ .
++ UUID: b6c53aba-9669-4668-a7f2-205629d00f86
++
++Package: ${PN}-secure-storage-ta
++Architecture: ${DISTRO_ARCH}
++Description: OP-TEE Trusted Application example - secure_storage
++ A Trusted Application to read/write raw data into the OP-TEE secure storage
++ using the GlobalPlatform TEE Internal Core API.
++ .
++ UUID: f4e750bb-1437-4fbf-8785-8d3580c34994
++
++Package: ${PN}-secure-storage-host
++Architecture: ${DISTRO_ARCH}
++Depends: libteec1, tee-supplicant,
++         ${misc:Depends}
++Description: OP-TEE Trusted Application example - secure_storage (host application)
++ A Trusted Application to read/write raw data into the OP-TEE secure storage
++ using the GlobalPlatform TEE Internal Core API.
++ .
++ UUID: f4e750bb-1437-4fbf-8785-8d3580c34994
+diff --git a/meta-isar/recipes-bsp/optee-examples/files/debian/rules.tmpl b/meta-isar/recipes-bsp/optee-examples/files/debian/rules.tmpl
+new file mode 100644
+index 0000000..7e4be39
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-examples/files/debian/rules.tmpl
+@@ -0,0 +1,21 @@
++#!/usr/bin/make -f
++#
++# Debian rules for custom OP-TEE Examples build
++#
++# This software is a part of ISAR.
++# Copyright (c) Siemens AG, 2023
++#
++# SPDX-License-Identifier: MIT
++
++ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
++export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
++endif
++
++%:
++	dh $@
++
++override_dh_auto_build:
++	dh_auto_build -- HOST_CROSS_COMPILE=${CROSS_COMPILE} \
++    PLATFORM=${OPTEE_PLATFORM} \
++    TA_DEV_KIT_DIR=${TA_DEV_KIT_DIR} \
++    examples
+diff --git a/meta-isar/recipes-bsp/optee-examples/optee-examples-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-examples/optee-examples-stm32mp15x_3.21.0.bb
+new file mode 100644
+index 0000000..2a64a86
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-examples/optee-examples-stm32mp15x_3.21.0.bb
+@@ -0,0 +1,100 @@
++#
++# Copyright (c) Siemens AG, 2023
++#
++# SPDX-License-Identifier: MIT
++inherit dpkg
++
++DESCRIPTION ?= "OP-TEE examples"
++
++FILESEXTRAPATHS:prepend := "${FILE_DIRNAME}/files:"
++
++SRC_URI += " \
++    https://github.com/linaro-swg/optee_examples/archive/${PV}.tar.gz;downloadfilename=optee_examples-${PV}.tar.gz \
++    file://debian \
++    "
++SRC_URI[sha256sum] = "9b965f829adc532b5228534d3b9b38ae1fc4f2ac55d73159a39d43e59749f3ed"
++
++S = "${WORKDIR}/optee_examples-${PV}"
++
++OPTEE_NAME = "${MACHINE}"
++OPTEE_PLATFORM = "stm32mp1"
++TA_DEV_KIT_DIR = "/usr/lib/optee-os/${OPTEE_NAME}/export-ta_arm32"
++
++PROVIDES += " \
++    optee-examples-${OPTEE_NAME}-acipher-host \
++    optee-examples-${OPTEE_NAME}-acipher-ta \
++    optee-examples-${OPTEE_NAME}-aes-host \
++    optee-examples-${OPTEE_NAME}-aes-ta \
++    optee-examples-${OPTEE_NAME}-hello-world-host \
++    optee-examples-${OPTEE_NAME}-hello-world-ta \
++    optee-examples-${OPTEE_NAME}-hotp-host \
++    optee-examples-${OPTEE_NAME}-hotp-ta \
++    optee-examples-${OPTEE_NAME}-random-host \
++    optee-examples-${OPTEE_NAME}-random-ta \
++    optee-examples-${OPTEE_NAME}-secure-storage-host \
++    optee-examples-${OPTEE_NAME}-secure-storage-ta \
++    "
++
++DEPENDS = "optee-os-tadevkit-${OPTEE_NAME} optee-client-${OPTEE_NAME}"
++DEBIAN_BUILD_DEPENDS ?= " \
++    python3-pycryptodome:native, \
++    python3-cryptography:native, \
++    optee-client-dev, \
++    optee-os-tadevkit-${OPTEE_NAME}"
++
++TEMPLATE_FILES = "debian/control.tmpl debian/rules.tmpl"
++TEMPLATE_VARS += "DEBIAN_BUILD_DEPENDS OPTEE_PLATFORM TA_DEV_KIT_DIR"
++
++do_prepare_build() {
++    cp -r ${WORKDIR}/debian ${S}/
++
++    deb_add_changelog
++
++    # acipher.install
++    echo "acipher/ta/a734eed9-d6a1-4244-aa50-7c99719e7b7b.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/${PN}-acipher-ta.install
++    echo "acipher/ta/a734eed9-d6a1-4244-aa50-7c99719e7b7b.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/${PN}-acipher-ta.install
++    echo "acipher/host/optee_example_acipher /usr/lib/optee-os/${OPTEE_NAME}/ca" > \
++        ${S}/debian/${PN}-acipher-host.install
++
++    # aes.install
++    echo "aes/ta/5dbac793-f574-4871-8ad3-04331ec17f24.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/${PN}-aes-ta.install
++    echo "aes/ta/5dbac793-f574-4871-8ad3-04331ec17f24.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/${PN}-aes-ta.install
++    echo "aes/host/optee_example_aes /usr/lib/optee-os/${OPTEE_NAME}/ca" > \
++        ${S}/debian/${PN}-aes-host.install
++
++    # hello-world.install
++    echo "hello_world/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/${PN}-hello-world-ta.install
++    echo "hello_world/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/${PN}-hello-world-ta.install
++    echo "hello_world/host/optee_example_hello_world /usr/lib/optee-os/${OPTEE_NAME}/ca" > \
++        ${S}/debian/${PN}-hello-world-host.install
++
++    # hotp.install
++    echo "hotp/ta/484d4143-2d53-4841-3120-4a6f636b6542.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/${PN}-hotp-ta.install
++    echo "hotp/ta/484d4143-2d53-4841-3120-4a6f636b6542.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/${PN}-hotp-ta.install
++    echo "hotp/host/optee_example_hotp /usr/lib/optee-os/${OPTEE_NAME}/ca" > \
++        ${S}/debian/${PN}-hotp-host.install
++
++    # random.install
++    echo "random/ta/b6c53aba-9669-4668-a7f2-205629d00f86.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/${PN}-random-ta.install
++    echo "random/ta/b6c53aba-9669-4668-a7f2-205629d00f86.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/${PN}-random-ta.install
++    echo "random/host/optee_example_random /usr/lib/optee-os/${OPTEE_NAME}/ca" > \
++        ${S}/debian/${PN}-random-host.install
++
++    # secure-storage.install
++    echo "secure_storage/ta/f4e750bb-1437-4fbf-8785-8d3580c34994.ta /usr/lib/optee-os/${OPTEE_NAME}/ta" > \
++        ${S}/debian/${PN}-secure-storage-ta.install
++    echo "secure_storage/ta/f4e750bb-1437-4fbf-8785-8d3580c34994.stripped.elf /usr/lib/optee-os/${OPTEE_NAME}/ta" >> \
++        ${S}/debian/${PN}-secure-storage-ta.install
++    echo "secure_storage/host/optee_example_secure_storage /usr/lib/optee-os/${OPTEE_NAME}/ca" > \
++        ${S}/debian/${PN}-secure-storage-host.install
++}
+diff --git a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+index 096e263..7468ca6 100644
+--- a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
++++ b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+@@ -6,3 +6,25 @@
+ require recipes-bsp/optee-os/optee-os-custom.inc
+ require optee-os-stm32mp15x_${PV}.inc
+ 
++# optee-examples integration
++DEPENDS += "optee-examples-stm32mp15x"
++DEBIAN_BUILD_DEPENDS += " \
++    , optee-examples-stm32mp15x-acipher-ta \
++    , optee-examples-stm32mp15x-aes-ta \
++    , optee-examples-stm32mp15x-hello-world-ta \
++    , optee-examples-stm32mp15x-hotp-ta \
++    , optee-examples-stm32mp15x-random-ta \
++    , optee-examples-stm32mp15x-secure-storage-ta \
++    "
++EARLY_TA_PATHS = " \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/a734eed9-d6a1-4244-aa50-7c99719e7b7b.stripped.elf \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/5dbac793-f574-4871-8ad3-04331ec17f24.stripped.elf \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.stripped.elf \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/484d4143-2d53-4841-3120-4a6f636b6542.stripped.elf \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/b6c53aba-9669-4668-a7f2-205629d00f86.stripped.elf \
++    /usr/lib/optee-os/${OPTEE_NAME}/ta/f4e750bb-1437-4fbf-8785-8d3580c34994.stripped.elf \
++    "
++OPTEE_EXTRA_BUILDARGS += " \
++    CFG_EARLY_TA=y \
++    EARLY_TA_PATHS='${EARLY_TA_PATHS}' \
++    "
+diff --git a/meta-isar/scripts/lib/wic/canned-wks/stm32mp15x.wks.in b/meta-isar/scripts/lib/wic/canned-wks/stm32mp15x.wks.in
+index 4ed4ee8..5d96f65 100644
+--- a/meta-isar/scripts/lib/wic/canned-wks/stm32mp15x.wks.in
++++ b/meta-isar/scripts/lib/wic/canned-wks/stm32mp15x.wks.in
+@@ -8,7 +8,7 @@ part fsbl2 --part-name fsbl2 --source rawcopy --sourceparams "file=/usr/lib/trus
+ part ssbl --part-name ssbl --source rawcopy --sourceparams "file=/usr/lib/u-boot/${MACHINE}/u-boot.stm32" --fstype=ext4 --fsoptions "noauto" --part-type 0x8301 --fixed-size 2048K
+ 
+ part teeh --part-name teeh --source rawcopy --sourceparams "file=/usr/lib/optee-os/${MACHINE}/tee-header_v2.stm32" --fstype=ext4 --fsoptions "noauto" --part-type 0x8301 --fixed-size 256K
+-part teed --part-name teed --source rawcopy --sourceparams "file=/usr/lib/optee-os/${MACHINE}/tee-pageable_v2.stm32" --fstype=ext4 --fsoptions "noauto" --part-type 0x8301 --fixed-size 512K
++part teed --part-name teed --source rawcopy --sourceparams "file=/usr/lib/optee-os/${MACHINE}/tee-pageable_v2.stm32" --fstype=ext4 --fsoptions "noauto" --part-type 0x8301 --fixed-size 1024K
+ part teex --part-name teex --source rawcopy --sourceparams "file=/usr/lib/optee-os/${MACHINE}/tee-pager_v2.stm32" --fstype=ext4 --fsoptions "noauto" --part-type 0x8301 --fixed-size 256K
+ 
+ part / --source rootfs-u-boot --fstype ext4 --mkfs-extraopts "-T default" --label root --align 1024 --active --use-uuid

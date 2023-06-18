@@ -1,0 +1,242 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 15 Jun 2023 23:42:43 +0800
+Subject: [PATCH] Add recipe for optee-client
+
+optee-client provides the userland library for communicating with the
+trusted applications running in OP-TEE.
+
+It also provides a optee-client-dev package for developing host
+application that talks to the TA counterpart.
+
+Also a user land deamon tee-supplicant is provided to serve the trusted
+applications for user-land resources such as RPMB accessing.
+
+This brings the .inc for customization, and also a demo recipe for
+stm32mp15x.
+
+The debianization is learnt from the debian offical package. The
+tee-supplicant.service is refined by Jan to fix some timing issues.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ meta-isar/conf/machine/stm32mp15x.conf        |  2 +-
+ .../optee-client-stm32mp15x_3.21.0.bb         | 18 +++++++
+ .../optee-client/files/debian/compat          |  1 +
+ .../optee-client/files/debian/control.tmpl    | 51 +++++++++++++++++++
+ .../optee-client/files/debian/rules.tmpl      | 27 ++++++++++
+ .../files/debian/tee-supplicant.service       | 21 ++++++++
+ .../optee-client/optee-client-custom.inc      | 41 +++++++++++++++
+ 7 files changed, 160 insertions(+), 1 deletion(-)
+ create mode 100644 meta-isar/recipes-bsp/optee-client/optee-client-stm32mp15x_3.21.0.bb
+ create mode 100644 meta/recipes-bsp/optee-client/files/debian/compat
+ create mode 100644 meta/recipes-bsp/optee-client/files/debian/control.tmpl
+ create mode 100755 meta/recipes-bsp/optee-client/files/debian/rules.tmpl
+ create mode 100644 meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+ create mode 100644 meta/recipes-bsp/optee-client/optee-client-custom.inc
+
+diff --git a/meta-isar/conf/machine/stm32mp15x.conf b/meta-isar/conf/machine/stm32mp15x.conf
+index 4fa4051..0b200d2 100644
+--- a/meta-isar/conf/machine/stm32mp15x.conf
++++ b/meta-isar/conf/machine/stm32mp15x.conf
+@@ -16,4 +16,4 @@ WKS_FILE ?= "stm32mp15x.wks.in"
+ IMAGER_INSTALL += "trusted-firmware-a-stm32mp15x optee-os-stm32mp15x u-boot-stm32mp15x"
+ IMAGER_BUILD_DEPS += "trusted-firmware-a-stm32mp15x optee-os-stm32mp15x u-boot-stm32mp15x"
+ 
+-IMAGE_INSTALL += "u-boot-script"
++IMAGE_INSTALL += "u-boot-script tee-supplicant"
+diff --git a/meta-isar/recipes-bsp/optee-client/optee-client-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-client/optee-client-stm32mp15x_3.21.0.bb
+new file mode 100644
+index 0000000..18525e3
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-client/optee-client-stm32mp15x_3.21.0.bb
+@@ -0,0 +1,18 @@
++#
++# Copyright (c) Siemens AG, 2023
++#
++# Authors:
++#  Su Bao Cheng <baocheng.su@siemens.com>
++#
++# SPDX-License-Identifier: MIT
++#
++
++require recipes-bsp/optee-client/optee-client-custom.inc
++
++SRC_URI += "https://github.com/OP-TEE/optee_client/archive/${PV}.tar.gz;downloadfilename=optee_client-${PV}.tar.gz"
++SRC_URI[sha256sum] = "368164a539b85557d2079fa6cd839ec444869109f96de65d6569e58b0615d026"
++
++S = "${WORKDIR}/optee_client-${PV}"
++
++# Use RPMB emulation
++RPMB_EMU_BUILD_OPT = ""
+diff --git a/meta/recipes-bsp/optee-client/files/debian/compat b/meta/recipes-bsp/optee-client/files/debian/compat
+new file mode 100644
+index 0000000..f599e28
+--- /dev/null
++++ b/meta/recipes-bsp/optee-client/files/debian/compat
+@@ -0,0 +1 @@
++10
+diff --git a/meta/recipes-bsp/optee-client/files/debian/control.tmpl b/meta/recipes-bsp/optee-client/files/debian/control.tmpl
+new file mode 100644
+index 0000000..6c68b1d
+--- /dev/null
++++ b/meta/recipes-bsp/optee-client/files/debian/control.tmpl
+@@ -0,0 +1,51 @@
++Source: ${PN}
++Priority: optional
++Maintainer: Unknown maintainer <unknown@example.com>
++Build-Depends: pkg-config, uuid-dev
++Standards-Version: 4.1.3
++Section: libs
++Homepage: https://github.com/OP-TEE/optee_client
++Rules-Requires-Root: no
++
++Package: optee-client-dev
++Section: libdevel
++Architecture: ${DISTRO_ARCH}
++Multi-Arch: same
++Depends: libteec1 (= ${binary:Version}),
++         ${misc:Depends}
++Description: normal world user space client APIs for OP-TEE (development)
++ OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
++ non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone
++ technology. OP-TEE implements TEE Internal Core API v1.1.x which is the API
++ exposed to Trusted Applications and the TEE Client API v1.0, which is the
++ API describing how to communicate with a TEE. This package provides the TEE
++ Client API library.
++ .
++ This package contains the development files OpTEE Client API
++
++Package: libteec1
++Architecture: ${DISTRO_ARCH}
++Multi-Arch: same
++Depends: ${misc:Depends}, ${shlibs:Depends}
++Description: normal world user space client APIs for OP-TEE
++ OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
++ non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone
++ technology. OP-TEE implements TEE Internal Core API v1.1.x which is the API
++ exposed to Trusted Applications and the TEE Client API v1.0, which is the
++ API describing how to communicate with a TEE. This package provides the TEE
++ Client API library.
++ .
++ This package contains libteec library.
++
++Package: tee-supplicant
++Architecture: ${DISTRO_ARCH}
++Depends: ${misc:Depends}, ${shlibs:Depends}
++Description: normal world user space client APIs for OP-TEE
++ OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
++ non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone
++ technology. OP-TEE implements TEE Internal Core API v1.1.x which is the API
++ exposed to Trusted Applications and the TEE Client API v1.0, which is the
++ API describing how to communicate with a TEE. This package provides the TEE
++ Client API library.
++ .
++ This package contains tee-supplicant executable.
+diff --git a/meta/recipes-bsp/optee-client/files/debian/rules.tmpl b/meta/recipes-bsp/optee-client/files/debian/rules.tmpl
+new file mode 100755
+index 0000000..a0a8983
+--- /dev/null
++++ b/meta/recipes-bsp/optee-client/files/debian/rules.tmpl
+@@ -0,0 +1,27 @@
++#!/usr/bin/make -f
++#
++# Debian rules for custom OP-TEE Client build
++#
++# This software is a part of ISAR.
++# Copyright (c) Siemens AG, 2023
++#
++# SPDX-License-Identifier: MIT
++
++ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
++export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
++endif
++
++%:
++	dh $@ --exclude=.a
++
++override_dh_auto_build:
++	dh_auto_build -- LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
++		CFG_TEE_FS_PARENT_PATH=${TEE_FS_PARENT_PATH} ${RPMB_EMU_BUILD_OPT}
++
++override_dh_auto_install:
++	dh_auto_install -- LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
++		CFG_TEE_FS_PARENT_PATH=${TEE_FS_PARENT_PATH} ${RPMB_EMU_BUILD_OPT}
++
++override_dh_auto_clean:
++	dh_auto_clean
++	rm -rf $(CURDIR)/out
+diff --git a/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service b/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+new file mode 100644
+index 0000000..4508a14
+--- /dev/null
++++ b/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+@@ -0,0 +1,21 @@
++# This software is a part of ISAR.
++# Copyright (c) Siemens AG, 2023
++#
++# SPDX-License-Identifier: MIT
++[Unit]
++Description=TEE Supplicant
++DefaultDependencies=no
++Before=systemd-remount-fs.service shutdown.target
++Conflicts=shutdown.target
++
++[Service]
++Type=oneshot
++RemainAfterExit=yes
++# Start if not already started by the initramfs hook
++ExecStart=/bin/sh -c '/usr/bin/pgrep tee-supplicant >/dev/null || /usr/sbin/tee-supplicant -d'
++ExecStop=/bin/sh -c '/usr/bin/findmnt /sys/firmware/efi/efivars >/dev/null && /usr/bin/umount /sys/firmware/efi/efivars || true'
++ExecStop=/bin/sh -c '/usr/sbin/modinfo -n tpm_ftpm_tee | /usr/bin/grep -E "\.ko$" >/dev/null && /usr/sbin/modprobe -r tpm_ftpm_tee || true'
++ExecStop=/usr/bin/pkill tee-supplicant
++
++[Install]
++WantedBy=sysinit.target
+diff --git a/meta/recipes-bsp/optee-client/optee-client-custom.inc b/meta/recipes-bsp/optee-client/optee-client-custom.inc
+new file mode 100644
+index 0000000..5c88dad
+--- /dev/null
++++ b/meta/recipes-bsp/optee-client/optee-client-custom.inc
+@@ -0,0 +1,41 @@
++#
++# Copyright (c) Siemens AG, 2023
++#
++# Authors:
++#  Su Bao Cheng <baocheng.su@siemens.com>
++#
++# SPDX-License-Identifier: MIT
++#
++
++inherit dpkg
++
++FILESEXTRAPATHS:prepend := "${FILE_DIRNAME}/files:"
++
++DESCRIPTION = "OPTee Client"
++
++PROVIDES = "libteec1 optee-client-dev tee-supplicant"
++
++SRC_URI += "file://debian"
++
++TEE_FS_PARENT_PATH ?= "/var/lib/optee-client/data/tee"
++# To use the builtin RPMB emulation, empty this
++RPMB_EMU_BUILD_OPT ?= "RPMB_EMU=0"
++
++TEMPLATE_FILES = "debian/rules.tmpl debian/control.tmpl"
++TEMPLATE_VARS += "TEE_FS_PARENT_PATH RPMB_EMU_BUILD_OPT"
++
++do_prepare_build[cleandirs] += "${S}/debian"
++do_prepare_build() {
++    cp -r ${WORKDIR}/debian ${S}/
++
++    deb_add_changelog
++
++    echo "/usr/sbin/*" > ${S}/debian/tee-supplicant.install
++    echo "lib/optee_armtz/" > ${S}/debian/tee-supplicant.dirs
++    echo "usr/lib/tee-supplicant/plugins/" >> ${S}/debian/tee-supplicant.dirs
++
++    echo "usr/lib/*/libteec*.so.*" > ${S}/debian/libteec1.install
++
++    echo "usr/include/*" > ${S}/debian/optee-client-dev.install
++    echo "usr/lib/*/lib*.so" >> ${S}/debian/optee-client-dev.install
++}

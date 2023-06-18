@@ -31,17 +31,24 @@ repos:
     layers:
       meta:
     patches:
-      optee-os-tadevkit:
-        path: isar-patches/0001-optee-os-Add-package-optee-os-tadevkit.patch
+      1-bump-optee-os:
+        path: isar-patches/0001-stm32mp15x-Bump-optee-os-to-3.21.0.patch
+      2-optee-tdk:
+        path: isar-patches/0002-Add-recipe-for-optee-TA-devkit.patch
+      3-optee-client:
+        path: isar-patches/0003-Add-recipe-for-optee-client.patch
+      4-optee-examples:
+        path: isar-patches/0004-Add-recipe-for-optee-examples.patch
+      5-optee-ftpm:
+        path: isar-patches/0005-Add-recipe-for-optee-ftpm.patch
+      6-initramfs-tee-supplicant-hook:
+        path: isar-patches/0006-initramfs-Add-recipe-for-tee-supplicant-hook.patch
+      7-initramfs-tee-ftpm-hook:
+        path: isar-patches/0007-initramfs-Add-recipe-for-tee-ftpm-hook.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
     refspec: c46b2702d9e7e79d7cb35874cf3edb2915e16837
-    patches:
-      optee-client:
-        path: cip-core-patches/0001-Add-recipe-for-optee-client.patch
-      initramfs-ms-tpm-hook:
-        path: cip-core-patches/0002-initramfs-Add-recipe-for-optee-based-ftpm-hook.patch
 
 bblayers_conf_header:
   standard: |

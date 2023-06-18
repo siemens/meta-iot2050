@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 15 Jun 2023 22:21:36 +0800
+Subject: [PATCH] stm32mp15x: Bump optee-os to 3.21.0
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ ...-os-stm32mp15x_3.11.0.bb => optee-os-stm32mp15x_3.21.0.bb} | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+ rename meta-isar/recipes-bsp/optee-os/{optee-os-stm32mp15x_3.11.0.bb => optee-os-stm32mp15x_3.21.0.bb} (81%)
+
+diff --git a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.11.0.bb b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+similarity index 81%
+rename from meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.11.0.bb
+rename to meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+index 08676be..b605149 100644
+--- a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.11.0.bb
++++ b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+@@ -6,11 +6,11 @@
+ require recipes-bsp/optee-os/optee-os-custom.inc
+ 
+ SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz"
+-SRC_URI[sha256sum] = "3c34eda1052fbb9ed36fcfdfaecfd2685023b9290670c1a5982f8a0457bfd2cb"
++SRC_URI[sha256sum] = "92a16e841b0bdb4bfcb1c20b6a1bd3309092203d534ed167dfdb5a5f395bf60b"
+ 
+ S = "${WORKDIR}/optee_os-${PV}"
+ 
+-DEBIAN_BUILD_DEPENDS += ", device-tree-compiler"
++DEBIAN_BUILD_DEPENDS += ", device-tree-compiler, python3-cryptography:native"
+ 
+ OPTEE_PLATFORM = "stm32mp1"
+ OPTEE_EXTRA_BUILDARGS = " \

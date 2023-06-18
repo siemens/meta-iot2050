@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Su Baocheng <baocheng.su@siemens.com>
-Date: Tue, 23 May 2023 00:32:15 +0800
-Subject: [PATCH] optee-os: Add package optee-os-tadevkit
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Fri, 16 Jun 2023 11:45:57 +0800
+Subject: [PATCH] Add recipe for optee TA devkit
 
 The TA dev kit is used to build trusted applications, details refer to
 [1]. A typical use case of this devkit is a firmware TPM reference
@@ -10,16 +10,112 @@ implementation, see [2].
 1. https://optee.readthedocs.io/en/3.21.0/building/trusted_applications.html
 2. https://github.com/microsoft/ms-tpm-20-ref
 
-Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
+This brings the .inc for customization, and also an example for
+stm32mp15x.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
 ---
+ .../optee-os/optee-os-stm32mp15x_3.21.0.bb    | 25 ++--------------
+ ...21.0.bb => optee-os-stm32mp15x_3.21.0.inc} | 17 ++---------
+ .../optee-os-tadevkit-stm32mp15x_3.21.0.bb    |  7 +++++
  .../optee-os/files/debian/control.tmpl        |  4 +--
  meta/recipes-bsp/optee-os/optee-os-custom.inc | 29 +++----------------
- .../optee-os/optee-os-tadevkit-custom.inc     | 20 +++++++++++++
+ .../optee-os/optee-os-tadevkit-custom.inc     | 26 +++++++++++++++++
  .../{optee-os-custom.inc => optee-os.inc}     | 14 +++------
- 4 files changed, 30 insertions(+), 37 deletions(-)
+ 7 files changed, 48 insertions(+), 74 deletions(-)
+ copy meta-isar/recipes-bsp/optee-os/{optee-os-stm32mp15x_3.21.0.bb => optee-os-stm32mp15x_3.21.0.inc} (57%)
+ create mode 100644 meta-isar/recipes-bsp/optee-os/optee-os-tadevkit-stm32mp15x_3.21.0.bb
  create mode 100644 meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
  copy meta/recipes-bsp/optee-os/{optee-os-custom.inc => optee-os.inc} (62%)
 
+diff --git a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+index b605149..096e263 100644
+--- a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
++++ b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+@@ -1,29 +1,8 @@
+ #
+-# Copyright (c) Siemens AG, 2020
++# Copyright (c) Siemens AG, 2020-2023
+ #
+ # SPDX-License-Identifier: MIT
+ 
+ require recipes-bsp/optee-os/optee-os-custom.inc
++require optee-os-stm32mp15x_${PV}.inc
+ 
+-SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz"
+-SRC_URI[sha256sum] = "92a16e841b0bdb4bfcb1c20b6a1bd3309092203d534ed167dfdb5a5f395bf60b"
+-
+-S = "${WORKDIR}/optee_os-${PV}"
+-
+-DEBIAN_BUILD_DEPENDS += ", device-tree-compiler, python3-cryptography:native"
+-
+-OPTEE_PLATFORM = "stm32mp1"
+-OPTEE_EXTRA_BUILDARGS = " \
+-    ARCH=arm CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-ev1.dts \
+-    CFG_TEE_CORE_LOG_LEVEL=2"
+-OPTEE_BINARIES = "tee-header_v2.stm32 tee-pageable_v2.stm32 tee-pager_v2.stm32"
+-
+-# Set version manually to PV, the tarball does not contain any hint.
+-# Alternative: pull from git and add git as build dependency.
+-dpkg_runbuild:prepend() {
+-    grep -q "^export TEE_IMPL_VERSION" ${S}/debian/rules ||
+-        cat << EOF >> ${S}/debian/rules
+-
+-export TEE_IMPL_VERSION=${PV}
+-EOF
+-}
+diff --git a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.inc
+similarity index 57%
+copy from meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
+copy to meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.inc
+index b605149..cbf6974 100644
+--- a/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.bb
++++ b/meta-isar/recipes-bsp/optee-os/optee-os-stm32mp15x_3.21.0.inc
+@@ -1,11 +1,9 @@
+ #
+-# Copyright (c) Siemens AG, 2020
++# Copyright (c) Siemens AG, 2020-2023
+ #
+ # SPDX-License-Identifier: MIT
+ 
+-require recipes-bsp/optee-os/optee-os-custom.inc
+-
+-SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz"
++SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=optee_os-${PV}.tar.gz"
+ SRC_URI[sha256sum] = "92a16e841b0bdb4bfcb1c20b6a1bd3309092203d534ed167dfdb5a5f395bf60b"
+ 
+ S = "${WORKDIR}/optee_os-${PV}"
+@@ -14,16 +12,7 @@ DEBIAN_BUILD_DEPENDS += ", device-tree-compiler, python3-cryptography:native"
+ 
+ OPTEE_PLATFORM = "stm32mp1"
+ OPTEE_EXTRA_BUILDARGS = " \
++    TEE_IMPL_VERSION=${PV} \
+     ARCH=arm CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-ev1.dts \
+     CFG_TEE_CORE_LOG_LEVEL=2"
+ OPTEE_BINARIES = "tee-header_v2.stm32 tee-pageable_v2.stm32 tee-pager_v2.stm32"
+-
+-# Set version manually to PV, the tarball does not contain any hint.
+-# Alternative: pull from git and add git as build dependency.
+-dpkg_runbuild:prepend() {
+-    grep -q "^export TEE_IMPL_VERSION" ${S}/debian/rules ||
+-        cat << EOF >> ${S}/debian/rules
+-
+-export TEE_IMPL_VERSION=${PV}
+-EOF
+-}
+diff --git a/meta-isar/recipes-bsp/optee-os/optee-os-tadevkit-stm32mp15x_3.21.0.bb b/meta-isar/recipes-bsp/optee-os/optee-os-tadevkit-stm32mp15x_3.21.0.bb
+new file mode 100644
+index 0000000..2be7a9d
+--- /dev/null
++++ b/meta-isar/recipes-bsp/optee-os/optee-os-tadevkit-stm32mp15x_3.21.0.bb
+@@ -0,0 +1,7 @@
++#
++# Copyright (c) Siemens AG, 2023
++#
++# SPDX-License-Identifier: MIT
++
++require recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
++require optee-os-stm32mp15x_${PV}.inc
 diff --git a/meta/recipes-bsp/optee-os/files/debian/control.tmpl b/meta/recipes-bsp/optee-os/files/debian/control.tmpl
 index 60b3927..fdf898e 100644
 --- a/meta/recipes-bsp/optee-os/files/debian/control.tmpl
@@ -82,12 +178,11 @@ index d48827a..abe46e8 100644
          echo "out/arm-plat-${OPTEE_PLATFORM_BASE}/core/$binary /usr/lib/optee-os/${OPTEE_NAME}/" >> \
 diff --git a/meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc b/meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
 new file mode 100644
-index 0000000..85d6c25
+index 0000000..cfb2cfd
 --- /dev/null
 +++ b/meta/recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
-@@ -0,0 +1,20 @@
-+
-+# Custom OP-TEE OS build
+@@ -0,0 +1,26 @@
++# Custom OP-TEE OS build for TA devkit
 +#
 +# This software is a part of ISAR.
 +# Copyright (c) Siemens AG, 2023
@@ -102,8 +197,15 @@ index 0000000..85d6c25
 +PROVIDES += "${DEBIAN_PACKAGE_NAME}"
 +
 +do_prepare_build:append() {
-+    rm -f ${S}/debian/optee-os-tadevkit-${OPTEE_NAME}.install
-+    echo "out/arm-plat-${OPTEE_PLATFORM_BASE}/export-ta_${DISTRO_ARCH} /usr/lib/optee-os/" > \
++    if [ "${DISTRO_ARCH}" = "arm64" ]; then
++        TADEVKIT_DIR="export-ta_arm64"
++    elif [ "${DISTRO_ARCH}" = "armhf" ]; then
++        TADEVKIT_DIR="export-ta_arm32"
++    else
++        bbfatal "${DISTRO_ARCH} does not have a compat arch for optee TA devkit!"
++    fi
++
++    echo "out/arm-plat-${OPTEE_PLATFORM_BASE}/${TADEVKIT_DIR} /usr/lib/optee-os/${OPTEE_NAME}/" > \
 +        ${S}/debian/optee-os-tadevkit-${OPTEE_NAME}.install
 +}
 diff --git a/meta/recipes-bsp/optee-os/optee-os-custom.inc b/meta/recipes-bsp/optee-os/optee-os.inc
