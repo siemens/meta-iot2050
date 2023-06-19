@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2022
+# Copyright (c) Siemens AG, 2020-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -11,7 +11,7 @@
 require recipes-bsp/trusted-firmware-a/trusted-firmware-a-custom.inc
 
 SRC_URI += "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${PV}.tar.gz"
-SRC_URI[sha256sum] = "53422dc649153838e03820330ba17cb10afe3e330ecde0db11e4d5f1361a33e6"
+SRC_URI[sha256sum] = "76a66a1de0c01aeb83dfc7b72b51173fe62c6e51d6fca17cc562393117bed08b"
 
 S = "${WORKDIR}/trusted-firmware-a-${PV}"
 
