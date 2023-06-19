@@ -28,8 +28,6 @@ IMAGE_PREINSTALL += "${@ ' \
     ' if d.getVar('IOT2050_DOCKER_SUPPORT') == '1' else ''}"
 
 IMAGE_INSTALL += " \
-    libssl1.1-compat \
-    openssl \
     expand-on-first-boot \
     sshd-regen-keys \
     regen-rootfs-uuid \
