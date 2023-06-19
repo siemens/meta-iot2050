@@ -45,9 +45,3 @@ IMAGE_INSTALL += " \
     optee-client-dev \
     tee-supplicant \
     "
-
-IOT2050_CORAL_SUPPORT ?= "1"
-
-IMAGE_INSTALL += " \
-    ${@ '${IOT2050_CORAL_PACKAGES}' \
-    if d.getVar('IOT2050_CORAL_SUPPORT') == '1' else ''}"

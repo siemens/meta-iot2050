@@ -1,6 +1,5 @@
 build/
 isar/
 /cip-core
-/meta-coral
 recipes-core/customizations-base/local.inc
 .config.yaml*
