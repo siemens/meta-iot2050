@@ -36,7 +36,7 @@ repos:
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    refspec: 50b84b8034a2cc886411f3a2dc41a5ec53501f3c
+    refspec: a6687b6b0430f7dbce5b3d2fd8e9e5ceb5fbbffe
     patches:
       optee-client:
         path: cip-core-patches/0001-Add-recipe-for-optee-client.patch
