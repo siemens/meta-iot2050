@@ -15,6 +15,6 @@ part --source empty --align 1024 --fixed-size 4G --uuid "${ABROOTFS_PART_UUID_B}
 
 # persistent partitions
 part /var --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/var --label var --fstype=ext4 --mkfs-extraopts "-T default" --align 1024  --size 512M
-part /home --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/home --label home --fstype=ext4 --mkfs-extraopts "-T default" --align 1024  --size 512M
+part /home --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/home --label home --fstype=ext4 --mkfs-extraopts "-T default" --align 1024  --size 1G
 
 bootloader --ptable gpt --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 rootwait watchdog.handle_boot_enabled=0 panic=5 ${EXTRA_KERNEL_PARAMS}"
