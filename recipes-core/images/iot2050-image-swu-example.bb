@@ -34,6 +34,9 @@ INITRD_DEPLOY_FILE = "${INITRAMFS_RECIPE}-${DISTRO}-${MACHINE}.initrd.img"
 IMAGE_INSTALL:remove = "regen-rootfs-uuid"
 IMAGE_INSTALL:remove = "install-on-emmc"
 
+# not compatible with disk encryption
+IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
+
 # EFI Boot Guard is used instead
 IMAGE_INSTALL:remove = "u-boot-script"
 
