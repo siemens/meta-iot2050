@@ -20,6 +20,7 @@ WKS_FILE = "iot2050-swu.wks.in"
 WKS_FILE:secureboot = "iot2050-swu-secure.wks.in"
 
 IMAGE_FSTYPES += "swu"
+IMAGE_TYPEDEP:swu:append = " wic"
 SWU_ROOTFS_TYPE:secureboot = "verity"
 
 WIC_IMAGER_INSTALL += "efibootguard:${DISTRO_ARCH}"
