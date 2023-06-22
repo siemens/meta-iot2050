@@ -13,7 +13,7 @@ Signed-off-by: Nitin Yadav <n-yadav@ti.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 5c8ab628fa1c..82ed846dc991 100644
+index a1f7351712f3..a00d7de095c3 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
 @@ -311,6 +311,7 @@ static void sdhci_j721e_4bit_set_clock(struct sdhci_host *host,

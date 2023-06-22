@@ -12,10 +12,10 @@ Signed-off-by: zengchao <chao.zeng@siemens.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index c8031e297faf..16dee5050f45 100644
+index 5fabcd15ef77..dcf61ec6eee6 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
-@@ -53,6 +53,10 @@
+@@ -54,6 +54,10 @@
  #define DP83867_10M_SGMII_CFG   0x016F
  #define DP83867_10M_SGMII_RATE_ADAPT_MASK BIT(7)
  
@@ -26,7 +26,7 @@ index c8031e297faf..16dee5050f45 100644
  #define DP83867_SW_RESET	BIT(15)
  #define DP83867_SW_RESTART	BIT(14)
  
-@@ -484,6 +488,9 @@ static int dp83867_verify_rgmii_cfg(struct phy_device *phydev)
+@@ -485,6 +489,9 @@ static int dp83867_verify_rgmii_cfg(struct phy_device *phydev)
  		return -EINVAL;
  	}
  

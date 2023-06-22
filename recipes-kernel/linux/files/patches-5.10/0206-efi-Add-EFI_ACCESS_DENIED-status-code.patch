@@ -13,7 +13,7 @@ Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 0cbdc6169af0..d013d5712dfb 100644
+index de9c96cdd612..a02c1bdfe4b2 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
 @@ -39,6 +39,7 @@

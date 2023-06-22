@@ -16,10 +16,10 @@ Link: https://lore.kernel.org/r/881dfd6c75423efce1d10261909939cd5ef19937.1613071
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index cf7656cf650e..3c36ae6d7816 100644
+index 5be027228e88..57d1088f8f61 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -709,6 +709,7 @@ pcie0_rc: pcie@5500000 {
+@@ -708,6 +708,7 @@ pcie0_rc: pcie@5500000 {
  		dma-coherent;
  		interrupts = <GIC_SPI 340 IRQ_TYPE_EDGE_RISING>;
  		msi-map = <0x0 &gic_its 0x0 0x10000>;
@@ -27,7 +27,7 @@ index cf7656cf650e..3c36ae6d7816 100644
  	};
  
  	pcie0_ep: pcie-ep@5500000 {
-@@ -741,6 +742,7 @@ pcie1_rc: pcie@5600000 {
+@@ -740,6 +741,7 @@ pcie1_rc: pcie@5600000 {
  		dma-coherent;
  		interrupts = <GIC_SPI 355 IRQ_TYPE_EDGE_RISING>;
  		msi-map = <0x0 &gic_its 0x10000 0x10000>;

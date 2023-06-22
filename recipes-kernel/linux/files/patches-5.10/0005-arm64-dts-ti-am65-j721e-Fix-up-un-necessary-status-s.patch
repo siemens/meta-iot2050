@@ -19,7 +19,7 @@ Link: https://lore.kernel.org/r/20201113211826.13087-4-nm@ti.com
  2 files changed, 3 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index ee7b7c356f01..ba1529436128 100644
+index 8d081ee03320..4ad46fddc12c 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 @@ -122,7 +122,6 @@ crypto: crypto@4e00000 {
@@ -31,7 +31,7 @@ index ee7b7c356f01..ba1529436128 100644
  		dmas = <&main_udmap 0xc000>, <&main_udmap 0x4000>,
  				<&main_udmap 0x4001>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 0350ddfe2c72..b8ca6e03de36 100644
+index 691d73f0f1e0..afb8fd7df629 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -362,8 +362,6 @@ main_crypto: crypto@4e00000 {

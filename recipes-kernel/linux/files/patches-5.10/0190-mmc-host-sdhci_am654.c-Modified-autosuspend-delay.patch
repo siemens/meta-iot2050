@@ -13,7 +13,7 @@ Signed-off-by: Bhavya Kapoor <b-kapoor@ti.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 0770db59066f..8ac4c5f53912 100644
+index 18a1d85910fe..216a141d03a7 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
 @@ -85,7 +85,7 @@

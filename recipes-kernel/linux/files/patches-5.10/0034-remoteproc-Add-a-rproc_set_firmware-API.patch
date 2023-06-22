@@ -28,10 +28,10 @@ Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
  3 files changed, 66 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index 369a97f3eca9..5250a081ea93 100644
+index cc55ff0128cf..742da1079010 100644
 --- a/drivers/remoteproc/remoteproc_core.c
 +++ b/drivers/remoteproc/remoteproc_core.c
-@@ -1936,6 +1936,69 @@ struct rproc *rproc_get_by_phandle(phandle phandle)
+@@ -1943,6 +1943,69 @@ struct rproc *rproc_get_by_phandle(phandle phandle)
  #endif
  EXPORT_SYMBOL(rproc_get_by_phandle);
  

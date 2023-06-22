@@ -16,10 +16,10 @@ Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
  1 file changed, 36 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 2911b4286c97..351183c116c5 100644
+index 49f731818961..e9785a9180b7 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -998,6 +998,18 @@ icssg0_iepclk_mux: iepclk-mux@30 {
+@@ -997,6 +997,18 @@ icssg0_iepclk_mux: iepclk-mux@30 {
  			};
  		};
  
@@ -38,7 +38,7 @@ index 2911b4286c97..351183c116c5 100644
  		icssg0_mii_rt: mii-rt@32000 {
  			compatible = "ti,pruss-mii", "syscon";
  			reg = <0x32000 0x100>;
-@@ -1139,6 +1151,18 @@ icssg1_iepclk_mux: iepclk-mux@30 {
+@@ -1138,6 +1150,18 @@ icssg1_iepclk_mux: iepclk-mux@30 {
  			};
  		};
  
@@ -57,7 +57,7 @@ index 2911b4286c97..351183c116c5 100644
  		icssg1_mii_rt: mii-rt@32000 {
  			compatible = "ti,pruss-mii", "syscon";
  			reg = <0x32000 0x100>;
-@@ -1280,6 +1304,18 @@ icssg2_iepclk_mux: iepclk-mux@30 {
+@@ -1279,6 +1303,18 @@ icssg2_iepclk_mux: iepclk-mux@30 {
  			};
  		};
  
