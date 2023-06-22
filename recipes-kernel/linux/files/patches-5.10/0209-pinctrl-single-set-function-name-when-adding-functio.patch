@@ -36,10 +36,10 @@ Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index d139cd9e6d13..e366bf9416ce 100644
+index 22e471933b37..56eaf3ed076b 100644
 --- a/drivers/pinctrl/pinctrl-single.c
 +++ b/drivers/pinctrl/pinctrl-single.c
-@@ -788,6 +788,7 @@ static int pcs_add_function(struct pcs_device *pcs,
+@@ -790,6 +790,7 @@ static int pcs_add_function(struct pcs_device *pcs,
  
  	function->vals = vals;
  	function->nvals = nvals;

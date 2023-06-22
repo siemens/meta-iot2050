@@ -17,10 +17,10 @@ Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
  1 file changed, 2 deletions(-)
 
 diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index e366bf9416ce..8b832c9a5876 100644
+index 56eaf3ed076b..d7dd4c4ce642 100644
 --- a/drivers/pinctrl/pinctrl-single.c
 +++ b/drivers/pinctrl/pinctrl-single.c
-@@ -722,14 +722,12 @@ static int pcs_add_pin(struct pcs_device *pcs, unsigned int offset)
+@@ -724,14 +724,12 @@ static int pcs_add_pin(struct pcs_device *pcs, unsigned int offset)
  static int pcs_allocate_pin_table(struct pcs_device *pcs)
  {
  	int mux_bytes, nr_pins, i;

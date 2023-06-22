@@ -18,7 +18,7 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  2 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
-index ea5a337e0f8b..e653708f59ba 100644
+index 9b9743f7538c..a1a143007fa9 100644
 --- a/include/linux/irqdomain.h
 +++ b/include/linux/irqdomain.h
 @@ -387,6 +387,8 @@ extern void irq_domain_disassociate(struct irq_domain *domain,
@@ -31,10 +31,10 @@ index ea5a337e0f8b..e653708f59ba 100644
  extern void irq_dispose_mapping(unsigned int virq);
  
 diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index c6b419db68ef..a17e4ce3811d 100644
+index fd3f7c16c299..5d4aeb6c8678 100644
 --- a/kernel/irq/irqdomain.c
 +++ b/kernel/irq/irqdomain.c
-@@ -734,9 +734,8 @@ static int irq_domain_translate(struct irq_domain *d,
+@@ -784,9 +784,8 @@ static int irq_domain_translate(struct irq_domain *d,
  	return 0;
  }
  
@@ -46,7 +46,7 @@ index c6b419db68ef..a17e4ce3811d 100644
  {
  	int i;
  
-@@ -746,6 +745,7 @@ static void of_phandle_args_to_fwspec(struct device_node *np, const u32 *args,
+@@ -796,6 +795,7 @@ static void of_phandle_args_to_fwspec(struct device_node *np, const u32 *args,
  	for (i = 0; i < count; i++)
  		fwspec->param[i] = args[i];
  }

@@ -39,10 +39,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  6 files changed, 18 insertions(+), 9 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 92f55840a08d..75afafdcee6f 100644
+index dcd1d8fe6c9f..2814acfc07b5 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -436,8 +436,9 @@ usb1_phy: phy@4110000 {
+@@ -435,8 +435,9 @@ usb1_phy: phy@4110000 {
  		#phy-cells = <0>;
  	};
  
@@ -53,7 +53,7 @@ index 92f55840a08d..75afafdcee6f 100644
  		ti,intr-trigger-type = <1>;
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
-@@ -457,8 +458,9 @@ main_navss: bus@30800000 {
+@@ -456,8 +457,9 @@ main_navss: bus@30800000 {
  
  		ti,sci-dev-id = <118>;
  
@@ -106,10 +106,10 @@ index cb22e65d61ab..a0365890571e 100644
  			interrupt-controller;
  			interrupt-parent = <&gic500>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-index eb2a78a53512..c4e63272fbdb 100644
+index 7f252cc6eb37..7988b9660f65 100644
 --- a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-@@ -96,8 +96,9 @@ mcu_uart0: serial@40a00000 {
+@@ -123,8 +123,9 @@ mcu_uart0: serial@40a00000 {
  		clock-names = "fclk";
  	};
  
@@ -121,7 +121,7 @@ index eb2a78a53512..c4e63272fbdb 100644
  		interrupt-controller;
  		interrupt-parent = <&gic500>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index b85889ae50e1..6b377d93b121 100644
+index 4c3ee45bdcf9..b14fe61782d3 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
 @@ -125,8 +125,9 @@ gic_its: msi-controller@1820000 {

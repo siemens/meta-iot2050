@@ -11,10 +11,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 9840b2cfdfeb..0a2b07b546ad 100644
+index 325a2fb0f8bf..03f21186f72b 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1190,8 +1190,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1192,8 +1192,6 @@ static void cp210x_set_termios(struct tty_struct *tty,
  				sizeof(flow_ctl));
  		ctl_hs = le32_to_cpu(flow_ctl.ulControlHandshake);
  		flow_repl = le32_to_cpu(flow_ctl.ulFlowReplace);
@@ -23,7 +23,7 @@ index 9840b2cfdfeb..0a2b07b546ad 100644
  
  		ctl_hs &= ~CP210X_SERIAL_DSR_HANDSHAKE;
  		ctl_hs &= ~CP210X_SERIAL_DCD_HANDSHAKE;
-@@ -1204,17 +1202,15 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1206,17 +1204,15 @@ static void cp210x_set_termios(struct tty_struct *tty,
  			flow_repl &= ~CP210X_SERIAL_RTS_MASK;
  			flow_repl |= CP210X_SERIAL_RTS_SHIFT(
  					CP210X_SERIAL_RTS_FLOW_CTL);

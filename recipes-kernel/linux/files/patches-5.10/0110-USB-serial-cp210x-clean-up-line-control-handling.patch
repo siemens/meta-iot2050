@@ -21,10 +21,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 41 insertions(+), 60 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index fd0c6db08058..2cacb039f40b 100644
+index 3de3109ac2e2..8bfc3c06f5e6 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1389,9 +1389,11 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1391,9 +1391,11 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  static void cp210x_set_termios(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
@@ -36,7 +36,7 @@ index fd0c6db08058..2cacb039f40b 100644
  
  	if (!cp210x_termios_change(&tty->termios, old_termios))
  		return;
-@@ -1402,74 +1404,53 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1404,74 +1406,53 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	if (tty->termios.c_ospeed != old_termios->c_ospeed)
  		cp210x_change_speed(tty, port, old_termios);
  

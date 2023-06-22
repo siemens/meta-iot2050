@@ -18,10 +18,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 47 insertions(+), 50 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 0a2b07b546ad..649aba138e64 100644
+index 03f21186f72b..4fdf2c2091f6 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -576,14 +576,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -578,14 +578,8 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  	int result;
  
  	dmabuf = kmalloc(bufsize, GFP_KERNEL);
@@ -37,7 +37,7 @@ index 0a2b07b546ad..649aba138e64 100644
  
  	result = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
  			req, REQTYPE_INTERFACE_TO_HOST, 0,
-@@ -597,12 +591,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
+@@ -599,12 +593,6 @@ static int cp210x_read_reg_block(struct usb_serial_port *port, u8 req,
  				req, bufsize, result);
  		if (result >= 0)
  			result = -EIO;
@@ -50,7 +50,7 @@ index 0a2b07b546ad..649aba138e64 100644
  	}
  
  	kfree(dmabuf);
-@@ -1120,11 +1108,55 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1122,11 +1110,55 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  	return tty_termios_hw_change(a, b) || iflag_change;
  }
  
@@ -107,7 +107,7 @@ index 0a2b07b546ad..649aba138e64 100644
  	u16 bits;
  	int ret;
  
-@@ -1181,42 +1213,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1183,42 +1215,7 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	if (ret)
  		dev_err(&port->dev, "failed to set line control: %d\n", ret);
  

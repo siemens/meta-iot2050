@@ -15,10 +15,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 12 insertions(+)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 8a4a0d4dbc13..fd0c6db08058 100644
+index 045e24174e1a..3de3109ac2e2 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -1377,6 +1377,15 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
+@@ -1379,6 +1379,15 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
  	port_priv->event_mode = false;
  }
  
@@ -34,7 +34,7 @@ index 8a4a0d4dbc13..fd0c6db08058 100644
  static void cp210x_set_termios(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
-@@ -1384,6 +1393,9 @@ static void cp210x_set_termios(struct tty_struct *tty,
+@@ -1386,6 +1395,9 @@ static void cp210x_set_termios(struct tty_struct *tty,
  	unsigned int cflag, old_cflag;
  	u16 bits;
  
