@@ -14,9 +14,12 @@ DESCRIPTION = "IOT2050 swupdate image customizations"
 
 DEBIAN_DEPENDS = "swupdate"
 
-SRC_URI = "file://swupdate.cfg"
+SRC_URI = " \
+    file://swupdate.cfg \
+    file://suricatta"
 
 do_install() {
-    install -v -d ${D}/etc/
+    install -v -d ${D}/etc/swupdate/conf.d
     install -v -m 644 ${WORKDIR}/swupdate.cfg ${D}/etc/
+    install -v -m 644 ${WORKDIR}/suricatta ${D}/etc/swupdate/conf.d/
 }

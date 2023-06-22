@@ -1,0 +1,1 @@
+SWUPDATE_SURICATTA_ARGS="-S lua --url http://192.168.200.200:8080/api/wfx/v1 --id IOT2050-CIP-demo --polldelay 30 --retry 4 --retrywait 8"
