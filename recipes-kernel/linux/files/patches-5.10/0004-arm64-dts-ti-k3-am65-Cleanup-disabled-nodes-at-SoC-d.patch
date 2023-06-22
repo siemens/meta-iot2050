@@ -57,10 +57,10 @@ Link: https://lore.kernel.org/r/20201113211826.13087-2-nm@ti.com
  2 files changed, 16 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 344c81ff31e9..ee7b7c356f01 100644
+index 8b797a0a05cd..8d081ee03320 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -772,8 +772,6 @@ mcasp0: mcasp@2b00000 {
+@@ -771,8 +771,6 @@ mcasp0: mcasp@2b00000 {
  		clocks = <&k3_clks 104 0>;
  		clock-names = "fck";
  		power-domains = <&k3_pds 104 TI_SCI_PD_EXCLUSIVE>;
@@ -69,7 +69,7 @@ index 344c81ff31e9..ee7b7c356f01 100644
  	};
  
  	mcasp1: mcasp@2b10000 {
-@@ -791,8 +789,6 @@ mcasp1: mcasp@2b10000 {
+@@ -790,8 +788,6 @@ mcasp1: mcasp@2b10000 {
  		clocks = <&k3_clks 105 0>;
  		clock-names = "fck";
  		power-domains = <&k3_pds 105 TI_SCI_PD_EXCLUSIVE>;
@@ -78,7 +78,7 @@ index 344c81ff31e9..ee7b7c356f01 100644
  	};
  
  	mcasp2: mcasp@2b20000 {
-@@ -810,8 +806,6 @@ mcasp2: mcasp@2b20000 {
+@@ -809,8 +805,6 @@ mcasp2: mcasp@2b20000 {
  		clocks = <&k3_clks 106 0>;
  		clock-names = "fck";
  		power-domains = <&k3_pds 106 TI_SCI_PD_EXCLUSIVE>;
@@ -87,7 +87,7 @@ index 344c81ff31e9..ee7b7c356f01 100644
  	};
  
  	cal: cal@6f03000 {
-@@ -867,8 +861,6 @@ dss: dss@4a00000 {
+@@ -866,8 +860,6 @@ dss: dss@4a00000 {
  
  		interrupts = <GIC_SPI 166 IRQ_TYPE_EDGE_RISING>;
  

@@ -21,7 +21,7 @@ Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
  7 files changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
-index 235f4f689b23..415d1df8f46a 100644
+index 7bfc395ae0a3..365c4b0ca465 100644
 --- a/drivers/pinctrl/pinconf-generic.c
 +++ b/drivers/pinctrl/pinconf-generic.c
 @@ -43,7 +43,7 @@ static const struct pin_config_item conf_items[] = {
@@ -67,10 +67,10 @@ index 7b2f885e68bd..ed9bf2c89998 100644
  			*reg &= ~LPC18XX_SCU_USB1_EPWR;
  		else
 diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index 8b832c9a5876..cd314a5305a2 100644
+index d7dd4c4ce642..e56d10917645 100644
 --- a/drivers/pinctrl/pinctrl-single.c
 +++ b/drivers/pinctrl/pinctrl-single.c
-@@ -533,7 +533,7 @@ static int pcs_pinconf_get(struct pinctrl_dev *pctldev,
+@@ -535,7 +535,7 @@ static int pcs_pinconf_get(struct pinctrl_dev *pctldev,
  			break;
  		case PIN_CONFIG_DRIVE_STRENGTH:
  		case PIN_CONFIG_SLEW_RATE:
@@ -79,7 +79,7 @@ index 8b832c9a5876..cd314a5305a2 100644
  		default:
  			*config = data;
  			break;
-@@ -571,7 +571,7 @@ static int pcs_pinconf_set(struct pinctrl_dev *pctldev,
+@@ -573,7 +573,7 @@ static int pcs_pinconf_set(struct pinctrl_dev *pctldev,
  			case PIN_CONFIG_INPUT_SCHMITT:
  			case PIN_CONFIG_DRIVE_STRENGTH:
  			case PIN_CONFIG_SLEW_RATE:
@@ -88,7 +88,7 @@ index 8b832c9a5876..cd314a5305a2 100644
  				shift = ffs(func->conf[i].mask) - 1;
  				data &= ~func->conf[i].mask;
  				data |= (arg << shift) & func->conf[i].mask;
-@@ -919,7 +919,7 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
+@@ -921,7 +921,7 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
  		{ "pinctrl-single,drive-strength", PIN_CONFIG_DRIVE_STRENGTH, },
  		{ "pinctrl-single,slew-rate", PIN_CONFIG_SLEW_RATE, },
  		{ "pinctrl-single,input-schmitt", PIN_CONFIG_INPUT_SCHMITT, },

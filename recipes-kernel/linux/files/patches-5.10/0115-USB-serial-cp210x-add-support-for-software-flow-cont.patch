@@ -29,10 +29,10 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
  1 file changed, 65 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index ca36e011e9ae..f6e8e40f4200 100644
+index 52d4be3ae73c..0fc826bd42f0 100644
 --- a/drivers/usb/serial/cp210x.c
 +++ b/drivers/usb/serial/cp210x.c
-@@ -392,6 +392,16 @@ static struct usb_serial_driver * const serial_drivers[] = {
+@@ -394,6 +394,16 @@ static struct usb_serial_driver * const serial_drivers[] = {
  #define CONTROL_WRITE_DTR	0x0100
  #define CONTROL_WRITE_RTS	0x0200
  
@@ -49,7 +49,7 @@ index ca36e011e9ae..f6e8e40f4200 100644
  /* CP210X_VENDOR_SPECIFIC values */
  #define CP210X_READ_2NCONFIG	0x000E
  #define CP210X_READ_LATCH	0x00C2
-@@ -1099,11 +1109,38 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
+@@ -1101,11 +1111,38 @@ static void cp210x_disable_event_mode(struct usb_serial_port *port)
  	port_priv->event_mode = false;
  }
  
@@ -89,7 +89,7 @@ index ca36e011e9ae..f6e8e40f4200 100644
  
  	return tty_termios_hw_change(a, b) || iflag_change;
  }
-@@ -1111,13 +1148,29 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+@@ -1113,13 +1150,29 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
  static void cp210x_set_flow_control(struct tty_struct *tty,
  		struct usb_serial_port *port, struct ktermios *old_termios)
  {
@@ -120,7 +120,7 @@ index ca36e011e9ae..f6e8e40f4200 100644
  
  	ret = cp210x_read_reg_block(port, CP210X_GET_FLOW, &flow_ctl,
  			sizeof(flow_ctl));
-@@ -1143,6 +1196,16 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+@@ -1145,6 +1198,16 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
  		flow_repl |= CP210X_SERIAL_RTS_SHIFT(CP210X_SERIAL_RTS_ACTIVE);
  	}
  

@@ -15,10 +15,10 @@ Link: https://lore.kernel.org/r/20200829184139.15547-4-grygorii.strashko@ti.com
  2 files changed, 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index d04189771c77..344c81ff31e9 100644
+index 4265f627ca16..8b797a0a05cd 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -615,7 +615,6 @@ ringacc: ringacc@3c000000 {
+@@ -614,7 +614,6 @@ ringacc: ringacc@3c000000 {
  			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target";
  			ti,num-rings = <818>;
  			ti,sci-rm-range-gp-rings = <0x1>; /* GP ring range */

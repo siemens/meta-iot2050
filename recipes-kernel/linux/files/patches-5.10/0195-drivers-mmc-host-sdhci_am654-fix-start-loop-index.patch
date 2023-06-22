@@ -15,10 +15,10 @@ Signed-off-by: Nitin Yadav <n-yadav@ti.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 8ac4c5f53912..5c8ab628fa1c 100644
+index 216a141d03a7..a1f7351712f3 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -620,7 +620,7 @@ static int sdhci_am654_get_otap_delay(struct sdhci_host *host,
+@@ -618,7 +618,7 @@ static int sdhci_am654_get_otap_delay(struct sdhci_host *host,
  		return 0;
  	}
  

@@ -51,10 +51,10 @@ index d90abda1de84..8c6b538c53f3 100644
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index c288d03da908..a506a24bd9c2 100644
+index 11982ae5593c..fb94d61eae0e 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -1054,6 +1054,16 @@ tx_pru0_1: txpru@c000 {
+@@ -1053,6 +1053,16 @@ tx_pru0_1: txpru@c000 {
  			reg-names = "iram", "control", "debug";
  			firmware-name = "am65x-txpru0_1-fw";
  		};
@@ -71,7 +71,7 @@ index c288d03da908..a506a24bd9c2 100644
  	};
  
  	icssg1: icssg@b100000 {
-@@ -1185,6 +1195,16 @@ tx_pru1_1: txpru@c000 {
+@@ -1184,6 +1194,16 @@ tx_pru1_1: txpru@c000 {
  			reg-names = "iram", "control", "debug";
  			firmware-name = "am65x-txpru1_1-fw";
  		};
@@ -88,7 +88,7 @@ index c288d03da908..a506a24bd9c2 100644
  	};
  
  	icssg2: icssg@b200000 {
-@@ -1316,5 +1336,15 @@ tx_pru2_1: txpru@c000 {
+@@ -1315,5 +1335,15 @@ tx_pru2_1: txpru@c000 {
  			reg-names = "iram", "control", "debug";
  			firmware-name = "am65x-txpru2_1-fw";
  		};

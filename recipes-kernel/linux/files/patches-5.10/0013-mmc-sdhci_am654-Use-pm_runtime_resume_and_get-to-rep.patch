@@ -16,10 +16,10 @@ Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 24cd6d3dc647..4964509f2f3e 100644
+index 8e52905458f9..c72e10f36c1c 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -803,11 +803,9 @@ static int sdhci_am654_probe(struct platform_device *pdev)
+@@ -801,11 +801,9 @@ static int sdhci_am654_probe(struct platform_device *pdev)
  
  	/* Clocks are enabled using pm_runtime */
  	pm_runtime_enable(dev);
