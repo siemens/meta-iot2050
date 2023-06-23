@@ -10,7 +10,6 @@
 
 # debug tools
 IOT2050_DEBIAN_DEBUG_PACKAGES = " \
-    busybox \
     bash-completion \
     less \
     vim \
@@ -25,30 +24,16 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     ethtool \
     rt-tests \
     stress-ng \
-    build-essential \
-    python3 \
-    python-is-python3 \
     gawk \
     curl \
     wget \
     ca-certificates \
     resolvconf \
-    python3-newt \
-    gdb \
-    gdbserver \
     gpiod \
     network-manager \
     modemmanager \
     ppp \
     isc-dhcp-client \
-    cmake \
-    autoconf \
-    autotools-dev \
-    default-jdk \
-    mosquitto \
-    mosquitto-clients \
-    nodejs \
-    npm \
     teamd \
     rsyslog \
     net-tools \
