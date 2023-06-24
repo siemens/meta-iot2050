@@ -13,6 +13,7 @@ inherit initramfs
 INITRAMFS_INSTALL += " \
     initramfs-overlay-hook \
     initramfs-abrootfs-hook \
+    initramfs-crash-demo-hook \
     "
 
 INITRAMFS_INSTALL:append:secureboot = " \
