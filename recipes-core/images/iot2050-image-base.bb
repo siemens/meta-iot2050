@@ -12,7 +12,7 @@ inherit image
 
 DESCRIPTION = "IOT2050 Debian Base Image"
 
-IMAGE_INSTALL += "u-boot-iot2050-config"
+IMAGE_INSTALL += "${@ 'u-boot-${MACHINE}-config' if d.getVar('QEMU_IMAGE') != '1' else '' }"
 IMAGE_INSTALL += "iot2050-firmware"
 IMAGE_INSTALL += "customizations-base"
 

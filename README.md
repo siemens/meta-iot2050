@@ -58,6 +58,24 @@ The SDK is also available as docker image. To import it into a docker host, run
 docker load -i build/tmp/deploy/images/iot2050/sdk-iot2050-debian-arm64-docker-archive.tar.xz
 ```
 
+## Build qemu image
+
+To boot IOT2050 image from qemu, you need a customized image for proper booting.
+Please use kas menu with the following command and select qemu image for target build
+with example image or example image with swupdate support
+
+```shell
+./kas-container menu
+```
+
+Then below command can be used to boot qemu image on a platform that
+qemu-system-aarch64 is installed.
+
+Run qemu:
+```shell
+/bin/sh start-qemu-iot2050.sh"
+```
+
 ## Clean build result
 
 ```shell

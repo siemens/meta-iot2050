@@ -101,7 +101,7 @@ endif
 # Provide two entries so that the help text can be adjusted to the image.
 config SECURE_BOOT
 	bool "Secure boot & Data encryption"
-	depends on IMAGE_SWUPDATE
+	depends on IMAGE_SWUPDATE && !IMAGE_QEMU
 	help
 	  Enable signing of boot artifacts (boot loader, unified kernel image).
 	  Furthermore activate dm-verity integrity protection for the read-only
@@ -148,6 +148,24 @@ config RPMB_SETUP
 	   (RPMB on eMMC). Do not sign and distribute this version. Run it
 	   only in a secure environment on the target device, then replace it
 	   with signed production firmware and enable secure boot.
+
+config IMAGE_QEMU
+	bool "QEMU Image"
+	depends on IMAGE_EXAMPLE || IMAGE_SWUPDATE
+	help
+	  QEMU image to boot image without real hardware. The device emulated
+	  by QEMU is not identical to a physical IOT2050. This leads to missing
+	  or limited features such as Arduino I/Os, only one ethernet port,
+	  virtual debug serial port, qemu version of u-boot, no watchdog, only
+	  virtual drives, performance issues etc.
+
+	  WARNING: Please be aware of potential problems when using the image
+	  for testing purposes.
+
+config KAS_INCLUDE_QEMU_IMAGE
+	string
+	default "kas-iot2050-qemu.yml"
+	depends on IMAGE_QEMU
 
 config KAS_INCLUDE_SECURE_BOOT
 	string
