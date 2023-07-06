@@ -1,0 +1,16 @@
+#
+# Copyright (c) Siemens AG, 2023
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+header:
+  version: 10
+
+machine: iot2050-qemu
+
+local_conf_header:
+  firmware-binaries: |
+    # Add U-Boot for qemu
+    IMAGER_BUILD_DEPS:append:iot2050-qemu = " u-boot-iot2050-qemu"

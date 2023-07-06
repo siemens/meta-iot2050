@@ -40,7 +40,7 @@ IMAGE_INSTALL += " \
     node-red \
     node-red-gpio \
     node-red-preinstalled-nodes \
-    board-conf-tools \
+    ${@ 'board-conf-tools' if d.getVar('QEMU_IMAGE') != '1' else '' } \
     libteec1 \
     optee-client-dev \
     tee-supplicant \
