@@ -1,0 +1,12 @@
+#
+# Copyright (c) Siemens AG, 2023
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+# Add support for hotplug of Display Port
+sed -i 's/LABEL="systemd_end"/SUBSYSTEM=="graphics", KERNEL=="fb0", SYMLINK="fb0", TAG+="systemd"\nLABEL="systemd_end"/g' /lib/udev/rules.d/99-systemd.rules
+
+sed -i '/plymouth/d' /lib/systemd/system/lightdm.service
+sed -i '/Service/i Conflicts=getty@tty1.service getty@tty7.service\nAfter=getty@tty1.service getty@tty7.service\nBindsTo=dev-fb0.device\nAfter=dev-fb0.device\n' /lib/systemd/system/lightdm.service
