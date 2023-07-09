@@ -9,6 +9,7 @@
 #
 
 require recipes-core/images/iot2050-image-example.bb
+require recipes-core/images/efibootguard.inc
 require recipes-core/images/swupdate.inc
 
 inherit image_uuid
@@ -20,13 +21,10 @@ WKS_FILE = "iot2050-swu.wks.in"
 WKS_FILE:secureboot = "iot2050-swu-secure.wks.in"
 
 IMAGE_FSTYPES += "swu"
-IMAGE_TYPEDEP:swu:append = " wic"
 SWU_ROOTFS_TYPE:secureboot = "verity"
 
-WIC_IMAGER_INSTALL += "efibootguard:${DISTRO_ARCH}"
 # watchdog is managed by U-Boot - disable
 WDOG_TIMEOUT = "0"
-WICVARS += "WDOG_TIMEOUT KERNEL_IMAGE INITRD_DEPLOY_FILE DTB_FILES"
 
 INITRD_DEPLOY_FILE = "${INITRAMFS_RECIPE}-${DISTRO}-${MACHINE}.initrd.img"
 
@@ -40,7 +38,6 @@ IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
 # EFI Boot Guard is used instead
 IMAGE_INSTALL:remove = "u-boot-script"
 
-IMAGE_INSTALL += "efibootguard libebgenv0"
 IMAGE_INSTALL += "customizations-swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
