@@ -8,7 +8,6 @@
 #  - cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
 
 inherit dpkg-raw
-inherit buildchroot
 
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json"
@@ -71,43 +70,26 @@ python() {
     d.setVar('NPM_MAPPED_NAME', mapped_name)
 }
 
-BUILDROOT = "${BUILDCHROOT_DIR}/${PP}"
+SCHROOT_MOUNTS = "${WORKDIR}"
 
 npm_fetch_do_mounts() {
-    mkdir -p ${BUILDROOT}
-    sudo mount --bind ${WORKDIR} ${BUILDROOT}
-
-    buildchroot_do_mounts
+    schroot_create_configs
+    insert_mounts
 }
 
 npm_fetch_undo_mounts() {
-    i=0
-    while ! sudo umount ${BUILDROOT}; do
-        sleep 0.1
-        if [ `expr $i % 100` -eq 0 ] ; then
-            bbwarn "${BUILDROOT}: Couldn't unmount ($i), retrying..."
-        fi
-        if [ $i -ge 10000 ]; then
-            bbfatal "${BUILDROOT}: Couldn't unmount after timeout"
-        fi
-        i=`expr $i + 1`
-    done
-    sudo rmdir ${BUILDROOT}
+    remove_mounts
+    schroot_delete_configs
 }
 
 def get_npm_bundled_tgz(d):
     return "{0}-{1}-bundled.tgz".format(d.getVar('NPM_MAPPED_NAME'),
                                         d.getVar('PV'))
 
-def runcmd(d, cmd, dir):
+def runcmd(d, cmd):
     import subprocess
-    import os
 
-    uid = os.geteuid()
-    gid = os.getegid()
-    chrootcmd = "sudo -E chroot --userspec={0}:{1} ".format(uid, gid)
-    chrootcmd += d.getVar('BUILDCHROOT_DIR')
-    chrootcmd += " sh -c 'cd {0}/{1}; {2}'".format(d.getVar('PP'), dir, cmd)
+    chrootcmd = "schroot -c {0} -- {1}".format(d.getVar('SBUILD_CHROOT'), cmd)
     bb.note("Running " + chrootcmd)
     (retval, output) = subprocess.getstatusoutput(chrootcmd)
     if retval:
@@ -124,34 +106,6 @@ def apply_mirrors_in_shrinkwrap(path, pattern, subst):
             pdef['resolved'] = re.sub(pattern, subst, pdef['resolved'])
     with open(path, 'w') as f:
         json.dump(data, f, indent=2)
-
-do_install_npm() {
-    install_cmd="sudo -E chroot ${BUILDCHROOT_DIR} \
-        apt-get install -y -o Debug::pkgProblemResolver=yes \
-                --no-install-recommends"
-
-    npm_fetch_do_mounts
-
-    E="${@ bb.utils.export_proxies(d)}"
-    deb_dl_dir_import "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
-    sudo -E chroot ${BUILDCHROOT_DIR} \
-            apt-get update \
-                    -o Dir::Etc::sourcelist="sources.list.d/isar-apt.list" \
-                    -o Dir::Etc::sourceparts="-" \
-                    -o APT::Get::List-Cleanup="0"
-    ${install_cmd} --download-only ${NPM_CLASS_PACKAGE}
-    deb_dl_dir_export "${BUILDCHROOT_DIR}" ${BASE_DISTRO}-${BASE_DISTRO_CODENAME}
-    ${install_cmd} ${NPM_CLASS_PACKAGE}
-
-    npm_fetch_undo_mounts
-}
-do_install_npm[depends] += "${BUILDCHROOT_DEP}"
-do_install_npm[depends] += "${@d.getVarFlag('do_apt_fetch', 'depends')}"
-do_install_npm[depends] += "${@(d.getVar('NPM_CLASS_PACKAGE') + ':do_deploy_deb') if d.getVar('OWN_NPM_CLASS_PACKAGE') == '1' else ''}"
-do_install_npm[lockfiles] += "${REPO_ISAR_DIR}/isar.lock"
-do_install_npm[network] += "${TASK_USE_SUDO}"
-
-addtask install_npm before do_fetch
 
 python fetch_npm() {
     import json, os, shutil, re
@@ -212,7 +166,7 @@ python fetch_npm() {
         json_objs = {'dependencies': { npmpn: '' }}
         json.dump(json_objs, outfile, indent=2)
 
-    runcmd(d, "npm ci --global-style --ignore-scripts --verbose", "fetch-tmp")
+    runcmd(d, "npm ci --global-style --ignore-scripts --verbose")
 
     package_filename = "node_modules/" + npmpn + "/package.json"
     with open(package_filename) as infile:
@@ -228,7 +182,7 @@ python fetch_npm() {
 
     os.rename("node_modules/" + npmpn, "package")
 
-    runcmd(d, "tar czf package.tgz --exclude .bin package", "fetch-tmp")
+    runcmd(d, "tar czf package.tgz --exclude .bin package")
 
     shutil.copyfile("package.tgz", bundled_tgz)
     with open(bundled_tgz_hash, 'w') as hash_file:
@@ -239,6 +193,7 @@ python fetch_npm() {
 }
 do_fetch[postfuncs] += "fetch_npm"
 do_fetch[cleandirs] += "${WORKDIR}/fetch-tmp"
+do_fetch[depends] += "${SCHROOT_DEP}"
 
 python clean_npm() {
     import os
