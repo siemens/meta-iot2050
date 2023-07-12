@@ -27,12 +27,9 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: f95f69d3b83cc28976ef81eeefb5ec5dd17e544f
+    refspec: 9f6b5d92b974158d770a89459962764273995730
     layers:
       meta:
-    patches:
-      optee-os-tadevkit:
-        path: isar-patches/0001-optee-os-Add-package-optee-os-tadevkit.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
