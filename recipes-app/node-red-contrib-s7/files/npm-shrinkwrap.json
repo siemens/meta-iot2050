@@ -1,6 +1,6 @@
 {
   "name": "root",
-  "lockfileVersion": 2,
+  "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
@@ -28,31 +28,6 @@
       "version": "0.1.0",
       "resolved": "https://registry.npmjs.org/iso-on-tcp/-/iso-on-tcp-0.1.0.tgz",
       "integrity": "sha512-ty4/0A+4qW35QoPE74GfUiMtIBtTN4ZENNqfD0+5GQIoOnjLvmzCC1pCRWwlhopdSGZGmza9bBxdOuVmzlpN7g=="
-    }
-  },
-  "dependencies": {
-    "node-red-contrib-s7": {
-      "version": "3.1.0",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.1.0.tgz",
-      "integrity": "sha512-5ETqfO7bEVZQZ9IJ85INGU6fIfh/BnQL7vx1PYz1Uk/Z/wF4+9PLabOI3SN3UEudjnbJyCU5PlgVcm0DwLhhZg==",
-      "requires": {
-        "@st-one-io/nodes7": "1.1.0"
-      },
-      "dependencies": {
-        "@st-one-io/nodes7": {
-          "version": "1.1.0",
-          "resolved": "https://registry.npmjs.org/@st-one-io/nodes7/-/nodes7-1.1.0.tgz",
-          "integrity": "sha512-Ds5srgWRWgBTEfIxBSCjaKt87w3EOqAGdjaRmnJpflg9Ah0WafjsqOC3cwX074Fuo16398l3JCxdJqXGkk2LQQ==",
-          "requires": {
-            "iso-on-tcp": "^0.1.0"
-          }
-        },
-        "iso-on-tcp": {
-          "version": "0.1.0",
-          "resolved": "https://registry.npmjs.org/iso-on-tcp/-/iso-on-tcp-0.1.0.tgz",
-          "integrity": "sha512-ty4/0A+4qW35QoPE74GfUiMtIBtTN4ZENNqfD0+5GQIoOnjLvmzCC1pCRWwlhopdSGZGmza9bBxdOuVmzlpN7g=="
-        }
-      }
     }
   }
 }
