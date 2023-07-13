@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 # HOWTO generate an npm-shrinkwrap.json:
-#   npm config set global-style=true (you may want to reset this afterward)
-#   npm install <my-favorite-package>
-#   cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
+#  - use target Debian version as environment
+#  - npm install --install-strategy=shallow <my-favorite-package>
+#  - cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
 
 inherit dpkg-raw
 inherit buildchroot
