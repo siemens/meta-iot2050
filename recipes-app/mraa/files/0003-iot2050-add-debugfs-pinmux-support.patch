@@ -22,7 +22,7 @@ Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
  2 files changed, 540 insertions(+), 11 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index cec25faf0547..d315733d5ef4 100644
+index cec25faf0547..c63400d6b692 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -24,6 +24,7 @@
@@ -289,14 +289,14 @@ index cec25faf0547..d315733d5ef4 100644
 +                            },
 +                            {
 +                                "d2-gpio",
-+                                "d1-uart0-ctsn",
++                                "d2-uart0-ctsn",
 +                                NULL,
 +                                NULL,
 +                                NULL
 +                            },
 +                            {
 +                                "d2-gpio",
-+                                "d1-uart0-ctsn",
++                                "d2-uart0-ctsn",
 +                                NULL,
 +                                NULL,
 +                                NULL
