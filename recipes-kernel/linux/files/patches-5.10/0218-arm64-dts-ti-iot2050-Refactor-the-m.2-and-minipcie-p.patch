@@ -33,7 +33,7 @@ index e73458ca6900..0dada0b39e36 100644
  		"", "", "", "", "", "", "", "", "", "",
  		"", "", "", "", "", "", "", "", "", "",
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index f473aedeb1f3..976b8eff45e0 100644
+index 94fdd776113f..871b86b3ff60 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 @@ -917,6 +917,12 @@ AM65X_IOPAD(0x00CC, PIN_INPUT_PULLDOWN, 7)
