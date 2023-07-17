@@ -1,0 +1,13 @@
+[Unit]
+Description=Acquire hardware information for swupdate
+Before=swupdate.service
+ConditionPathExists=!/etc/hwrevision
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "echo SIMATIC-IOT2050 $(tr -d '\0' < /proc/device-tree/compatible | cut -d',' -f2) > /etc/hwrevision"
+RemainAfterExit=true
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

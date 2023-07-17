@@ -41,6 +41,7 @@ IMAGE_INSTALL:remove = "u-boot-script"
 IMAGE_INSTALL += "customizations-swupdate"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
+IMAGE_INSTALL += "swupdate-hw-info-provider"
 IMAGE_INSTALL += "iot2050-watchdog"
 
 IMAGE_INSTALL:append:secureboot = " iot2050-efivarfs-helper"
