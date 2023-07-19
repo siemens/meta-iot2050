@@ -224,6 +224,9 @@ class FirmwareUpdate(object):
         os.close(mtd_dev)
         return file_size
 
+    def check_firmware(self):
+        return True
+
     def update_firmware(self):
         """Update Firmware"""
         mtd_num = 0
@@ -405,6 +408,9 @@ class UpdateConfiguration(object):
         for tos in target_os:
             if tos.key in os_info and os_info[tos.key] >= (tos.min_version):
                 return True
+            print("\nFirmware requires a minimal version of ",
+                    tos.min_version, ", the current OS has ",
+                    os_info[tos.key], ".", sep="")
 
         return False
 
@@ -465,28 +471,31 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         # extract file path
         self.extract_path = "/tmp"
 
-    def update_firmware(self):
         # Get available firmwares by checking the board name and the os information
-        firmware_names = self._update_conf.firmware_filter(
+        self.firmware_names = self._update_conf.firmware_filter(
             self._board_info.board_name, self._board_info.os_info)
 
-        if len(firmware_names) <= 0:
-            raise UpgradeError("No firmware image could be updated on this board")
+    def check_firmware(self):
+        if len(self.firmware_names) <= 0:
+            return False
+        return True
 
-        if len(firmware_names) == 1:
-            firmware_name = firmware_names[0]
+    def update_firmware(self):
+
+        if len(self.firmware_names) == 1:
+            firmware_name = self.firmware_names[0]
         else:
             # Ask user to pick one firmware image to update
             print("Please select which firmware image to update:")
-            for n in firmware_names:
-                print("{}\t{}".format(firmware_names.index(n) + 1, n))
+            for n in self.firmware_names:
+                print("{}\t{}".format(self.firmware_names.index(n) + 1, n))
 
             choice = int(the_input(False, "-> "))
-            while choice > len(firmware_names) or choice < 1:
+            while choice > len(self.firmware_names) or choice < 1:
                 print("Out of range, please reinput your choice:")
                 choice = int(the_input(False, "-> "))
 
-            firmware_name = firmware_names[choice - 1]
+            firmware_name = self.firmware_names[choice - 1]
 
         print("Will write {} to the SPI flash".format(firmware_name))
 
@@ -702,16 +711,10 @@ def main(argv):
         print(e.strerror, file=sys.stderr)
         return ErrorCode.INVALID_ARG.value
 
-    update_input = the_input(args.quiet, 'y',
-        "\n" + BOLD + "Warning: Update may render device unbootable." + ENDC + " Continue (y/N)? ")
-    if not update_input == "y":
-        return ErrorCode.CANCELED.value
+    if not args.rollback and not args.firmware:
+        print("No firmware specified")
+        return ErrorCode.INVALID_ARG.value
 
-    if args.force or args.reset:
-        erase_env_input = the_input(args.quiet, 'y',
-                "\n" + BOLD + "Warning: All U-Boot environment variables will be reset to factory settings." + ENDC + " Continue (y/N)? ")
-        if not erase_env_input == "y":
-            return ErrorCode.CANCELED.value
     try:
         if args.force:
             # When forced, ignore all the checking and call the underlying updater directly
@@ -720,6 +723,22 @@ def main(argv):
             updater = RollbackFirmware(args.firmware, args.backup_dir)
         else:
             updater = ManagedFirmwareUpdate(args.firmware, args.backup_dir)
+
+        if not updater.check_firmware():
+            print("OS image version must be newer than the minimal version, "
+                  "no firmware image could be updated on this device!")
+            return ErrorCode.FLASHING_FAILED.value
+
+        update_input = the_input(args.quiet, 'y',
+            "\n" + BOLD + "Warning: Update may render device unbootable." + ENDC + " Continue (y/N)? ")
+        if not update_input == "y":
+            return ErrorCode.CANCELED.value
+
+        if args.force or args.reset:
+            erase_env_input = the_input(args.quiet, 'y',
+                    "\n" + BOLD + "Warning: All U-Boot environment variables will be reset to factory settings." + ENDC + " Continue (y/N)? ")
+            if not erase_env_input == "y":
+                return ErrorCode.CANCELED.value
 
         if args.rollback:
             rollback_confirm = the_input(args.quiet, 'y',
@@ -761,15 +780,14 @@ def main(argv):
         ====================================
 Hit the Enter Key to Exit:
         '''
-        if not "No firmware image could be updated on this board" == str(e):
-            # Rollback the firmware when the upgrade fails
-            try:
-                print(BOLD + 'Warning: Upgrade failed, rollback started' + ENDC + '\n')
-                updater = RollbackFirmware(args.firmware, args.backup_dir)
-                if ErrorCode.ROLLBACK_FAILED.value == updater.rollback_firmware():
-                    return ErrorCode.ROLLBACK_FAILED.value
-            except (UpgradeError, UpgradeRollbackError) as e:
-                print(e)
+        # Rollback the firmware when the upgrade fails
+        try:
+            print(BOLD + 'Warning: Upgrade failed, rollback started' + ENDC + '\n')
+            updater = RollbackFirmware(args.firmware, args.backup_dir)
+            if ErrorCode.ROLLBACK_FAILED.value == updater.rollback_firmware():
+                return ErrorCode.ROLLBACK_FAILED.value
+        except (UpgradeError, UpgradeRollbackError) as e:
+            print(e)
 
         the_input(args.quiet, " ", intput_reminder)
         return ErrorCode.FLASHING_FAILED.value
