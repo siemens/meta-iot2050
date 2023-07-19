@@ -1,107 +1,113 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) Siemens AG, 2020-2022
+# Copyright (c) Siemens AG, 2020-2023
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
 #  Jan Kiszka <jan.kiszka@siemens.com>
 #  Su Bao Cheng <baocheng.su@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
-# To use this tool, an update package in <firmware-update-package>.tar.xz format is needed.
-#
-# The <firmware-update-package>.tar.xz should contain:
-#   - firmware.bin: The firmware to update, could be more than one.
-#   - update.conf.json: The update criteria.
-#   - u-boot-initial-env: Builtin environment
-#
-# Example of update.conf.json:
-# {
-# 	"firmware": [
-# 		{
-# 			"description": "[optional] bla bla bla",
-# 			"name": "pg1-basic-vx.y.z.bin",
-# 			"version": "[optional] whatever",
-# 			"target_boards": ["SIMATIC IOT2050 Basic", "SIMATIC IOT2050-ADVANCED"]
-# 		},
-# 		{
-# 			"description": "[optional] bla bla bla",
-# 			"name": "pg2-advanced-vx.y.z.bin",
-# 			"version": "[optional] whatever",
-# 			"target_boards": "SIMATIC IOT2050 Advanced PG2",
-# 			"target_os": [
-# 				{
-# 					"type": "[optional] Example Image",
-# 					"key": "BUILD_ID",
-# 					"min_version": "V01.02.02"
-# 				},
-# 				{
-# 					"type": "[optional] Industrial OS",
-# 					"key": "VERSION_ID",
-# 					"min_version": "3.1.1"
-# 				}
-# 			]
-# 		}
-# 	],
-# 	"target_os": [
-# 		{
-# 			"type": "[optional] Example Image",
-# 			"key": "BUILD_ID",
-# 			"min_version": "V01.01.01"
-# 		},
-# 		{
-# 			"type": "[optional] Industrial OS",
-# 			"key": "VERSION_ID",
-# 			"min_version": "2.1.1"
-# 		}
-# 	],
-# 	"suggest_preserved_uboot_env": [
-# 		 "boot_targets"
-# 	]
-# }
-#
-# There are one or more `firmware` node, each node represents one firmware file
-# in the tarball and its update control fields, such as which board and which OS
-# it could be updated upon.
-#
-# To indicate which board or boards the firmware could be updated upon, use the
-# mandatory `target_boards` inside the `firmware` node. Possible target boards:
-#   - PG1 Basic:
-#       "SIMATIC IOT2050-BASIC", "SIMATIC IOT2050 Basic"
-#   - PG1 Advanced:
-#       "SIMATIC IOT2050-ADVANCED", "SIMATIC IOT2050 Advanced"
-#   - PG2 Basic:
-#       "SIMATIC IOT2050 Basic PG2"
-#   - PG2 Advanced:
-#       "SIMATIC IOT2050 Advanced PG2"
-#   - M2 Variant:
-#       "SIMATIC IOT2050 Advanced M2"
-#
-# To indicate which OS the firmware could be updated upon, use either the
-# `target_os` inside the `firmware` node as a local configuration, or use
-# a global `target_os` outside the `firmware` node as the global configuration.
-# If both exists, the local one will overwrite the global one.
-#
-# Either global or local `target_os` is optional, if none exists, the updater
-# will not check against the OS information.
-#
-# The `key` and `min_version` field within the `target_os` node will be compared
-# to the value from `/etc/os-release` on the board. The `key` matches exactly, and
-# the `min_version` matches the minimal version number.
-#
-# There are one `suggest_preserved_uboot_env` node, this filed in this node represent
-# the env variable need to be preserved. there could be multiple fileds in this node.
-# Besides, there is a control parameter "-p" to add the preserved list from cli, this would not
-# use the preserved env variable in the `suggest_preserved_uboot_env` node.
-#
+"""
+To use this tool, an update package in <firmware-update-package>.tar.xz
+format is needed.
+
+The <firmware-update-package>.tar.xz should contain:
+  - firmware.bin: The firmware to update, could be more than one.
+  - update.conf.json: The update criteria.
+  - u-boot-initial-env: Builtin environment
+
+Example of update.conf.json:
+{
+    "firmware": [
+        {
+            "description": "[optional] bla bla bla",
+            "name": "pg1-basic-vx.y.z.bin",
+            "version": "[optional] whatever",
+            "target_boards": [
+                "SIMATIC IOT2050 Basic",
+                "SIMATIC IOT2050-ADVANCED"
+            ]
+        },
+        {
+            "description": "[optional] bla bla bla",
+            "name": "pg2-advanced-vx.y.z.bin",
+            "version": "[optional] whatever",
+            "target_boards": "SIMATIC IOT2050 Advanced PG2",
+            "target_os": [
+                {
+                    "type": "[optional] Example Image",
+                    "key": "BUILD_ID",
+                    "min_version": "V01.02.02"
+                },
+                {
+                    "type": "[optional] Industrial OS",
+                    "key": "VERSION_ID",
+                    "min_version": "3.1.1"
+                }
+            ]
+        }
+    ],
+    "target_os": [
+        {
+            "type": "[optional] Example Image",
+            "key": "BUILD_ID",
+            "min_version": "V01.01.01"
+        },
+        {
+            "type": "[optional] Industrial OS",
+            "key": "VERSION_ID",
+            "min_version": "2.1.1"
+        }
+    ],
+    "suggest_preserved_uboot_env": [
+        "boot_targets"
+    ]
+}
+
+There are one or more `firmware` node, each node represents one firmware file
+in the tarball and its update control fields, such as which board and which OS
+it could be updated upon.
+
+To indicate which board or boards the firmware could be updated upon, use the
+mandatory `target_boards` inside the `firmware` node. Possible target boards:
+  - PG1 Basic:
+      "SIMATIC IOT2050-BASIC", "SIMATIC IOT2050 Basic"
+  - PG1 Advanced:
+      "SIMATIC IOT2050-ADVANCED", "SIMATIC IOT2050 Advanced"
+  - PG2 Basic:
+      "SIMATIC IOT2050 Basic PG2"
+  - PG2 Advanced:
+      "SIMATIC IOT2050 Advanced PG2"
+  - M2 Variant:
+      "SIMATIC IOT2050 Advanced M2"
+
+To indicate which OS the firmware could be updated upon, use either the
+`target_os` inside the `firmware` node as a local configuration, or use
+a global `target_os` outside the `firmware` node as the global configuration.
+If both exists, the local one will overwrite the global one.
+
+Either global or local `target_os` is optional, if none exists, the updater
+will not check against the OS information.
+
+The `key` and `min_version` field within the `target_os` node will be compared
+to the value from `/etc/os-release` on the board. The `key` matches exactly,
+and the `min_version` matches the minimal version number.
+
+There are one `suggest_preserved_uboot_env` node, this filed in this node
+represent the env variable need to be preserved. there could be multiple
+fileds in this node. Besides, there is a control parameter "-p" to add the
+preserved list from cli, this would not use the preserved env variable in the
+`suggest_preserved_uboot_env` node.
+"""
 
 import sys
 import os
 import fcntl
 import struct
-import mmap
 import argparse
 import tarfile
 import json
@@ -113,6 +119,7 @@ import hashlib
 import io
 from enum import Enum
 from io import StringIO
+import shutil
 
 BOLD = "\033[1m"
 ENDC = "\033[0m"
@@ -141,15 +148,19 @@ class ErrorCode(Enum):
     ROLLBACK_FAILED = 4
     FLASHING_FAILED = 5
     CANCELED  = 6
+    INVALID_FIRMWARE = 7
 
 class FirmwareUpdate(object):
     def __init__(self, *args):
         self.firmware = args[0]
         self.back_fw_path = os.path.join("".join(args[1]), ".rollback_fw")
-        self.rollback_fw_tar = os.path.join(self.back_fw_path, 'rollback_backup_fw.tar')
+        self.rollback_fw_tar = os.path.join(self.back_fw_path,
+                                            'rollback_backup_fw.tar')
         self.backup_fw_name = 'rollback_fw.bin'
+        self.firmware_len = 0
 
-    def get_path_type_value(self, path):
+    @staticmethod
+    def get_path_type_value(path):
         """get the path value"""
         try:
             with open(path, "r") as f:
@@ -179,7 +190,8 @@ class FirmwareUpdate(object):
             # kernel 5.9 and later
             spi_dev = os.listdir(ospi_dev_path + "/spi_master")[0]
             mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(
-                ospi_dev_path, spi_dev, spi_dev)
+                ospi_dev_path, spi_dev, spi_dev
+            )
         else:
             # kernel 5.8 and earlier
             mtd_base_path = "{}/mtd".format(ospi_dev_path)
@@ -196,12 +208,14 @@ class FirmwareUpdate(object):
 
         return mtd_dev_path, mtd_size, mtd_erasesize, mtd_name
 
-    def flash_operate(self, mtd_dev_path, mtd_size, mtd_erasesize, file_obj, file_size):
+    def flash_operate(self, mtd_dev_path, mtd_size, mtd_erasesize,
+                      file_obj, file_size):
         mtd_pos = 0
         try:
             mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
         except IOError as e:
-            raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
+            raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path,
+                               e.strerror))
 
         while mtd_pos < mtd_size and file_size > 0:
             mtd_content = os.read(mtd_dev, mtd_erasesize)
@@ -245,11 +259,13 @@ class FirmwareUpdate(object):
             if firmware_size <= 0:
                 break
 
-            mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
-                mtd_num)
+            mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
+                self.get_mtd_info(mtd_num)
             print("Updating %-20s" % mtd_name, end="")
             firmware_size = self.flash_operate(
-                mtd_dev_path, mtd_size, mtd_erasesize, self.firmware, firmware_size)
+                mtd_dev_path, mtd_size, mtd_erasesize,
+                self.firmware, firmware_size
+            )
 
             mtd_num += 1
 
@@ -262,14 +278,15 @@ class FirmwareUpdate(object):
             if firmware_len <= 0:
                 break
 
-            mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
-                mtd_num)
+            mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
+                self.get_mtd_info(mtd_num)
 
             mtd_pos = 0
             try:
                 mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
             except IOError as e:
-                raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
+                raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path,
+                                   e.strerror))
 
             while mtd_pos < mtd_size and firmware_len > 0:
                 mtd_content = os.read(mtd_dev, mtd_erasesize)
@@ -305,7 +322,8 @@ class FirmwareUpdate(object):
             if not os.path.exists(self.back_fw_path):
                 os.mkdir(self.back_fw_path)
         except OSError:
-            raise UpgradeError("Failed to create path %s for firmware rollback" % self.back_fw_path)
+            raise UpgradeError("Failed to create path %s for firmware rollback"
+                               % self.back_fw_path)
 
         print("\nFirmware backup started")
 
@@ -325,14 +343,15 @@ class FirmwareUpdate(object):
                 if firmware_len <= 0:
                     break
 
-                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
-                    mtd_num)
+                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
+                    self.get_mtd_info(mtd_num)
 
                 mtd_pos = 0
                 try:
                     mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDONLY)
                 except IOError as e:
-                    raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path, e.strerror))
+                    raise UpgradeError("Opening {} failed: {}"
+                                       "".format(mtd_dev_path, e.strerror))
 
                 while mtd_pos < mtd_size and firmware_len > 0:
                     mtd_content = os.read(mtd_dev, mtd_erasesize)
@@ -366,7 +385,8 @@ class BoardInformation(object):
 
         self.os_info = self._get_os_info()
 
-    def _get_board_name(self) -> str:
+    @staticmethod
+    def _get_board_name() -> str:
         """
         Get the board name by checking the device tree node
         /proc/device-tree/model
@@ -383,40 +403,47 @@ class BoardInformation(object):
 
         Returned is a dict that converted from /etc/os-release, for example:
             NAME="debian"
-            VERSION_ID="3.1.1" 
+            VERSION_ID="3.1.1"
 
-        => 
+        =>
             {
                 "NAME": "debian"
-                "VERSION_ID": "3.1.1" 
+                "VERSION_ID": "3.1.1"
             }
         '''
         with open('/etc/os-release') as f:
-            return {l.split('=')[0]: l.strip().split('=')[-1].strip('"') for l in f.readlines()}
+            return {
+                l.split('=')[0]:
+                l.strip().split('=')[-1].strip('"')
+                for l in f.readlines()
+            }
 
 
 class UpdateConfiguration(object):
     def __init__(self, json_fileobj):
-        # Deserialize the json file to an object so that we can use dot operator to access the fields.
+        # Deserialize the json file to an object so that we can use dot operator
+        # to access the fields.
         try:
             self._jsonobj = json.load(
                 json_fileobj, object_hook=lambda d: Namespace(**d))
         except ValueError:
             raise UpgradeError("Decoding JSON has failed")
 
-    def _check_os(self, target_os, os_info) -> bool:
+    @staticmethod
+    def _check_os(target_os, os_info) -> bool:
         for tos in target_os:
             if tos.key in os_info and os_info[tos.key] >= (tos.min_version):
                 return True
             print("\nFirmware requires a minimal version of ",
-                    tos.min_version, ", the current OS has ",
-                    os_info[tos.key], ".", sep="")
+                  tos.min_version, ", the current OS has ",
+                  os_info[tos.key], ".", sep="")
 
         return False
 
     def firmware_filter(self, board_name: str, os_info: dict) -> list:
         '''
-        Filter out the firmwares that could not be updated on the current board and current OS.
+        Filter out the firmwares that could not be updated on the current board
+        and current OS.
 
         Return the list of the firmware names that could be updated.
         '''
@@ -435,8 +462,9 @@ class UpdateConfiguration(object):
                 except AttributeError:
                     pass
 
-                # Only choose the firmware that have the target_os configuration identifying with current
-                # OS info, or the firmware w/o target_os node which means it doesn't care the OS info.
+                # Only choose the firmware that have the target_os configuration
+                # identifying with current OS info, or the firmware w/o
+                # target_os node which means it doesn't care the OS info.
                 if len(target_os) == 0 or self._check_os(target_os, os_info):
                     res.append(firmware.name)
 
@@ -451,9 +479,9 @@ class UpdateConfiguration(object):
 
 class ManagedFirmwareUpdate(FirmwareUpdate):
     '''
-    ManagedFirmwareUpdate will perform various checking upon both the update package and the 
-    targeted board, before calling the underlying FirmwareUpdate() to flash the binaries to
-    the SPI flash.
+    ManagedFirmwareUpdate will perform various checking upon both the update
+    package and the targeted board, before calling the underlying
+    FirmwareUpdate() to flash the binaries to the SPI flash.
     '''
     _update_conf_json = 'update.conf.json'
     uboot_default_env_file_name = 'u-boot-initial-env'
@@ -466,14 +494,19 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
         # Parse the update configuration from the json file within the tarball
         self._update_conf = UpdateConfiguration(
-            tarfile.open(fileobj=self.firmware).extractfile(self._update_conf_json))
+            tarfile.open(
+                fileobj=self.firmware
+            ).extractfile(self._update_conf_json)
+        )
 
         # extract file path
         self.extract_path = "/tmp"
 
-        # Get available firmwares by checking the board name and the os information
+        # Get available firmwares by checking the board name and the os
+        # information
         self.firmware_names = self._update_conf.firmware_filter(
-            self._board_info.board_name, self._board_info.os_info)
+            self._board_info.board_name, self._board_info.os_info
+        )
 
     def check_firmware(self):
         if len(self.firmware_names) <= 0:
@@ -502,7 +535,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         self.firmware.seek(0)
         with tarfile.open(fileobj=self.firmware) as f:
             self.firmware = f.extractfile(firmware_name)
-            file_tarfileinfo = f.getmember(name=self.uboot_default_env_file_name)
+            file_tarfileinfo = f.getmember(
+                name=self.uboot_default_env_file_name)
             file_tarfileinfo.uid = os.getuid()
             file_tarfileinfo.gid = os.getgid()
             f.extract(file_tarfileinfo, path=self.extract_path)
@@ -535,7 +569,6 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         retrive the uboot default env file belong to the upgrade firmware.
         makeup the restore env binary and flash to the env mtd partition
         '''
-        import shutil
         # /dev/mtd3     /dev/mtd4
         env_partition_list = [3, 4]
         uboot_default_env_file = os.path.join(
@@ -554,11 +587,14 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
         with tempfile.NamedTemporaryFile() as env_default_binary:
             for mtd_num in env_partition_list:
-                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = self.get_mtd_info(
-                    mtd_num)
+                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
+                    self.get_mtd_info(mtd_num)
                 try:
-                    subprocess.run('mkenvimage -s {} -r -o {} {}'.format(mtd_size,
-                                env_default_binary.name, uboot_env_assemble_file), check=True, shell=True)
+                    subprocess.run('mkenvimage -s {} -r -o {} {}'.format(
+                                   mtd_size,
+                                   env_default_binary.name,
+                                   uboot_env_assemble_file),
+                                   check=True, shell=True)
                 except subprocess.CalledProcessError as error:
                     print(error.stdout)
                     raise UpgradeError("Run mkenvimage failed")
@@ -570,7 +606,9 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
                         break
                     print("Updating %-20s" % mtd_name, end="")
                     firmware_size = self.flash_operate(
-                        mtd_dev_path, mtd_size, mtd_erasesize, env_default_binary, firmware_size)
+                        mtd_dev_path, mtd_size, mtd_erasesize,
+                        env_default_binary, firmware_size
+                    )
 
             self.uboot_env_integrify_check(env_default_binary)
 
@@ -602,7 +640,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
         for env_name in preserved_uboot_env_name:
             try:
                 env_value = subprocess.run(
-                    'fw_printenv %s' % env_name, shell=True, stdout=subprocess.PIPE, check=True) \
+                    'fw_printenv %s' % env_name, shell=True,
+                    stdout=subprocess.PIPE, check=True) \
                     .stdout.decode('utf-8').lstrip().rstrip()
                 preserved_uboot_env_value.append(env_value)
             except subprocess.CalledProcessError:
@@ -613,7 +652,8 @@ class ManagedFirmwareUpdate(FirmwareUpdate):
 
 class RollbackFirmware(FirmwareUpdate):
     def rollback_firmware(self):
-        if not os.path.exists(self.rollback_fw_tar) or not tarfile.is_tarfile(self.rollback_fw_tar):
+        if not os.path.exists(self.rollback_fw_tar) or \
+           not tarfile.is_tarfile(self.rollback_fw_tar):
             print('No rollback firmware exists')
             print('It could be that you have not done any upgrades')
             return ErrorCode.ROLLBACK_FAILED.value
@@ -624,7 +664,8 @@ class RollbackFirmware(FirmwareUpdate):
                 self.update_firmware()
                 return ErrorCode.ROLLBACK_SUCCESS.value
         except tarfile.ExtractError:
-            raise UpgradeRollbackError("Failed to rollback firmware due to extract firmware error!")
+            raise UpgradeRollbackError("Failed to rollback firmware due to"
+                                       " extract firmware error!")
 
 
 __version__ = "${PV}"
@@ -636,9 +677,9 @@ def the_input(is_quiet, *args):
         info = args[1]
     else:
         if len(args) > 1:
-            info = args[1];
+            info = args[1]
         else:
-            info = args[0];
+            info = args[0]
     ret = input(info)
     if is_quiet:
         print(args[0] + '\n', end="")
@@ -671,10 +712,13 @@ def main(argv):
           | 4           | Failed to rollback the original firmware |
           | 5           | Flashing error                           |
           | 6           | User canceled                            |
+          | 7           | Invalid firmware                         |
          ''')
-    parser = argparse.ArgumentParser(description=description,
-                                     epilog=epilog,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=description,
+        epilog=epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     group = parser.add_mutually_exclusive_group()
     parser.add_argument('firmware', nargs='?', metavar='FIRMWARE',
                         type=argparse.FileType('rb'),
@@ -692,7 +736,8 @@ def main(argv):
                         action='version',
                         version="%(prog)s version: " + __version__)
     group.add_argument('-b', '--rollback',
-                        help='Rollback the firmware to the version before the upgrade',
+                        help='Rollback the firmware to the version before the \
+                        upgrade',
                         action='store_true')
     parser.add_argument('-n', '--no-backup',
                         help='Do not generate a firmware backup',
@@ -702,8 +747,9 @@ def main(argv):
                         nargs=1,
                         default=os.getenv('HOME'))
     parser.add_argument('-q', '--quiet',
-                        help='Update firmware quietly with the original firmware auto backed up \
-                        and rollback in case of failure, and without automatic rebooting',
+                        help='Update firmware quietly with the original \
+                        firmware auto backed up and rollback in case of \
+                        failure, and without automatic rebooting',
                         action='store_true')
     try:
         args = parser.parse_args()
@@ -717,7 +763,8 @@ def main(argv):
 
     try:
         if args.force:
-            # When forced, ignore all the checking and call the underlying updater directly
+            # When forced, ignore all the checking and call the underlying
+            # updater directly
             updater = FirmwareUpdate(args.firmware, args.backup_dir)
         elif args.rollback:
             updater = RollbackFirmware(args.firmware, args.backup_dir)
@@ -727,22 +774,31 @@ def main(argv):
         if not updater.check_firmware():
             print("OS image version must be newer than the minimal version, "
                   "no firmware image could be updated on this device!")
-            return ErrorCode.FLASHING_FAILED.value
+            return ErrorCode.INVALID_FIRMWARE.value
 
-        update_input = the_input(args.quiet, 'y',
-            "\n" + BOLD + "Warning: Update may render device unbootable." + ENDC + " Continue (y/N)? ")
+        update_input = the_input(
+            args.quiet, 'y',
+            "\n" + BOLD + "Warning: Update may render device unbootable."
+            + ENDC + " Continue (y/N)? "
+        )
         if not update_input == "y":
             return ErrorCode.CANCELED.value
 
         if args.force or args.reset:
-            erase_env_input = the_input(args.quiet, 'y',
-                    "\n" + BOLD + "Warning: All U-Boot environment variables will be reset to factory settings." + ENDC + " Continue (y/N)? ")
+            erase_env_input = the_input(
+                args.quiet, 'y', "\n" + BOLD +
+                "Warning: All U-Boot environment variables will be reset to"
+                " factory settings."
+                + ENDC + " Continue (y/N)? "
+            )
             if not erase_env_input == "y":
                 return ErrorCode.CANCELED.value
 
         if args.rollback:
-            rollback_confirm = the_input(args.quiet, 'y',
-                    "\nRollback the firmware to the version before the upgrade (y/N)?")
+            rollback_confirm = the_input(
+                args.quiet, 'y',
+                "\nRollback the firmware to the version before the upgrade (y/N)?"
+            )
             if not rollback_confirm == "y":
                 return ErrorCode.CANCELED.value
             return updater.rollback_firmware()
@@ -760,13 +816,19 @@ def main(argv):
             print("\n")
             for env in envlist:
                 print(env)
-            preserved_env_input = the_input(args.quiet, 'y',
-                "\n" + BOLD + "Warning: Preserve the above env variables." + ENDC + " Continue (y/N)? ")
+            preserved_env_input = the_input(
+                args.quiet, 'y',
+                "\n" + BOLD + "Warning: Preserve the above env variables."
+                + ENDC + " Continue (y/N)? "
+            )
             if not preserved_env_input == "n":
                 updater.update_uboot_env(envlist)
 
-        reboot_input = the_input(args.quiet, 'n',
-            "\n" + BOLD + "Warning: Completed. Please reboot the device." + ENDC + " Reboot now (y/N)? ")
+        reboot_input = the_input(
+            args.quiet, 'n',
+            "\n" + BOLD + "Warning: Completed. Please reboot the device."
+            + ENDC + " Reboot now (y/N)? "
+        )
         if not reboot_input == "y":
             return ErrorCode.SUCCESS.value
         os.system('reboot')
@@ -782,7 +844,8 @@ Hit the Enter Key to Exit:
         '''
         # Rollback the firmware when the upgrade fails
         try:
-            print(BOLD + 'Warning: Upgrade failed, rollback started' + ENDC + '\n')
+            print(BOLD + 'Warning: Upgrade failed, rollback started' +
+                  ENDC + '\n')
             updater = RollbackFirmware(args.firmware, args.backup_dir)
             if ErrorCode.ROLLBACK_FAILED.value == updater.rollback_firmware():
                 return ErrorCode.ROLLBACK_FAILED.value
@@ -807,4 +870,4 @@ Hit the Enter Key to Exit:
 
 if __name__ == '__main__':
     code = main(sys.argv)
-    exit(code)
+    sys.exit(code)
