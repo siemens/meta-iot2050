@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 20 Jul 2023 19:08:02 +0200
+Subject: [PATCH] optee-client: Add missing runtime dependency
+
+The alternative service file uses pgrep and pkill.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/recipes-bsp/optee-client/files/debian/control.tmpl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/recipes-bsp/optee-client/files/debian/control.tmpl b/meta/recipes-bsp/optee-client/files/debian/control.tmpl
+index de780b73..7cd121ee 100644
+--- a/meta/recipes-bsp/optee-client/files/debian/control.tmpl
++++ b/meta/recipes-bsp/optee-client/files/debian/control.tmpl
+@@ -39,7 +39,7 @@ Description: normal world user space client APIs for OP-TEE
+ 
+ Package: tee-supplicant
+ Architecture: ${DISTRO_ARCH}
+-Depends: systemd ${misc:Depends}, ${shlibs:Depends}
++Depends: systemd ${misc:Depends}, procps, ${shlibs:Depends}
+ Description: normal world user space client APIs for OP-TEE
+  OP-TEE is a Trusted Execution Environment (TEE) designed as companion to a
+  non-secure Linux kernel running on Arm; Cortex-A cores using the TrustZone

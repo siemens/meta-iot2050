@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 20 Jul 2023 19:08:06 +0200
+Subject: [PATCH] initramfs-tee-{ftpm,supplicant}-hook: Move sync loop to
+ ftpm-hook
+
+There is no FTPM_DEV defined in tee-supplicant.script, and it also makes
+no sense to wait for an unrelated fTPM device in the tee-supplicant
+starter hook. That is better done in tee-ftpm.script.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../initramfs-tee-ftpm-hook/files/tee-ftpm.script        | 9 +++++++++
+ .../files/tee-supplicant.script                          | 8 --------
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/meta/recipes-initramfs/initramfs-tee-ftpm-hook/files/tee-ftpm.script b/meta/recipes-initramfs/initramfs-tee-ftpm-hook/files/tee-ftpm.script
+index ce321a09..6e12e6df 100644
+--- a/meta/recipes-initramfs/initramfs-tee-ftpm-hook/files/tee-ftpm.script
++++ b/meta/recipes-initramfs/initramfs-tee-ftpm-hook/files/tee-ftpm.script
+@@ -21,6 +21,15 @@ esac
+ . /scripts/functions
+ 
+ FTPM_DEV=/dev/tpmrm0
++
++# The tee-supplicant would take some time to be discovered, 10 seconds should be
++# enough
++wait_sec=10
++until test $wait_sec -eq 0 || test -c "${FTPM_DEV}" ; do
++	wait_sec=$((wait_sec-1))
++	sleep 1
++done
++
+ if ! test -c "${FTPM_DEV}"; then
+     panic "Can't discover the fTPM device ${FTPM_DEV}!"
+ fi
+diff --git a/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script b/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script
+index bb6dcc16..76efc1ad 100644
+--- a/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script
++++ b/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script
+@@ -22,12 +22,4 @@ esac
+ 
+ /usr/sbin/tee-supplicant -d
+ 
+-# The tee-supplicant would take some time to be discovered, 10 seconds should be
+-# enough
+-wait_sec=10
+-until test $wait_sec -eq 0 || test -c "${FTPM_DEV}" ; do
+-	wait_sec=$((wait_sec-1))
+-	sleep 1
+-done
+-
+ /usr/bin/pgrep tee-supplicant > /dev/null || panic "Can't start the tee-supplicant daemon!"

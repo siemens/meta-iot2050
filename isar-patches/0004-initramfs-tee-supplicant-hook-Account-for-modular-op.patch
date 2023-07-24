@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 20 Jul 2023 19:08:07 +0200
+Subject: [PATCH] initramfs-tee-supplicant-hook: Account for modular optee
+
+Starting tee-supplicant will fail otherwise.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../initramfs-tee-supplicant-hook/files/tee-supplicant.script    | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script b/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script
+index 76efc1ad..fcb84817 100644
+--- a/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script
++++ b/meta/recipes-initramfs/initramfs-tee-supplicant-hook/files/tee-supplicant.script
+@@ -20,6 +20,7 @@ esac
+ 
+ . /scripts/functions
+ 
++/usr/sbin/modprobe optee
+ /usr/sbin/tee-supplicant -d
+ 
+ /usr/bin/pgrep tee-supplicant > /dev/null || panic "Can't start the tee-supplicant daemon!"

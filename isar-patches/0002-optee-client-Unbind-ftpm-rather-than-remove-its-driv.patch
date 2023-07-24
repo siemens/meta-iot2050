@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 20 Jul 2023 19:08:03 +0200
+Subject: [PATCH] optee-client: Unbind ftpm, rather than remove its driver
+
+This allows to support also scenarios where the driver is built into the
+kernel. And it also resolves an escaping issue in the old version.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../optee-client/files/debian/tee-supplicant.service            | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service b/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+index 4508a142..cc92a5fd 100644
+--- a/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
++++ b/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+@@ -14,7 +14,7 @@ RemainAfterExit=yes
+ # Start if not already started by the initramfs hook
+ ExecStart=/bin/sh -c '/usr/bin/pgrep tee-supplicant >/dev/null || /usr/sbin/tee-supplicant -d'
+ ExecStop=/bin/sh -c '/usr/bin/findmnt /sys/firmware/efi/efivars >/dev/null && /usr/bin/umount /sys/firmware/efi/efivars || true'
+-ExecStop=/bin/sh -c '/usr/sbin/modinfo -n tpm_ftpm_tee | /usr/bin/grep -E "\.ko$" >/dev/null && /usr/sbin/modprobe -r tpm_ftpm_tee || true'
++ExecStop=/bin/sh -c 'echo -n optee-ta-bc50d971-d4c9-42c4-82cb-343fb7f37896 > /sys/bus/tee/drivers/optee-ftpm/unbind || true'
+ ExecStop=/usr/bin/pkill tee-supplicant
+ 
+ [Install]
