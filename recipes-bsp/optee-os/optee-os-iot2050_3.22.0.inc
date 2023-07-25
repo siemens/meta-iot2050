@@ -9,8 +9,8 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=${PN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "92a16e841b0bdb4bfcb1c20b6a1bd3309092203d534ed167dfdb5a5f395bf60b"
+SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=optee-os-${PV}.tar.gz"
+SRC_URI[sha256sum] = "2f15d07f20bf164e6bd38bf955eed70328b7f070eff63b4934bd307dbba5c2bc"
 
 S = "${WORKDIR}/optee_os-${PV}"
 
