@@ -11,6 +11,8 @@
 require recipes-bsp/optee-os/optee-os-custom.inc
 require optee-os-iot2050_${PV}.inc
 
+OPTEE_BINARIES = "tee-raw.bin"
+
 # StMM integration, required by UEFI auth variable management
 DEPENDS:append:uefi-stmm = " edk2-standalonemm-rpmb"
 DEBIAN_BUILD_DEPENDS:append:uefi-stmm = ", edk2-standalonemm-rpmb"
