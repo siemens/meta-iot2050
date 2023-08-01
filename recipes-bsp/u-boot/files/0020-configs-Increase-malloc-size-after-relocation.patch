@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Neha Malcom Francis <n-francis@ti.com>
+Date: Wed, 11 Jan 2023 18:11:23 +0530
+Subject: [PATCH] configs: Increase malloc size after relocation
+
+Current default size of 0x100000 is not capable of getting the FIT
+buffer during boot when transitioning to using binman generated boot
+images for certain K3 devices, so increase it to 0x400000. Since A72 SPL
+is coming after relocation to DDR this should not be an issue for any K3
+device, so make it default for all.
+
+Signed-off-by: Neha Malcom Francis <n-francis@ti.com>
+Acked-by: Andrew Davis <afd@ti.com>
+---
+ common/spl/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/common/spl/Kconfig b/common/spl/Kconfig
+index a25d8fd2e0845300cde5e1782bc19c5608de576b..3c2af453ab66e2161d258c182d95371fb465f9ec 100644
+--- a/common/spl/Kconfig
++++ b/common/spl/Kconfig
+@@ -385,6 +385,7 @@ config SPL_STACK_R_ADDR
+ config SPL_STACK_R_MALLOC_SIMPLE_LEN
+ 	depends on SPL_STACK_R && SPL_SYS_MALLOC_SIMPLE
+ 	hex "Size of malloc_simple heap after switching to DRAM SPL stack"
++	default 0x400000 if ARCH_K3 && ARM64
+ 	default 0x100000
+ 	help
+ 	  Specify the amount of the stack to use as memory pool for

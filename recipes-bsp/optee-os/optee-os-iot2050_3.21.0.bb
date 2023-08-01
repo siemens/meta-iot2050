@@ -11,10 +11,10 @@
 require recipes-bsp/optee-os/optee-os-custom.inc
 require optee-os-iot2050_${PV}.inc
 
-# StMM integration
-DEPENDS:append:secureboot = " edk2-standalonemm-rpmb"
-DEBIAN_BUILD_DEPENDS:append:secureboot = ", edk2-standalonemm-rpmb"
-OPTEE_EXTRA_BUILDARGS:append:secureboot = " \
+# StMM integration, required by UEFI auth variable management
+DEPENDS:append:uefi-stmm = " edk2-standalonemm-rpmb"
+DEBIAN_BUILD_DEPENDS:append:uefi-stmm = ", edk2-standalonemm-rpmb"
+OPTEE_EXTRA_BUILDARGS:append:uefi-stmm = " \
     CFG_STMM_PATH=/usr/lib/edk2/BL32_AP_MM.fd \
     "
 
