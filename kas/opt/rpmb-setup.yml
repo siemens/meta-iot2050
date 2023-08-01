@@ -13,4 +13,5 @@ header:
 
 local_conf_header:
   optee-os-iot2050_override: |
+    OVERRIDES .= ":uefi-stmm"
     OVERRIDES .= ":rpmb-setup"

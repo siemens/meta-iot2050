@@ -10,6 +10,7 @@ header:
 
 local_conf_header:
   secureboot_override: |
+    OVERRIDES .= ":uefi-stmm"
     OVERRIDES .= ":secureboot"
   secure-boot-signer: |
     IMAGER_BUILD_DEPS += "ebg-secure-boot-signer"

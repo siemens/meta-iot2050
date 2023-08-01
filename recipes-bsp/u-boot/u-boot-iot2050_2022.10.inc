@@ -32,6 +32,7 @@ SRC_URI += " \
     file://0017-spl-fit-Report-fdt-error-for-loading-u-boot.patch \
     file://0018-efi_loader-Let-networking-support-depend-on-NETDEVIC.patch \
     file://0019-iot2050-Refactor-the-m.2-and-minipcie-power-pin.patch \
+    file://0020-configs-Increase-malloc-size-after-relocation.patch \
     "
 
 SRC_URI[sha256sum] = "50b4482a505bc281ba8470c399a3c26e145e29b23500bc35c50debd7fa46bdf8"
