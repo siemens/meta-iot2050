@@ -13,7 +13,7 @@ inherit dpkg
 SRC_URI = " \
     git://github.com/siemens/k3-rti-wdt.git;protocol=https;branch=master \
     file://rules"
-SRCREV = "33a6680184996074ca9731710161520edf334725"
+SRCREV = "806a7597d7853962d3eaac6340067829af0306c0"
 
 S = "${WORKDIR}/git"
 
