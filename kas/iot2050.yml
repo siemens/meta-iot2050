@@ -27,18 +27,9 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: 9f6b5d92b974158d770a89459962764273995730
+    refspec: ecc7cae423a828d294575301c1584fbe303cba3e
     layers:
       meta:
-    patches:
-      1-optee-client-dep:
-        path: isar-patches/0001-optee-client-Add-missing-runtime-dependency.patch
-      2-unbind-ftpm:
-        path: isar-patches/0002-optee-client-Unbind-ftpm-rather-than-remove-its-driv.patch
-      3-move-sync:
-        path: isar-patches/0003-initramfs-tee-ftpm-supplicant-hook-Move-sync-loop-to.patch
-      4-modprobe-optee:
-        path: isar-patches/0004-initramfs-tee-supplicant-hook-Account-for-modular-op.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
