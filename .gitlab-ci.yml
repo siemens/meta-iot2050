@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-image: ghcr.io/siemens/kas/kas-isar:3.1
+image: ghcr.io/siemens/kas/kas-isar:4.0
 
 variables:
   GIT_STRATEGY: clone

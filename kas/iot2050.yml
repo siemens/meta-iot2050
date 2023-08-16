@@ -9,7 +9,7 @@
 #
 
 header:
-  version: 10
+  version: 14
 
 build_system: isar
 
@@ -27,13 +27,13 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    refspec: ecc7cae423a828d294575301c1584fbe303cba3e
+    commit: ecc7cae423a828d294575301c1584fbe303cba3e
     layers:
       meta:
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    refspec: 7d3a05b3351726c5c76912f5c73d4720f4a46b18
+    commit: 7d3a05b3351726c5c76912f5c73d4720f4a46b18
 
 local_conf_header:
   standard: |
