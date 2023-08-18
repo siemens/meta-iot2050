@@ -3,6 +3,7 @@
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
