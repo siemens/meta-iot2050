@@ -1,0 +1,93 @@
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm-config'
+
+type: object
+properties:
+  slot1:
+    $ref: "#/$defs/slot"
+  slot2:
+    $ref: "#/$defs/slot"
+  slot3:
+    $ref: "#/$defs/slot"
+  slot4:
+    $ref: "#/$defs/slot"
+  slot5:
+    $ref: "#/$defs/slot"
+  slot6:
+    $ref: "#/$defs/slot"
+
+required:
+  - slot1
+  - slot2
+  - slot3
+  - slot4
+  - slot5
+  - slot6
+
+$defs:
+  slot:
+    type: object
+    properties:
+      mlfb:
+        enum:
+          - 6ES7647-0CM00-1AA2
+          - 6ES7223-1QH32-0XB0
+          - 6ES7231-4HF32-0XB0
+          - 6ES7231-5PD32-0XB0
+          - 6ES7231-5PF32-0XB0
+          - 6ES7238-5XA32-0XB0
+          - NA
+
+    allOf:
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7647-0CM00-1AA2
+        then:
+          $ref: https://iot2050-sm/sm-sens-di
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7223-1QH32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1223-ac-rly
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7231-4HF32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1231-ai
+
+      - if:
+          properties:
+            mlfb:
+              enum:
+                - 6ES7231-5PD32-0XB0
+                - 6ES7231-5PF32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1231-rtd
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7238-5XA32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1238-em-480vac
+
+      - if:
+          properties:
+            mlfb:
+              const: NA
+        then:
+          $ref: https://iot2050-sm/sm-na
+
+unevaluatedProperties: false

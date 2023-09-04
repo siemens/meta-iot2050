@@ -1,0 +1,18 @@
+# Copyright (c) Siemens AG, 2023
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 Extended IO Server daemon
+# Only run on IOT2050-SM variant
+ConditionFirmware=device-tree-compatible(siemens,iot2050-advanced-sm)
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/python3 -u /usr/bin/iot2050-eio-service
+# Need notify map3 during reboot
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

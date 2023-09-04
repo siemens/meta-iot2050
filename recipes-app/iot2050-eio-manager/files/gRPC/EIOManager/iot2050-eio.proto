@@ -1,0 +1,129 @@
+/*
+ * Copyright (c) Siemens AG, 2023
+ *
+ * Authors:
+ *  Su Bao Cheng <baocheng.su@siemens.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+syntax = "proto3";
+
+package eiomanager;
+
+service EIOManager {
+  rpc Deploy (DeployRequest) returns (DeployReply) {}
+  rpc Retrieve (RetrieveRequest) returns (RetrieveReply) {}
+  rpc SyncTime (SyncTimeRequest) returns (SyncTimeReply) {}
+  rpc UpdateFirmware (UpdateFirmwareRequest) returns (UpdateFirmwareReply) {}
+  rpc CheckFWU (CheckFWURequest) returns (CheckFWUReply) {}
+  rpc ReadEIOEvent (ReadEIOEventRequest) returns (ReadEIOEventReply) {}
+}
+
+/* ----------------- Deploy EIO configuration ----------------- */
+/* DeployRequest
+ * - yaml_data: Configration data in yaml format. It could be exported from the
+ *              webUI.
+ */
+message DeployRequest {
+  string yaml_data = 1;
+}
+
+/* DeployReply
+ * - status: 0 means no error
+ * - message: the detail reply message
+ */
+message DeployReply {
+  int32 status = 1;
+  string message = 2;
+}
+
+/* ----------------- Retrieve EIO configuration ----------------- */
+/* RetrieveRequest
+ * - name: Reserved for future.
+ */
+message RetrieveRequest {
+  string name = 1;
+}
+
+/* RetrieveReply
+ * - status: 0 means no error
+ * - message: the detail reply message
+ * - yaml_data: Configration data in yaml format 
+ */
+message RetrieveReply {
+  int32 status = 1;
+  string message = 2;
+  string yaml_data = 3;
+}
+
+/* ----------------- Sync system time to EIO controller ----------------- */
+/* SyncTimeRequest
+ * - time: optional, if empty, then the current system time will be synced into
+ *         the EIO controller
+ */
+message SyncTimeRequest {
+  optional string time = 1;
+}
+
+/* SyncTimeReply
+ * - status: 0 means no error
+ * - message: the detail reply message
+ */
+message SyncTimeReply {
+  int32 status = 1;
+  string message = 2;
+}
+
+/* ----------------- Update EIO firmware ----------------- */
+/* UpdateFirmwareRequest
+ * - entity: 0 means checking for EIO controller
+ */
+message UpdateFirmwareRequest {
+  int32 entity = 1;
+  string firmware = 2;
+}
+
+/* UpdateFirmwareReply
+ * - status: 0 means no error
+ * - message: the detail reply message
+ */
+message UpdateFirmwareReply {
+  int32 status = 1;
+  string message = 2;
+}
+
+/* ----------------- Check FWU status ----------------- */
+/* CheckFWURequest
+ * - entity: 0 means checking for EIO controller
+ */
+message CheckFWURequest {
+  int32 entity = 1;
+}
+
+/* CheckFWUReply
+ * - status: 0 means no need to update
+ *           1 means need update
+ *           2 means need update, however binary data corrupted
+ * - message: the detail FWU status message
+ */
+message CheckFWUReply {
+  int32 status = 1;
+  string message = 2;
+}
+
+/* ----------------- Read EIO event ----------------- */
+/* ReadEIOEventRequest
+ * - empty param
+ */
+message ReadEIOEventRequest {
+
+}
+
+/* ReadEIOEventReply
+ * - event: the string of eio event
+ */
+message ReadEIOEventReply {
+  int32 status = 1;
+  string message = 2;
+  string event = 3;
+}

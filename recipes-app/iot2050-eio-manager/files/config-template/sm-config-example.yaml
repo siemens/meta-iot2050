@@ -1,0 +1,890 @@
+# Copyright (c) Siemens AG, 2023
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+slot1:
+  description: |
+    SM1223-AC/RLY (8-channel digital input and 8-channel output module)
+
+    Configuration Items:
+
+    0. MLFB
+
+      Must be "6ES7223-1QH32-0XB0"
+
+    1. Digital inputs
+
+      - di.ch0_3_delay_time:
+          Input delay time of di channel 0 ~ channel 3
+
+          value options:
+            - 2: 0.2 msec
+            - 3: 0.4 msec
+            - 4: 0.8 msec
+            - 5: 1.6 msec
+            - 6: 3.2 msec
+            - 7: 6.4 msec
+            - 9: 12.8 msec
+
+      - di.ch4_7_delay_time:
+          input delay time of di channel 4 ~ channel 7
+
+          value options: same as di.ch0_3_delay_time
+
+    2. Digital outputs
+
+      - dq.behavior_with_OD:
+        All dq channels behavior with OD
+
+        value options:
+          - 2: hold last value
+          - 3: use substitute
+
+      - dq.ch[0-7]:
+
+        - substitute:
+            Substitute value for the channel
+
+            value options:
+              - 0: use 0 as the substitute value for this channel
+              - 1: use 1 as the substitute value for this channel
+
+  mlfb: "6ES7223-1QH32-0XB0"
+
+  di:
+    ch0_3_delay_time: 9
+    ch4_7_delay_time: 9
+
+  dq:
+    behavior_with_OD: 3
+    ch0:
+      substitute: 0
+    ch1:
+      substitute: 0
+    ch2:
+      substitute: 0
+    ch3:
+      substitute: 0
+    ch4:
+      substitute: 0
+    ch5:
+      substitute: 0
+    ch6:
+      substitute: 0
+    ch7:
+      substitute: 0
+
+slot2:
+  description: |
+    SM1231-AI (8-channel analog measurement module for measuring current or voltage)
+
+
+    Configuration Items:
+
+    0. MLFB
+
+      Must be "6ES7231-4HF32-0XB0"
+
+    1. Per module configuration
+
+      - power_alarm:
+          user power alarm of all channels
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - integ_time:
+          integration time
+
+          value options:
+            - 0: 400 Hz
+            - 1: 60 Hz
+            - 2: 50 Hz
+            - 3: 10 Hz
+
+    2. Per channel configuration
+
+      - ch[0-7].type:
+          measurement type
+
+          value options:
+            - 1: voltage
+            - 3: 2 wire current
+
+      - ch[0-7].range:
+          measurement range
+
+          value options:
+            - 2: 0 - 20ma
+            - 3: 4 - 20ma
+            - 7: +/- 2.5v
+            - 8: +/- 5v
+            - 9: +/- 10v
+
+      - ch[0-7].smooth:
+          smoothing
+
+          value options:
+            - 0: 1X rejection period
+            - 1: 4X rejection period
+            - 2: 16X rejection period
+            - 3: 32X rejection period
+
+      - ch[0-7].open_wire_alarm:
+          open wire alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - ch[0-7].overflow_alarm:
+          overflow alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - ch[0-7].underflow_alarm:
+          underflow alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+  mlfb: "6ES7231-4HF32-0XB0"
+
+  power_alarm: true
+
+  integ_time: 2
+
+  ch0:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch1:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch2:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch3:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch4:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch5:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch6:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+  ch7:
+    type: 1
+    range: 9
+    smooth: 1
+    open_wire_alarm: false
+    overflow_alarm: true
+    underflow_alarm: true
+
+slot3:
+  description: |
+    SM1231-4RTD (4-channel analog measurement module for measuring thermistor)
+
+    Configuration Items:
+
+    0. MLFB
+
+      Must be "6ES7231-5PD32-0XB0"
+
+    1. Per module configuration
+
+      - power_alarm:
+          user power alarm of all channels
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - integ_time:
+          integration time
+
+          value options:
+            - 0: 400 Hz
+            - 1: 60 Hz
+            - 2: 50 Hz
+            - 3: 10 Hz
+
+    2. Per channel configuration
+
+      - ch[0-3].type:
+          measurement type
+
+          value options:
+            - 0: deactivated
+            - 4: Resistance (4 wire)
+            - 5: Resistance (3 wire)
+            - 6: Resistance (2 wire)
+            - 7: Thermal Resistance (linear, 4 wire)
+            - 8: Thermal Resistance (linear, 3 wire)
+            - 9: Thermal Resistance (linear, 2 wire)
+
+      - ch[0-3].range:
+          measurement range
+
+          value options:
+            if type == Resistance (one of 4, 5, 6):
+              - 1: 150 ohms
+              - 2: 300 ohms
+              - 3: 600 ohms
+
+            if type == Thermal Resistance (one of 7, 8, 9):
+              - 0: Pt_100_Climatic_Range
+              - 2: Pt_100_Standard_Range
+              - 3: Ni_100_Standard_Range
+              - 4: Pt_500_S_R
+              - 5: Pt_1000_S_R
+              - 6: Ni_1000_S_R
+              - 11: Pt_200_S_R
+              - 12: Ni_120_S_R
+              - 15: Cu_10_S_R
+              - 16: Ni_200_S_R
+              - 18: Ni_500_S_R
+              - 20: Pt_10_S_R
+              - 22: Pt_50_S_R
+              - 24: Cu_50_S_R
+              - 26: Cu_100_S_R
+              - 28: Lg_Ni_1000_S_R
+
+
+      - ch[0-3].temper_coeff:
+          temperature coefficient
+
+          value options:
+            - 0: Pt 0.00385055 Ohm/ (DIN EN 60751)
+            - 1: Pt 0.003916 Ohm/ (USA, NBS)
+            - 2: Pt 0.003902 Ohm/
+            - 3: Pt 0.003920 Ohm/
+            - 5: Pt 0.003910 Ohm/ (GOST 6651, Russia 1994)
+            - 7: Ni 0.006170 Ohm/ (GOST 6651, Russia 1994)
+            - 8: Ni 0.006180 Ohm/
+            - 9: Ni 0.006720 Ohm/
+            - 10: LG-Ni 0.005000 Ohm/
+            - 11: Cu 0.00426 Ohm/ (GOST 6651, Russia 1994)
+            - 12: Cu 0.00427 Ohm/
+            - 13: Cu 0.00428 Ohm/ (GOST 6651, Russia 1994)
+
+      - ch[0-3].smooth:
+          smoothing
+
+          value options:
+            - 0: 1X rejection period
+            - 1: 4X rejection period
+            - 2: 16X rejection period
+            - 3: 32X rejection period
+
+      - ch[0-3].temper_unit:
+          temperature units
+
+          value options:
+            - 0: Celcius
+            - 1: Fahrenheit
+
+      - ch[0-3].overflow_alarm:
+          overflow alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - ch[0-3].underflow_alarm:
+          underflow alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - ch[0-3].open_wire_alarm:
+          open wire alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+  mlfb: "6ES7231-5PD32-0XB0"
+
+  power_alarm: true
+
+  integ_time: 2
+
+  ch0:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch1:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch2:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch3:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+slot4:
+  description: |
+    SM1231-8RTD (8-channel analog measurement module for measuring thermistor)
+
+    Configuration Items:
+
+    0. MLFB
+
+      Must be "6ES7231-5PF32-0XB0"
+
+    1. Per module configuration
+
+      - power_alarm:
+          user power alarm of all channels
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - integ_time:
+          integration time
+
+          value options:
+            - 0: 400 Hz
+            - 1: 60 Hz
+            - 2: 50 Hz
+            - 3: 10 Hz
+
+    2. Per channel configuration
+
+      - ch[0-7].type:
+          measurement type
+
+          value options:
+            - 0: deactivated
+            - 4: Resistance (4 wire)
+            - 5: Resistance (3 wire)
+            - 6: Resistance (2 wire)
+            - 7: Thermal Resistance (linear, 4 wire)
+            - 8: Thermal Resistance (linear, 3 wire)
+            - 9: Thermal Resistance (linear, 2 wire)
+
+      - ch[0-7].range:
+          measurement range
+
+          value options:
+            if type == Resistance (one of 4, 5, 6):
+              - 1: 150 ohms
+              - 2: 300 ohms
+              - 3: 600 ohms
+
+            if type == Thermal Resistance (one of 7, 8, 9):
+              - 0: Pt_100_Climatic_Range
+              - 2: Pt_100_Standard_Range
+              - 3: Ni_100_Standard_Range
+              - 4: Pt_500_S_R
+              - 5: Pt_1000_S_R
+              - 6: Ni_1000_S_R
+              - 11: Pt_200_S_R
+              - 12: Ni_120_S_R
+              - 15: Cu_10_S_R
+              - 16: Ni_200_S_R
+              - 18: Ni_500_S_R
+              - 20: Pt_10_S_R
+              - 22: Pt_50_S_R
+              - 24: Cu_50_S_R
+              - 26: Cu_100_S_R
+              - 28: Lg_Ni_1000_S_R
+
+
+      - ch[0-7].temper_coeff:
+          temperature coefficient
+
+          value options:
+            - 0: Pt 0.00385055 Ohm/ (DIN EN 60751)
+            - 1: Pt 0.003916 Ohm/ (USA, NBS)
+            - 2: Pt 0.003902 Ohm/
+            - 3: Pt 0.003920 Ohm/
+            - 5: Pt 0.003910 Ohm/ (GOST 6651, Russia 1994)
+            - 7: Ni 0.006170 Ohm/ (GOST 6651, Russia 1994)
+            - 8: Ni 0.006180 Ohm/
+            - 9: Ni 0.006720 Ohm/
+            - 10: LG-Ni 0.005000 Ohm/
+            - 11: Cu 0.00426 Ohm/ (GOST 6651, Russia 1994)
+            - 12: Cu 0.00427 Ohm/
+            - 13: Cu 0.00428 Ohm/ (GOST 6651, Russia 1994)
+
+      - ch[0-7].smooth:
+          smoothing
+
+          value options:
+            - 0: 1X rejection period
+            - 1: 4X rejection period
+            - 2: 16X rejection period
+            - 3: 32X rejection period
+
+      - ch[0-7].temper_unit:
+          temperature units
+
+          value options:
+            - 0: Celcius
+            - 1: Fahrenheit
+
+      - ch[0-7].overflow_alarm:
+          overflow alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - ch[0-7].underflow_alarm:
+          underflow alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+      - ch[0-7].open_wire_alarm:
+          open wire alarm
+
+          value options:
+            - true: enabled
+            - false: disabled
+
+  mlfb: "6ES7231-5PF32-0XB0"
+
+  power_alarm: true
+
+  integ_time: 2
+
+  ch0:
+    type: 7
+    range: 3
+    temper_coeff: 7
+    smooth: 1
+    temper_unit: 1
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch1:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch2:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch3:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch4:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch5:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch6:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+  ch7:
+    type: 7
+    range: 2
+    temper_coeff: 0
+    smooth: 1
+    temper_unit: 0
+    overflow_alarm: true
+    underflow_alarm: true
+    open_wire_alarm: true
+
+slot5:
+  description: |
+    SM SENS DI module
+
+    Configuration Items:
+
+    0. MLFB
+
+      Must be "6ES7647-0CM00-1AA2"
+
+    There is no configuration entry for this module other than mlfb.
+
+  mlfb: "6ES7647-0CM00-1AA2"
+
+slot6:
+  description: |
+    SM1238 Energy Meter 480VAC
+
+    Configuration Items:
+
+    0. MLFB
+
+      Must be "6ES7238-5XA32-0XB0"
+
+    1. Per module configuration
+    
+      - module_version:
+          Module Version
+
+          value options:
+            - 32: 32 bytes I/ 12 bytes O
+            - 112: 112 bytes I/ 12 bytes O
+            - 224: EE@Industry measurement data profiles e0
+            - 225: EE@Industry measurement data profiles e1
+            - 226: EE@Industry measurement data profiles e2
+            - 227: EE@Industry measurement data profiles e3
+    
+      - con_type:
+          Connection type of the phases
+
+          value options:
+          - 0x00: Disabled
+          - 0x0B: 1P2W 1-phase measurement, two conductors, with or without
+                  voltage transformers, with one current transformer
+          - 0x0C: 3P4W 3-phase, 4-wire, symmetrical and asymmetrical load, with or
+                  without voltage transformers, with 3 current transformers
+          - 0x0E: 3P4W1 3-phase, 1-wire
+          - 0x0F: 3x1P2W 3x single phase, two conductors, with or without voltage
+                  transformers, with three current transformers
+          - 0x10: 2P3W 2-phase, 3-wire, assymetrical load, without voltage
+                  transformers, with two current transformers
+
+      - range:
+          Voltage measuring range of the power supply
+
+          value options:
+          - 0x01: 100 V
+          - 0x02: 110 V
+          - 0x03: 115 V
+          - 0x04: 120 V
+          - 0x05: 127 V
+          - 0x06: 190 V
+          - 0x07: 200 V
+          - 0x08: 208 V
+          - 0x09: 220 V
+          - 0x0A: 230 V
+          - 0x0B: 240 V
+          - 0x0C: 277 V
+
+      - line_freq:
+          Line frequency of the power supply
+
+          value options:
+          - 1: 60 Hz
+          - 2: 50 Hz
+
+      - period_meters:
+          End value energy meter
+
+          value options:
+          - 0x00: No end value (count indefinitely)
+          - 0x01: Count periodically up to 10^3
+          - 0x02: Count periodically up to 10^6
+          - 0x03: Count periodically up to 10^9
+          - 0x04: Count periodically up to 10^12
+          - 0x05: Count periodically up to 10^15
+
+      - meter_gate:
+          Energy meter gate
+
+          value options:
+          - false: Energy counter always counting
+          - true: Energy counter gate
+
+      - line_vol_tol:
+          Line voltage tolerance
+
+          value options:
+          - 0x01: 1%
+          - 0x02: 2%
+          - 0x03: 3%
+          - ...
+          - 0x32: 50%
+
+      - min_max_cal:
+          Minimum and maximum value calculation
+
+          value options: bool
+
+      - diag_line_vol:
+          Line voltage diagnostics
+
+          value options: bool
+
+      - data_variant:
+          User data variant
+
+          value options:
+          - 0xFE: Total power L1L2L3 (default)
+          - 0xFD: Active power L1L2L3
+          - 0xFC: Reactive power L1L2L3
+          - 0xFB: Apparent power L1L2L3
+          - 0xFA: Basic measurement values L1L2L3
+          - 0xF9: Total energy L1L2L3
+          - 0xF8: Energy L1
+          - 0xF7: Energy L2
+          - 0xF6: Energy L3
+          - 0xF5: Basic values 3-phase measurement L1L2L3
+          - 0xF0: Quality values 3-phase measurement
+          - 0xEF: Energy measurement (periodical) overrange meter
+          - 0xE3: EE@Industry Measurement Data Profile e3
+          - 0xE2: EE@Industry Measurement Data Profile e2
+          - 0xE1: EE@Industry Measurement Data Profile e1
+          - 0xE0: EE@Industry measurement Data Profile e0
+          - 0x9F: Basic values Single Phase Measurement L1
+          - 0x9E: Basic values Single Phase Measurement L1a
+          - 0x9D: Basic values Single Phase Measurement L2
+          - 0x9C: Basic values Single Phase Measurement L2a
+          - 0x9B: Basic values Single Phase Measurement L3
+          - 0x9A: Basic values Single Phase Measurement L3a
+
+    2. Per channel configuration
+
+      - ch[0-2].diag_over_cur:
+          Enable diagnostic overflow current
+          
+          value options: bool
+
+      - ch[0-2].diag_over_cal:
+          Enable diagnostic overflow calculation values
+          
+          value options: bool
+
+      - ch[0-2].diag_ll_vol:
+          Enable diagnostic of low limit voltage
+          
+          value options: bool
+
+      - ch[0-2].diag_under_vol:
+          Enable diagnostic underflow voltage
+          
+          value options: bool
+
+      - ch[0-2].diag_over_vol:
+          Enable diagnostic overflow voltage
+          
+          value options: bool
+
+      - ch[0-2].over_cur_tol_val:
+          Tolerance value secondary over-current, 0.1A
+          
+          value options: [10 ~ 100]
+
+      - ch[0-2].over_cur_tol_time:
+          Tolerance time over-current, ms
+          
+          value options: [0 ~ 60000]
+
+      - ch[0-2].ct_primary_cur:
+          Current transformer primary current, A
+          
+          value options: [1 ~ 99999]
+
+      - ch[0-2].en_gate_cir_hour_meter:
+          Enable gate circuit hours meter
+          
+          value options: bool
+
+      - ch[0-2].ct_second_cur:
+          Current transformer secondary current: (0: 1A, 2: 5A)
+
+          value options:
+          - 0: 1 A
+          - 2: 5 A
+
+      - ch[0-2].act_hour_meter:
+          Activate hours meter
+          
+          value options: bool
+
+      - ch[0-2].re_cur_dir:
+          Reverse current direction
+          
+          value options: bool
+
+      - ch[0-2].ll_cur_measure:
+          Low limit current measurement, mA
+          
+          value options: [2 ~ 250]
+
+      - ch[0-2].vt_second_vol:
+          Voltage transformer secondary voltage, V
+          
+          value options: [1 ~ 500]
+
+      - ch[0-2].vt_prim_vol:
+          Voltage transformer primary voltage, V
+          
+          value options: [1 ~ 999999]
+
+  mlfb: "6ES7238-5XA32-0XB0"
+
+  module_version: 32
+  con_type: 0x0C
+  range: 0x0A
+  line_freq: 2
+  period_meters: 0
+  meter_gate: false
+  line_vol_tol: 0x0A
+  min_max_cal: false
+  diag_line_vol: false
+  data_variant: 0xFE
+
+  ch0:
+    diag_over_cur: false
+    diag_over_cal: false
+    diag_ll_vol: false
+    diag_under_vol: false
+    diag_over_vol: false
+    over_cur_tol_val: 100
+    over_cur_tol_time: 40000
+    ct_primary_cur: 1
+    en_gate_cir_hour_meter: false
+    ct_second_cur: 0
+    act_hour_meter: false
+    re_cur_dir: false
+    ll_cur_measure: 50
+    vt_second_vol: 230
+    vt_prim_vol: 230
+
+  ch1:
+    diag_over_cur: false
+    diag_over_cal: false
+    diag_ll_vol: false
+    diag_under_vol: false
+    diag_over_vol: false
+    over_cur_tol_val: 100
+    over_cur_tol_time: 40000
+    ct_primary_cur: 1
+    en_gate_cir_hour_meter: false
+    ct_second_cur: 0
+    act_hour_meter: false
+    re_cur_dir: false
+    ll_cur_measure: 50
+    vt_second_vol: 230
+    vt_prim_vol: 230
+
+  ch2:
+    diag_over_cur: false
+    diag_over_cal: false
+    diag_ll_vol: false
+    diag_under_vol: false
+    diag_over_vol: false
+    over_cur_tol_val: 100
+    over_cur_tol_time: 40000
+    ct_primary_cur: 1
+    en_gate_cir_hour_meter: false
+    ct_second_cur: 0
+    act_hour_meter: false
+    re_cur_dir: false
+    ll_cur_measure: 50
+    vt_second_vol: 230
+    vt_prim_vol: 230

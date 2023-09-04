@@ -41,6 +41,7 @@ IMAGE_INSTALL += " \
     libteec1 \
     optee-client-dev \
     tee-supplicant \
+    iot2050-eio-manager \
     "
 
 IOT2050_NODE_RED_SUPPORT ?= "1"

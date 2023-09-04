@@ -1,0 +1,278 @@
+
+
+
+# Copyright (c) Siemens AG, 2023
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+description: |
+  SM1238 Energy Meter 480VAC
+
+  Configuration Items:
+
+  0. MLFB
+
+    Must be "6ES7238-5XA32-0XB0"
+
+  1. Per module configuration
+  
+    - module_version:
+        Module Version
+
+        value options:
+          - 32: 32 bytes I/ 12 bytes O
+          - 112: 112 bytes I/ 12 bytes O
+          - 224: EE@Industry measurement data profiles e0
+          - 225: EE@Industry measurement data profiles e1
+          - 226: EE@Industry measurement data profiles e2
+          - 227: EE@Industry measurement data profiles e3
+  
+    - con_type:
+        Connection type of the phases
+
+        value options:
+         - 0x00: Disabled
+         - 0x0B: 1P2W 1-phase measurement, two conductors, with or without
+                 voltage transformers, with one current transformer
+         - 0x0C: 3P4W 3-phase, 4-wire, symmetrical and asymmetrical load, with or
+                 without voltage transformers, with 3 current transformers
+         - 0x0E: 3P4W1 3-phase, 1-wire
+         - 0x0F: 3x1P2W 3x single phase, two conductors, with or without voltage
+                 transformers, with three current transformers
+         - 0x10: 2P3W 2-phase, 3-wire, assymetrical load, without voltage
+                 transformers, with two current transformers
+
+    - range:
+        Voltage measuring range of the power supply
+
+        value options:
+         - 0x01: 100 V
+         - 0x02: 110 V
+         - 0x03: 115 V
+         - 0x04: 120 V
+         - 0x05: 127 V
+         - 0x06: 190 V
+         - 0x07: 200 V
+         - 0x08: 208 V
+         - 0x09: 220 V
+         - 0x0A: 230 V
+         - 0x0B: 240 V
+         - 0x0C: 277 V
+
+    - line_freq:
+        Line frequency of the power supply
+
+        value options:
+         - 1: 60 Hz
+         - 2: 50 Hz
+
+    - period_meters:
+        End value energy meter
+
+        value options:
+         - 0x00: No end value (count indefinitely)
+         - 0x01: Count periodically up to 10^3
+         - 0x02: Count periodically up to 10^6
+         - 0x03: Count periodically up to 10^9
+         - 0x04: Count periodically up to 10^12
+         - 0x05: Count periodically up to 10^15
+
+    - meter_gate:
+        Energy meter gate
+
+        value options:
+         - false: Energy counter always counting
+         - true: Energy counter gate
+
+    - line_vol_tol:
+        Line voltage tolerance
+
+        value options:
+         - 0x01: 1%
+         - 0x02: 2%
+         - 0x03: 3%
+         - ...
+         - 0x32: 50%
+
+    - min_max_cal:
+        Minimum and maximum value calculation
+
+        value options: bool
+
+    - diag_line_vol:
+        Line voltage diagnostics
+
+        value options: bool
+
+    - data_variant:
+        User data variant
+
+        value options:
+         - 0xFE: Total power L1L2L3 (default)
+         - 0xFD: Active power L1L2L3
+         - 0xFC: Reactive power L1L2L3
+         - 0xFB: Apparent power L1L2L3
+         - 0xFA: Basic measurement values L1L2L3
+         - 0xF9: Total energy L1L2L3
+         - 0xF8: Energy L1
+         - 0xF7: Energy L2
+         - 0xF6: Energy L3
+         - 0xF5: Basic values 3-phase measurement L1L2L3
+         - 0xF0: Quality values 3-phase measurement
+         - 0xEF: Energy measurement (periodical) overrange meter
+         - 0xE3: EE@Industry Measurement Data Profile e3
+         - 0xE2: EE@Industry Measurement Data Profile e2
+         - 0xE1: EE@Industry Measurement Data Profile e1
+         - 0xE0: EE@Industry measurement Data Profile e0
+         - 0x9F: Basic values Single Phase Measurement L1
+         - 0x9E: Basic values Single Phase Measurement L1a
+         - 0x9D: Basic values Single Phase Measurement L2
+         - 0x9C: Basic values Single Phase Measurement L2a
+         - 0x9B: Basic values Single Phase Measurement L3
+         - 0x9A: Basic values Single Phase Measurement L3a
+
+  2. Per channel configuration
+
+    - ch[0-2].diag_over_cur:
+        Enable diagnostic overflow current
+        
+        value options: bool
+
+    - ch[0-2].diag_over_cal:
+        Enable diagnostic overflow calculation values
+        
+        value options: bool
+
+    - ch[0-2].diag_ll_vol:
+        Enable diagnostic of low limit voltage
+        
+        value options: bool
+
+    - ch[0-2].diag_under_vol:
+        Enable diagnostic underflow voltage
+        
+        value options: bool
+
+    - ch[0-2].diag_over_vol:
+        Enable diagnostic overflow voltage
+        
+        value options: bool
+
+    - ch[0-2].over_cur_tol_val:
+        Tolerance value secondary over-current, 0.1A
+        
+        value options: [10 ~ 100]
+
+    - ch[0-2].over_cur_tol_time:
+        Tolerance time over-current, ms
+        
+        value options: [0 ~ 60000]
+
+    - ch[0-2].ct_primary_cur:
+        Current transformer primary current, A
+        
+        value options: [1 ~ 99999]
+
+    - ch[0-2].en_gate_cir_hour_meter:
+        Enable gate circuit hours meter
+        
+        value options: bool
+
+    - ch[0-2].ct_second_cur:
+        Current transformer secondary current: (0: 1A, 2: 5A)
+
+        value options:
+         - 0: 1 A
+         - 2: 5 A
+
+    - ch[0-2].act_hour_meter:
+        Activate hours meter
+        
+        value options: bool
+
+    - ch[0-2].re_cur_dir:
+        Reverse current direction
+        
+        value options: bool
+
+    - ch[0-2].ll_cur_measure:
+        Low limit current measurement, mA
+        
+        value options: [2 ~ 250]
+
+    - ch[0-2].vt_second_vol:
+        Voltage transformer secondary voltage, V
+        
+        value options: [1 ~ 500]
+
+    - ch[0-2].vt_prim_vol:
+        Voltage transformer primary voltage, V
+        
+        value options: [1 ~ 999999]
+
+mlfb: "6ES7238-5XA32-0XB0"
+
+module_version: 32
+con_type: 0x0C
+range: 0x0A
+line_freq: 2
+period_meters: 0
+meter_gate: false
+line_vol_tol: 0x0A
+min_max_cal: false
+diag_line_vol: false
+data_variant: 0xFE
+
+ch0:
+  diag_over_cur: false
+  diag_over_cal: false
+  diag_ll_vol: false
+  diag_under_vol: false
+  diag_over_vol: false
+  over_cur_tol_val: 100
+  over_cur_tol_time: 40000
+  ct_primary_cur: 1
+  en_gate_cir_hour_meter: false
+  ct_second_cur: 0
+  act_hour_meter: false
+  re_cur_dir: false
+  ll_cur_measure: 50
+  vt_second_vol: 230
+  vt_prim_vol: 230
+
+ch1:
+  diag_over_cur: false
+  diag_over_cal: false
+  diag_ll_vol: false
+  diag_under_vol: false
+  diag_over_vol: false
+  over_cur_tol_val: 100
+  over_cur_tol_time: 40000
+  ct_primary_cur: 1
+  en_gate_cir_hour_meter: false
+  ct_second_cur: 0
+  act_hour_meter: false
+  re_cur_dir: false
+  ll_cur_measure: 50
+  vt_second_vol: 230
+  vt_prim_vol: 230
+
+ch2:
+  diag_over_cur: false
+  diag_over_cal: false
+  diag_ll_vol: false
+  diag_under_vol: false
+  diag_over_vol: false
+  over_cur_tol_val: 100
+  over_cur_tol_time: 40000
+  ct_primary_cur: 1
+  en_gate_cir_hour_meter: false
+  ct_second_cur: 0
+  act_hour_meter: false
+  re_cur_dir: false
+  ll_cur_measure: 50
+  vt_second_vol: 230
+  vt_prim_vol: 230
