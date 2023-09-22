@@ -676,8 +676,9 @@ class PeripheralsMenu:
         self.topmenu = topmenu
 
     def show(self):
-        menuItems = [('Configure External COM Ports', ExternalSerialMode(self.topmenu)),
-                     ('Configure Arduino I/O', ArduinoIoMode(self.topmenu))]
+        menuItems = [('Configure External COM Ports', ExternalSerialMode(self.topmenu))]
+        if self.topmenu.boardType != 'IOT2050 Advanced SM':
+            menuItems.append(('Configure Arduino I/O', ArduinoIoMode(self.topmenu)))
         if self.topmenu.boardType == 'IOT2050 Advanced M2':
             menuItems.append(('Configure M.2 Connector', M2Connector(self.topmenu)))
 
