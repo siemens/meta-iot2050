@@ -37,11 +37,16 @@ IMAGE_INSTALL += " \
     iot2050-firmware-update \
     tcf-agent \
     mraa \
-    node-red \
-    node-red-gpio \
-    node-red-preinstalled-nodes \
     ${@ 'board-conf-tools' if d.getVar('QEMU_IMAGE') != '1' else '' } \
     libteec1 \
     optee-client-dev \
     tee-supplicant \
     "
+
+IOT2050_NOD_RED_SUPPORT ?= "1"
+
+IMAGE_INSTALL += "${@ ' \
+    node-red \
+    node-red-gpio \
+    node-red-preinstalled-nodes \
+    ' if d.getVar('IOT2050_NOD_RED_SUPPORT') == '1' else ''}"

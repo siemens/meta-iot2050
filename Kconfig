@@ -75,9 +75,19 @@ config KAS_INCLUDE_RT
 	default "kas/opt/preempt-rt.yml"
 	depends on PREEMPT_RT
 
+config NODE_RED
+	bool "Node-RED support"
+	default y
+	help
+	  Building image with Node-RED support.
+
+config KAS_INCLUDE_NO_NODE_RED
+	string
+	default "kas/opt/no-node-red.yml"
+	depends on !NODE_RED
+
 config DOCKER
 	bool "Docker support"
-	default n
 	help
 	  Building image with docker support.
 
