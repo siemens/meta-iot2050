@@ -6,7 +6,7 @@
 #
 
 header:
-  version: 10
+  version: 14
 
 machine: iot2050-qemu
 
