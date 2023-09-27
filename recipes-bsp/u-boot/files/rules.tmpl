@@ -22,7 +22,7 @@ override_dh_auto_build:
 	fi
 	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_CONFIG}
 	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_BIN} \
-		ATF=/usr/lib/trusted-firmware-a/iot2050/bl31.bin \
+		BL31=/usr/lib/trusted-firmware-a/iot2050/bl31.bin \
 		TEE=/usr/lib/optee-os/iot2050/tee-raw.bin
 	$(MAKE) -n u-boot-initial-env >/dev/null 2>&1; if [ $$? -ne 2 ]; then \
 		$(MAKE) $(PARALLEL_MAKE) u-boot-initial-env; \

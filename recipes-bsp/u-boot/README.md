@@ -5,8 +5,7 @@
 The boot loader for PG1 and PG2 boards is built like this:
 
 ```shell
-./kas-container build kas-iot2050-boot-pg1.yml
-./kas-container build kas-iot2050-boot-pg2.yml
+./kas-container build kas-iot2050-boot.yml
 ```
 
 After the build the boot images are under
@@ -81,7 +80,7 @@ A special firmware build is required to run in a secure operating environment to
 program this key into RPMB. To build this special firmware:
 
 ```shell
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/rpmb-setup.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/rpmb-setup.yml
 ```
 
 This will build a special OPTee binary for generating and programming the otp

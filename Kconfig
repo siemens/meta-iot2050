@@ -30,21 +30,13 @@ config IMAGE_SWUPDATE
 	  Based on the example image, this adds SWUpdate and changes the
 	  partition layout to an A/B rootfs.
 
-config IMAGE_BOOT_PG1
-	bool "Firmware image for PG1 devices"
+config IMAGE_BOOT
+	bool "Firmware image for PG1, PG2 and M.2 devices"
 	help
-	  Build the firmware image that is responsible for booting Product
-	  Generation 1 (PG1) devices.
-
-	  WARNING: Do not flash this image onto your device unless you know
-	  that it fits AND you have an external flash programmer at hand that
-	  allows to recover. Otherwise you risk to BRICK THE IOT2050!
-
-config IMAGE_BOOT_PG2
-	bool "Firmware image for PG2 and M.2 devices"
-	help
-	  Build the firmware image that is responsible for booting Product
-	  Generation 2 (PG2) devices, including its M.2 variant.
+	  Build firmware images that are responsible for booting IOT2050
+	  devices. Two artifacts are generated: iot2050-pg1-image-boot.bin
+	  for Product Generation 1 devices and iot2050-pg2-image-boot.bin for
+	  Product Generation 2 devices, including M.2 variants.
 
 	  WARNING: Do not flash this image onto your device unless you know
 	  that it fits AND you have an external flash programmer at hand that
@@ -56,8 +48,7 @@ config KAS_INCLUDE_MAIN
 	string
 	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
 	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
-	default "kas-iot2050-boot-pg1.yml" if IMAGE_BOOT_PG1
-	default "kas-iot2050-boot-pg2.yml" if IMAGE_BOOT_PG2
+	default "kas-iot2050-boot.yml" if IMAGE_BOOT
 
 comment "Image features"
 
@@ -128,7 +119,7 @@ config SECURE_BOOT
 
 config SECURE_BOOT
 	bool "Secure boot"
-	depends on IMAGE_BOOT_PG2
+	depends on IMAGE_BOOT
 	help
 	  Enable signing of all customizable firmware artifacts, enforce UEFI
 	  Secure Boot mode, protect sensitive U-Boot environment variables and
@@ -138,9 +129,12 @@ config SECURE_BOOT
 	  This uses the public custMpk.key and certificate by default. Do not
 	  use this key in production, it is for demonstration purposes only.
 
+	  NOTE: Only PG2 and M.2 devices are officially supported regarding
+	  secure boot.
+
 config OTP_PROVISIONING
 	bool "OTP Provisioning"
-	depends on IMAGE_BOOT_PG2
+	depends on IMAGE_BOOT
 	help
 	  Integrate OTP provisioning data into the firmware artifacts. Various
 	  options are avaiable. By default, this will integrate the OTP command
@@ -152,7 +146,7 @@ config OTP_PROVISIONING
 
 config RPMB_SETUP
 	bool "OPTEE RPMB setup for OTP key write"
-	depends on IMAGE_BOOT_PG2 && !SECURE_BOOT
+	depends on IMAGE_BOOT && !SECURE_BOOT
 	help
 	   Enable one-time pairing between processor and secure storage
 	   (RPMB on eMMC). Do not sign and distribute this version. Run it
@@ -244,7 +238,7 @@ config KAS_INCLUDE_DEBIAN_MIRROR
 config FIRMWARE_SECURE_VER
 	string "Use specific firmware secure version"
 	default "0"
-	depends on SECURE_BOOT && IMAGE_BOOT_PG2
+	depends on SECURE_BOOT && IMAGE_BOOT
 	help
 	  Use specific anti-rollback secure version rather than the default 0.
 	  Range 0 - 127.

@@ -1,10 +1,10 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Li Hua Qian <huaqian.li@siemens.com>
-Date: Wed, 7 Jun 2023 11:29:59 +0800
-Subject: [PATCH] Add a reserved memory for watchdog
+Date: Tue, 29 Aug 2023 11:46:21 +0800
+Subject: [PATCH] Watchdog: Support WDIOF_CARDRESET on TI AM65x platform
 
 To have the WDIOF_CARDRESET support for the TI AM65x platform watchdog,
-this patch reserves the memory, which indicates if the current boot due
+this patch reserves some memories, which indicate if the current boot due
 to a watchdog reset.
 
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
@@ -13,7 +13,7 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  1 file changed, 11 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-common.dtsi b/arch/arm/dts/k3-am65-iot2050-common.dtsi
-index e60006be..acc41335 100644
+index 65da226847f..b6135b849f1 100644
 --- a/arch/arm/dts/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-common.dtsi
 @@ -64,6 +64,12 @@
@@ -29,7 +29,7 @@ index e60006be..acc41335 100644
  	};
  
  	leds {
-@@ -731,6 +737,11 @@
+@@ -720,6 +726,11 @@
  	mboxes = <&mailbox0_cluster1 &mbox_mcu_r5fss0_core1>;
  };
  
