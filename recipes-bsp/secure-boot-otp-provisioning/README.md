@@ -57,7 +57,7 @@ Before start the build, make sure the currently using key set is copied to
 `recipes-bsp/u-boot/files/keys/custMpk.pem`.
 
 ```shell
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision.yml
 ```
 
 > Warning: The default key sets within kas/opt/key-provision.yml only contain
@@ -93,7 +93,7 @@ Then start to building the new key signed firmware together with the key switchi
 otpcmd data.
 
 ```shell
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-switch.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-switch.yml
 ```
 
 > Warning: The default switching within kas/opt/key-switch.yml is from MPK to SMPK.
@@ -118,7 +118,7 @@ by feeding different kas option file to the building.
 If the BMPK need to be programmed together:
 
 ```bash
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision-3keys.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision-3keys.yml
 ```
 
 ### Provision keys only without enabling secure boot
@@ -126,7 +126,7 @@ If the BMPK need to be programmed together:
 If only the keys need to be programmed but not enabling the secure boot:
 
 ```bash
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision-keys-only.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision-keys-only.yml
 ```
 
 ### Enable secure boot only
@@ -134,7 +134,7 @@ If only the keys need to be programmed but not enabling the secure boot:
 If you want to only enable the secure boot(because the keys are already programmed):
 
 ```bash
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision-enabling-only.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-provision-enabling-only.yml
 ```
 
 ### Switch from SMPK to BMPK
@@ -142,7 +142,7 @@ If you want to only enable the secure boot(because the keys are already programm
 If the key switching is from SMPK to BMPK:
 
 ```bash
-./kas-container build kas-iot2050-boot-pg2.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-switch-2to3.yml
+./kas-container build kas-iot2050-boot.yml:kas/opt/secure-boot.yml:kas/opt/otpcmd/key-switch-2to3.yml
 ```
 
 ### Use TUI alternative

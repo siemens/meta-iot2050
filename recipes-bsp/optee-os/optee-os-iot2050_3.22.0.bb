@@ -39,6 +39,4 @@ python() {
     if re.search("rpmb-setup", overrides):
         if re.search("secureboot", overrides):
             bb.fatal("Not possible to use Secure Boot and RPMB setup for OPTEE")
-        if d.getVar('PRODUCT_GENERATION') == "pg1":
-            bb.warn("PG1 devices do not supported RPMB based secure storage")
 }
