@@ -1,0 +1,45 @@
+From 71f68073c59bd4a580082edf98ffa70c54b14dba Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Mon, 12 Jun 2023 16:21:36 +0800
+Subject: [PATCH 64/77] arm64: dts: ti: Add reserved memory for watchdog
+
+This patch adds a reserved memory for the TI AM65X platform watchdog to
+reserve the specific info, triggering the watchdog reset in last boot,
+to know if the board reboot is due to a watchdog reset.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+index edd475eb898c..debd5719f32d 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+@@ -67,6 +67,12 @@ rtos_ipc_memory_region: ipc-memories@a2000000 {
+ 			alignment = <0x1000>;
+ 			no-map;
+ 		};
++
++		/* To reserve the power-on(PON) reason for watchdog reset */
++		wdt_reset_memory_region: wdt-memory@a2200000 {
++			reg = <0x00 0xa2200000 0x00 0x1000>;
++			no-map;
++		};
+ 	};
+ 
+ 	leds {
+@@ -1495,6 +1501,10 @@ &mcu_r5fss0_core1 {
+ 	mboxes = <&mailbox0_cluster1 &mbox_mcu_r5fss0_core1>;
+ };
+ 
++&mcu_rti1 {
++	memory-region = <&wdt_reset_memory_region>;
++};
++
+ &icssg0_mdio {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&icssg0_mdio_pins_default>;
+-- 
+2.42.0
+

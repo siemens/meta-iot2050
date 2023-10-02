@@ -1,0 +1,31 @@
+From a82cf71beea94bcb654a58169998d5bd9f8e93e5 Mon Sep 17 00:00:00 2001
+From: Kevin Hilman <khilman@baylibre.com>
+Date: Thu, 29 Sep 2022 16:48:18 -0700
+Subject: [PATCH 42/77] of/irq: export of_msi_get_domain
+
+Export of_mis_get_domain to enable it for users from outside.
+
+Signed-off-by: Matthias Brugger <mbrugger@suse.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200122104723.16955-1-peter.ujfalusi@ti.com
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+---
+ drivers/of/irq.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/of/irq.c b/drivers/of/irq.c
+index 2bac44f09554..e9bf5236ed89 100644
+--- a/drivers/of/irq.c
++++ b/drivers/of/irq.c
+@@ -730,6 +730,7 @@ struct irq_domain *of_msi_get_domain(struct device *dev,
+ 
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(of_msi_get_domain);
+ 
+ /**
+  * of_msi_configure - Set the msi_domain field of a device
+-- 
+2.42.0
+

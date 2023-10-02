@@ -1,0 +1,37 @@
+From e92a87dcf44d0b42210d8f6641e8d9fadda805c5 Mon Sep 17 00:00:00 2001
+From: MD Danish Anwar <danishanwar@ti.com>
+Date: Mon, 11 Sep 2023 11:13:08 +0530
+Subject: [PATCH 33/77] net: ti: icssg-prueth: Add AM64x icssg support
+
+Add AM64x ICSSG support which is similar to am65x SR2.0, but required:
+- all ring configured in exposed ring mode
+- always fill both original and buffer fields in cppi5 desc
+
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: MD Danish Anwar <danishanwar@ti.com>
+---
+ drivers/net/ethernet/ti/icssg/icssg_prueth.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_prueth.c b/drivers/net/ethernet/ti/icssg/icssg_prueth.c
+index 410612f43cbd..92b13057d4de 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_prueth.c
+@@ -2313,8 +2313,13 @@ static const struct prueth_pdata am654_icssg_pdata = {
+ 	.quirk_10m_link_issue = 1,
+ };
+ 
++static const struct prueth_pdata am64x_icssg_pdata = {
++	.fdqring_mode = K3_RINGACC_RING_MODE_RING,
++};
++
+ static const struct of_device_id prueth_dt_match[] = {
+ 	{ .compatible = "ti,am654-icssg-prueth", .data = &am654_icssg_pdata },
++	{ .compatible = "ti,am642-icssg-prueth", .data = &am64x_icssg_pdata },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, prueth_dt_match);
+-- 
+2.42.0
+

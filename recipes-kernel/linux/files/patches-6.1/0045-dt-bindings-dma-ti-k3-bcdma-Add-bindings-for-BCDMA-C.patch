@@ -1,0 +1,129 @@
+From d9c280f675bb0c86d8783226788863cc8e7378a3 Mon Sep 17 00:00:00 2001
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Date: Tue, 13 Dec 2022 22:13:00 +0530
+Subject: [PATCH 45/77] dt-bindings: dma: ti: k3-bcdma: Add bindings for BCDMA
+ CSI RX
+
+AM62A SoC has a dedicated BCDMA that serves Camera Serial Interface
+(CSI) IP. Add new compatible for the same. Unlike system
+BCDMA, this instance only has RX DMA channels and lack TX or block copy
+channel. Thus make those properties optional. Additionally CSI RX has
+independent power domain, add the binding for the same.
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ .../devicetree/bindings/dma/ti/k3-bcdma.yaml  | 77 ++++++++++++++-----
+ 1 file changed, 59 insertions(+), 18 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/dma/ti/k3-bcdma.yaml b/Documentation/devicetree/bindings/dma/ti/k3-bcdma.yaml
+index 08627d91e607..2bc48dfd3396 100644
+--- a/Documentation/devicetree/bindings/dma/ti/k3-bcdma.yaml
++++ b/Documentation/devicetree/bindings/dma/ti/k3-bcdma.yaml
+@@ -28,13 +28,19 @@ description: |
+   PDMAs can be configured via BCDMA split channel's peer registers to match with
+   the configuration of the legacy peripheral.
+ 
+-allOf:
+-  - $ref: /schemas/dma/dma-controller.yaml#
+-  - $ref: /schemas/arm/keystone/ti,k3-sci-common.yaml#
+-
+ properties:
+   compatible:
+-    const: ti,am64-dmss-bcdma
++    enum:
++      - ti,am62a-dmss-bcdma-csirx
++      - ti,am64-dmss-bcdma
++
++  reg:
++    minItems: 3
++    maxItems: 5
++
++  reg-names:
++    minItems: 3
++    maxItems: 5
+ 
+   "#dma-cells":
+     const: 3
+@@ -65,19 +71,13 @@ properties:
+ 
+       cell 3: ASEL value for the channel
+ 
+-  reg:
+-    maxItems: 5
+-
+-  reg-names:
+-    items:
+-      - const: gcfg
+-      - const: bchanrt
+-      - const: rchanrt
+-      - const: tchanrt
+-      - const: ringrt
+-
+   msi-parent: true
+ 
++  power-domains:
++    description:
++      Power domain if available
++    maxItems: 1
++
+   ti,asel:
+     $ref: /schemas/types.yaml#/definitions/uint32
+     description: ASEL value for non slave channels
+@@ -123,10 +123,51 @@ required:
+   - msi-parent
+   - ti,sci
+   - ti,sci-dev-id
+-  - ti,sci-rm-range-bchan
+-  - ti,sci-rm-range-tchan
+   - ti,sci-rm-range-rchan
+ 
++allOf:
++  - $ref: /schemas/dma/dma-controller.yaml#
++  - $ref: /schemas/arm/keystone/ti,k3-sci-common.yaml#
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: ti,am62a-dmss-bcdma-csirx
++    then:
++      properties:
++        ti,sci-rm-range-bchan: false
++        ti,sci-rm-range-tchan: false
++
++        reg:
++          maxItems: 3
++
++        reg-names:
++          items:
++            - const: gcfg
++            - const: rchanrt
++            - const: ringrt
++
++      required:
++        - power-domains
++
++    else:
++      properties:
++        reg:
++          minItems: 5
++
++        reg-names:
++          items:
++            - const: gcfg
++            - const: bchanrt
++            - const: rchanrt
++            - const: tchanrt
++            - const: ringrt
++
++      required:
++        - ti,sci-rm-range-bchan
++        - ti,sci-rm-range-tchan
++
+ unevaluatedProperties: false
+ 
+ examples:
+-- 
+2.42.0
+

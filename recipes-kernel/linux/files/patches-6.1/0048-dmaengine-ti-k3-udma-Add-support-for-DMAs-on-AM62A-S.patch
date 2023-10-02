@@ -1,0 +1,29 @@
+From 894b378febfbfa8a44db11646880e643200d4956 Mon Sep 17 00:00:00 2001
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Date: Tue, 13 Dec 2022 22:13:03 +0530
+Subject: [PATCH 48/77] dmaengine: ti: k3-udma: Add support for DMAs on AM62A
+ SoC
+
+AM62A SoC has a BCDMA and PKTDMA as systems DMAs for service various
+peripherals similar to AM64 SoC. Add support for the same.
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ drivers/dma/ti/k3-udma.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index a9d19689eba4..94271a8391ea 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -4389,6 +4389,7 @@ static const struct soc_device_attribute k3_soc_devices[] = {
+ 	{ .family = "AM64X", .data = &am64_soc_data },
+ 	{ .family = "J721S2", .data = &j721e_soc_data},
+ 	{ .family = "AM62X", .data = &am64_soc_data },
++	{ .family = "AM62AX", .data = &am64_soc_data },
+ 	{ /* sentinel */ }
+ };
+ 
+-- 
+2.42.0
+

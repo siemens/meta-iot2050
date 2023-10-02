@@ -1,0 +1,74 @@
+From 0267d2a9baffe479e9b5b3d26130f2ceff3f60a8 Mon Sep 17 00:00:00 2001
+From: Kevin Hilman <khilman@baylibre.com>
+Date: Thu, 29 Sep 2022 16:48:20 -0700
+Subject: [PATCH 44/77] dmaengine: ti: convert PSIL to be buildable as module
+
+Combine all the SoC specific files into a single lib that can be
+built-in or built as a module.
+
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+---
+ drivers/dma/ti/Kconfig   |  3 ++-
+ drivers/dma/ti/Makefile  | 15 ++++++++-------
+ drivers/dma/ti/k3-psil.c |  2 ++
+ 3 files changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/dma/ti/Kconfig b/drivers/dma/ti/Kconfig
+index f196be3b222f..2adc2cca10e9 100644
+--- a/drivers/dma/ti/Kconfig
++++ b/drivers/dma/ti/Kconfig
+@@ -56,7 +56,8 @@ config TI_K3_UDMA_GLUE_LAYER
+ 	  If unsure, say N.
+ 
+ config TI_K3_PSIL
+-	bool
++       tristate
++       default TI_K3_UDMA
+ 
+ config TI_DMA_CROSSBAR
+ 	bool
+diff --git a/drivers/dma/ti/Makefile b/drivers/dma/ti/Makefile
+index d3a303f0d7c6..b53d05b11ca5 100644
+--- a/drivers/dma/ti/Makefile
++++ b/drivers/dma/ti/Makefile
+@@ -4,11 +4,12 @@ obj-$(CONFIG_TI_EDMA) += edma.o
+ obj-$(CONFIG_DMA_OMAP) += omap-dma.o
+ obj-$(CONFIG_TI_K3_UDMA) += k3-udma.o
+ obj-$(CONFIG_TI_K3_UDMA_GLUE_LAYER) += k3-udma-glue.o
+-obj-$(CONFIG_TI_K3_PSIL) += k3-psil.o \
+-			    k3-psil-am654.o \
+-			    k3-psil-j721e.o \
+-			    k3-psil-j7200.o \
+-			    k3-psil-am64.o \
+-			    k3-psil-j721s2.o \
+-			    k3-psil-am62.o
++k3-psil-lib-objs := k3-psil.o \
++		    k3-psil-am654.o \
++		    k3-psil-j721e.o \
++		    k3-psil-j7200.o \
++		    k3-psil-am64.o \
++		    k3-psil-j721s2.o \
++		    k3-psil-am62.o
++obj-$(CONFIG_TI_K3_PSIL) += k3-psil-lib.o
+ obj-$(CONFIG_TI_DMA_CROSSBAR) += dma-crossbar.o
+diff --git a/drivers/dma/ti/k3-psil.c b/drivers/dma/ti/k3-psil.c
+index 761a384093d2..8b6533a1eeeb 100644
+--- a/drivers/dma/ti/k3-psil.c
++++ b/drivers/dma/ti/k3-psil.c
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/device.h>
+ #include <linux/init.h>
+ #include <linux/mutex.h>
+@@ -101,3 +102,4 @@ int psil_set_new_ep_config(struct device *dev, const char *name,
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(psil_set_new_ep_config);
++MODULE_LICENSE("GPL v2");
+-- 
+2.42.0
+
