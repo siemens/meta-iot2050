@@ -30,6 +30,9 @@ repos:
     commit: ecc7cae423a828d294575301c1584fbe303cba3e
     layers:
       meta:
+    patches:
+      01:
+        path: isar-patches/0001-optee-client-Fix-native-arm64-build.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git

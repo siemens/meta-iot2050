@@ -1,0 +1,31 @@
+From fce7e3667affe5fce82381baeb473dd7342bf00d Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 3 Oct 2023 21:42:55 +0200
+Subject: [PATCH] optee-client: Fix native arm64 build
+
+optee-client sets CROSS_COMPILE to arm-linux-gnueabihf- by default,
+causing breakages when building natively, e.g. on arm64. Fix this by
+simply setting CROSS_COMPILE unconditionally.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/recipes-bsp/optee-client/files/debian/rules.tmpl | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/meta/recipes-bsp/optee-client/files/debian/rules.tmpl b/meta/recipes-bsp/optee-client/files/debian/rules.tmpl
+index 1b7920d0..7d1b335b 100755
+--- a/meta/recipes-bsp/optee-client/files/debian/rules.tmpl
++++ b/meta/recipes-bsp/optee-client/files/debian/rules.tmpl
+@@ -7,9 +7,7 @@
+ #
+ # SPDX-License-Identifier: MIT
+ 
+-ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+ export CROSS_COMPILE=$(DEB_HOST_GNU_TYPE)-
+-endif
+ 
+ %:
+ 	dh $@ --exclude=.a
+-- 
+2.35.3
+
