@@ -43,10 +43,10 @@ IMAGE_INSTALL += " \
     tee-supplicant \
     "
 
-IOT2050_NOD_RED_SUPPORT ?= "1"
+IOT2050_NODE_RED_SUPPORT ?= "1"
 
 IMAGE_INSTALL += "${@ ' \
     node-red \
     node-red-gpio \
     node-red-preinstalled-nodes \
-    ' if d.getVar('IOT2050_NOD_RED_SUPPORT') == '1' else ''}"
+    ' if d.getVar('IOT2050_NODE_RED_SUPPORT') == '1' else ''}"
