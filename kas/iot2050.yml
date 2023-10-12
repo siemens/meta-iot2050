@@ -33,6 +33,8 @@ repos:
     patches:
       01:
         path: isar-patches/0001-optee-client-Fix-native-arm64-build.patch
+      02:
+        path: isar-patches/0001-meta-optee-client-Generalize-and-update-shutdown-rul.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
