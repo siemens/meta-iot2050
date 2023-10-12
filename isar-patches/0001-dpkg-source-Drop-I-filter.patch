@@ -1,0 +1,30 @@
+From f8f39f9722ebc24cd41e6c41bb22f8ebe9295414 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 12 Oct 2023 13:17:32 +0200
+Subject: [PATCH] dpkg-source: Drop -I filter
+
+This is a regression of 38b832ad8248 which added this while factoring
+out this step. However, some packages may break over this, e.g. the
+edk2-standalonemm-rpmb recipe in isar-cip-core.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/classes/dpkg-source.bbclass | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/classes/dpkg-source.bbclass b/meta/classes/dpkg-source.bbclass
+index 1f4f8164..a86b4635 100644
+--- a/meta/classes/dpkg-source.bbclass
++++ b/meta/classes/dpkg-source.bbclass
+@@ -12,7 +12,7 @@ do_dpkg_source() {
+     if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
+         export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}"
+     fi
+-    sh -c "cd ${WORKDIR}; dpkg-source -I -b ${PPS}"
++    sh -c "cd ${WORKDIR}; dpkg-source -b ${PPS}"
+ }
+ addtask dpkg_source after do_prepare_build before do_dpkg_build
+ 
+-- 
+2.35.3
+
