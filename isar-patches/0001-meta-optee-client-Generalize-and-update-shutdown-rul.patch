@@ -1,0 +1,36 @@
+From 2dde60388814aa09d85714375a06ef1e0688f16d Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Wed, 11 Oct 2023 16:04:53 +0200
+Subject: [PATCH] meta: optee-client: Generalize and update shutdown rule
+
+First, naming changed somewhere between kernel 5.10 and 6.1 so that
+optee-ta-bc50d971... is now optee-ta-supp-bc50d971...
+
+And then we should account for possibly more devices that need to be
+unbound. Use POSIX-compliant shell code for this.
+
+The generic loop allows to drop the explicit unmounting of efivarfs
+because the corresponding driver will already get unbound.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../optee-client/files/debian/tee-supplicant.service           | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service b/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+index cc92a5fd..d8b630a4 100644
+--- a/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
++++ b/meta/recipes-bsp/optee-client/files/debian/tee-supplicant.service
+@@ -13,8 +13,7 @@ Type=oneshot
+ RemainAfterExit=yes
+ # Start if not already started by the initramfs hook
+ ExecStart=/bin/sh -c '/usr/bin/pgrep tee-supplicant >/dev/null || /usr/sbin/tee-supplicant -d'
+-ExecStop=/bin/sh -c '/usr/bin/findmnt /sys/firmware/efi/efivars >/dev/null && /usr/bin/umount /sys/firmware/efi/efivars || true'
+-ExecStop=/bin/sh -c 'echo -n optee-ta-bc50d971-d4c9-42c4-82cb-343fb7f37896 > /sys/bus/tee/drivers/optee-ftpm/unbind || true'
++ExecStop=/bin/sh -c 'for dev in /sys/bus/tee/devices/*; do case "$dev" in *optee-ta-*) basename "$dev" > "$dev"/driver/unbind;; esac done'
+ ExecStop=/usr/bin/pkill tee-supplicant
+ 
+ [Install]
+-- 
+2.35.3
+
