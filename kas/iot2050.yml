@@ -27,7 +27,7 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: ecc7cae423a828d294575301c1584fbe303cba3e
+    commit: 6b6c74411074e3d3a08f044e681c3f1216727b6e
     layers:
       meta:
     patches:
@@ -35,10 +35,12 @@ repos:
         path: isar-patches/0001-optee-client-Fix-native-arm64-build.patch
       02:
         path: isar-patches/0001-meta-optee-client-Generalize-and-update-shutdown-rul.patch
+      03:
+        path: isar-patches/0001-dpkg-source-Drop-I-filter.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    commit: 7d3a05b3351726c5c76912f5c73d4720f4a46b18
+    commit: 3d8e24c0cc6cb811b57648bd356bce2ae5e94795
 
 local_conf_header:
   standard: |
