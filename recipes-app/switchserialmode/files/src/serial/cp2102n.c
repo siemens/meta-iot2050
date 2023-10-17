@@ -242,7 +242,7 @@ static void cp2102n_hardware_reset(void)
     */
     if (ADVANCED_BOARD_PG1 != get_board_type()) {
         gpio_set("CP2102N-RESET", 0);
-        usleep(30 * 1000);
+        sleep(1);
         gpio_set("CP2102N-RESET", 1);
         sleep(1);
     }
