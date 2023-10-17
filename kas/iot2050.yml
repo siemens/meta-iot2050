@@ -27,16 +27,13 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: 83644ddf694e51f11793e6107e4aaf68dc0043a5
+    commit: 30471bb3f787fb0aa822d15e141ecce2f3b99860
     layers:
       meta:
-    patches:
-      01:
-        path: isar-patches/0001-dpkg-source-Drop-I-filter.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    commit: 15d0f975af69903bf18e9930c7e232ca156841b3
+    commit: 04ea9de0181e72961491f28c294172178efe474a
 
 local_conf_header:
   standard: |
