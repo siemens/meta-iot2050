@@ -15,6 +15,7 @@ SRC_URI += " \
     file://0001-Watchdog-Support-WDIOF_CARDRESET-on-TI-AM65x-platfor.patch \
     file://0002-tools-iot2050-sign-fw.sh-Make-localization-of-tools-.patch \
     file://0003-board-siemens-iot2050-Fix-logical-bug-in-PG1-PG2-det.patch \
+    file://0004-board-siemens-iot2050-Fix-M.2-detection.patch \
     "
 
 SRC_URI[sha256sum] = "e00e6c6f014e046101739d08d06f328811cebcf5ae101348f409cbbd55ce6900"
