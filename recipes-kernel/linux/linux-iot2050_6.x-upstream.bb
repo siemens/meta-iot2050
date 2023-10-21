@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2021
+# Copyright (c) Siemens AG, 2020-2023
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -11,12 +11,11 @@
 require recipes-kernel/linux/linux-custom.inc
 
 SRC_URI += " \
-    git://github.com/siemens/linux.git;protocol=https;branch=${KERNEL_BRANCH};rev=${KERNEL_BRANCH} \
+    git://github.com/siemens/linux.git;protocol=https;branch=jan/iot2050 \
     file://${KERNEL_DEFCONFIG} \
     file://iot2050_defconfig_extra.cfg \
     "
-
-KERNEL_BRANCH = "jan/iot2050"
+SRCREV = "${AUTOREV}"
 
 KERNEL_DEFCONFIG = "iot2050_defconfig_base"
 
