@@ -1,0 +1,23 @@
+#
+# Copyright (c) Siemens AG, 2023
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+[Unit]
+Description=IOT2050 Event Record daemon
+After=iot2050-event-serve.service iot2050-eiod.service
+Requires=iot2050-event-serve.service
+Wants=iot2050-eiod.service
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/iot2050-event-record
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target
