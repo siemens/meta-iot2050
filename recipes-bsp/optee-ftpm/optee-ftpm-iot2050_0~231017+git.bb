@@ -13,11 +13,11 @@ SRC_URI += " \
     file://0001-add-enum-to-ta-flags.patch \
     "
 
-SRCREV = "f74c0d9686625c02b0fdd5b2bbe792a22aa96cb6"
-SRCREV-wolfssl = "3b3c175af0e993ffaae251871421e206cc41963f"
+SRCREV = "e9fc7b89d865536c46deb63f9c7d0121a3ded49c"
+SRCREV-wolfssl = "9db828a099bda150a4595cf89954c15877947039"
 
-SRC_URI[sha256sum] = "16fabc6ad6cc700d947dbc96efc30ff8ae97e577944466f08193bb37bc1eb64d"
-SRC_URI[wolfssl.sha256sum] = "1157994b12295b74754dd9054124c857c59093b762e6f744d0a3a3565cb6314d"
+SRC_URI[sha256sum] = "b77d092c0dde362adf6bc88a580ca7c8abe124d69bb734bf28f8904ae30494a4"
+SRC_URI[wolfssl.sha256sum] = "18f77959daf2a7995757cc7e6c86efe513aa6e355e4770bba6d36bf677fe88df"
 
 S = "${WORKDIR}/ms-tpm-20-ref-${SRCREV}"
 
