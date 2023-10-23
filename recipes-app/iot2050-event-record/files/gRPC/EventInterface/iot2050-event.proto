@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) Siemens AG, 2023
+ *
+ * Authors:
+ *   Li Hua Qian <huaqian.li@siemens.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+syntax = "proto3";
+
+package eventrecord;
+
+service EventRecord {
+  rpc Write (WriteRequest) returns (WriteReply) {}
+  rpc Read (ReadRequest) returns (ReadReply) {}
+}
+
+/* ----------------- Write event ----------------- */
+/* WriteRequest
+ * - event_type: a string to present event type
+ *     - "IOT2050_EVENT.xxx" means IOT2050 standard events
+ *     - "" or other strings mean customized events
+ * - event: the event content to write
+ */
+message WriteRequest {
+  string event_type = 1;
+  string event = 2;
+}
+
+/* WriteReply
+ * - status: 0 means successful
+ *           others mean error
+ * - message: the detail write message
+ */
+message WriteReply {
+  int32 status = 1;
+  string message = 2;
+}
+
+/* ----------------- Read event ----------------- */
+/* ReadRequest
+ * - event_type: a string to present event type
+ *     - "IOT2050_EVENT.xxx" means IOT2050 standard events
+ *     - "" means to all types of events
+ */
+message ReadRequest {
+  string  event_type = 1;
+}
+
+/* ReadReply
+ * - status: 0 means successful
+ *           others mean error
+ * - message: the detail write message
+ * - event: the read back event content
+ */
+message ReadReply {
+  int32 status = 1;
+  string message = 2;
+  string event = 3;
+}

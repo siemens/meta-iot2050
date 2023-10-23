@@ -43,6 +43,7 @@ IMAGE_INSTALL += " \
     tee-supplicant \
     iot2050-eio-manager \
     iot2050-conf-webui \
+    iot2050-event-record \
     "
 
 IOT2050_NODE_RED_SUPPORT ?= "1"
