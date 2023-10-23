@@ -42,6 +42,7 @@ IMAGE_INSTALL += " \
     optee-client-dev \
     tee-supplicant \
     iot2050-eio-manager \
+    iot2050-conf-webui \
     "
 
 IOT2050_NODE_RED_SUPPORT ?= "1"
