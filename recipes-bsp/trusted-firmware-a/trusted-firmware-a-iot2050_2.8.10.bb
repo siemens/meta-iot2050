@@ -10,10 +10,10 @@
 
 require recipes-bsp/trusted-firmware-a/trusted-firmware-a-custom.inc
 
-SRC_URI += "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${PV}.tar.gz"
-SRC_URI[sha256sum] = "76a66a1de0c01aeb83dfc7b72b51173fe62c6e51d6fca17cc562393117bed08b"
+SRC_URI += "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-lts-v${PV}.tar.gz"
+SRC_URI[sha256sum] = "e089b6f91fb205e3a0489d4905e51631b6ce667af6bc4ab0a0143fe2b48b0db8"
 
-S = "${WORKDIR}/trusted-firmware-a-${PV}"
+S = "${WORKDIR}/trusted-firmware-a-lts-v${PV}"
 
 TF_A_NAME = "iot2050"
 TF_A_PLATFORM = "k3"
