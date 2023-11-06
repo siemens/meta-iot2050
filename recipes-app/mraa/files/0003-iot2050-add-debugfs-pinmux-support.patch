@@ -17,12 +17,12 @@ Note: In case debugfs mux fails MRAA falls back to mmap mux.
 
 Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
 ---
- src/arm/siemens/iot2050.c  | 547 ++++++++++++++++++++++++++++++++++++-
+ src/arm/siemens/iot2050.c  | 548 ++++++++++++++++++++++++++++++++++++-
  src/arm/siemens/platform.c |   4 +-
- 2 files changed, 540 insertions(+), 11 deletions(-)
+ 2 files changed, 541 insertions(+), 11 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index cec25faf0547..c63400d6b692 100644
+index cec25faf0547..c741875a2376 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -24,6 +24,7 @@
@@ -43,7 +43,7 @@ index cec25faf0547..c63400d6b692 100644
  }regmux_info_t;
  
  static void *pinmux_instance = NULL;
-@@ -75,30 +79,126 @@ iot2050_get_regmux_by_pinmap(int pinmap)
+@@ -75,30 +79,127 @@ iot2050_get_regmux_by_pinmap(int pinmap)
      return NULL;
  }
  
@@ -76,13 +76,14 @@ index cec25faf0547..c63400d6b692 100644
 +
 +    switch (gpio_mode) {
 +        case MRAA_GPIO_PULLUP:
-+            snprintf(mux, MRAA_PIN_NAME_SIZE, "%s-%s", group, "pullup");
++            snprintf(mux, MRAA_PIN_NAME_SIZE, "%s-%s-pins", group, "pullup");
 +            break;
 +        case MRAA_GPIO_PULLDOWN:
-+            snprintf(mux, MRAA_PIN_NAME_SIZE, "%s-%s", group, "pulldown");
++            snprintf(mux, MRAA_PIN_NAME_SIZE, "%s-%s-pins", group, "pulldown");
 +            break;
 +        default:
-+            strncpy(mux, group, MRAA_PIN_NAME_SIZE);
++            snprintf(mux, MRAA_PIN_NAME_SIZE, "%s-pins", group);
++            break;
 +    }
 +
 +    syslog(LOG_DEBUG, "iot2050: debugfs: group: %s, function: %s\n", mux, mux);
@@ -176,7 +177,7 @@ index cec25faf0547..c63400d6b692 100644
  }
  
  static mraa_result_t
-@@ -172,7 +272,10 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -172,7 +273,10 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
                  goto failed;
              }
              if(info) {
@@ -188,7 +189,7 @@ index cec25faf0547..c63400d6b692 100644
              }
              break;
          case MRAA_GPIO_PULLDOWN:
-@@ -181,7 +284,9 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -181,7 +285,9 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
                  goto failed;
              }
              if(info) {
@@ -199,7 +200,7 @@ index cec25faf0547..c63400d6b692 100644
              }
              break;
          case MRAA_GPIO_HIZ:
-@@ -191,7 +296,9 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -191,7 +297,9 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
                  goto failed;
              }
              if(info) {
@@ -210,7 +211,7 @@ index cec25faf0547..c63400d6b692 100644
              }
              break;
          case MRAA_GPIOD_ACTIVE_LOW:
-@@ -455,7 +562,7 @@ mraa_siemens_iot2050()
+@@ -455,7 +563,7 @@ mraa_siemens_iot2050()
          free(b->adv_func);
          goto error;
      }
@@ -219,7 +220,7 @@ index cec25faf0547..c63400d6b692 100644
      /* IO */
      iot2050_setup_pins(b, pin_index, "IO0",
                          (mraa_pincapabilities_t) {
-@@ -477,6 +584,27 @@ mraa_siemens_iot2050()
+@@ -477,6 +585,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -247,7 +248,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
  
-@@ -510,6 +638,27 @@ mraa_siemens_iot2050()
+@@ -510,6 +639,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -275,7 +276,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 30, d4201_gpio_base+1, d4202_gpio_base+1, NULL, 0);
-@@ -542,6 +691,27 @@ mraa_siemens_iot2050()
+@@ -542,6 +692,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -303,7 +304,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 31, d4201_gpio_base+2, d4202_gpio_base+2, NULL, 0);
-@@ -574,6 +744,27 @@ mraa_siemens_iot2050()
+@@ -574,6 +745,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -331,7 +332,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 33, d4201_gpio_base+3, d4202_gpio_base+3, NULL, 0);
-@@ -606,6 +797,27 @@ mraa_siemens_iot2050()
+@@ -606,6 +798,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  5   /*PWM*/
@@ -359,7 +360,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 33, d4201_gpio_base+4, d4202_gpio_base+4, NULL, 0);
-@@ -638,6 +850,27 @@ mraa_siemens_iot2050()
+@@ -638,6 +851,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  5   /*PWM*/
@@ -387,7 +388,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 35, d4201_gpio_base+5, d4202_gpio_base+5, NULL, 0);
-@@ -670,6 +903,27 @@ mraa_siemens_iot2050()
+@@ -670,6 +904,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  5   /*PWM*/
@@ -415,7 +416,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 38, d4201_gpio_base+6, d4202_gpio_base+6, NULL, 0);
-@@ -702,6 +956,27 @@ mraa_siemens_iot2050()
+@@ -702,6 +957,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  5   /*PWM*/
@@ -443,7 +444,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 43, d4201_gpio_base+7, d4202_gpio_base+7, NULL, 0);
-@@ -734,6 +1009,27 @@ mraa_siemens_iot2050()
+@@ -734,6 +1010,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  5   /*PWM*/
@@ -471,7 +472,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 48, d4201_gpio_base+8, d4202_gpio_base+8, NULL, 0);
-@@ -766,6 +1062,27 @@ mraa_siemens_iot2050()
+@@ -766,6 +1063,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  5   /*PWM*/
@@ -499,7 +500,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 51, d4201_gpio_base+9, d4202_gpio_base+9, NULL, 0);
-@@ -798,6 +1115,27 @@ mraa_siemens_iot2050()
+@@ -798,6 +1116,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  0, /*SPI*/
                                  -1  /*PWM*/
@@ -527,7 +528,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 51, d4201_gpio_base+10, d4202_gpio_base+10, NULL, 0);
-@@ -830,6 +1168,27 @@ mraa_siemens_iot2050()
+@@ -830,6 +1169,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  0, /*SPI*/
                                  -1  /*PWM*/
@@ -555,7 +556,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 49, d4201_gpio_base+11, d4202_gpio_base+11, NULL, 0);
-@@ -862,6 +1221,27 @@ mraa_siemens_iot2050()
+@@ -862,6 +1222,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  0, /*SPI*/
                                  -1  /*PWM*/
@@ -583,7 +584,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 50, d4201_gpio_base+12, d4202_gpio_base+12, NULL, 0);
-@@ -894,6 +1274,27 @@ mraa_siemens_iot2050()
+@@ -894,6 +1275,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  0, /*SPI*/
                                  -1  /*PWM*/
@@ -611,7 +612,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 48, d4201_gpio_base+13, d4202_gpio_base+13, NULL, 0);
-@@ -926,6 +1327,27 @@ mraa_siemens_iot2050()
+@@ -926,6 +1328,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -639,7 +640,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      mux_info[0].pin = d4200_gpio_base+8;
-@@ -971,6 +1393,27 @@ mraa_siemens_iot2050()
+@@ -971,6 +1394,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -667,7 +668,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      mux_info[0].pin = d4200_gpio_base+9;
-@@ -1016,6 +1459,27 @@ mraa_siemens_iot2050()
+@@ -1016,6 +1460,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -695,7 +696,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      mux_info[0].pin = d4200_gpio_base+10;
-@@ -1061,6 +1525,27 @@ mraa_siemens_iot2050()
+@@ -1061,6 +1526,27 @@ mraa_siemens_iot2050()
                                  -1, /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -723,7 +724,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      mux_info[0].pin = d4200_gpio_base+11;
-@@ -1106,6 +1591,27 @@ mraa_siemens_iot2050()
+@@ -1106,6 +1592,27 @@ mraa_siemens_iot2050()
                                  0,  /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/
@@ -751,7 +752,7 @@ index cec25faf0547..c63400d6b692 100644
                              }
                          });
      mux_info[0].pin = d4200_gpio_base+12;
-@@ -1169,6 +1675,27 @@ mraa_siemens_iot2050()
+@@ -1169,6 +1676,27 @@ mraa_siemens_iot2050()
                                  0,  /*I2C*/
                                  -1, /*SPI*/
                                  -1  /*PWM*/

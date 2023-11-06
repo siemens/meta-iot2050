@@ -1,20 +1,47 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Jan Kiszka <jan.kiszka@siemens.com>
 Date: Sat, 27 Jun 2020 10:53:13 +0200
-Subject: [PATCH] arm64: dts: ti: iot2050: Add icssg-prueth nodes for PG1 and
- PG2 devices
+Subject: [PATCH] arm64: dts: ti: iot2050: Add icssg-prueth nodes for PG2
+ devices
 
-Add the required nodes to enable ICSSG SR1.0 and SR2.0 based prueth
-networking.
+Add the required nodes to enable ICSSG SR2.0 based prueth networking.
+
+As the driver still needs to be extended for SR1.0 support, keep related
+nodes disabled on PG1 devices.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-[Siemens patch from 5.10]
+[Taken from https://lore.kernel.org/lkml/565d31a5fd29c4dd0cf28e347049a1247a6e446c.1699087938.git.jan.kiszka@siemens.com/]
 ---
- .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 129 +++++++++++++++++-
- 1 file changed, 128 insertions(+), 1 deletion(-)
+ .../dts/ti/k3-am65-iot2050-common-pg1.dtsi    |  10 +-
+ .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 128 ++++++++++++++++++
+ 2 files changed, 137 insertions(+), 1 deletion(-)
 
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg1.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg1.dtsi
+index 51f902fa35a7..1d1979859583 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg1.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg1.dtsi
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Copyright (c) Siemens AG, 2021
++ * Copyright (c) Siemens AG, 2021-2023
+  *
+  * Authors:
+  *   Jan Kiszka <jan.kiszka@siemens.com>
+@@ -44,3 +44,11 @@ &tx_pru2_0 {
+ &tx_pru2_1 {
+ 	status = "disabled";
+ };
++
++&icssg0_eth {
++	status = "disabled";
++};
++
++&icssg0_mdio {
++	status = "disabled";
++};
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index 5644bc0a8dda..81cc6eb11797 100644
+index 75d87e6ebd66..9c1efee039f6 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 @@ -11,12 +11,15 @@
@@ -33,7 +60,7 @@ index 5644bc0a8dda..81cc6eb11797 100644
  	};
  
  	chosen {
-@@ -108,6 +111,80 @@ dp_refclk: clock {
+@@ -107,6 +110,76 @@ dp_refclk: clock {
  		#clock-cells = <0>;
  		clock-frequency = <19200000>;
  	};
@@ -77,15 +104,11 @@ index 5644bc0a8dda..81cc6eb11797 100644
 +		       <&main_udmap 0xc105>, /* egress slice 1 */
 +		       <&main_udmap 0xc106>, /* egress slice 1 */
 +		       <&main_udmap 0xc107>, /* egress slice 1 */
-+
 +		       <&main_udmap 0x4100>, /* ingress slice 0 */
-+		       <&main_udmap 0x4101>, /* ingress slice 1 */
-+		       <&main_udmap 0x4102>, /* mgmnt rsp slice 0 */
-+		       <&main_udmap 0x4103>; /* mgmnt rsp slice 1 */
++		       <&main_udmap 0x4101>; /* ingress slice 1 */
 +		dma-names = "tx0-0", "tx0-1", "tx0-2", "tx0-3",
 +			    "tx1-0", "tx1-1", "tx1-2", "tx1-3",
-+			    "rx0", "rx1",
-+			    "rxmgm0", "rxmgm1";
++			    "rx0", "rx1";
 +
 +		ethernet-ports {
 +			#address-cells = <1>;
@@ -114,19 +137,19 @@ index 5644bc0a8dda..81cc6eb11797 100644
  };
  
  &wkup_pmx0 {
-@@ -336,6 +413,43 @@ AM65X_IOPAD(0x0074, PIN_INPUT,  5)  /* (T27) I2C2_SCL */
+@@ -939,6 +1012,43 @@ AM65X_IOPAD(0x0074, PIN_INPUT,  5)  /* (T27) I2C2_SCL */
  			AM65X_IOPAD(0x0070, PIN_INPUT,  5)  /* (R25) I2C2_SDA */
  		>;
  	};
 +
-+	icssg0_mdio_pins_default: icssg0-mdio-pins-default {
++	icssg0_mdio_pins_default: icssg0-mdio-default-pins {
 +		pinctrl-single,pins = <
 +			AM65X_IOPAD(0x0294, PIN_INPUT, 0) /* (AE26) PRG0_MDIO0_MDIO */
 +			AM65X_IOPAD(0x0298, PIN_OUTPUT, 0) /* (AE28) PRG0_MDIO0_MDC */
 +		>;
 +	};
 +
-+	icssg0_rgmii_pins_default: icssg0-rgmii-pins-default {
++	icssg0_rgmii_pins_default: icssg0-rgmii-default-pins {
 +		pinctrl-single,pins = <
 +			AM65X_IOPAD(0x0244, PIN_INPUT, 2) /* (AB28) PRG0_PRU1_GPO0.PRG0_RGMII2_RD0 */
 +			AM65X_IOPAD(0x0248, PIN_INPUT, 2) /* (AC28) PRG0_PRU1_GPO1.PRG0_RGMII2_RD1 */
@@ -158,11 +181,13 @@ index 5644bc0a8dda..81cc6eb11797 100644
  };
  
  &main_pmx1 {
-@@ -789,7 +903,20 @@ &mcu_rti1 {
+@@ -1391,3 +1501,21 @@ &mcasp1 {
+ &mcasp2 {
+ 	status = "disabled";
  };
- 
- &icssg0_mdio {
--	status = "disabled";
++
++&icssg0_mdio {
++	status = "okay";
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&icssg0_mdio_pins_default>;
 +
@@ -177,6 +202,4 @@ index 5644bc0a8dda..81cc6eb11797 100644
 +		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 +		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 +	};
- };
- 
- &icssg1_mdio {
++};

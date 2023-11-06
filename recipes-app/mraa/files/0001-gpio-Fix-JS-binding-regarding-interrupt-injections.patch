@@ -20,7 +20,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 21 insertions(+), 16 deletions(-)
 
 diff --git a/api/mraa/gpio.hpp b/api/mraa/gpio.hpp
-index 8fc0881..c41d527 100644
+index 8fc08816217f..c41d52759376 100644
 --- a/api/mraa/gpio.hpp
 +++ b/api/mraa/gpio.hpp
 @@ -31,10 +31,10 @@
