@@ -14,10 +14,10 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  1 file changed, 10 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index 180bfb2a9ddf..46e7cc73b972 100644
+index a51e83484191..28f870c94150 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-@@ -64,6 +64,12 @@ rtos_ipc_memory_region: ipc-memories@a2000000 {
+@@ -63,6 +63,12 @@ rtos_ipc_memory_region: ipc-memories@a2000000 {
  			alignment = <0x1000>;
  			no-map;
  		};
@@ -30,8 +30,8 @@ index 180bfb2a9ddf..46e7cc73b972 100644
  	};
  
  	leds {
-@@ -772,6 +778,10 @@ &mcu_r5fss0_core1 {
- 	mboxes = <&mailbox0_cluster1 &mbox_mcu_r5fss0_core1>;
+@@ -770,6 +776,10 @@ &mcu_r5fss0_core1 {
+ 	mboxes = <&mailbox0_cluster1>, <&mbox_mcu_r5fss0_core1>;
  };
  
 +&mcu_rti1 {

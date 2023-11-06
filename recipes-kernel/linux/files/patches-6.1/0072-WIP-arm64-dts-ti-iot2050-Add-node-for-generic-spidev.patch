@@ -16,10 +16,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index 46e7cc73b972..5644bc0a8dda 100644
+index 9c1efee039f6..297ca29b8bae 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-@@ -582,6 +582,12 @@ &mcu_spi0 {
+@@ -1278,6 +1278,12 @@ &mcu_spi0 {
  	#address-cells = <1>;
  	#size-cells = <0>;
  	ti,pindir-d0-out-d1-in;
