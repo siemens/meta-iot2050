@@ -19,6 +19,7 @@ REGULAR_NODE_RED_PACKAGES = " \
     node-red-contrib-s7 \
     node-red-node-serialport \
     node-red-node-sqlite \
+    node-red-node-random \
     "
 
 NODE_RED_PACKAGES = " \
