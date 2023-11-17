@@ -1,0 +1,17 @@
+{
+  "name": "root",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "dependencies": {
+        "node-red-node-random": "^0.4.1"
+      }
+    },
+    "node_modules/node-red-node-random": {
+      "version": "0.4.1",
+      "resolved": "https://registry.npmjs.org/node-red-node-random/-/node-red-node-random-0.4.1.tgz",
+      "integrity": "sha512-GwW0vJeEQNSEwshUQOwN0LMhmD5LQaBdT4I2WFR6yN0jU1baxtqH0ljQo1tCacb/KOi/cLWG6yxTS0AiQPNHIw=="
+    }
+  }
+}
