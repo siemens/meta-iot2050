@@ -17,6 +17,11 @@ SRC_URI += " \
     file://0003-board-siemens-iot2050-Fix-logical-bug-in-PG1-PG2-det.patch \
     file://0004-board-siemens-iot2050-Fix-M.2-detection.patch \
     file://0005-iot2050-Allow-for-more-than-1-USB-storage-device.patch \
+    file://0006-board-siemens-iot2050-Fix-coding-style.patch \
+    file://0007-board-siemens-iot2050-Control-pcie-power-for-all-var.patch \
+    file://0008-board-siemens-iot2050-Pass-DDR-size-from-FSBL.patch \
+    file://0009-board-siemens-iot2050-Generalize-the-fdt-fixup.patch \
+    file://0010-dts-iot2050-Support-new-IOT2050-SM-variant.patch \
     "
 
 SRC_URI[sha256sum] = "e00e6c6f014e046101739d08d06f328811cebcf5ae101348f409cbbd55ce6900"

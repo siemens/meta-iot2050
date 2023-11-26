@@ -1,0 +1,447 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 29 Nov 2023 23:35:51 +0800
+Subject: [PATCH] dts: iot2050: Support new IOT2050-SM variant
+
+the dts file for IOT2050-SM variant is copied from kernel side without
+any change.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ arch/arm/dts/Makefile                         |   4 +-
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi  |   2 +-
+ .../k3-am6548-iot2050-advanced-sm-u-boot.dtsi |   1 +
+ .../arm/dts/k3-am6548-iot2050-advanced-sm.dts | 346 ++++++++++++++++++
+ board/siemens/iot2050/board.c                 |  15 +-
+ 5 files changed, 365 insertions(+), 3 deletions(-)
+ create mode 120000 arch/arm/dts/k3-am6548-iot2050-advanced-sm-u-boot.dtsi
+ create mode 100644 arch/arm/dts/k3-am6548-iot2050-advanced-sm.dts
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 85fd5b1157b19a14a2ee908f1c62ce1e99c241c1..0edd5b73a414aaa000c93efe163d21a9ff91dc6c 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -1316,7 +1316,9 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
+ 	k3-am6548-iot2050-advanced-pg2.dtb \
+ 	k3-am6548-iot2050-advanced-m2.dtb \
+ 	k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dtbo \
+-	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo
++	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo \
++	k3-am6548-iot2050-advanced-sm.dtb
++
+ dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
+ 			      k3-j721e-r5-common-proc-board.dtb \
+ 			      k3-j7200-common-proc-board.dtb \
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 64318d09cf0a6f6b26daa5d74dfe04b163e0a4cc..3b991baac8eeace9e4f74a25db71ae013940a1a4 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -229,7 +229,7 @@
+ 		};
+ 
+ 		fit@380000 {
+-			fit,fdt-list-val = "k3-am6528-iot2050-basic-pg2", "k3-am6548-iot2050-advanced-pg2", "k3-am6548-iot2050-advanced-m2";
++			fit,fdt-list-val = "k3-am6528-iot2050-basic-pg2", "k3-am6548-iot2050-advanced-pg2", "k3-am6548-iot2050-advanced-m2", "k3-am6548-iot2050-advanced-sm";
+ 
+ 			images {
+ 				bkey-usb3-overlay {
+diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-sm-u-boot.dtsi b/arch/arm/dts/k3-am6548-iot2050-advanced-sm-u-boot.dtsi
+new file mode 120000
+index 0000000000000000000000000000000000000000..859776d3ffe1aa56bd34bb852326fa7ab74a9d69
+--- /dev/null
++++ b/arch/arm/dts/k3-am6548-iot2050-advanced-sm-u-boot.dtsi
+@@ -0,0 +1 @@
++k3-am6528-iot2050-basic-pg2-u-boot.dtsi
+\ No newline at end of file
+diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-sm.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-sm.dts
+new file mode 100644
+index 0000000000000000000000000000000000000000..deb25dcb75a57c279034d27dd4133225601e7b9d
+--- /dev/null
++++ b/arch/arm/dts/k3-am6548-iot2050-advanced-sm.dts
+@@ -0,0 +1,346 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) Siemens AG, 2023
++ *
++ * Authors:
++ *   Baocheng Su <baocheng.su@siemens.com>
++ *   Chao Zeng <chao.zeng@siemens.com>
++ *   Huaqian Li <huaqian.li@siemens.com>
++ *
++ * AM6548-based (quad-core) IOT2050 SM variant, Product Generation 2
++ * 4 GB RAM, 16 GB eMMC, USB-serial converter on connector X30
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
++ */
++
++/dts-v1/;
++
++#include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-common-pg2.dtsi"
++
++/ {
++	compatible = "siemens,iot2050-advanced-sm", "ti,am654";
++	model = "SIMATIC IOT2050 Advanced SM";
++
++	memory@80000000 {
++		device_type = "memory";
++		/* 4G RAM */
++		reg = <0x00000000 0x80000000 0x00000000 0x80000000>,
++		      <0x00000008 0x80000000 0x00000000 0x80000000>;
++	};
++
++	aliases {
++		spi1 = &main_spi0;
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&leds_pins_default &user1_led_pins>;
++
++		user-led1-red {
++			gpios = <&wkup_gpio0 52 GPIO_ACTIVE_HIGH>;
++		};
++
++		user-led1-green {
++			gpios = <&wkup_gpio0 53 GPIO_ACTIVE_HIGH>;
++		};
++	};
++};
++
++&mcu_r5fss0 {
++	/* lock-step mode not supported on this board */
++	ti,cluster-mode = <0>;
++};
++
++&main_pmx0 {
++	/delete-property/ pinctrl-names;
++	/delete-property/ pinctrl-0;
++	/delete-property/ pinctrl-1;
++	/delete-property/ pinctrl-2;
++	/delete-property/ pinctrl-3;
++	/delete-property/ pinctrl-4;
++	/delete-property/ pinctrl-5;
++	/delete-property/ pinctrl-6;
++	/delete-property/ pinctrl-7;
++	/delete-property/ pinctrl-8;
++	/delete-property/ pinctrl-9;
++	/delete-property/ pinctrl-10;
++	/delete-property/ pinctrl-11;
++	/delete-property/ pinctrl-12;
++	/delete-property/ pinctrl-13;
++	/delete-property/ pinctrl-14;
++	/delete-property/ pinctrl-15;
++	/delete-property/ pinctrl-16;
++	/delete-property/ pinctrl-17;
++	/delete-property/ pinctrl-18;
++	/delete-property/ pinctrl-19;
++	/delete-property/ pinctrl-20;
++	/delete-property/ pinctrl-21;
++	/delete-property/ pinctrl-22;
++	/delete-property/ pinctrl-23;
++	/delete-property/ pinctrl-24;
++
++	main_pcie_enable_pins_default: main-pcie-enable-default-pins {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01d8, PIN_OUTPUT, 7)  /* (AH12) GPIO1_22 */
++		>;
++	};
++
++	main_spi0_pins: main-spi0-default-pins  {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01c4, PIN_INPUT, 0) /* (AH13) SPI0_CLK */
++			AM65X_IOPAD(0x01c8, PIN_INPUT, 0) /* (AE13) SPI0_D0 */
++			AM65X_IOPAD(0x01cc, PIN_INPUT, 0) /* (AD13) SPI0_D1 */
++			AM65X_IOPAD(0x01bc, PIN_OUTPUT, 0) /* (AG13) SPI0_CS0 */
++		>;
++	};
++};
++
++&main_pmx1 {
++	asic_spi_mux_ctrl_pin: asic-spi-mux-ctrl-default-pins {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x0010, PIN_OUTPUT, 7)  /* (D21) GPIO1_86 */
++		>;
++	};
++};
++
++&wkup_pmx0 {
++	/delete-property/ pinctrl-names;
++	/delete-property/ pinctrl-0;
++	/delete-property/ pinctrl-1;
++	/delete-property/ pinctrl-2;
++	/delete-property/ pinctrl-3;
++	/delete-property/ pinctrl-4;
++	/delete-property/ pinctrl-5;
++	/delete-property/ pinctrl-6;
++	/delete-property/ pinctrl-7;
++	/delete-property/ pinctrl-8;
++	/delete-property/ pinctrl-9;
++	/delete-property/ pinctrl-10;
++	/delete-property/ pinctrl-11;
++	/delete-property/ pinctrl-12;
++	/delete-property/ pinctrl-13;
++	/delete-property/ pinctrl-14;
++	/delete-property/ pinctrl-15;
++	/delete-property/ pinctrl-16;
++	/delete-property/ pinctrl-17;
++	/delete-property/ pinctrl-18;
++	/delete-property/ pinctrl-19;
++	/delete-property/ pinctrl-20;
++	/delete-property/ pinctrl-21;
++	/delete-property/ pinctrl-22;
++	/delete-property/ pinctrl-23;
++	/delete-property/ pinctrl-24;
++	/delete-property/ pinctrl-25;
++	/delete-property/ pinctrl-26;
++	/delete-property/ pinctrl-27;
++	/delete-property/ pinctrl-28;
++	/delete-property/ pinctrl-29;
++	/delete-property/ pinctrl-30;
++	/delete-property/ pinctrl-31;
++	/delete-property/ pinctrl-32;
++	/delete-property/ pinctrl-33;
++	/delete-property/ pinctrl-34;
++	/delete-property/ pinctrl-35;
++	/delete-property/ pinctrl-36;
++	/delete-property/ pinctrl-37;
++	/delete-property/ pinctrl-38;
++	/delete-property/ pinctrl-39;
++	/delete-property/ pinctrl-40;
++	/delete-property/ pinctrl-41;
++	/delete-property/ pinctrl-42;
++	/delete-property/ pinctrl-43;
++	/delete-property/ pinctrl-44;
++	/delete-property/ pinctrl-45;
++	/delete-property/ pinctrl-46;
++	/delete-property/ pinctrl-47;
++	/delete-property/ pinctrl-48;
++	/delete-property/ pinctrl-49;
++	/delete-property/ pinctrl-50;
++
++	user1_led_pins: user1-led-default-pins {
++		pinctrl-single,pins = <
++			/* (AB1) WKUP_UART0_RXD:WKUP_GPIO0_52, as USER 1 led red */
++			AM65X_WKUP_IOPAD(0x00a0, PIN_OUTPUT, 7)
++			/* (AB5) WKUP_UART0_TXD:WKUP_GPIO0_53, as USER 1 led green */
++			AM65X_WKUP_IOPAD(0x00a4, PIN_OUTPUT, 7)
++		>;
++	};
++
++	soc_asic_pins: soc-asic-default-pins {
++		pinctrl-single,pins = <
++			AM65X_WKUP_IOPAD(0x0044, PIN_INPUT, 7)  /* (P4) WKUP_GPIO0_29 */
++			AM65X_WKUP_IOPAD(0x0048, PIN_INPUT, 7)  /* (P5) WKUP_GPIO0_30 */
++			AM65X_WKUP_IOPAD(0x004c, PIN_INPUT, 7)  /* (P1) WKUP_GPIO0_31 */
++		>;
++	};
++};
++
++&main_gpio0 {
++	gpio-line-names = "main_gpio0-base";
++};
++
++&main_gpio1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++		&cp2102n_reset_pin_default
++		&main_pcie_enable_pins_default
++		&asic_spi_mux_ctrl_pin
++	>;
++	gpio-line-names =
++		/* 0..9 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 10..19 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 20..29 */
++		"", "", "", "", "CP2102N-RESET", "", "", "", "", "",
++		/* 30..39 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 40..49 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 50..59 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 60..69 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 70..79 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 80..86 */
++		"", "", "", "", "", "", "ASIC-spi-mux-ctrl";
++};
++
++&wkup_gpio0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++		&push_button_pins_default
++		&db9_com_mode_pins_default
++		&soc_asic_pins
++	>;
++	gpio-line-names =
++		/* 0..9 */
++		"wkup_gpio0-base", "", "", "", "UART0-mode1", "UART0-mode0",
++		"UART0-enable", "UART0-terminate", "", "WIFI-disable",
++		/* 10..19 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 20..29 */
++		"", "", "", "", "", "USER-button", "", "", "","ASIC-gpio-0",
++		/* 30..31 */
++		"ASIC-gpio-1", "ASIC-gpio-2";
++};
++
++&main_spi0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_spi0_pins>;
++
++	#address-cells = <1>;
++	#size-cells= <0>;
++
++	spidev@0 {
++		compatible = "rohm,dh2228fv";
++		spi-max-frequency = <20000000>;
++		reg = <0>;
++	};
++};
++
++&mcu_spi0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcu_spi0_pins_default>;
++};
++
++&main_i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_i2c3_pins_default>;
++	clock-frequency = <400000>;
++
++	accelerometer: lsm6dso@6a {
++		compatible = "st,lsm6dso";
++		reg = <0x6a>;
++	};
++
++	lightsensor: pm16d17@44 {
++		compatible = "everlight,pm16d17";
++		reg = <0x44>;
++
++		ps-gain = <1>;
++		ps-itime = "0.4";
++		ps-wtime = "25";
++		ps-ir-led-pulse-count = <1>;
++	};
++
++	/delete-node/ edp-bridge@f;
++};
++
++/delete-node/ &pcal9535_1;
++/delete-node/ &pcal9535_2;
++/delete-node/ &pcal9535_3;
++
++&dss {
++	status = "disabled";
++};
++
++&dss_ports {
++	/delete-node/ port@1;
++};
++
++&ecap0 {
++	status = "disabled";
++};
++
++&mcu_uart0 {
++	status = "disabled";
++};
++
++&tscadc1 {
++	status = "disabled";
++};
++
++&serdes0 {
++	assigned-clocks = <&k3_clks 153 4>, <&serdes0 AM654_SERDES_CMU_REFCLK>;
++	assigned-clock-parents = <&k3_clks 153 8>, <&k3_clks 153 4>;
++};
++
++&serdes1 {
++	status = "disabled";
++};
++
++&pcie0_rc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&minipcie_pins_default>;
++
++	num-lanes = <1>;
++	phys = <&serdes0 PHY_TYPE_PCIE 1>;
++	phy-names = "pcie-phy0";
++	reset-gpios = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
++	status = "okay";
++};
++
++&pcie0_ep {
++	status = "disabled";
++};
++
++&pcie1_rc {
++	status = "disabled";
++};
++
++&pcie1_ep {
++	status = "disabled";
++};
++
++&dwc3_0 {
++	assigned-clock-parents = <&k3_clks 151 4>,  /* set REF_CLK to 20MHz i.e. PER0_PLL/48 */
++				 <&k3_clks 151 9>;  /* set PIPE3_TXB_CLK to CLK_12M_RC/256 (for HS only) */
++	/delete-property/ phys;
++	/delete-property/ phy-names;
++};
++
++&usb0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++		&usb0_pins_default
++	>;
++
++	maximum-speed = "high-speed";
++	/delete-property/ snps,dis-u1-entry-quirk;
++	/delete-property/ snps,dis-u2-entry-quirk;
++};
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 8b3515c81c4ce508a7a1ff9e19948a677f2e58ba..f33f59684b4e853b7e40111305d1fc1274cbc3bd 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -174,6 +174,14 @@ static bool board_is_m2(void)
+ 		strcmp((char *)info->name, "IOT2050-ADVANCED-M2") == 0;
+ }
+ 
++static bool board_is_sm(void)
++{
++	struct iot2050_info *info = IOT2050_INFO_DATA;
++
++	return info->magic == IOT2050_INFO_MAGIC &&
++		strcmp((char *)info->name, "IOT2050-ADVANCED-SM") == 0;
++}
++
+ static void remove_mmc1_target(void)
+ {
+ 	char *boot_targets = strdup(env_get("boot_targets"));
+@@ -189,7 +197,10 @@ static void remove_mmc1_target(void)
+ 
+ static void enable_pcie_connector_power(void)
+ {
+-	set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
++	if (board_is_sm())
++		set_pinvalue("gpio@601000_22", "P3V3_PCIE_CON_EN", 1);
++	else
++		set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
+ 	udelay(4 * 100);
+ }
+ 
+@@ -230,6 +241,8 @@ void set_board_info_env(void)
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
+ 		else if (board_is_m2())
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
++		else if (board_is_sm())
++			fdtfile = "ti/k3-am6548-iot2050-advanced-sm.dtb";
+ 		else
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
+ 	} else {

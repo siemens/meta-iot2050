@@ -1,0 +1,109 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 29 Nov 2023 23:16:15 +0800
+Subject: [PATCH] board: siemens: iot2050: Pass DDR size from FSBL
+
+Due to new DDR size introduction, the current logic of determining the
+DDR size is not able to get the correct size.
+
+Instead, the DDR size is determined by the FSBL(SEBOOT) then passed to
+u-boot through the scratchpad info.
+
+The SEBoot version must be >= D/V01.04.0x.0x to support this change.
+
+Also now for some variants, the DDR size may > 2GB, so borrow some code
+from the TI evm to iot2050 to support more than 2GB DDR.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ board/siemens/iot2050/board.c | 45 ++++++++++++++++++++++++++++-------
+ include/configs/iot2050.h     |  3 +++
+ 2 files changed, 39 insertions(+), 9 deletions(-)
+
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index b83d5f8669e87db05935e826e431a647b5056987..ca1e1336bbd7ecf45d52cf2cda7ca576f1ce4925 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -38,6 +38,8 @@ struct iot2050_info {
+ 	u8 mac_addr_cnt;
+ 	u8 mac_addr[8][ARP_HLEN];
+ 	char seboot_version[40 + 1];
++	u8 padding[3];
++	u32 ddr_size_mb;
+ } __packed;
+ 
+ /*
+@@ -341,25 +343,50 @@ int board_init(void)
+ 
+ int dram_init(void)
+ {
+-	if (board_is_advanced())
++	struct iot2050_info *info = IOT2050_INFO_DATA;
++#ifdef CONFIG_PHYS_64BIT
++	gd->ram_size = ((phys_size_t)(info->ddr_size_mb)) << 20;
++#else
++	if (info->ddr_size_mb > 2048)
+ 		gd->ram_size = SZ_2G;
+ 	else
+-		gd->ram_size = SZ_1G;
+-
++		gd->ram_size = ((phys_size_t)(info->ddr_size_mb)) << 20;
++#endif
+ 	return 0;
+ }
+ 
++ulong board_get_usable_ram_top(ulong total_size)
++{
++#ifdef CONFIG_PHYS_64BIT
++	/* Limit RAM used by U-Boot to the DDR low region */
++	if (gd->ram_top > 0x100000000)
++		return 0x100000000;
++#endif
++
++	return gd->ram_top;
++}
++
+ int dram_init_banksize(void)
+ {
+ 	dram_init();
+ 
+-	/* Bank 0 declares the memory available in the DDR low region */
+-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+-	gd->bd->bi_dram[0].size = gd->ram_size;
++	if (gd->ram_size > SZ_2G) {
++		/* Bank 0 declares the memory available in the DDR low region */
++		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
++		gd->bd->bi_dram[0].size = SZ_2G;
+ 
+-	/* Bank 1 declares the memory available in the DDR high region */
+-	gd->bd->bi_dram[1].start = 0;
+-	gd->bd->bi_dram[1].size = 0;
++		/* Bank 1 declares the memory available in the DDR high region */
++		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
++		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
++	} else {
++		/* Bank 0 declares the memory available in the DDR low region */
++		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
++		gd->bd->bi_dram[0].size = gd->ram_size;
++
++		/* Bank 1 declares the memory available in the DDR high region */
++		gd->bd->bi_dram[1].start = 0;
++		gd->bd->bi_dram[1].size = 0;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
+index 94a9c767882584f0115aa5ae2e58c442d14c5bfe..5e97ea0d9438e555daca7b3aababe5bf2dea6a3e 100644
+--- a/include/configs/iot2050.h
++++ b/include/configs/iot2050.h
+@@ -24,6 +24,9 @@
+ 	func(USB, usb, 2)
+ #endif
+ 
++/* DDR Configuration */
++#define CFG_SYS_SDRAM_BASE1		0x880000000
++
+ /*
+  * This defines all MMC devices, even if the basic variant has no mmc1.
+  * The non-supported device will be removed from the boot targets during

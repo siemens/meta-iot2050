@@ -20,7 +20,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index e35e55fb5de..0b0686e2628 100644
+index e35e55fb5de8018d658c948a8649675fc813aa4c..0b0686e2628b7dc7a01751d5a136d159740821a3 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
 @@ -155,19 +155,20 @@ static bool board_is_advanced(void)

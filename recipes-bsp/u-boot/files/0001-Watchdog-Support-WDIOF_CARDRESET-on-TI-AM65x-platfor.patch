@@ -13,7 +13,7 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  1 file changed, 11 insertions(+)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-common.dtsi b/arch/arm/dts/k3-am65-iot2050-common.dtsi
-index 65da226847f..b6135b849f1 100644
+index 65da226847f45b594e9c7c251b298fee5933406b..b6135b849f1ac22ad263550069600a067a763794 100644
 --- a/arch/arm/dts/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-common.dtsi
 @@ -64,6 +64,12 @@
