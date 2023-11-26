@@ -12,7 +12,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
-index 6b426c854c2..75ffd560823 100755
+index 6b426c854c20..75ffd560823c 100755
 --- a/tools/iot2050-sign-fw.sh
 +++ b/tools/iot2050-sign-fw.sh
 @@ -5,6 +5,8 @@ if [ -z "$1" ]; then

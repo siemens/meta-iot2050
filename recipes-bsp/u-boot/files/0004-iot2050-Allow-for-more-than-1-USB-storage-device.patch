@@ -14,7 +14,7 @@ Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 9 insertions(+)
 
 diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
-index 4968722d18f..94a9c767882 100644
+index 4968722d18f6..94a9c7678825 100644
 --- a/include/configs/iot2050.h
 +++ b/include/configs/iot2050.h
 @@ -15,6 +15,15 @@
