@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Fri, 1 Dec 2023 19:25:47 +0800
+Subject: [PATCH] arm64: dts: ti: iot2050: Disable R5 lockstep for all PG2
+ boards
+
+The R5 lockstep disabling should be common for all PG2 boards, move it
+from variants dts to common-pg2.dtsi.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi    | 5 +++++
+ arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts  | 5 -----
+ arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts | 5 -----
+ 3 files changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
+index e9b57b87e42e..f6916efeb619 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
+@@ -9,6 +9,11 @@
+  * Common bits of the IOT2050 Basic and Advanced variants, PG2
+  */
+ 
++&mcu_r5fss0 {
++	/* lock-step mode not supported on PG2 boards */
++	ti,cluster-mode = <0>;
++};
++
+ &main_pmx0 {
+ 	cp2102n_reset_pin_default: cp2102n-reset-default-pins {
+ 		pinctrl-single,pins = <
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
+index bd6f2e696e94..1e5d4d98b69b 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
+@@ -21,11 +21,6 @@ / {
+ 	model = "SIMATIC IOT2050 Advanced M2";
+ };
+ 
+-&mcu_r5fss0 {
+-	/* lock-step mode not supported on this board */
+-	ti,cluster-mode = <0>;
+-};
+-
+ &main_pmx0 {
+ 	main_bkey_pcie_reset: main-bkey-pcie-reset-default-pins {
+ 		pinctrl-single,pins = <
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
+index f00dc86d01b9..d17ff4abd0a0 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
+@@ -22,8 +22,3 @@ / {
+ 	compatible = "siemens,iot2050-advanced-pg2", "ti,am654";
+ 	model = "SIMATIC IOT2050 Advanced PG2";
+ };
+-
+-&mcu_r5fss0 {
+-	/* lock-step mode not supported on this board */
+-	ti,cluster-mode = <0>;
+-};
