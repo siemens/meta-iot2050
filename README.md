@@ -228,3 +228,14 @@ command can be used:
 ```shell
 $ fw_setenv -f /etc/u-boot-initial-env
 ```
+
+## Contributing
+
+### patch file format
+
+When using git patch files to add functionality or fix bugs for packages, for
+example for linux kernel or u-boot, please use below command to generate patch:
+
+```shell
+git format-patch --full-index --no-numbered --zero-commit --no-signature ...
+```
