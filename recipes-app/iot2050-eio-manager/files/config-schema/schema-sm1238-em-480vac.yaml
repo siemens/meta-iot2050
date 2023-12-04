@@ -17,7 +17,7 @@ properties:
     const: "6ES7238-5XA32-0XB0"
 
   module_version:
-    enum: [32, 112, 224, 225, 226, 227]
+    enum: [32, 112]
 
   con_type:
     enum: [0x00, 0x0B, 0x0C, 0x0E, 0x0F, 0x10]
@@ -150,46 +150,6 @@ allOf:
             0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7,
             0xF5, 0xF0, 0xEF, 0xE2, 0xE1, 0xE0, 0x9F, 0x9E,
             0x9D, 0x9C]
-
-  # EE@Industry measured data e0
-  - if:
-      properties:
-        module_version:
-          const: 224
-    then:
-      properties:
-        data_variant:
-          const: 0xE0
-
-  # EE@Industry measured data e1
-  - if:
-      properties:
-        module_version:
-          const: 225
-    then:
-      properties:
-        data_variant:
-          const: 0xE1
-
-  # EE@Industry measured data e2
-  - if:
-      properties:
-        module_version:
-          const: 226
-    then:
-      properties:
-        data_variant:
-          const: 0xE2
-
-  # EE@Industry measured data e3
-  - if:
-      properties:
-        module_version:
-          const: 227
-    then:
-      properties:
-        data_variant:
-          const: 0xE3
 
 required:
   - mlfb

@@ -25,10 +25,6 @@ description: |
         value options:
           - 32: 32 bytes I/ 12 bytes O
           - 112: 112 bytes I/ 12 bytes O
-          - 224: EE@Industry measurement data profiles e0
-          - 225: EE@Industry measurement data profiles e1
-          - 226: EE@Industry measurement data profiles e2
-          - 227: EE@Industry measurement data profiles e3
   
     - con_type:
         Connection type of the phases
