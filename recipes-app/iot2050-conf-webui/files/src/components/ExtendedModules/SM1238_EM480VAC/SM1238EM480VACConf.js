@@ -146,11 +146,7 @@ const converter = new ConfTextConverter(yamlUIMapping);
 
 const modVerSelection = [
   uiString.MOD_VER_32,
-  uiString.MOD_VER_112,
-  uiString.MOD_VER_224,
-  uiString.MOD_VER_225,
-  uiString.MOD_VER_226,
-  uiString.MOD_VER_227
+  uiString.MOD_VER_112
 ];
 
 const conTypeSelection = [
