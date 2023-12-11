@@ -26,6 +26,15 @@ and review all changes we merge to master.
 We appreciate any contributions, so please use the [Forking Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow)
 and send us `Merge Requests`. 
 
+### Patch files generation
+
+Some components may use git patch files to add functionality or fix bugs, such
+as linux kernel or u-boot. Please use the command below to generate such patches:
+
+```shell
+git format-patch --abbrev=12 --no-numbered --zero-commit --no-signature ...
+```
+
 ## Developer's Certificate of Origin 1.1
 
 In order to pass the checks, commit with signoff option
