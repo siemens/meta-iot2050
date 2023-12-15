@@ -31,12 +31,12 @@ config IMAGE_SWUPDATE
 	  partition layout to an A/B rootfs.
 
 config IMAGE_BOOT
-	bool "Firmware image for PG1, PG2 and M.2 devices"
+	bool "Firmware images"
 	help
 	  Build firmware images that are responsible for booting IOT2050
 	  devices. Two artifacts are generated: iot2050-pg1-image-boot.bin
 	  for Product Generation 1 devices and iot2050-pg2-image-boot.bin for
-	  Product Generation 2 devices, including M.2 variants.
+	  Product Generation 2 devices, including M.2 and SM variants.
 
 	  WARNING: Do not flash this image onto your device unless you know
 	  that it fits AND you have an external flash programmer at hand that
