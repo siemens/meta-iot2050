@@ -22,8 +22,7 @@ the second keys is leaked as well, user can switch to use this key.
 ```shell
 openssl req -x509 -newkey rsa:4096 -keyout custMpk.pem -nodes -outform pem -out custMpk.crt -sha256
 openssl req -x509 -newkey rsa:4096 -keyout custSmpk.pem -nodes -outform pem -out custSmpk.crt -sha256
-# optional the third key
-#openssl req -x509 -newkey rsa:4096 -keyout custBmpk.pem -nodes -outform pem -out custBmpk.crt -sha256
+openssl req -x509 -newkey rsa:4096 -keyout custBmpk.pem -nodes -outform pem -out custBmpk.crt -sha256
 ```
 
 > :warning:
@@ -155,7 +154,7 @@ Above options could also be achieved by:
 
 Then 
 
-- select `Firmware image for PG2 devices` as the `Image type`
+- select `Firmware images` as the `Image type`
 - check `Secure boot` and `OTP provisioning` in `Image features`
 - select among `OTP provisioning command type`
 
