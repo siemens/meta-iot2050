@@ -74,7 +74,7 @@ class EIOFirmware():
     MAP3_CERTIFICATE_OFFSET = MAP3_FLASH_SIZE_1_MB - 32 * 1024
 
     def __init__(self, firmware):
-        self.firmware = open(firmware, "rb")
+        self.firmware = firmware
 
         self.chip = gpiod.Chip("/dev/gpiochip2")
         self.spi_mux_pin = self.chip.get_line(86)
@@ -95,8 +95,7 @@ class EIOFirmware():
         read_buffer = ctypes.create_string_buffer(self.MAP3_FLASH_SIZE_1_MB)
         self.flash_prog.read(read_buffer, self.MAP3_FLASH_SIZE_1_MB)
 
-        self.firmware.seek(0)
-        write_firmware = self.firmware.read()
+        write_firmware = self.firmware
         # Firmware and certificate partitions are required, other
         # partitions are reserved.
         write_firmware = write_firmware[:self.MAP3_FIRMWARE_SIZE] \
@@ -128,7 +127,6 @@ class EIOFirmware():
         self.spi_mux_pin.release()
         if hasattr(self, "flash_prog") and self.flash_prog:
             self.flash_prog.release()
-        self.firmware.close()
 
 
 class FirmwareUpdate():
@@ -136,9 +134,13 @@ class FirmwareUpdate():
     The FirmwareUpdate models the firmware updating behavior for all
     firmware update.
     """
-    def __init__(self, firmware):
+    def __init__(self, firmware, firmware_type):
         self.firmwares = {}
-        self.firmwares["map3"] = EIOFirmware(firmware)
+        if 0 == firmware_type:
+            self.firmwares[firmware_type] = EIOFirmware(firmware)
+
+        if not self.firmwares:
+            raise UpgradeError("No valid firmware!")
 
     def update(self):
         """Update the firmware to the specified flash"""
@@ -180,7 +182,7 @@ class FirmwareUpdateChecker():
         Returns:
             tuple[int, str]:
                 The 1st int element indicates the firmware status:
-                
+
                 - 0: means no need to update
                 - 1: means firmware need update.
                 - 2: means firmware need update, however, the firmware
@@ -208,9 +210,9 @@ class FirmwareUpdateChecker():
         return status, message
 
 
-def update_firmware(firmware):
+def update_firmware(firmware, entity):
     try:
-        FirmwareUpdate(firmware).update()
+        FirmwareUpdate(firmware, entity).update()
         return 0, "Firmware upgrade successfully!"
     except UpgradeError as e:
         return 1, e
