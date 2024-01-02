@@ -12,7 +12,7 @@ inherit dpkg-raw
 DESCRIPTION = "IOT2050 Extended IO Manager"
 MAINTAINER = "baocheng.su@siemens.com"
 
-SRC_URI = " \
+SRC_URI = "file://bin/iot2050-eiofsd \
     file://gRPC/EIOManager/iot2050_eio_pb2_grpc.py \
     file://gRPC/EIOManager/iot2050_eio_pb2.py \
     file://gRPC/EIOManager/iot2050_eio_pb2.pyi \
@@ -20,6 +20,7 @@ SRC_URI = " \
     file://iot2050_eio_global.py \
     file://iot2050-eio-service.py \
     file://iot2050-eiod.service \
+    file://iot2050-eiofsd.service \
     "
 
 DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv"
@@ -40,8 +41,12 @@ do_install() {
     install -v -m 755 ${WORKDIR}/iot2050-eio-service.py ${D}/usr/lib/iot2050/eio/
 
     install -v -d ${D}/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-eiofsd.service ${D}/lib/systemd/system/
     install -v -m 644 ${WORKDIR}/iot2050-eiod.service ${D}/lib/systemd/system/
 
     install -v -d ${D}/usr/bin/
+    install -v -m 755 ${WORKDIR}/bin/iot2050-eiofsd ${D}/usr/bin/
     ln -sf ../lib/iot2050/eio/iot2050-eio-service.py ${D}/usr/bin/iot2050-eio-service
+
+    install -v -d ${D}/eiofs
 }

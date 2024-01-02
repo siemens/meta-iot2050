@@ -7,6 +7,9 @@ This subsystem is only valid on IOT2050-SM variant at the moment.
 
 The core is a RPC service implemented with the help of gPRC.
 
+In addition:
+ - A FUSE service for loading the eio file system.
+
 ## Regenerate the gRPC python modules if proto file changes:
 
 ```shell
