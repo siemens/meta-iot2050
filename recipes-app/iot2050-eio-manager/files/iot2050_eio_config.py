@@ -1,0 +1,315 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+import struct
+from abc import ABC, abstractmethod
+from typing import List, Dict
+import zlib
+import yaml
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+from jsonschema import RefResolver
+from jsonschema.exceptions import ValidationError
+from jsonschema import Draft202012Validator
+from iot2050_eio_global import (
+    EIO_FS_CONTROL,
+    EIO_FS_CONFIG,
+    eio_schema_top,
+    eio_schema_refs
+)
+
+
+class ModuleSerDes(ABC):
+    """Abstract class for module (de)/serializer"""
+    @abstractmethod
+    def __init__(self, mlfb):
+        self.mlfb = mlfb
+
+    @abstractmethod
+    def serialize(self, config: Dict) -> bytes:
+        """Serialize the configuration to data blob
+
+        Args:
+            config (Dict): configuration dict
+
+        Returns:
+            bytes: blob
+        """
+
+    @abstractmethod
+    def deserialize(self, blob: bytes) -> Dict:
+        """Deserialize the configuration from data blob
+
+        Args:
+            blob (bytes): data blob
+
+        Returns:
+            Dict: configuration
+        """
+
+
+class NoModSerDes(ModuleSerDes):
+    """No module configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+
+    def serialize(self, config: Dict) -> bytes:
+        return bytearray()
+
+    def deserialize(self, blob: bytes) -> Dict:
+        return {
+            "description": "No module for this slot",
+            "mlfb": self.mlfb
+        }
+
+
+class ModSerDesFactory(object):
+    @classmethod
+    def produce(cls, mlfb='NA') -> ModuleSerDes:
+        mlfb = mlfb.rstrip('\0')
+        return NoModSerDes(mlfb)
+
+
+class EIOConfigSerDes():
+    """Extended IO configuration serializer and deserializer
+    
+    The data struct of the binary format of the configuration data:
+
+    struct config_data {
+        char magic[4];      // must be 0x02, 0x00, 0x05, 0x00
+        uint32_t version;   // configuration data version
+        uint32_t blob_len;  // slots data blob length, in bytes
+        uint32_t checksum;  // crc32 checksum, use 0x0 as placeholder when calculating.
+        struct slot_blob blob[6];     // slots data blob
+    };
+
+    struct slot_blob {
+        uint32_t slot_blob_len;  // length of this slot blob, in bytes
+        char mlfb[20];           // ascii string of the mlfb
+        uint32_t version;        // slot configuration data version
+        uint8_t data[];          // real configuration data, module specific.
+    };
+
+    all the members of both structs are in big-endian.
+    """
+
+    @staticmethod
+    def _calc_checksum(blob: bytes) -> int:
+        new_blob = bytearray(blob)
+        struct.pack_into('>I', new_blob, 12, 0)
+        checksum = zlib.crc32(new_blob)
+        return checksum
+
+    @classmethod
+    def convert2blob(cls, config: Dict) -> bytes:
+        """Convert dict config data to blob format
+
+        Then the blob data could be deployed into the external IO controller.
+
+        Args:
+            config (Dict): Config data, which is normally read from yaml file or
+            passed in from webUI.
+
+        Returns:
+            bytes: Config data blob
+        """
+        pack_fmt_head = '> 4B 3I'
+        pack_fmt = pack_fmt_head
+        slot_pack_fmt_head = '> I 20s I'
+        slot_blobs = []
+        for i in range(1, 7):
+            slot_pack_fmt = slot_pack_fmt_head
+            slot_config = config[f"slot{i}"]
+            serdes = ModSerDesFactory.produce(slot_config['mlfb'])
+            slot_blob = serdes.serialize(slot_config)
+            slot_pack_fmt += f' {len(slot_blob)}s'
+
+            slot_blob = struct.pack(slot_pack_fmt,
+                len(slot_blob) + struct.calcsize(slot_pack_fmt_head),
+                bytes(slot_config['mlfb'], 'ascii'),
+                0x01,
+                slot_blob)
+            slot_blobs.append(slot_blob)
+            pack_fmt += f' {len(slot_blob)}s'
+
+        total_len = struct.calcsize(pack_fmt) - struct.calcsize(pack_fmt_head)
+
+        blob = bytearray(struct.pack(pack_fmt,
+            0x02, 0x00, 0x05, 0x00,
+            0x01,
+            total_len,
+            0, # Checksum placeholder
+            *slot_blobs))
+
+        # Updates the checksum
+        checksum = cls._calc_checksum(blob)
+        struct.pack_into('>I', blob, 12, checksum)
+        return bytes(blob)
+
+    @staticmethod
+    def _get_next_slot_blob(blob: bytes) -> List:
+        """Expand slots blob.
+        
+        Extract metadata such as blob length, mlfb, version, and slot
+        blob data of all slots.
+
+        Args:
+            blob (bytes): Blob data that contains zero or more slots.
+
+        Raises:
+            ValueError: The blob data is in bad integrity
+
+        Returns:
+            List: Each is a slot metadata tuple (length, mlfb, version,
+            slot_blob), the last element is an empty tuple ()
+        """
+        if len(blob) == 0:
+            return [()]
+        if len(blob) < (4 + 20 + 4):
+            raise ValueError('Blob size does not match, slot data corrupted!')
+        length, _ = struct.unpack(f'> I {len(blob) - 4}s', blob)
+        length, mlfb, version, slot_blob, blob_rest = struct.unpack(
+            f'> I 20s I {length - 20 - 8}s {len(blob) - length}s', blob)
+
+        return [(length, mlfb, version, slot_blob), *EIOConfigSerDes._get_next_slot_blob(blob_rest)]
+
+    @classmethod
+    def convert2config(cls, blob: bytes) -> Dict:
+        """Convert configration blob data to dict
+
+        Args:
+            blob (bytes): Configuration data in blob format
+
+        Raises:
+            ValueError: Blob size does not match, data corrupted
+
+        Returns:
+            Dict: Configration data in dict format, which could be
+            easily dumpped into yaml or json.
+        """
+        pack_fmt_head = '> 4B 3I'
+        slots_size = len(blob) - struct.calcsize(pack_fmt_head)
+        unpack_fmt = pack_fmt_head + f' {slots_size}s'
+        _, _, _, _, _, slots_size_unpacked, checksum, slots = struct.unpack(unpack_fmt, blob)
+        if slots_size_unpacked != slots_size:
+            raise ValueError('Blob size does not match, data corrupted!')
+        if checksum != cls._calc_checksum(blob):
+            raise ValueError('Checksum does not match, data corrupted!')
+
+        slot_blobs = cls._get_next_slot_blob(slots)
+        slot_blobs.pop() # Remove the last empty tuple
+
+        slot_configs = [ModSerDesFactory.produce(str(mlfb, 'ascii')).deserialize(blob)
+            for _, mlfb, _, blob in slot_blobs]
+        config = {}
+        for i in range(0, len(slot_configs)):
+            index = i + 1
+            config[f'slot{index}'] = slot_configs[i]
+
+        return config
+
+
+class ConfigError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class EIOConfigValidator(object):
+    def __init__(self) -> None:
+        with open(eio_schema_top, 'r', encoding='ascii') as f:
+            schema_top = yaml.load(f.read(), Loader=Loader)
+
+        ref_store = {}
+        for ref in eio_schema_refs:
+            with open(ref, 'r', encoding='ascii') as f:
+                ref_schema = yaml.load(f.read(), Loader=Loader)
+                ref_store[ref_schema["$id"]] = ref_schema
+
+        self._schema_validator = Draft202012Validator(
+            schema = schema_top,
+            resolver = RefResolver(schema_top["$id"], schema_top, store=ref_store)
+        )
+
+    def validate_schema(self, instance):
+        try:
+            self._schema_validator.validate(instance)
+        except ValidationError as e:
+            msg = f"{e.message} @ {e.schema_path}"
+            print(msg)
+            raise ConfigError(f"Invalid config data: {msg}") from e
+
+    def validate_semantic(self, config):
+        # Check holes in slot chain
+        last_mod = 0
+        for i in range(1, 7):
+            if f"slot{i}" in config:
+                if last_mod > 0 and config[f"slot{i}"]["mlfb"] != "NA":
+                    raise ConfigError(f"Invalid config: slot {i} is after an empty slot!")
+                elif config[f"slot{i}"]["mlfb"] != "NA":
+                    continue
+                else:
+                    last_mod = i
+
+
+class EIOConfigParser(object):
+    def __init__(self, config_yaml: str) -> None:
+        self._config: dict = yaml.load(config_yaml, Loader=Loader)
+        self._validator = EIOConfigValidator()
+
+    def validate(self):
+        self._validator.validate_schema(self._config)
+        self._validator.validate_semantic(self._config)
+
+    def transform(self) -> bytes:
+        return EIOConfigSerDes.convert2blob(self._config)
+
+
+def deploy_config(config_yaml: str) -> bytes:
+    config_parser = EIOConfigParser(config_yaml)
+    config_parser.validate()
+    config_bin = config_parser.transform()
+
+    try:
+        with open(EIO_FS_CONTROL, 'w', encoding='ascii') as f:
+            f.write("config")
+
+        with open(EIO_FS_CONFIG, "wb") as f:
+            result = f.write(config_bin)
+
+        if result != len(config_bin):
+            raise ConfigError("Failed to write config to Extended IO controller!")
+
+        with open(EIO_FS_CONTROL, 'w', encoding='ascii') as f:
+            f.write("done")
+    except OSError as e:
+        print(e)
+        raise ConfigError(f"OSError: {e}") from e
+
+
+class EIOConfigDumper(object):
+    def __init__(self, config_bin: bytearray) -> None:
+        self._blob = config_bin
+
+    def transform(self) -> str:
+        config = EIOConfigSerDes.convert2config(self._blob)
+        config_yaml = yaml.dump(config, Dumper=Dumper, indent=2, sort_keys=False)
+
+        return config_yaml
+
+
+def retrieve_config() -> str:
+    try:
+        with open(EIO_FS_CONFIG, "rb") as f:
+            config_bin = f.read()
+    except OSError as e:
+        raise ConfigError(f"OSError: {e}") from e
+
+    dumper = EIOConfigDumper(config_bin)
+    return dumper.transform()

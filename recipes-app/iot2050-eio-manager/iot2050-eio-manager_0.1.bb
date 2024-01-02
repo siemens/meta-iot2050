@@ -18,6 +18,7 @@ SRC_URI = "file://bin/iot2050-eiofsd \
     file://gRPC/EIOManager/iot2050_eio_pb2.pyi \
     file://gRPC/EIOManager/iot2050-eio.proto \
     file://iot2050_eio_global.py \
+    file://iot2050_eio_config.py \
     file://iot2050-eio-service.py \
     file://iot2050-eio-time-syncing.py \
     file://iot2050-eio-cli.py \
@@ -26,7 +27,15 @@ SRC_URI = "file://bin/iot2050-eiofsd \
     file://iot2050-eiofsd.service \
     "
 
-DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv"
+SRC_URI += " \
+    file://config-schema/schema-sm-config.yaml \
+    file://config-schema/schema-na.yaml \
+    file://config-template/sm-config-example.yaml \
+    file://config-template/mlfb-NA.yaml \
+    "
+
+DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv, python3-jsonschema, \
+python3-yaml,"
 
 do_install() {
     install -v -d ${D}/usr/lib/
@@ -41,9 +50,17 @@ do_install() {
     install -v -m 755 ${WORKDIR}/gRPC/EIOManager/iot2050-eio.proto ${D}/usr/lib/iot2050/eio/gRPC/EIOManager/
 
     install -v -m 755 ${WORKDIR}/iot2050_eio_global.py ${D}/usr/lib/iot2050/eio/
+    install -v -m 755 ${WORKDIR}/iot2050_eio_config.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050-eio-service.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050-eio-time-syncing.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050-eio-cli.py ${D}/usr/lib/iot2050/eio/
+
+    install -v -d ${D}/usr/lib/iot2050/eio/schema
+    install -v -d ${D}/usr/lib/iot2050/eio/config-template
+    install -v -m 644 ${WORKDIR}/config-schema/schema-sm-config.yaml ${D}/usr/lib/iot2050/eio/schema/
+    install -v -m 644 ${WORKDIR}/config-schema/schema-na.yaml ${D}/usr/lib/iot2050/eio/schema/
+    install -v -m 644 ${WORKDIR}/config-template/sm-config-example.yaml ${D}/usr/lib/iot2050/eio/config-template/
+    install -v -m 644 ${WORKDIR}/config-template/mlfb-NA.yaml ${D}/usr/lib/iot2050/eio/config-template/
 
     install -v -d ${D}/lib/systemd/system/
     install -v -m 644 ${WORKDIR}/iot2050-eio-time-syncing.service ${D}/lib/systemd/system/

@@ -38,6 +38,16 @@ EIO_TIME_SYNC_INTERVAL=30
 
 # Extended IO FUSE filesystem path for timestamp syncing
 EIO_FS_TIMESTAMP="/tmp/eiofs-proc-datetime"
+
+# Extended IO FUSE filesystem path for configuration
+EIO_FS_CONTROL="/tmp/eiofs-controller-control"
+EIO_FS_CONFIG="/tmp/eiofs-controller-config"
+
+# JSON schema files for validating the config yaml
+EIO_SCHEMA_ROOT="${PWD}/config-schema"
+
+# template file for yaml config
+EIO_CONFIG_TEMP_ROOT="${PWD}/config-template"
 ```
 
 Then under `files` folder, run:

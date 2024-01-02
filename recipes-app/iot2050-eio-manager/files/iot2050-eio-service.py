@@ -21,6 +21,11 @@ from gRPC.EIOManager.iot2050_eio_pb2_grpc import (
     EIOManagerServicer as BaseEIOManagerServicer,
     add_EIOManagerServicer_to_server
 )
+from iot2050_eio_config import (
+    deploy_config,
+    retrieve_config,
+    ConfigError,
+)
 from iot2050_eio_global import (
     iot2050_eio_api_server,
     EIO_FS_TIMESTAMP,
@@ -30,12 +35,24 @@ from iot2050_eio_global import (
 class EIOManagerServicer(BaseEIOManagerServicer):
 
     def Deploy(self, request: DeployRequest, context):
+        try:
+            deploy_config(request.yaml_data)
+        except ConfigError as e:
+            return DeployReply(status=1, message=f'{e}')
+
         return DeployReply(status=0, message='OK')
 
     def Retrieve(self, request: RetrieveRequest, context):
+        try:
+            yaml_data = retrieve_config()
+        except ConfigError as e:
+            return RetrieveReply(status=1,
+                                 message=f'{e}',
+                                 yaml_data="")
+
         return RetrieveReply(status=0,
                              message='OK',
-                             yaml_data='')
+                             yaml_data=yaml_data)
 
     def SyncTime(self, request: SyncTimeRequest, context):
         if request.HasField("time"):

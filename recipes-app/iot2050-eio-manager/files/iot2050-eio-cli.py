@@ -47,7 +47,13 @@ if __name__ == "__main__":
             Deploy the config.yaml to Extended IO Controller
         2. %(prog)s config retrieve config.yaml
             Retrieve the config from Extended IO Controller and store into config.yaml
-         ''')
+
+        Example Configuration File:
+
+        Please check /usr/lib/iot2050/eio/config-template/sm-config-example.yaml for full config
+        And check /usr/lib/iot2050/eio/config-template/mlfb-XXX.yaml for specific module
+
+        ''')
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawDescriptionHelpFormatter
