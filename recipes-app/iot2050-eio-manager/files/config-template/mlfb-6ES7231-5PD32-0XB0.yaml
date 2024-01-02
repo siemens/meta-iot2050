@@ -1,0 +1,178 @@
+# Copyright (c) Siemens AG, 2023
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+description: |
+  SM1231-RTD (4 or 8-channel analog measurement module for measuring thermistor)
+
+  Configuration Items:
+
+  0. MLFB
+
+    Must be one of "6ES7231-5PD32-0XB0" or "6ES7231-5PF32-0XB0"
+
+  1. Per module configuration
+
+    - power_alarm:
+        user power alarm of all channels
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+    - integ_time:
+        integration time
+
+        value options:
+          - 0: 400 Hz
+          - 1: 60 Hz
+          - 2: 50 Hz
+          - 3: 10 Hz
+
+  2. Per channel configuration
+
+    4 channels (0-3) if MLFB == 6ES7231-5PD32-0XB0, 8 channels (0-7) if
+    MLFB == 6ES7231-5PF32-0XB0.
+
+    - ch[0-3].type:
+        measurement type
+
+        value options:
+          - 0: deactivated
+          - 4: Resistance (4 wire)
+          - 5: Resistance (3 wire)
+          - 6: Resistance (2 wire)
+          - 7: Thermal Resistance (linear, 4 wire)
+          - 8: Thermal Resistance (linear, 3 wire)
+          - 9: Thermal Resistance (linear, 2 wire)
+
+    - ch[0-3].range:
+        measurement range
+
+        value options:
+          if type == Resistance (one of 4, 5, 6):
+            - 1: 150 ohms
+            - 2: 300 ohms
+            - 3: 600 ohms
+
+          if type == Thermal Resistance (one of 7, 8, 9):
+            - 0: Pt_100_Climatic_Range
+            - 2: Pt_100_Standard_Range
+            - 3: Ni_100_Standard_Range
+            - 4: Pt_500_S_R
+            - 5: Pt_1000_S_R
+            - 6: Ni_1000_S_R
+            - 11: Pt_200_S_R
+            - 12: Ni_120_S_R
+            - 15: Cu_10_S_R
+            - 16: Ni_200_S_R
+            - 18: Ni_500_S_R
+            - 20: Pt_10_S_R
+            - 22: Pt_50_S_R
+            - 24: Cu_50_S_R
+            - 26: Cu_100_S_R
+            - 28: Lg_Ni_1000_S_R
+
+
+    - ch[0-3].temper_coeff:
+        temperature coefficient
+
+        value options:
+          - 0: Pt 0.00385055 Ohm/ (DIN EN 60751)
+          - 1: Pt 0.003916 Ohm/ (USA, NBS)
+          - 2: Pt 0.003902 Ohm/
+          - 3: Pt 0.003920 Ohm/
+          - 5: Pt 0.003910 Ohm/ (GOST 6651, Russia 1994)
+          - 7: Ni 0.006170 Ohm/ (GOST 6651, Russia 1994)
+          - 8: Ni 0.006180 Ohm/
+          - 9: Ni 0.006720 Ohm/
+          - 10: LG-Ni 0.005000 Ohm/
+          - 11: Cu 0.00426 Ohm/ (GOST 6651, Russia 1994)
+          - 12: Cu 0.00427 Ohm/
+          - 13: Cu 0.00428 Ohm/ (GOST 6651, Russia 1994)
+
+    - ch[0-3].smooth:
+        smoothing
+
+        value options:
+          - 0: 1X rejection period
+          - 1: 4X rejection period
+          - 2: 16X rejection period
+          - 3: 32X rejection period
+
+    - ch[0-3].temper_unit:
+        temperature units
+
+        value options:
+          - 0: Celcius
+          - 1: Fahrenheit
+
+    - ch[0-3].overflow_alarm:
+        overflow alarm
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+    - ch[0-3].underflow_alarm:
+        underflow alarm
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+    - ch[0-3].open_wire_alarm:
+        open wire alarm
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+mlfb: "6ES7231-5PD32-0XB0"
+
+power_alarm: true
+
+integ_time: 2
+
+ch0:
+  type: 7
+  range: 2
+  temper_coeff: 0
+  smooth: 1
+  temper_unit: 0
+  overflow_alarm: true
+  underflow_alarm: true
+  open_wire_alarm: true
+
+ch1:
+  type: 7
+  range: 2
+  temper_coeff: 0
+  smooth: 1
+  temper_unit: 0
+  overflow_alarm: true
+  underflow_alarm: true
+  open_wire_alarm: true
+
+ch2:
+  type: 7
+  range: 2
+  temper_coeff: 0
+  smooth: 1
+  temper_unit: 0
+  overflow_alarm: true
+  underflow_alarm: true
+  open_wire_alarm: true
+
+ch3:
+  type: 7
+  range: 2
+  temper_coeff: 0
+  smooth: 1
+  temper_unit: 0
+  overflow_alarm: true
+  underflow_alarm: true
+  open_wire_alarm: true

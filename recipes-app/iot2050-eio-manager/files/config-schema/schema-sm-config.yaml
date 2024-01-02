@@ -38,6 +38,8 @@ $defs:
         enum:
           - 6ES7223-1QH32-0XB0
           - 6ES7231-4HF32-0XB0
+          - 6ES7231-5PD32-0XB0
+          - 6ES7231-5PF32-0XB0
           - NA
 
     allOf:
@@ -55,6 +57,15 @@ $defs:
               const: 6ES7231-4HF32-0XB0
         then:
           $ref: https://iot2050-sm/sm1231-ai
+
+      - if:
+          properties:
+            mlfb:
+              enum:
+                - 6ES7231-5PD32-0XB0
+                - 6ES7231-5PF32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1231-rtd
 
       - if:
           properties:

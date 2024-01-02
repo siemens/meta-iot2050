@@ -165,6 +165,65 @@ class SM1223AI8SerDes(ModuleSerDes):
         return config
 
 
+class SM1223RTDSerDes(ModuleSerDes):
+    """SM1223 RTD x4 x8 Configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+        header_fmt = 'p8 u8'
+        ch_fmt = 'u8 u8 u8 u4u4 u8 p8 b1b1p1b1p3b1 p8 p144'
+        if self.mlfb == '6ES7231-5PD32-0XB0':
+            self.ch_num = 4
+        else:
+            self.ch_num = 8
+        self.serdesfmt = ''.join([header_fmt, ch_fmt * self.ch_num])
+
+    def serialize(self, config: Dict) -> bytes:
+        parameters = [0x1A]
+        for i in range(0, self.ch_num):
+            parameters.extend([
+                config[f'ch{i}']['type'],
+                config[f'ch{i}']['range'],
+                config[f'ch{i}']['temper_coeff'],
+                config['integ_time'],
+                config[f'ch{i}']['smooth'],
+                config[f'ch{i}']['temper_unit'],
+                config[f'ch{i}']['overflow_alarm'],
+                config[f'ch{i}']['underflow_alarm'],
+                config[f'ch{i}']['open_wire_alarm'],
+                config['power_alarm'],
+            ])
+
+        return bitstruct.pack(self.serdesfmt, *parameters)
+
+    def deserialize(self, blob: bytes) -> Dict:
+        config = {
+            "description": f"Analog input module AI{self.ch_num} x RTD",
+            "mlfb": self.mlfb
+        }
+
+        unpack_statement = '_'
+        for i in range(0, self.ch_num):
+            config[f'ch{i}'] = {}
+            integ_time_ele = "config['integ_time']" if i == 0 else "_"
+            power_alarm_ele = "config['power_alarm']" if i == 0 else "_"
+            unpack_statement = ','.join([
+                unpack_statement,
+                f"config['ch{i}']['type']",
+                f"config['ch{i}']['range']",
+                f"config['ch{i}']['temper_coeff']",
+                integ_time_ele,
+                f"config['ch{i}']['smooth']",
+                f"config['ch{i}']['temper_unit']",
+                f"config['ch{i}']['overflow_alarm']",
+                f"config['ch{i}']['underflow_alarm']",
+                f"config['ch{i}']['open_wire_alarm']",
+                power_alarm_ele
+                ])
+        unpack_statement += ' = bitstruct.unpack(self.serdesfmt, blob)'
+        exec(unpack_statement) # pylint: disable=exec-used
+        return config
+
+
 class NoModSerDes(ModuleSerDes):
     """No module configuration (de)/serializer"""
     def __init__(self, mlfb):
@@ -188,6 +247,8 @@ class ModSerDesFactory(object):
             return SM1223SerDes(mlfb)
         elif mlfb == '6ES7231-4HF32-0XB0':
             return SM1223AI8SerDes(mlfb)
+        elif mlfb == '6ES7231-5PD32-0XB0' or mlfb == '6ES7231-5PF32-0XB0':
+            return SM1223RTDSerDes(mlfb)
         else:
             return NoModSerDes(mlfb)
 
