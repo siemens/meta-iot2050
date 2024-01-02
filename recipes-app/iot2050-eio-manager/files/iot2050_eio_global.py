@@ -23,6 +23,9 @@ default_conf = {
     'EIO_FS_CONTROL': '/eiofs/controller/control',
     'EIO_FS_CONFIG': '/eiofs/controller/config',
 
+    # EIO Firmware Update: Firmware binary file
+    'EIO_FWU_MAP3_FW_BIN': '/usr/lib/iot2050/eio/map3-fw.bin',
+
     # JSON schema files for validating the config yaml
     'EIO_SCHEMA_ROOT': '/usr/lib/iot2050/eio/schema',
 
@@ -43,6 +46,7 @@ EIO_TIME_SYNC_INTERVAL =  effective_conf['EIO_TIME_SYNC_INTERVAL']
 EIO_FS_TIMESTAMP = effective_conf['EIO_FS_TIMESTAMP']
 EIO_FS_CONTROL = effective_conf['EIO_FS_CONTROL']
 EIO_FS_CONFIG = effective_conf['EIO_FS_CONFIG']
+EIO_FWU_MAP3_FW_BIN = effective_conf['EIO_FWU_MAP3_FW_BIN']
 EIO_SCHEMA_ROOT = effective_conf['EIO_SCHEMA_ROOT']
 EIO_CONFIG_TEMP_ROOT = effective_conf['EIO_CONFIG_TEMP_ROOT']
 

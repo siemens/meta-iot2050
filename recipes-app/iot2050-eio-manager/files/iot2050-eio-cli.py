@@ -9,14 +9,19 @@
 import argparse
 import sys
 import textwrap
+import time
+from concurrent.futures import ThreadPoolExecutor
+from progress.bar import Bar
 import grpc
 from gRPC.EIOManager.iot2050_eio_pb2 import (
     DeployRequest,
-    RetrieveRequest
+    RetrieveRequest,
+    UpdateFirmwareRequest
 )
 from gRPC.EIOManager.iot2050_eio_pb2_grpc import EIOManagerStub
 from iot2050_eio_global import (
-    iot2050_eio_api_server
+    iot2050_eio_api_server,
+    EIO_FWU_MAP3_FW_BIN
 )
 
 
@@ -38,6 +43,36 @@ def do_retrieve():
     return response.yaml_data
 
 
+def show_progress_bar(task, interval):
+    with Bar('Updating'.ljust(15), fill='.', bar_prefix='',
+             bar_suffix='', suffix='') as bar:
+        while True:
+            bar.next()
+            if task.done():
+                break
+            time.sleep(interval)
+
+
+def do_update_firmware(firmware):
+    with grpc.insecure_channel(iot2050_eio_api_server) as channel:
+        stub = EIOManagerStub(channel)
+        print("===================================================")
+        print("EIO firmware update started - DO NOT INTERRUPT!")
+        print("===================================================")
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(
+                stub.UpdateFirmware,
+                UpdateFirmwareRequest(firmware=firmware)
+            )
+            show_progress_bar(future, 0.3)
+        print()
+
+    response = future.result()
+    print(f"Extended IO firmware update result: {response.status}")
+    print(f"Extended IO firmware update message: {response.message}")
+    return response
+
+
 if __name__ == "__main__":
     description=textwrap.dedent('''\
         Extended IO command line tool
@@ -47,6 +82,9 @@ if __name__ == "__main__":
             Deploy the config.yaml to Extended IO Controller
         2. %(prog)s config retrieve config.yaml
             Retrieve the config from Extended IO Controller and store into config.yaml
+        3. %(prog)s fwu controller [firmware.bin]
+            update firmware for Extended IO Controller, using firmware.bin if provided,
+            otherwise using the stock firmware file.
 
         Example Configuration File:
 
@@ -69,6 +107,13 @@ if __name__ == "__main__":
     config_parser.add_argument('config', metavar='CONFIG_YAML', type=str,
                         help='Config file in yaml format')
 
+    fwu_parser = subparsers.add_parser("fwu", help='firmware update help')
+    fwu_parser.add_argument('action', metavar='ACTION',
+                        choices=['controller', 'module'],
+                        help='Specify the firmware update type')
+    fwu_parser.add_argument('firmware', nargs='?', metavar='FIRMWARE', type=str,
+                        help='Firmware file')
+
     args = parser.parse_args()
 
     if args.command == 'config':
@@ -83,6 +128,19 @@ if __name__ == "__main__":
 
             with open(args.config, 'w', encoding='ascii') as f_config:
                 f_config.write(config_returned)
+    elif args.command == 'fwu':
+        if args.firmware:
+            firmware = args.firmware
+        else:
+            firmware = EIO_FWU_MAP3_FW_BIN
+
+        response = do_update_firmware(firmware)
+        if response.status:
+            print(f"ERROR: {response.message}")
+            print("EIO firmware update failed, please try again!")
+            sys.exit(1)
+
+        print("EIO firmware update completed. Please reboot the device.")
     else:
         parser.print_help(sys.stderr)
         sys.exit(1)
