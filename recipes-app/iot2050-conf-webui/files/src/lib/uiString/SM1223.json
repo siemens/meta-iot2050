@@ -1,0 +1,16 @@
+{
+  "DESC_MOD": "SM 1223 DI8 x 120VAC / DQ8 x relay",
+  "LABEL_DI_INPUT_FILTER_TIME": "Digital inputs filter time configuration",
+  "LABEL_DI_INPUT_FILTER_TIME_CH0_3": "Channel 0~3 (ms):",
+  "LABEL_DI_INPUT_FILTER_TIME_CH4_7": "Channel 4~7 (ms):",
+  "LABEL_DQ_LOST_CONNECTION": "Reaction to lost connection to IOT:",
+  "TIME_2": "0.2",
+  "TIME_3": "0.4",
+  "TIME_4": "0.8",
+  "TIME_5": "1.6",
+  "TIME_6": "3.2",
+  "TIME_7": "6.4",
+  "TIME_9": "12.8",
+  "DISCONN_2": "Keep last value",
+  "DISCONN_3": "Use substitute value of 1"
+}
