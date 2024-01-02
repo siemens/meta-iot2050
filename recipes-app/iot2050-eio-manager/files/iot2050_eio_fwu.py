@@ -8,8 +8,15 @@
 # SPDX-License-Identifier: MIT
 #
 import hashlib
+import json
 import ctypes
+from types import SimpleNamespace as Namespace
 import gpiod
+from iot2050_eio_global import (
+    EIO_FS_FW_VER,
+    EIO_FWU_META,
+    EIO_FWU_MAP3_FW_BIN
+)
 
 
 class UpgradeError(Exception):
@@ -154,6 +161,51 @@ class FirmwareUpdate():
         md5.update(content)
 
         return md5.hexdigest()
+
+
+class FirmwareUpdateChecker():
+    def __init__(self):
+        self.fwu_meta = json.load(open(EIO_FWU_META, "r", encoding='ascii'),
+            object_hook=lambda d: Namespace(**d))
+
+        try:
+            with open(EIO_FS_FW_VER, "r", encoding='ascii') as f:
+                self.eio_controller_current_fw_ver = f.readline().split(' ')[0]
+        except OSError:
+            self.eio_controller_current_fw_ver = None
+
+    def collect_fwu_info(self) -> tuple[int, str]:
+        """Collect EIO Firmware information for updating purpose
+
+        Returns:
+            tuple[int, str]:
+                The 1st int element indicates the firmware status:
+                
+                - 0: means no need to update
+                - 1: means firmware need update.
+                - 2: means firmware need update, however, the firmware
+                     checksum is not correct
+
+                The second str elements explains details.
+        """
+        status = 0
+        message = 'EIO firmware is up-to-date, no need to update!'
+
+        if self.eio_controller_current_fw_ver is None:
+            status = 1
+            message = 'EIO FUSE does not exist! Suggest to update the firmware ' \
+                      'via iot2050-eio, and check the iot2050-eiofsd.service'
+        elif self.fwu_meta.version != self.eio_controller_current_fw_ver:
+            with open(EIO_FWU_MAP3_FW_BIN, "rb") as f:
+                # Examine the checksum
+                if self.fwu_meta.sha1sum.lower() == hashlib.sha1(f.read()).hexdigest().lower():
+                    status = 1
+                    message = 'EIO firmware need update via cli "iot2050-eio fwu controller"!'
+                else:
+                    status = 2
+                    message = 'EIO firmware need update, however, the firmware checksum does not match, Binary may be corrupted!'
+
+        return status, message
 
 
 def update_firmware(firmware):

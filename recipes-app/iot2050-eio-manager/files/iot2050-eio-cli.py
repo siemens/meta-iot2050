@@ -23,6 +23,9 @@ from iot2050_eio_global import (
     iot2050_eio_api_server,
     EIO_FWU_MAP3_FW_BIN
 )
+from iot2050_eio_fwu_monitor import (
+    do_fwu_check
+)
 
 
 def do_deploy(yaml_data):
@@ -117,6 +120,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.command == 'config':
+        status, message = do_fwu_check()
+        if status != 0:
+            print(message)
+            continue_op = input(
+                "\nWarning: Please fix above issue before continue. Continue? (y/N) "
+            )
+            if continue_op != "y":
+                sys.exit(0)
+
         if args.action == "deploy":
             with open(args.config, 'r', encoding='ascii') as f_config:
                 do_deploy(f_config.read())
@@ -133,6 +145,11 @@ if __name__ == "__main__":
             firmware = args.firmware
         else:
             firmware = EIO_FWU_MAP3_FW_BIN
+            status, message = do_fwu_check()
+            if status == 0:
+                # no need to update!
+                print(message)
+                sys.exit(0)
 
         response = do_update_firmware(firmware)
         if response.status:
