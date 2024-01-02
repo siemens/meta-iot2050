@@ -31,7 +31,8 @@ from iot2050_eio_global import (
     EIO_FS_TIMESTAMP,
 )
 from iot2050_eio_fwu import (
-    update_firmware
+    update_firmware,
+    FirmwareUpdateChecker
 )
 
 
@@ -73,7 +74,8 @@ class EIOManagerServicer(BaseEIOManagerServicer):
         return UpdateFirmwareReply(status=status, message=f'{message}')
 
     def CheckFWU(self, request: CheckFWURequest, context):
-        return CheckFWUReply(status=0, message='OK')
+        status, message = FirmwareUpdateChecker().collect_fwu_info()
+        return CheckFWUReply(status=status, message=message)
 
     def ReadEIOEvent(self, request: ReadEIOEventRequest, context):
         return ReadEIOEventReply(status=0, message='OK', event='')
