@@ -49,9 +49,11 @@ EIO_CONFIG_TEMP_ROOT = effective_conf['EIO_CONFIG_TEMP_ROOT']
 eio_schema_top = f"{EIO_SCHEMA_ROOT}/schema-sm-config.yaml"
 eio_schema_refs = [
     f"{EIO_SCHEMA_ROOT}/schema-na.yaml",
+    f"{EIO_SCHEMA_ROOT}/schema-sm1223-ac-rly.yaml",
 ]
 
 eio_conf_templates = [
+    f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7223-1QH32-0XB0.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-NA.yaml"
 ]
 

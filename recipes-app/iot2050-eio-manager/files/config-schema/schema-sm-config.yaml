@@ -36,9 +36,18 @@ $defs:
     properties:
       mlfb:
         enum:
+          - 6ES7223-1QH32-0XB0
           - NA
 
     allOf:
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7223-1QH32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1223-ac-rly
+
       - if:
           properties:
             mlfb:
