@@ -19,6 +19,7 @@ SRC_URI = "file://bin/iot2050-eiofsd \
     file://gRPC/EIOManager/iot2050-eio.proto \
     file://iot2050_eio_global.py \
     file://iot2050_eio_config.py \
+    file://iot2050_eio_event.py \
     file://iot2050-eio-service.py \
     file://iot2050-eio-time-syncing.py \
     file://iot2050-eio-cli.py \
@@ -66,6 +67,7 @@ do_install() {
 
     install -v -m 755 ${WORKDIR}/iot2050_eio_global.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050_eio_config.py ${D}/usr/lib/iot2050/eio/
+    install -v -m 755 ${WORKDIR}/iot2050_eio_event.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050-eio-service.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050-eio-time-syncing.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050_eio_fwu_monitor.py ${D}/usr/lib/iot2050/eio/

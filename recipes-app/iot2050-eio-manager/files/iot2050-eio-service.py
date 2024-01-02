@@ -34,6 +34,7 @@ from iot2050_eio_fwu import (
     update_firmware,
     FirmwareUpdateChecker
 )
+from iot2050_eio_event import read_eio_event
 
 
 class EIOManagerServicer(BaseEIOManagerServicer):
@@ -78,7 +79,12 @@ class EIOManagerServicer(BaseEIOManagerServicer):
         return CheckFWUReply(status=status, message=message)
 
     def ReadEIOEvent(self, request: ReadEIOEventRequest, context):
-        return ReadEIOEventReply(status=0, message='OK', event='')
+        try:
+            event = read_eio_event()
+        except Exception as e:
+            return ReadEIOEventReply(status=1, message=f'{e}', event=f'')
+
+        return ReadEIOEventReply(status=0, message='OK', event=event)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
