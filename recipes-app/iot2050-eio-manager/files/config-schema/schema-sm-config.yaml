@@ -1,0 +1,49 @@
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm-config'
+
+type: object
+properties:
+  slot1:
+    $ref: "#/$defs/slot"
+  slot2:
+    $ref: "#/$defs/slot"
+  slot3:
+    $ref: "#/$defs/slot"
+  slot4:
+    $ref: "#/$defs/slot"
+  slot5:
+    $ref: "#/$defs/slot"
+  slot6:
+    $ref: "#/$defs/slot"
+
+required:
+  - slot1
+  - slot2
+  - slot3
+  - slot4
+  - slot5
+  - slot6
+
+$defs:
+  slot:
+    type: object
+    properties:
+      mlfb:
+        enum:
+          - NA
+
+    allOf:
+      - if:
+          properties:
+            mlfb:
+              const: NA
+        then:
+          $ref: https://iot2050-sm/sm-na
+
+unevaluatedProperties: false

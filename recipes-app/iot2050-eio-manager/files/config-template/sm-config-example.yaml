@@ -1,0 +1,30 @@
+# Copyright (c) Siemens AG, 2023
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+slot1:
+  description: No module for this slot
+  mlfb: "NA"
+
+slot2:
+  description: No module for this slot
+  mlfb: "NA"
+
+slot3:
+  description: No module for this slot
+  mlfb: "NA"
+
+slot4:
+  description: No module for this slot
+  mlfb: "NA"
+
+slot5:
+  description: No module for this slot
+  mlfb: "NA"
+
+slot6:
+  description: No module for this slot
+  mlfb: "NA"
