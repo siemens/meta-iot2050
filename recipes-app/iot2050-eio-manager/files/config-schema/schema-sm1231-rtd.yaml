@@ -1,0 +1,228 @@
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm1231-rtd'
+
+type: object
+properties:
+  description:
+    type: string
+  mlfb:
+    enum:
+      - "6ES7231-5PD32-0XB0"
+      - "6ES7231-5PF32-0XB0"
+  power_alarm:
+    type: boolean
+  integ_time:
+    enum: [0, 1, 2 ,3]
+  ch0:
+    $ref: "#/$defs/channel"
+  ch1:
+    $ref: "#/$defs/channel"
+  ch2:
+    $ref: "#/$defs/channel"
+  ch3:
+    $ref: "#/$defs/channel"
+
+required:
+  - mlfb
+  - power_alarm
+  - integ_time
+  - ch0
+  - ch1
+  - ch2
+  - ch3
+
+if:
+  properties:
+    mlfb:
+      const: 6ES7231-5PF32-0XB0
+then:
+  properties:
+    ch4:
+      $ref: "#/$defs/channel"
+    ch5:
+      $ref: "#/$defs/channel"
+    ch6:
+      $ref: "#/$defs/channel"
+    ch7:
+      $ref: "#/$defs/channel"
+  required:
+    - ch4
+    - ch5
+    - ch6
+    - ch7
+
+$defs:
+  channel:
+    type: object
+    properties:
+      type:
+        enum: [0, 4, 5, 6, 7, 8, 9]
+      range:
+        enum: [0, 1, 2, 3, 4, 5, 6, 11, 12, 15, 16, 18, 20, 22, 24, 26, 28]
+      smooth:
+        enum: [0, 1, 2 ,3]
+      open_wire_alarm:
+        type: boolean
+      overflow_alarm:
+        type: boolean
+      temper_coeff:
+        enum: [0, 1, 2, 3, 5, 7, 8, 9, 10, 11, 12, 13]
+      temper_unit:
+        enum: [0, 1]
+      underflow_alarm:
+        type: boolean
+
+    allOf:
+      - if:
+          properties:
+            type:
+              const: 0
+        then:
+          properties:
+            range:
+              type: integer
+            open_wire_alarm:
+              const: false
+            overflow_alarm:
+              const: false
+            underflow_alarm:
+              const: false
+
+      - if:
+          properties:
+            type:
+              enum: [4, 5, 6]
+        then:
+          properties:
+            range:
+              enum: [1, 2, 3]
+            underflow_alarm:
+              const: false
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+        then:
+          properties:
+            range:
+              enum: [0, 2, 3, 4, 5, 6, 11, 12, 15, 16, 18, 20, 22, 24, 26, 28]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              const: 0
+        then:
+          properties:
+            temper_coeff:
+              const: 0
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              enum: [2, 4]
+        then:
+          properties:
+            temper_coeff:
+              enum: [0, 1, 2, 3, 5]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              const: 3
+        then:
+          properties:
+            temper_coeff:
+              enum: [7, 8, 9]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              enum: [5, 11]
+        then:
+          properties:
+            temper_coeff:
+              enum: [0, 1, 2, 3]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              enum: [6, 12, 16, 18]
+        then:
+          properties:
+            temper_coeff:
+              enum: [8, 9]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              const: 15
+        then:
+          properties:
+            temper_coeff:
+              enum: [11, 12, 13]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              enum: [20, 22]
+        then:
+          properties:
+            temper_coeff:
+              enum: [0, 5]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              enum: [24, 26]
+        then:
+          properties:
+            temper_coeff:
+              enum: [11, 13]
+
+      - if:
+          properties:
+            type:
+              enum: [7, 8, 9]
+            range:
+              const: 28
+        then:
+          properties:
+            temper_coeff:
+              const: 10
+
+    required:
+      - type
+      - range
+      - temper_coeff
+      - temper_unit
+      - smooth
+      - open_wire_alarm
+      - overflow_alarm
+      - underflow_alarm
+
+    unevaluatedProperties: false
+
+unevaluatedProperties: false
