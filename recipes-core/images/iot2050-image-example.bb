@@ -55,4 +55,5 @@ IOT2050_EIO_SUPPORT ?= "0"
 
 IMAGE_INSTALL += "${@ ' \
     iot2050-eio-manager \
+    iot2050-conf-webui \
     ' if d.getVar('IOT2050_EIO_SUPPORT') == '1' else ''}"
