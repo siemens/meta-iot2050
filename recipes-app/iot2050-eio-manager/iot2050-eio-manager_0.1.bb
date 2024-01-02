@@ -31,8 +31,10 @@ SRC_URI += " \
     file://config-schema/schema-sm-config.yaml \
     file://config-schema/schema-na.yaml \
     file://config-schema/schema-sm1223-ac-rly.yaml \
+    file://config-schema/schema-sm1231-ai.yaml \
     file://config-template/sm-config-example.yaml \
     file://config-template/mlfb-6ES7223-1QH32-0XB0.yaml \
+    file://config-template/mlfb-6ES7231-4HF32-0XB0.yaml \
     file://config-template/mlfb-NA.yaml \
     "
 
@@ -62,8 +64,10 @@ do_install() {
     install -v -m 644 ${WORKDIR}/config-schema/schema-sm-config.yaml ${D}/usr/lib/iot2050/eio/schema/
     install -v -m 644 ${WORKDIR}/config-schema/schema-na.yaml ${D}/usr/lib/iot2050/eio/schema/
     install -v -m 644 ${WORKDIR}/config-schema/schema-sm1223-ac-rly.yaml ${D}/usr/lib/iot2050/eio/schema/
+    install -v -m 644 ${WORKDIR}/config-schema/schema-sm1231-ai.yaml ${D}/usr/lib/iot2050/eio/schema/
     install -v -m 644 ${WORKDIR}/config-template/sm-config-example.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7223-1QH32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
+    install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7231-4HF32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-NA.yaml ${D}/usr/lib/iot2050/eio/config-template/
 
     install -v -d ${D}/lib/systemd/system/

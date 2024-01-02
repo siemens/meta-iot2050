@@ -114,6 +114,57 @@ class SM1223SerDes(ModuleSerDes):
         return config
 
 
+class SM1223AI8SerDes(ModuleSerDes):
+    """SM1223 8AI Configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+        header_fmt = 'p8 u8'
+        ch_fmt = 'u8 u8 p8 u4u4 p8p8 b1b1p1b1p3b1 p8 p144'
+        self.serdesfmt = ''.join([header_fmt, ch_fmt * 8])
+
+    def serialize(self, config: Dict) -> bytes:
+        parameters = [0x1A]
+        for i in range(0, 8):
+            parameters.extend([
+                config[f'ch{i}']['type'],
+                config[f'ch{i}']['range'],
+                config['integ_time'],
+                config[f'ch{i}']['smooth'],
+                config[f'ch{i}']['overflow_alarm'],
+                config[f'ch{i}']['underflow_alarm'],
+                config[f'ch{i}']['open_wire_alarm'],
+                config['power_alarm']
+            ])
+
+        return bitstruct.pack(self.serdesfmt, *parameters)
+
+    def deserialize(self, blob: bytes) -> Dict:
+        config = {
+            "description": "Analog input module AI8 x 13 bits",
+            "mlfb": self.mlfb
+        }
+
+        unpack_statement = '_'
+        for i in range(0, 8):
+            config[f'ch{i}'] = {}
+            integ_time_ele = "config['integ_time']" if i == 0 else "_"
+            power_alarm_ele = "config['power_alarm']" if i == 0 else "_"
+            unpack_statement = ','.join([
+                unpack_statement,
+                f"config['ch{i}']['type']",
+                f"config['ch{i}']['range']",
+                integ_time_ele,
+                f"config['ch{i}']['smooth']",
+                f"config['ch{i}']['overflow_alarm']",
+                f"config['ch{i}']['underflow_alarm']",
+                f"config['ch{i}']['open_wire_alarm']",
+                power_alarm_ele
+                ])
+        unpack_statement += ' = bitstruct.unpack(self.serdesfmt, blob)'
+        exec(unpack_statement) # pylint: disable=exec-used
+        return config
+
+
 class NoModSerDes(ModuleSerDes):
     """No module configuration (de)/serializer"""
     def __init__(self, mlfb):
@@ -135,6 +186,8 @@ class ModSerDesFactory(object):
         mlfb = mlfb.rstrip('\0')
         if mlfb == '6ES7223-1QH32-0XB0':
             return SM1223SerDes(mlfb)
+        elif mlfb == '6ES7231-4HF32-0XB0':
+            return SM1223AI8SerDes(mlfb)
         else:
             return NoModSerDes(mlfb)
 
@@ -318,6 +371,19 @@ class EIOConfigValidator(object):
                     continue
                 else:
                     last_mod = i
+
+        # For 6ES7231-4HF32-0XB0 (or SM 1231-8AI), channels should be paired to
+        # be the same measurement type
+        for i in range(1, 7):
+            slot_conf = config[f"slot{i}"]
+            if slot_conf["mlfb"] != "6ES7231-4HF32-0XB0":
+                continue
+            for j in range(0, 8, 2):
+                ch_prev_type = slot_conf[f"ch{j}"]["type"]
+                ch_next_type = slot_conf[f"ch{j+1}"]["type"]
+                if ch_prev_type != ch_next_type:
+                    raise ConfigError(
+                        f"Invalid config: slot{i}: ch{j}.type != ch{j+1}.type")
 
 
 class EIOConfigParser(object):
