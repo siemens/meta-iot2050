@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import SM1223Conf, { SM1223ConfDefault } from '@/components/ExtendedModules/SM1223/SM1223Conf';
 import SM1231_4RTDConf, { SM1231_4RTDConfDefault } from '@/components/ExtendedModules/SM1231_RTD/SM1231_4RTDConf';
 import SM1231_8RTDConf, { SM1231_8RTDConfDefault } from '@/components/ExtendedModules/SM1231_RTD/SM1231_8RTDConf';
+import SM1231with8AIConf, { SM1231with8AIConfDefault } from '@/components/ExtendedModules/SM1231_8AI/SM1231with8AIConf';
 
 function Mod ({ modType, slotNum, config, updateConfig }) {
   switch (modType) {
@@ -29,6 +30,12 @@ function Mod ({ modType, slotNum, config, updateConfig }) {
         configData={config}
         updateConfig={updateConfig}
       />;
+    case '6ES7231-4HF32-0XB0':
+      return <SM1231with8AIConf
+        slotNum={slotNum}
+        configData={config}
+        updateConfig={updateConfig}
+      />;
     default:
       return <Typography>No module in this slot!!!</Typography>;
   }
@@ -46,6 +53,9 @@ export default function SlotInfo ({ slotNum, configData, updateSlot }) {
       case '6ES7231-5PF32-0XB0':
         updateSlot(slotNum, JSON.parse(JSON.stringify(SM1231_8RTDConfDefault)));
         break;
+      case '6ES7231-4HF32-0XB0':
+        updateSlot(slotNum, JSON.parse(JSON.stringify(SM1231with8AIConfDefault)));
+        break;
       default:
         updateSlot(slotNum, { mlfb: 'None' });
     }
@@ -56,6 +66,7 @@ export default function SlotInfo ({ slotNum, configData, updateSlot }) {
     '6ES7223-1QH32-0XB0', // SM1223
     '6ES7231-5PD32-0XB0', // SM1231-4RTD
     '6ES7231-5PF32-0XB0', // SM1231-8RTD
+    '6ES7231-4HF32-0XB0', // SM1231-8AI
   ];
 
   return (
