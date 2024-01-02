@@ -7,6 +7,7 @@
 #
 # SPDX-License-Identifier: MIT
 from concurrent import futures
+import datetime
 import grpc
 from gRPC.EIOManager.iot2050_eio_pb2 import (
     DeployRequest, DeployReply,
@@ -22,6 +23,7 @@ from gRPC.EIOManager.iot2050_eio_pb2_grpc import (
 )
 from iot2050_eio_global import (
     iot2050_eio_api_server,
+    EIO_FS_TIMESTAMP,
 )
 
 
@@ -36,7 +38,15 @@ class EIOManagerServicer(BaseEIOManagerServicer):
                              yaml_data='')
 
     def SyncTime(self, request: SyncTimeRequest, context):
-        return SyncTimeReply(status=0, message='OK')
+        if request.HasField("time"):
+            time = request.time
+        else:
+            time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with open(EIO_FS_TIMESTAMP, 'w', encoding='ascii') as f:
+            f.write(time)
+
+        return SyncTimeReply(status=0, message=f'{time}')
 
     def UpdateFirmware(self, request: UpdateFirmwareRequest, context):
         return UpdateFirmwareReply(status=0, message='OK')
