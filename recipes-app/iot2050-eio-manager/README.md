@@ -11,6 +11,8 @@ In addition:
  - A FUSE service for loading the eio file system.
  - A time syncing service for sync the system time to extended IO
    controller.
+ - A cli tool for communicating with the gRPC server:
+   - Deploy/Retrieve extended IO configurations
 
 ## Regenerate the gRPC python modules if proto file changes:
 
@@ -44,4 +46,8 @@ Then under `files` folder, run:
 python3 iot2050-eio-service.py
 ```
 
-to start the service.
+to start the service. If you want to run the cli, use:
+
+```shell
+python3 iot2050-eio-cli.py
+```
