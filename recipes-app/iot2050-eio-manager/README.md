@@ -13,6 +13,7 @@ In addition:
    controller.
  - A cli tool for communicating with the gRPC server:
    - Deploy/Retrieve extended IO configurations
+   - Update firmware for the extended IO controller or modules.
 
 ## Regenerate the gRPC python modules if proto file changes:
 
@@ -48,6 +49,9 @@ EIO_SCHEMA_ROOT="${PWD}/config-schema"
 
 # template file for yaml config
 EIO_CONFIG_TEMP_ROOT="${PWD}/config-template"
+
+# MAP3 firmware path
+EIO_FWU_MAP3_FW_BIN="${PWD}/bin/map3-fw.bin"
 ```
 
 Then under `files` folder, run:
