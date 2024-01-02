@@ -1,0 +1,12 @@
+[Unit]
+Description=IOT2050 Configuration Web UI
+After=syslog.target network.target
+
+[Service]
+Type=idle
+User=root
+WorkingDirectory=/srv/iot2050-conf-webui
+ExecStart=/usr/bin/npm run start --prefix=/srv/iot2050-conf-webui -- -p 2050
+
+[Install]
+WantedBy=multi-user.target
