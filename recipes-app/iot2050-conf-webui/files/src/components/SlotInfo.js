@@ -6,11 +6,25 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import SM1223Conf, { SM1223ConfDefault } from '@/components/ExtendedModules/SM1223/SM1223Conf';
+import SM1231_4RTDConf, { SM1231_4RTDConfDefault } from '@/components/ExtendedModules/SM1231_RTD/SM1231_4RTDConf';
+import SM1231_8RTDConf, { SM1231_8RTDConfDefault } from '@/components/ExtendedModules/SM1231_RTD/SM1231_8RTDConf';
 
 function Mod ({ modType, slotNum, config, updateConfig }) {
   switch (modType) {
     case '6ES7223-1QH32-0XB0':
       return <SM1223Conf
+        slotNum={slotNum}
+        configData={config}
+        updateConfig={updateConfig}
+      />;
+    case '6ES7231-5PD32-0XB0':
+      return <SM1231_4RTDConf
+        slotNum={slotNum}
+        configData={config}
+        updateConfig={updateConfig}
+      />;
+    case '6ES7231-5PF32-0XB0':
+      return <SM1231_8RTDConf
         slotNum={slotNum}
         configData={config}
         updateConfig={updateConfig}
@@ -26,6 +40,12 @@ export default function SlotInfo ({ slotNum, configData, updateSlot }) {
       case '6ES7223-1QH32-0XB0':
         updateSlot(slotNum, JSON.parse(JSON.stringify(SM1223ConfDefault)));
         break;
+      case '6ES7231-5PD32-0XB0':
+        updateSlot(slotNum, JSON.parse(JSON.stringify(SM1231_4RTDConfDefault)));
+        break;
+      case '6ES7231-5PF32-0XB0':
+        updateSlot(slotNum, JSON.parse(JSON.stringify(SM1231_8RTDConfDefault)));
+        break;
       default:
         updateSlot(slotNum, { mlfb: 'None' });
     }
@@ -34,6 +54,8 @@ export default function SlotInfo ({ slotNum, configData, updateSlot }) {
   const moduleTypes = [
     'None',
     '6ES7223-1QH32-0XB0', // SM1223
+    '6ES7231-5PD32-0XB0', // SM1231-4RTD
+    '6ES7231-5PF32-0XB0', // SM1231-8RTD
   ];
 
   return (
