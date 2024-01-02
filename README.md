@@ -34,6 +34,21 @@ After the build completed, the final image is under
 build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
 ```
 
+### Build with EIO subsystem support
+
+To build the example image with EIO subsystem, for example when building for
+IOT2050 SM variant, the EIO firmware & binaries must be downloaded from
+[Siemens Industry Online Support](https://support.industry.siemens.com/cs/document/109741799/downloads-for-simatic-iot20x0?dti=0&lc=en-WW)
+and extracted to `recipes-app/iot2050-eio-manager/files/bin` before the building.
+
+Then build with
+
+```shell
+./kas-container build kas-iot2050-example.yml:kas/opt/eio.yml
+```
+(or select `EIO subsystem support` in `kas menu`)
+
+
 ## Build user SDK
 >>>
 **Note:** Current SDK only supports Linux x86-64 host machine

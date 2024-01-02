@@ -50,3 +50,9 @@ IMAGE_INSTALL += "${@ ' \
     node-red-gpio \
     node-red-preinstalled-nodes \
     ' if d.getVar('IOT2050_NODE_RED_SUPPORT') == '1' else ''}"
+
+IOT2050_EIO_SUPPORT ?= "0"
+
+IMAGE_INSTALL += "${@ ' \
+    iot2050-eio-manager \
+    ' if d.getVar('IOT2050_EIO_SUPPORT') == '1' else ''}"

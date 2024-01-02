@@ -106,6 +106,19 @@ config KAS_INCLUDE_LXDE
 	default "kas/opt/lxde.yml"
 	depends on LXDE
 
+config EIO
+	bool "EIO subsystem support"
+	help
+	  Building image with EIO subsystem support.
+
+	  NOTE: The EIO firmware and library need be downloaded before building. See
+	  the README.md for more information.
+
+config KAS_INCLUDE_EIO
+	string
+	default "kas/opt/eio.yml"
+	depends on EIO
+
 endif
 
 # Provide two entries so that the help text can be adjusted to the image.
