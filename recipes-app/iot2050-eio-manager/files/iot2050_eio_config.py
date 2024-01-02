@@ -224,6 +224,109 @@ class SM1223RTDSerDes(ModuleSerDes):
         return config
 
 
+class SM1238SerDes(ModuleSerDes):
+    """SM1238 EM 480VAC Configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+        # The first lonely u8 is for module_version, which is not defined in the
+        # data blob, but required by the extended IO controller.
+        header_fmt = 'u8' + 'u8 u8'
+        mod_head_fmt = 'u8 u8'
+        mod_fmt = 'u8 u8 b1u3u4 u8 b1p6b1 u8 p8 p8'
+        ch_head_fmt = 'u8u8'
+        ch_fmt = 'b1b1b1p2b1b1p1 u8 r16 r32 b1b1u2b1p3 u8 r16 r32 p8p8p8p8'
+        self.serdesfmt = ''.join([
+            header_fmt,
+            mod_head_fmt,
+            mod_fmt,
+            ch_head_fmt,
+            ch_fmt * 3])
+
+    def serialize(self, config: Dict) -> bytes:
+        parameters = [config['module_version'], 0x51, 0x02] # Header
+        parameters.extend([0x01, 0x08]) # Module header
+        parameters.extend([
+            config['con_type'],
+            config['range'],
+            config['meter_gate'], config['period_meters'], config['line_freq'],
+            config['line_vol_tol'],
+            config['min_max_cal'], config['diag_line_vol'],
+            config['data_variant']
+        ])
+        parameters.extend([0x03, 0x14]) # Channel header
+        for i in range(0, 3):
+            parameters.extend([
+                config[f'ch{i}']['diag_over_vol'],
+                config[f'ch{i}']['diag_under_vol'],
+                config[f'ch{i}']['diag_ll_vol'],
+                config[f'ch{i}']['diag_over_cal'],
+                config[f'ch{i}']['diag_over_cur'],
+                config[f'ch{i}']['over_cur_tol_val'],
+                config[f'ch{i}']['over_cur_tol_time'].to_bytes(2, 'big'),
+                config[f'ch{i}']['ct_primary_cur'].to_bytes(4, 'big'),
+                config[f'ch{i}']['re_cur_dir'],
+                config[f'ch{i}']['act_hour_meter'],
+                config[f'ch{i}']['ct_second_cur'],
+                config[f'ch{i}']['en_gate_cir_hour_meter'],
+                config[f'ch{i}']['ll_cur_measure'],
+                config[f'ch{i}']['vt_second_vol'].to_bytes(2, 'big'),
+                config[f'ch{i}']['vt_prim_vol'].to_bytes(4, 'big'),
+            ])
+
+        return bitstruct.pack(self.serdesfmt, *parameters)
+
+    def deserialize(self, blob: bytes) -> Dict:
+        config = {
+            "description": "SM1238 Energy Meter 480VAC",
+            "mlfb": self.mlfb
+        }
+
+        unpack_statement = ','.join([
+            "config['module_version']",
+            '_', '_',
+            '_', '_',
+            "config['con_type']",
+            "config['range']",
+            "config['meter_gate']", "config['period_meters']", "config['line_freq']",
+            "config['line_vol_tol']",
+            "config['min_max_cal']", "config['diag_line_vol']",
+            "config['data_variant']",
+            '_', '_'
+        ])
+        for i in range(0, 3):
+            config[f'ch{i}'] = {}
+            unpack_statement = ','.join([
+                unpack_statement,
+                f"config['ch{i}']['diag_over_vol']",
+                f"config['ch{i}']['diag_under_vol']",
+                f"config['ch{i}']['diag_ll_vol']",
+                f"config['ch{i}']['diag_over_cal']",
+                f"config['ch{i}']['diag_over_cur']",
+                f"config['ch{i}']['over_cur_tol_val']",
+                f"config['ch{i}']['over_cur_tol_time']",
+                f"config['ch{i}']['ct_primary_cur']",
+                f"config['ch{i}']['re_cur_dir']",
+                f"config['ch{i}']['act_hour_meter']",
+                f"config['ch{i}']['ct_second_cur']",
+                f"config['ch{i}']['en_gate_cir_hour_meter']",
+                f"config['ch{i}']['ll_cur_measure']",
+                f"config['ch{i}']['vt_second_vol']",
+                f"config['ch{i}']['vt_prim_vol']"
+            ])
+        unpack_statement += ' = bitstruct.unpack(self.serdesfmt, blob)'
+        exec(unpack_statement) # pylint: disable=exec-used
+        for i in range(0, 3):
+            config[f'ch{i}']['over_cur_tol_time'] = \
+                int.from_bytes(config[f'ch{i}']['over_cur_tol_time'], byteorder='big')
+            config[f'ch{i}']['ct_primary_cur'] = \
+                int.from_bytes(config[f'ch{i}']['ct_primary_cur'], byteorder='big')
+            config[f'ch{i}']['vt_second_vol'] = \
+                int.from_bytes(config[f'ch{i}']['vt_second_vol'], byteorder='big')
+            config[f'ch{i}']['vt_prim_vol'] = \
+                int.from_bytes(config[f'ch{i}']['vt_prim_vol'], byteorder='big')
+        return config
+
+
 class NoModSerDes(ModuleSerDes):
     """No module configuration (de)/serializer"""
     def __init__(self, mlfb):
@@ -249,6 +352,8 @@ class ModSerDesFactory(object):
             return SM1223AI8SerDes(mlfb)
         elif mlfb == '6ES7231-5PD32-0XB0' or mlfb == '6ES7231-5PF32-0XB0':
             return SM1223RTDSerDes(mlfb)
+        elif mlfb == '6ES7238-5XA32-0XB0':
+            return SM1238SerDes(mlfb)
         else:
             return NoModSerDes(mlfb)
 
