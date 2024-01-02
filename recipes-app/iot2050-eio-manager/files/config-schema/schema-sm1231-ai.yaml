@@ -1,0 +1,95 @@
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm1231-ai'
+
+type: object
+properties:
+  description:
+    type: string
+  mlfb:
+    const: "6ES7231-4HF32-0XB0"
+  power_alarm:
+    type: boolean
+  integ_time:
+    enum: [0, 1, 2, 3]
+  ch0:
+    $ref: "#/$defs/channel"
+  ch1:
+    $ref: "#/$defs/channel"
+  ch2:
+    $ref: "#/$defs/channel"
+  ch3:
+    $ref: "#/$defs/channel"
+  ch4:
+    $ref: "#/$defs/channel"
+  ch5:
+    $ref: "#/$defs/channel"
+  ch6:
+    $ref: "#/$defs/channel"
+  ch7:
+    $ref: "#/$defs/channel"
+
+required: [mlfb, power_alarm, integ_time, ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7]
+
+$defs:
+  channel:
+    type: object
+    properties:
+      type:
+        enum: [1, 3]
+      smooth:
+        enum: [0, 1, 2, 3]
+      open_wire_alarm:
+        type: boolean
+      overflow_alarm:
+        type: boolean
+      underflow_alarm:
+        type: boolean
+
+    allOf:
+      - if:
+          properties:
+            type:
+              const: 1
+        then:
+          properties:
+            range:
+              enum: [7, 8, 9]
+        else:
+          properties:
+            range:
+              enum: [2, 3]
+      
+      - if:
+          properties:
+            range:
+              const: 2
+        then:
+          properties:
+            open_wire_alarm:
+              const: false
+      
+      - if:
+          properties:
+            range:
+              const: 3
+        then:
+          properties:
+            underflow_alarm:
+              const: false
+
+    required:
+      - type
+      - range
+      - smooth
+      - open_wire_alarm
+      - overflow_alarm
+      - underflow_alarm
+    unevaluatedProperties: false
+
+unevaluatedProperties: false
