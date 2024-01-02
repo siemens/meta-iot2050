@@ -1,0 +1,246 @@
+# Copyright (c) Siemens AG, 2023
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm1238-em-480vac'
+
+type: object
+properties:
+
+  description:
+    type: string
+
+  mlfb:
+    const: "6ES7238-5XA32-0XB0"
+
+  module_version:
+    enum: [32, 112]
+
+  con_type:
+    enum: [0x00, 0x0B, 0x0C, 0x0E, 0x0F, 0x10]
+
+  range:
+    enum: [
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+      0x09, 0x0A, 0x0B, 0x0C]
+
+  line_freq:
+    enum: [1, 2]
+
+  period_meters:
+    enum: [0, 1, 2, 3, 4, 5]
+
+  meter_gate:
+    type: boolean
+
+  line_vol_tol:
+    enum: [
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+      0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
+      0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+      0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
+      0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+      0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+      0x31, 0x32]
+
+  min_max_cal:
+    type: boolean
+
+  diag_line_vol:
+    type: boolean
+
+  ch0:
+    $ref: "#/$defs/channel"
+
+  ch1:
+    $ref: "#/$defs/channel"
+
+  ch2:
+    $ref: "#/$defs/channel"
+
+allOf:
+
+  # 3P mode for 112 bytes I / 12 bytes O
+  - if:
+      properties:
+        module_version:
+          const: 112
+        con_type:
+          enum: [0x00, 0x0C, 0x0E, 0x0F]
+    then:
+      properties:
+        data_variant:
+          enum: [
+            0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7,
+            0xF6, 0xF5, 0xF0, 0xEF, 0xE3, 0xE2, 0xE1, 0xE0,
+            0x9F, 0x9E, 0x9D, 0x9C, 0x9B, 0x9A]
+
+  # 1P mode for 112 bytes I / 12 bytes O
+  - if:
+      properties:
+        module_version:
+          const: 112
+        con_type:
+          const: 0x0B
+    then:
+      properties:
+        data_variant:
+          enum: [
+            0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF0,
+            0xEF, 0xE3, 0xE2, 0xE1, 0xE0, 0x9F, 0x9E]
+
+  # 2P mode for 112 bytes I / 12 bytes O
+  - if:
+      properties:
+        module_version:
+          const: 112
+        con_type:
+          const: 0x10
+    then:
+      properties:
+        data_variant:
+          enum: [
+            0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7,
+            0xF5, 0xF0, 0xEF, 0xE3, 0xE2, 0xE1, 0xE0, 0x9F,
+            0x9E, 0x9D, 0x9C]
+
+  # 3P mode for 32 bytes I / 12 bytes O
+  - if:
+      properties:
+        module_version:
+          const: 32
+        con_type:
+          enum: [0x00, 0x0C, 0x0E, 0x0F]
+    then:
+      properties:
+        data_variant:
+          enum: [
+            0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7,
+            0xF6, 0xF5, 0xF0, 0xEF, 0xE2, 0xE1, 0xE0, 0x9F,
+            0x9E, 0x9D, 0x9C, 0x9B, 0x9A]
+
+  # 1P mode for 32 bytes I / 12 bytes O
+  - if:
+      properties:
+        module_version:
+          const: 32
+        con_type:
+          const: 0x0B
+    then:
+      properties:
+        data_variant:
+          enum: [
+            0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF0,
+            0xEF, 0xE2, 0xE1, 0xE0, 0x9F, 0x9E]
+
+  # 2P mode for 32 bytes I / 12 bytes O
+  - if:
+      properties:
+        module_version:
+          const: 32
+        con_type:
+          const: 0x10
+    then:
+      properties:
+        data_variant:
+          enum: [
+            0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7,
+            0xF5, 0xF0, 0xEF, 0xE2, 0xE1, 0xE0, 0x9F, 0x9E,
+            0x9D, 0x9C]
+
+required:
+  - mlfb
+  - module_version
+  - con_type
+  - range
+  - line_freq
+  - period_meters
+  - meter_gate
+  - line_vol_tol
+  - min_max_cal
+  - diag_line_vol
+  - data_variant
+  - ch0
+  - ch1
+  - ch2
+
+$defs:
+  channel:
+    type: object
+    properties:
+      diag_over_cur:
+        type: boolean
+      diag_over_cal:
+        type: boolean
+      diag_ll_vol:
+        type: boolean
+      diag_under_vol:
+        type: boolean
+      diag_over_vol:
+        type: boolean
+      over_cur_tol_val:
+        type: integer
+        minimum: 10
+        maximum: 100
+      over_cur_tol_time:
+        type: integer
+        minimum: 0
+        maximum: 60000
+      ct_primary_cur:
+        type: integer
+        minimum: 1
+        maximum: 99999
+      en_gate_cir_hour_meter:
+        type: boolean
+      ct_second_cur:
+        enum: [0, 2]
+      act_hour_meter:
+        type: boolean
+      re_cur_dir:
+        type: boolean
+      ll_cur_measure:
+        type: integer
+        minimum: 2
+        maximum: 250
+      vt_second_vol:
+        type: integer
+        minimum: 1
+        maximum: 99999
+      vt_prim_vol:
+        type: integer
+        minimum: 1
+        maximum: 999999
+    required:
+      - diag_over_cur
+      - diag_over_cal
+      - diag_ll_vol
+      - diag_under_vol
+      - diag_over_vol
+      - over_cur_tol_val
+      - over_cur_tol_time
+      - ct_primary_cur
+      - en_gate_cir_hour_meter
+      - ct_second_cur
+      - act_hour_meter
+      - re_cur_dir
+      - ll_cur_measure
+      - vt_second_vol
+      - vt_prim_vol
+
+    unevaluatedProperties: false
+
+if:
+  properties:
+    con_type:
+      const: 0x0F
+then:
+  patternProperties:
+    ^ch[0-2]$:
+      properties:
+        ct_second_cur:
+          const: 0
+
+unevaluatedProperties: false

@@ -40,6 +40,7 @@ $defs:
           - 6ES7231-4HF32-0XB0
           - 6ES7231-5PD32-0XB0
           - 6ES7231-5PF32-0XB0
+          - 6ES7238-5XA32-0XB0
           - NA
 
     allOf:
@@ -66,6 +67,13 @@ $defs:
                 - 6ES7231-5PF32-0XB0
         then:
           $ref: https://iot2050-sm/sm1231-rtd
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7238-5XA32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1238-em-480vac
 
       - if:
           properties:
