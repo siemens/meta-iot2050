@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 'use client';
 
+import { exportYamlConfig, importYamlConfig } from '@/lib/smConfig/smConfig';
 import Container from '@mui/material/Container';
 import SlotInfo from '@/components/SlotInfo';
 import Divider from '@mui/material/Divider';
@@ -14,6 +15,7 @@ import PropTypes from 'prop-types';
 import { range } from 'lodash';
 import * as React from 'react';
 import { useRef } from 'react';
+import YAML from 'yaml';
 
 function TabPanel (props) {
   const { children, value, index, configData, updateSlot, ...other } = props;
@@ -46,6 +48,11 @@ function a11yProps (index) {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`
   };
+}
+
+function getYamlStr (config) {
+  const doc = new YAML.Document(exportYamlConfig(config));
+  return doc.toString();
 }
 
 export default function SMConfPage () {
@@ -90,11 +97,17 @@ export default function SMConfPage () {
   };
 
   const exportConfigFile = (event) => {
-    console.log('Not implemented!');
+    const fileData = getYamlStr(configs);
+    const blob = new Blob([fileData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = 'config.yaml';
+    link.href = url;
+    link.click();
   };
 
   const importConfFile = (event) => {
-    console.log('Not implemented!');
+    inputFile.current.click();
   };
 
   const deployConfToIOT = async (event) => {
@@ -106,7 +119,20 @@ export default function SMConfPage () {
   };
 
   const handleFileChange = (event) => {
-    console.log('Not implemented!');
+    const fileObj = event.target.files && event.target.files[0];
+    if (!fileObj) {
+      return;
+    }
+
+    // reset file input
+    event.target.value = null;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const content = reader.result;
+      setConfigs(importYamlConfig(YAML.parse(content)));
+    };
+    reader.readAsText(fileObj);
   };
 
   const debugPrint = (event) => {
