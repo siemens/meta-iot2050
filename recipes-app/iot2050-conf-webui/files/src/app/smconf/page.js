@@ -7,6 +7,7 @@ import SlotInfo from '@/components/SlotInfo';
 import Divider from '@mui/material/Divider';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -69,6 +70,12 @@ export default function SMConfPage () {
     ]
   });
 
+  const [resultFromIoT, setResultFromIoT] = React.useState({
+    display: 'none',
+    severity: 'success',
+    message: ''
+  });
+
   const inputFile = useRef(null);
 
   const slotDisabledProps = (index) => {
@@ -111,11 +118,69 @@ export default function SMConfPage () {
   };
 
   const deployConfToIOT = async (event) => {
-    console.log('Not implemented!');
+    setResultFromIoT({
+      display: 'none',
+      severity: 'success',
+      message: ''
+    });
+    const yamlConfig = exportYamlConfig(configs);
+
+    const response = await fetch('/deploy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(yamlConfig)
+    });
+    response.json().then((data) => {
+      let newSeverity = 'success';
+      if (data.message.status !== 0) {
+        newSeverity = 'error';
+      }
+      setResultFromIoT({
+        display: 'block',
+        severity: newSeverity,
+        message: data.message.message
+      });
+    }, (err) => {
+      setResultFromIoT({
+        display: 'block',
+        severity: 'error',
+        message: JSON.stringify(err)
+      });
+    });
   };
 
   const retrieveConfFromIOT = async (event) => {
-    console.log('Not implemented!');
+    setResultFromIoT({
+      display: 'none',
+      severity: 'success',
+      message: ''
+    });
+    const response = await fetch('/retrieve', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    response.json().then((data) => {
+      let newSeverity = 'success';
+      if (data.message.status !== 0) {
+        newSeverity = 'error';
+      }
+      setResultFromIoT({
+        display: 'block',
+        severity: newSeverity,
+        message: data.message.message
+      });
+      setConfigs(importYamlConfig(YAML.parse(data.message.yaml_data)));
+    }, (err) => {
+      setResultFromIoT({
+        display: 'block',
+        severity: 'error',
+        message: JSON.stringify(err)
+      });
+    });
   };
 
   const handleFileChange = (event) => {
@@ -168,6 +233,18 @@ export default function SMConfPage () {
             <Button variant="contained" onClick={debugPrint} sx={{ display: 'none' }}>
               <Box sx={{ textTransform: 'none' }}>Debug Print</Box>
             </Button>
+          </Stack>
+          <Stack sx={{ width: '100%', display: resultFromIoT.display }} spacing={2}>
+            <Alert
+              onClose={() => {
+                setResultFromIoT({
+                  display: 'none',
+                  severity: resultFromIoT.severity,
+                  message: resultFromIoT.message
+                });
+              }}
+              severity={resultFromIoT.severity}
+            >{resultFromIoT.message}</Alert>
           </Stack>
           <Divider />
 
