@@ -1,0 +1,16 @@
+# Copyright (c) Siemens AG, 2023
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 Extended IO FUSE filesystem daemon
+# Only run on IOT2050-SM variant
+ConditionFirmware=device-tree-compatible(siemens,iot2050-advanced-sm)
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/iot2050-eiofsd /eiofs
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
