@@ -15,6 +15,7 @@ try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
+import bitstruct
 from jsonschema import RefResolver
 from jsonschema.exceptions import ValidationError
 from jsonschema import Draft202012Validator
@@ -55,6 +56,64 @@ class ModuleSerDes(ABC):
         """
 
 
+class SM1223SerDes(ModuleSerDes):
+    """SM1223 Configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+        header_fmt = 'p8 u8'
+        di_ch_fmt = 'p8 p4u4'
+        dq_ch_fmt = 'p8 u1p1u2p1p3'
+        self.serdesfmt = ''.join([header_fmt, di_ch_fmt * 8, header_fmt, dq_ch_fmt * 8])
+
+    def serialize(self, config: Dict) -> bytes:
+        parameters = [0x02]
+        for i in range(0, 8):
+            if i < 4:
+                parameters.append(config['di']['ch0_3_delay_time'])
+            else:
+                parameters.append(config['di']['ch4_7_delay_time'])
+        parameters.append(0x02)
+        for i in range(0, 8):
+            parameters.append(config['dq'][f'ch{i}']['substitute'])
+            parameters.append(config['dq']['behavior_with_OD'])
+        return bitstruct.pack(self.serdesfmt, *parameters)
+
+    def deserialize(self, blob: bytes) -> Dict:
+        config = {
+            "description": "SM 1223 DI8 x 120VAC / DQ8 x relay",
+            "mlfb": self.mlfb,
+            "di": {
+                "ch0_3_delay_time": "",
+                "ch4_7_delay_time": ""
+            },
+            "dq": {
+                "behavior_with_OD": "",
+                "ch0": {"substitute": ""},
+                "ch1": {"substitute": ""},
+                "ch2": {"substitute": ""},
+                "ch3": {"substitute": ""},
+                "ch4": {"substitute": ""},
+                "ch5": {"substitute": ""},
+                "ch6": {"substitute": ""},
+                "ch7": {"substitute": ""}
+            }
+        }
+
+        _, \
+        config['di']['ch0_3_delay_time'], _, _, _, \
+        config['di']['ch4_7_delay_time'], _, _, _, \
+        _, \
+        config['dq']['ch0']['substitute'], config['dq']['behavior_with_OD'], \
+        config['dq']['ch1']['substitute'], _, \
+        config['dq']['ch2']['substitute'], _, \
+        config['dq']['ch3']['substitute'], _, \
+        config['dq']['ch4']['substitute'], _, \
+        config['dq']['ch5']['substitute'], _, \
+        config['dq']['ch6']['substitute'], _, \
+        config['dq']['ch7']['substitute'], _ = bitstruct.unpack(self.serdesfmt, blob)
+        return config
+
+
 class NoModSerDes(ModuleSerDes):
     """No module configuration (de)/serializer"""
     def __init__(self, mlfb):
@@ -74,7 +133,10 @@ class ModSerDesFactory(object):
     @classmethod
     def produce(cls, mlfb='NA') -> ModuleSerDes:
         mlfb = mlfb.rstrip('\0')
-        return NoModSerDes(mlfb)
+        if mlfb == '6ES7223-1QH32-0XB0':
+            return SM1223SerDes(mlfb)
+        else:
+            return NoModSerDes(mlfb)
 
 
 class EIOConfigSerDes():
