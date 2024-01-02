@@ -9,6 +9,8 @@ The core is a RPC service implemented with the help of gPRC.
 
 In addition:
  - A FUSE service for loading the eio file system.
+ - A time syncing service for sync the system time to extended IO
+   controller.
 
 ## Regenerate the gRPC python modules if proto file changes:
 
@@ -28,6 +30,12 @@ EIO_API_SERVER_HOSTNAME="localhost"
 
 # IOT2050 Extended IO API server port
 EIO_API_SERVER_PORT="5020"
+
+# Periodically syncing timestamp to Extended IO controller
+EIO_TIME_SYNC_INTERVAL=30
+
+# Extended IO FUSE filesystem path for timestamp syncing
+EIO_FS_TIMESTAMP="/tmp/eiofs-proc-datetime"
 ```
 
 Then under `files` folder, run:
