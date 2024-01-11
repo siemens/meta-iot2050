@@ -208,7 +208,12 @@ $ complete_update.sh
 ```
 
 The script sets the update state in the EFI Boot Guard configuration to the
-initial state.
+"success" state. It shall be considered as a placeholder for a more precise
+logic which first needs to validate if the new image version is sufficiently
+functional to accept the next update. The exact condition for this depends on
+the concrete integration and the way how updates are deployed to the device.
+If the update happens over network, checking the connection to the update
+server first before confirming the update is strongly recommended.
 
 If the update is deemed failed, resetting the device will select the previous
 root file system.
