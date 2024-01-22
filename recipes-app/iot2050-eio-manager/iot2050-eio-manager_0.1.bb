@@ -12,7 +12,7 @@ inherit dpkg-raw
 DESCRIPTION = "IOT2050 Extended IO Manager"
 MAINTAINER = "baocheng.su@siemens.com"
 
-SRC_URI = "file://bin/iot2050-eiofsd \
+SRC_URI = " \
     file://gRPC/EIOManager/iot2050_eio_pb2_grpc.py \
     file://gRPC/EIOManager/iot2050_eio_pb2.py \
     file://gRPC/EIOManager/iot2050_eio_pb2.pyi \
@@ -26,8 +26,6 @@ SRC_URI = "file://bin/iot2050-eiofsd \
     file://iot2050-eio-time-syncing.service \
     file://iot2050-eiod.service \
     file://iot2050-eiofsd.service \
-    file://bin/map3-fw.bin \
-    file://bin/firmware-version \
     file://iot2050_eio_fwu.py \
     file://iot2050_eio_fwu_monitor.py \
     file://iot2050-eio-fwu-monitor.service \
@@ -49,9 +47,34 @@ SRC_URI += " \
     file://config-template/mlfb-NA.yaml \
     "
 
+SRC_URI_BIN_PREDOWNLOAD = " \
+    file://bin/iot2050-eiofsd \
+    file://bin/map3-fw.bin \
+    file://bin/firmware-version \
+    "
+
+SRC_URI += "${SRC_URI_BIN_PREDOWNLOAD}"
+
 DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv, python3-jsonschema, \
 python3-yaml, python3-bitstruct, python3-libgpiod, libflashrom1, libflashrom-dev, \
 python3-progress, python3-psutil,"
+
+python do_fetch:prepend() {
+    import textwrap
+    src_uri_bin = (d.getVar('SRC_URI_BIN_PREDOWNLOAD') or "").split()
+    if len(src_uri_bin) == 0:
+        return
+
+    try:
+        fetcher = bb.fetch2.Fetch(src_uri_bin, d)
+        fetcher.checkstatus()
+    except bb.fetch2.BBFetchException as e:
+        text = textwrap.dedent(f"""\
+            {str(e)}
+            Please download the EIO binaries from SIOS before building!
+            Check the README.md for details.""")
+        bb.fatal(text)
+}
 
 do_install() {
     install -v -d ${D}/usr/lib/
