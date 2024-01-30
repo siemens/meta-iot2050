@@ -25,24 +25,6 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.bmap
 
-  debian-rt-example-image:
-    name: Debian RT example image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Free Disk Space
-        uses: ./.github/workflows/free-disk-space
-      - name: Build image
-        run: ./kas-container build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
-      - name: Upload image
-        uses: actions/upload-artifact@v3
-        with:
-          name: iot2050-example-image-rt
-          path: |
-            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
-            build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.bmap
-
   debian-swupdate-image:
     name: Debian secure boot SWUpdate image
     runs-on: ubuntu-latest
@@ -52,11 +34,11 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
-        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml
       - name: Upload image
         uses: actions/upload-artifact@v3
         with:
-          name: iot2050-swupdate-image
+          name: iot2050-secureboot-swu-image
           path: |
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.bmap
