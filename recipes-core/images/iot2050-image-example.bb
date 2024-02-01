@@ -41,6 +41,7 @@ IMAGE_INSTALL += " \
     libteec1 \
     optee-client-dev \
     tee-supplicant \
+    read-rtc-battery \
     "
 
 IOT2050_NODE_RED_SUPPORT ?= "1"
