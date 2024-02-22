@@ -1,2 +1,3 @@
-SUBSYSTEM=="tty", SUBSYSTEMS=="usb", KERNELS=="3-1.4:1.0", DRIVERS=="cp210x", SYMLINK+="ttyX30"
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb", KERNELS=="3-1.4:1.0", PROGRAM!="/usr/bin/grep 'siemens,iot2050-advanced$' /proc/device-tree/compatible", DRIVERS=="cp210x", SYMLINK+="ttyX30"
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb", KERNELS=="1-1.4:1.0", PROGRAM=="/usr/bin/grep 'siemens,iot2050-advanced$' /proc/device-tree/compatible", DRIVERS=="cp210x", SYMLINK+="ttyX30"
 SUBSYSTEM=="tty", KERNEL=="ttyS2", DRIVERS=="omap8250", SYMLINK+="ttyX30"
