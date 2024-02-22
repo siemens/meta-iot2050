@@ -47,10 +47,10 @@ SRC_URI += " \
     file://config-template/mlfb-NA.yaml \
     "
 
-SRC_URI_BIN_PREDOWNLOAD = " \
+SRC_URI_BIN_PREDOWNLOAD = "${@ ' \
     file://bin/iot2050-eiofsd \
     file://bin/map3-fw.bin \
-    file://bin/firmware-version \
+    file://bin/firmware-version ' if d.getVar('IOT2050_EIO_SUPPORT') == '1' else '' } \
     "
 
 SRC_URI += "${SRC_URI_BIN_PREDOWNLOAD}"
