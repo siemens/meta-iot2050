@@ -23,6 +23,8 @@ WKS_FILE:secureboot = "iot2050-swu-secure.wks.in"
 IMAGE_FSTYPES += "swu"
 SWU_ROOTFS_TYPE:secureboot = "verity"
 
+SWU_HW_COMPAT = "IOT2050"
+
 # watchdog is managed by U-Boot - disable
 WDOG_TIMEOUT = "0"
 
@@ -38,7 +40,7 @@ IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
 # EFI Boot Guard is used instead
 IMAGE_INSTALL:remove = "u-boot-script"
 
-IMAGE_INSTALL += "customizations-swupdate"
+IMAGE_INSTALL += "swupdate-config"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
 IMAGE_INSTALL += "${@ 'iot2050-watchdog' if d.getVar('QEMU_IMAGE') != '1' else '' }"
