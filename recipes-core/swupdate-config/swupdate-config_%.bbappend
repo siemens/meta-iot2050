@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2023-2024
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -8,15 +8,8 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-inherit dpkg-raw
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DESCRIPTION = "IOT2050 swupdate image customizations"
 
-DEBIAN_DEPENDS = "swupdate"
-
-SRC_URI = "file://swupdate.cfg"
-
-do_install() {
-    install -v -d ${D}/etc/
-    install -v -m 644 ${WORKDIR}/swupdate.cfg ${D}/etc/
-}
+MACHINE_HW_VERSION = "IOT2050"
