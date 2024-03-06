@@ -36,6 +36,8 @@ as follows:
 ```sh
 cp /usr/lib/iot2050/event/iot2050-event-record.conf /etc/systemd/system/iot2050-event-record.service.d/
 ```
+If changing the tilting threshold and uncovering threshold is expected, please
+refer to the ``iot2050-event-record.conf`` for the details.
 
 ### Watchdog events
 

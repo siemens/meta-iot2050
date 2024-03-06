@@ -130,8 +130,6 @@ def record_eio_events():
 
 IIO_IMU_PATH = "/sys/devices/platform/bus@100000/2030000.i2c/i2c-5/5-006a/"
 IIO_PRO_PATH = "/sys/devices/platform/bus@100000/2030000.i2c/i2c-5/5-0044/"
-ACCEL_CRITICAL_VALUE = 1000
-LUX_CRITICAL_VALUE = 300
 def record_sensor_events():
     accel_x_raw = "{}/in_accel_x_raw"
     accel_y_raw = "{}/in_accel_y_raw"
@@ -154,6 +152,8 @@ def record_sensor_events():
         open(accel_z_raw, 'r') as z, \
         open(pro_raw, 'r') as l:
         is_uncovered = False
+        accel_critical_value = int(os.getenv('ACCEL_CRITICAL_VALUE'))
+        lux_critical_value = int(os.getenv('LUX_CRITICAL_VALUE'))
         while True:
             # Detect tilt sensor event
             x.seek(0)
@@ -168,9 +168,9 @@ def record_sensor_events():
             x.seek(0)
             y.seek(0)
             z.seek(0)
-            if abs(int(x.read()) - old_x) > ACCEL_CRITICAL_VALUE or \
-                abs(int(y.read()) - old_y) > ACCEL_CRITICAL_VALUE or \
-                abs(int(z.read()) - old_z) > ACCEL_CRITICAL_VALUE:
+            if abs(int(x.read()) - old_x) > accel_critical_value or \
+                abs(int(y.read()) - old_y) > accel_critical_value or \
+                abs(int(z.read()) - old_z) > accel_critical_value:
                 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 tilted_event = EVENT_STRINGS["tilt"].format(now)
                 write_event(EVENT_TYPES["tilt"], tilted_event)
@@ -178,12 +178,12 @@ def record_sensor_events():
             # Detect tamper sensor event
             l.seek(0)
             lux = int(l.read())
-            if lux < LUX_CRITICAL_VALUE and not is_uncovered:
+            if lux < lux_critical_value and not is_uncovered:
                 is_uncovered = True
                 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 uncover_event = EVENT_STRINGS["uncover"].format(now)
                 write_event(EVENT_TYPES["uncover"], uncover_event)
-            elif lux > LUX_CRITICAL_VALUE and is_uncovered:
+            elif lux > lux_critical_value and is_uncovered:
                 is_uncovered = False
 
 def event_record():
