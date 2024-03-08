@@ -30,6 +30,8 @@ SRC_URI = " \
     ${@get_prueth_fw(d, 'am65x-sr2-txpru1-prueth-fw.elf', '7d1bcde936bdf9606c1810c3316439e79d6d8b6f2751919d1d654abeb1545613')} \
     "
 
+DEB_BUILD_OPTIONS = "nostrip"
+
 do_install() {
     install -v -d ${D}/lib/firmware/ti-pruss
     install -v -m 644 ${WORKDIR}/am65x-*.elf ${D}/lib/firmware/ti-pruss
