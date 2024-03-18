@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iot2050-example-image
           path: |
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Mock EIO binary stubs
@@ -41,7 +41,7 @@ jobs:
       - name: Build image
         run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml
       - name: Upload image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iot2050-secureboot-swu-image
           path: |
@@ -53,13 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image
         run: ./kas-container build kas-iot2050-boot.yml
       - name: Archive bootloaders
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iot2050-bootloaders
           path: build/tmp/deploy/images/iot2050/*.bin
