@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) Siemens AG, 2024
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+import os
+import sys
+import argparse
+import textwrap
+
+def main(args):
+    description=textwrap.dedent('''\
+        Script for updating module firmware on IoT2050
+        Examples usage:
+          1. iot2050-module-firmware-update -s 1 -fwa firmwareA.bin
+          2. iot2050-module-firmware-update -s 1 -fwa firmwareA.bin -fwb firmwareB.bin
+         ''')
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "-s", "--slot",
+        type=int,
+        required=True,
+        help="Slot number"
+    )
+    parser.add_argument(
+        "-fwa", "--firmware-a",
+        help="Path to firmware A file",
+        type=argparse.FileType('rb')
+    )
+    parser.add_argument(
+        "-fwb", "--firmware-b",
+        help="Path to firmware B file",
+        type=argparse.FileType('rb')
+    )
+    args = parser.parse_args(args)
+
+    if not args.firmware_a and not args.firmware_b:
+        print("Error: No firmware file specified")
+        parser.print_help()
+        return 1
+
+    slot_path = f"/eiofs/controller/slot{args.slot}"
+    if args.firmware_a:
+        print("Updating firmware A ...")
+        try:
+            with open(slot_path + "/fwa", "wb") as f:
+                f.write(args.firmware_a.read())
+        except Exception as e:
+            print(f"Error: Failed to write firmware A, {e}")
+            return 1
+
+    if args.firmware_b:
+        print("Updating firmware B ...")
+        try:
+            with open(slot_path + "/fwb", "wb") as f:
+                f.write(args.firmware_b.read())
+        except Exception as e:
+            print(f"Error: Failed to write firmware B, {e}")
+            return 1
+
+    print("Firmware updated successfully. Please reboot the upgraded module.")
+
+    return 0
+
+if __name__ == '__main__':
+    CODE = main(sys.argv[1:])
+    sys.exit(CODE)
+
