@@ -71,7 +71,7 @@ class EIOManagerServicer(BaseEIOManagerServicer):
         return SyncTimeReply(status=0, message=f'{time}')
 
     def UpdateFirmware(self, request: UpdateFirmwareRequest, context):
-        status, message = update_firmware(request.firmware)
+        status, message = update_firmware(request.firmware, request.entity)
         return UpdateFirmwareReply(status=status, message=f'{message}')
 
     def CheckFWU(self, request: CheckFWURequest, context):

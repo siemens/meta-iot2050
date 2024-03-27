@@ -1,0 +1,64 @@
+From b38646e913886c05ec35ccffe7071cfeed5b5161 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Fri, 22 Mar 2024 10:24:26 +0800
+Subject: [PATCH] arm: dts: iot2050: Disable lock-step mode for all iot2050
+ boards
+
+The PG1 A variant of the iot2050 series has been identified which
+partially lacks support for lock-step mode. This implies that not all
+iot2050 boards can support this mode. As a result, lock-step mode has
+been disabled across all iot2050 boards for consistency and to avoid
+potential issues.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi | 5 -----
+ arch/arm/dts/k3-am65-iot2050-common.dtsi     | 5 +++++
+ arch/arm/dts/k3-am6528-iot2050-basic.dts     | 5 -----
+ 3 files changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi b/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
+index 42adb881..48f187f2 100644
+--- a/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-common-pg2.dtsi
+@@ -9,11 +9,6 @@
+  * Common bits of the IOT2050 Basic and Advanced variants, PG2
+  */
+ 
+-&mcu_r5fss0 {
+-	/* lock-step mode not supported on PG2 boards */
+-	ti,cluster-mode = <0>;
+-};
+-
+ &main_pmx0 {
+ 	cp2102n_reset_pin_default: cp2102n-reset-default-pins {
+ 		pinctrl-single,pins = <
+diff --git a/arch/arm/dts/k3-am65-iot2050-common.dtsi b/arch/arm/dts/k3-am65-iot2050-common.dtsi
+index 279d97a1..f4f6aeba 100644
+--- a/arch/arm/dts/k3-am65-iot2050-common.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-common.dtsi
+@@ -599,3 +599,8 @@
+ &mcasp2 {
+ 	status = "disabled";
+ };
++
++&mcu_r5fss0 {
++	/* lock-step mode not supported on iot2050 boards */
++	ti,cluster-mode = <0>;
++};
+diff --git a/arch/arm/dts/k3-am6528-iot2050-basic.dts b/arch/arm/dts/k3-am6528-iot2050-basic.dts
+index be9c8db4..87928ff2 100644
+--- a/arch/arm/dts/k3-am6528-iot2050-basic.dts
++++ b/arch/arm/dts/k3-am6528-iot2050-basic.dts
+@@ -22,8 +22,3 @@
+ 	compatible = "siemens,iot2050-basic", "ti,am654";
+ 	model = "SIMATIC IOT2050 Basic";
+ };
+-
+-&mcu_r5fss0 {
+-	/* lock-step mode not supported on this board */
+-	ti,cluster-mode = <0>;
+-};
+-- 
+2.30.2
+

@@ -56,19 +56,21 @@ def show_progress_bar(task, interval):
             time.sleep(interval)
 
 
-def do_update_firmware(firmware):
+def do_update_firmware(firmwares):
     with grpc.insecure_channel(iot2050_eio_api_server) as channel:
         stub = EIOManagerStub(channel)
         print("===================================================")
         print("EIO firmware update started - DO NOT INTERRUPT!")
         print("===================================================")
-        with ThreadPoolExecutor(max_workers=1) as pool:
-            future = pool.submit(
-                stub.UpdateFirmware,
-                UpdateFirmwareRequest(firmware=firmware)
-            )
-            show_progress_bar(future, 0.3)
-        print()
+        for entity in firmwares:
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                future = pool.submit(
+                    stub.UpdateFirmware,
+                    UpdateFirmwareRequest(firmware=firmwares[entity],
+                                          firmware_type=entity)
+                )
+                show_progress_bar(future, 0.3)
+            print()
 
     response = future.result()
     print(f"Extended IO firmware update result: {response.status}")
@@ -86,7 +88,7 @@ if __name__ == "__main__":
         2. %(prog)s config retrieve config.yaml
             Retrieve the config from Extended IO Controller and store into config.yaml
         3. %(prog)s fwu controller [firmware.bin]
-            update firmware for Extended IO Controller, using firmware.bin if provided,
+            Update firmware for Extended IO Controller, using firmware.bin if provided,
             otherwise using the stock firmware file.
 
         Example Configuration File:
@@ -111,11 +113,13 @@ if __name__ == "__main__":
                         help='Config file in yaml format')
 
     fwu_parser = subparsers.add_parser("fwu", help='firmware update help')
-    fwu_parser.add_argument('action', metavar='ACTION',
-                        choices=['controller', 'module'],
-                        help='Specify the firmware update type')
-    fwu_parser.add_argument('firmware', nargs='?', metavar='FIRMWARE', type=str,
-                        help='Firmware file')
+    fwu_subparsers = fwu_parser.add_subparsers(help='sub-command help',
+                                       title='fwu-commands',
+                                       dest="fwu_command")
+    controller_parser = fwu_subparsers.add_parser("controller", help='controller help')
+    controller_parser.add_argument('firmware', nargs='?', metavar='FIRMWARE',
+                                   type=argparse.FileType('rb'),
+                                   help='Firmware file')
 
     args = parser.parse_args()
 
@@ -141,21 +145,24 @@ if __name__ == "__main__":
             with open(args.config, 'w', encoding='ascii') as f_config:
                 f_config.write(config_returned)
     elif args.command == 'fwu':
-        if args.firmware:
-            firmware = args.firmware
-        else:
-            firmware = EIO_FWU_MAP3_FW_BIN
-            status, message = do_fwu_check()
-            if status == 0:
-                # no need to update!
-                print(message)
-                sys.exit(0)
+        if args.fwu_command == 'controller':
+            firmwares = {}
+            # Map3 firmware
+            if args.firmware:
+                firmwares[0] = args.firmware.read()
+            else:
+                firmwares[0] = open(EIO_FWU_MAP3_FW_BIN, "rb").read()
+                status, message = do_fwu_check()
+                if status == 0:
+                    # no need to update!
+                    print(message)
+                    sys.exit(0)
 
-        response = do_update_firmware(firmware)
-        if response.status:
-            print(f"ERROR: {response.message}")
-            print("EIO firmware update failed, please try again!")
-            sys.exit(1)
+            response = do_update_firmware(firmwares)
+            if response.status:
+                print(f"ERROR: {response.message}")
+                print("EIO firmware update failed, please try again!")
+                sys.exit(1)
 
         print("EIO firmware update completed. Please reboot the device.")
     else:

@@ -53,8 +53,8 @@ class UpdateFirmwareRequest(_message.Message):
     ENTITY_FIELD_NUMBER: _ClassVar[int]
     FIRMWARE_FIELD_NUMBER: _ClassVar[int]
     entity: int
-    firmware: str
-    def __init__(self, entity: _Optional[int] = ..., firmware: _Optional[str] = ...) -> None: ...
+    firmware: bytes
+    def __init__(self, entity: _Optional[int] = ..., firmware: _Optional[bytes] = ...) -> None: ...
 
 class UpdateFirmwareReply(_message.Message):
     __slots__ = ["status", "message"]

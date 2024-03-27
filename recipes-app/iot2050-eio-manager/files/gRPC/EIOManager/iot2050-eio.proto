@@ -76,11 +76,13 @@ message SyncTimeReply {
 
 /* ----------------- Update EIO firmware ----------------- */
 /* UpdateFirmwareRequest
- * - entity: 0 means checking for EIO controller
+ * - entity: 0 means updating for EIO controller
+ *           1 means updating for module
+ * - firmware_type: a customized string to specify the firmware type
  */
 message UpdateFirmwareRequest {
   int32 entity = 1;
-  string firmware = 2;
+  bytes firmware = 2;
 }
 
 /* UpdateFirmwareReply
