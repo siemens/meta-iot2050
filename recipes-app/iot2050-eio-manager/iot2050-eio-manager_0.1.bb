@@ -57,7 +57,7 @@ SRC_URI += "${SRC_URI_BIN_PREDOWNLOAD}"
 
 DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv, python3-jsonschema, \
 python3-yaml, python3-bitstruct, python3-libgpiod, libflashrom1, libflashrom-dev, \
-python3-progress, python3-psutil,"
+python3-progress, python3-psutil, libfuse2, "
 
 python do_fetch:prepend() {
     import textwrap
