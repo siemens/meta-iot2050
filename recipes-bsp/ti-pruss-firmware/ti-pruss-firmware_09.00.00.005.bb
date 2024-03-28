@@ -34,3 +34,5 @@ do_install() {
     install -v -d ${D}/lib/firmware/ti-pruss
     install -v -m 644 ${WORKDIR}/am65x-*.elf ${D}/lib/firmware/ti-pruss
 }
+
+DEBIAN_COMPAT = "10"
