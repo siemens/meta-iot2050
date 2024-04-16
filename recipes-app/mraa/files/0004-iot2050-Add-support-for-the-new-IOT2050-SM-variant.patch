@@ -15,7 +15,7 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  4 files changed, 75 insertions(+)
 
 diff --git a/api/mraa/types.h b/api/mraa/types.h
-index 8c9a30639450..1c1dd330a3c5 100644
+index f64c40d119a8..b46dbfe737f5 100644
 --- a/api/mraa/types.h
 +++ b/api/mraa/types.h
 @@ -69,6 +69,7 @@ typedef enum {
@@ -46,10 +46,10 @@ index 76df024e7759..e7991862d6b4 100644
  }
  #endif
 diff --git a/src/arm/arm.c b/src/arm/arm.c
-index 0a44d0f6399d..50b3d4d5d22e 100644
+index 45fe84ff0090..ddb96c986e10 100644
 --- a/src/arm/arm.c
 +++ b/src/arm/arm.c
-@@ -99,6 +99,8 @@ mraa_arm_platform()
+@@ -100,6 +100,8 @@ mraa_arm_platform()
              platform_type = MRAA_RASPBERRY_PI;
          else if (mraa_file_contains("/proc/device-tree/model", "ADLINK ARM, LEC-PX30"))
              platform_type = MRAA_ADLINK_IPI;
@@ -58,7 +58,7 @@ index 0a44d0f6399d..50b3d4d5d22e 100644
          else if (mraa_file_contains("/proc/device-tree/model", "SIMATIC IOT2050"))
              platform_type = MRAA_SIEMENS_IOT2050;
      }
-@@ -130,6 +132,9 @@ mraa_arm_platform()
+@@ -131,6 +133,9 @@ mraa_arm_platform()
          case MRAA_SIEMENS_IOT2050:
              plat = mraa_siemens_iot2050();
              break;
