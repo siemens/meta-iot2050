@@ -16,6 +16,12 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0002-common-increase-pin-name-size.patch \
             file://0003-iot2050-add-debugfs-pinmux-support.patch \
             file://0004-iot2050-Add-support-for-the-new-IOT2050-SM-variant.patch \
+            file://0005-gpio-chardev-init-compatibility.patch \
+            file://0006-gpio-chardev-add-support-for-more-direction-flags.patch \
+            file://0007-gpio-chardev-fix-ressource-handling.patch \
+            file://0008-iot2050-add-helper-function-to-convert-gpio-number-t.patch \
+            file://0009-iot2050-add-support-for-gpio-chardev-interface.patch \
+            file://20-mraa-permissions.rules \
             file://rules"
 SRCREV = "8b1c54934e80edc2d36abac9d9c96fe1e01cb669"
 
@@ -37,5 +43,7 @@ do_prepare_build[cleandirs] += "${S}/debian"
 do_prepare_build() {
     deb_debianize
 
+    cp ${WORKDIR}/20-mraa-permissions.rules ${S}/debian/20-mraa-permissions.rules
+    echo "debian/20-mraa-permissions.rules etc/udev/rules.d" > ${S}/debian/install
     echo "usr/share/java/mraa.jar usr/share/java/mraa-${PV}.jar" > ${S}/debian/mraa.links
 }
