@@ -12,13 +12,6 @@ endif
 override_dh_auto_build:
 	if [ -e keys ]; then \
 		tools/key2dtsi.py -c -s keys/custMpk.pem arch/arm/dts/custMpk.dtsi; \
-		openssl x509 -in keys/custMpk.crt -out custMpk.crt.pem -outform der; \
-		rm -f custMpk.esl; \
-		efisiglist -a -c custMpk.crt.pem -o custMpk.esl; \
-		rm -f ubootefi.var; \
-		tools/efivar.py set -i ubootefi.var -n PK -d custMpk.esl -t file; \
-		tools/efivar.py set -i ubootefi.var -n KEK -d custMpk.esl -t file; \
-		tools/efivar.py set -i ubootefi.var -n db -d custMpk.esl -t file; \
 	fi
 	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_CONFIG}
 	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_BIN} \
