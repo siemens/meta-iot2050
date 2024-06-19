@@ -10,7 +10,7 @@ SET_CROSS_BUILD_TOOLS=CROSS_BUILD_TOOLS=y
 endif
 
 override_dh_auto_build:
-	if [ -e keys ]; then \
+	if [ "${SB_SIGN}" = "1" ]; then \
 		tools/key2dtsi.py -c -s keys/custMpk.pem arch/arm/dts/custMpk.dtsi; \
 	fi
 	$(MAKE) $(PARALLEL_MAKE) ${U_BOOT_CONFIG}
@@ -22,7 +22,7 @@ override_dh_auto_build:
 	else \
 		./scripts/get_default_envs.sh >u-boot-initial-env; \
 	fi
-	if [ -e keys ]; then \
+	if [ "${SB_SIGN}" = "1" ]; then \
 		tools/iot2050-sign-fw.sh keys/custMpk.pem ${FIRMWARE_SECURE_VER}; \
 	fi
 	$(MAKE) $(PARALLEL_MAKE) $(SET_CROSS_BUILD_TOOLS) NO_SDL=1 tools-only envtools
