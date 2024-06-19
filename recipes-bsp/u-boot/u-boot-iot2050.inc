@@ -19,7 +19,6 @@ SRC_URI:append:secureboot = " \
     file://keys/custMpk.crt \
     file://keys/custMpk.key \
     file://keys/custMpk.pem \
-    file://keys/x509-sysfw-template.txt \
     file://secure-boot.cfg"
 SRC_URI:append:otpcmd = " \
     file://otpcmd.cfg"
