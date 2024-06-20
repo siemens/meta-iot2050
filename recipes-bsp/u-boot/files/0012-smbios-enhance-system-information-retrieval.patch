@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 20 Jun 2024 15:28:21 +0800
+Subject: [PATCH] smbios: enhance system information retrieval
+
+add support to get serial number and uuid value of system info from sysinfo
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ include/sysinfo.h | 2 ++
+ lib/smbios.c      | 8 ++++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/include/sysinfo.h b/include/sysinfo.h
+index b140d742e93d..e38c65caf9c2 100644
+--- a/include/sysinfo.h
++++ b/include/sysinfo.h
+@@ -42,6 +42,8 @@ enum sysinfo_id {
+ 
+ 	/* For SMBIOS tables */
+ 	SYSINFO_ID_SMBIOS_SYSTEM_VERSION,
++	SYSINFO_ID_SMBIOS_SYSTEM_SERIAL_NUMBER,
++	SYSINFO_ID_SMBIOS_SYSTEM_UUID,
+ 	SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
+ 
+ 	/* For show_board_info() */
+diff --git a/lib/smbios.c b/lib/smbios.c
+index d7f4999e8b2a..ad9db020854b 100644
+--- a/lib/smbios.c
++++ b/lib/smbios.c
+@@ -275,6 +275,7 @@ static int smbios_write_type1(ulong *current, int handle,
+ 	struct smbios_type1 *t;
+ 	int len = sizeof(struct smbios_type1);
+ 	char *serial_str = env_get("serial#");
++	char the_uuid[16] = {0};
+ 
+ 	t = map_sysmem(*current, len);
+ 	memset(t, 0, sizeof(struct smbios_type1));
+@@ -293,7 +294,14 @@ static int smbios_write_type1(ulong *current, int handle,
+ 		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
+ 	} else {
+ 		t->serial_number = smbios_add_prop(ctx, "serial");
++		if (!t->serial_number)
++			t->serial_number = smbios_add_prop_si(ctx, "serial",
++				SYSINFO_ID_SMBIOS_SYSTEM_SERIAL_NUMBER);
+ 	}
++	if (!sysinfo_get_str(ctx->dev, SYSINFO_ID_SMBIOS_SYSTEM_UUID,
++			     sizeof(the_uuid), the_uuid))
++		strncpy((char *)t->uuid, the_uuid, sizeof(t->uuid));
++
+ 	t->sku_number = smbios_add_prop(ctx, "sku");
+ 	t->family = smbios_add_prop(ctx, "family");
+ 

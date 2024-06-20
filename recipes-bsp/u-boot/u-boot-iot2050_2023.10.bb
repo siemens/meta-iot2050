@@ -23,6 +23,8 @@ SRC_URI += " \
     file://0009-dts-iot2050-Sync-kernel-dts-to-u-boot.patch \
     file://0010-dts-iot2050-Support-new-IOT2050-SM-variant.patch \
     file://0011-arm-dts-iot2050-Disable-lock-step-mode-for-all-iot20.patch \
+    file://0012-smbios-enhance-system-information-retrieval.patch \
+    file://0013-iot2050-add-smbios-and-sysinfo-support.patch \
     "
 
 SRC_URI[sha256sum] = "e00e6c6f014e046101739d08d06f328811cebcf5ae101348f409cbbd55ce6900"

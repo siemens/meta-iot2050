@@ -1,0 +1,530 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 20 Jun 2024 15:32:37 +0800
+Subject: [PATCH] iot2050: add smbios and sysinfo support
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ .../dts/k3-am65-iot2050-common-u-boot.dtsi    |  18 ++
+ board/siemens/iot2050/board.c                 | 158 ++++++++++++------
+ common/spl/Kconfig                            |   5 +
+ configs/iot2050_defconfig                     |   3 +
+ drivers/sysinfo/Kconfig                       |   7 +
+ drivers/sysinfo/Makefile                      |   1 +
+ drivers/sysinfo/iot2050.c                     | 144 ++++++++++++++++
+ drivers/sysinfo/iot2050.h                     |  26 +++
+ 8 files changed, 308 insertions(+), 54 deletions(-)
+ create mode 100644 drivers/sysinfo/iot2050.c
+ create mode 100644 drivers/sysinfo/iot2050.h
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
+index 082a3c89d0fd..b239b48514a8 100644
+--- a/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-common-u-boot.dtsi
+@@ -14,6 +14,24 @@
+ 		spi0 = &ospi0;
+ 	};
+ 
++	sysinfo {
++		compatible = "siemens,iot2050-sysinfo";
++		/* TI_SRAM_SCRATCH_BOARD_EEPROM_START */
++		offset = <0x40280000>;
++		bootph-pre-ram;
++
++		smbios {
++			system {
++				manufacturer = "SIEMENS AG";
++				product = "SIMATIC IOT2050";
++			};
++
++			baseboard {
++				manufacturer = "SIEMENS AG";
++			};
++		};
++	};
++
+ 	leds {
+ 		bootph-pre-ram;
+ 		status-led-red {
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 8497212ab890..5ae5e3b3183f 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -21,32 +21,14 @@
+ #include <spl.h>
+ #include <version.h>
+ #include <linux/delay.h>
++#include <linux/string.h>
+ #include <asm/arch/hardware.h>
+ #include <asm/gpio.h>
+ #include <asm/io.h>
+ 
+-#define IOT2050_INFO_MAGIC		0x20502050
+-
+-struct iot2050_info {
+-	u32 magic;
+-	u16 size;
+-	char name[20 + 1];
+-	char serial[16 + 1];
+-	char mlfb[18 + 1];
+-	char uuid[32 + 1];
+-	char a5e[18 + 1];
+-	u8 mac_addr_cnt;
+-	u8 mac_addr[8][ARP_HLEN];
+-	char seboot_version[40 + 1];
+-	u8 padding[3];
+-	u32 ddr_size_mb;
+-} __packed;
++#include "../../../../drivers/sysinfo/iot2050.h"
+ 
+-/*
+- * Scratch SRAM (available before DDR RAM) contains extracted EEPROM data.
+- */
+-#define IOT2050_INFO_DATA ((struct iot2050_info *) \
+-			     TI_SRAM_SCRATCH_BOARD_EEPROM_START)
++#define MAX_ENV_NAME_LEN	41
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -149,37 +131,58 @@ static void set_pinvalue(const char *gpio_name, const char *label, int value)
+ 	dm_gpio_set_value(&gpio, value);
+ }
+ 
++char* get_board_name(void)
++{
++	static char buf[MAX_ENV_NAME_LEN];
++	struct udevice *sysinfo;
++
++	if (strlen(buf) > 0)
++		return buf;
++
++	if (sysinfo_get(&sysinfo)) {
++		pr_err("IOT2050: %s:%d: Could not find sysinfo device.\n",
++		       __func__, __LINE__);
++		return false;
++	}
++
++	if (sysinfo_detect(sysinfo)) {
++		pr_err("IOT2050: Board info parsing error!\n");
++		return false;
++	}
++
++	sysinfo_get_str(sysinfo, BOARD_NAME, MAX_ENV_NAME_LEN, buf);
++
++	return buf;
++}
++
+ static bool board_is_advanced(void)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
+ 
+-	return info->magic == IOT2050_INFO_MAGIC &&
+-		strstr((char *)info->name, "IOT2050-ADVANCED") != NULL;
++	char *buf = get_board_name();
++
++	return strstr(buf, "IOT2050-ADVANCED") != NULL;
+ }
+ 
+ static bool board_is_pg1(void)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
++	char *buf = get_board_name();
+ 
+-	return info->magic == IOT2050_INFO_MAGIC &&
+-		(strcmp((char *)info->name, "IOT2050-BASIC") == 0 ||
+-		 strcmp((char *)info->name, "IOT2050-ADVANCED") == 0);
++	return strcmp(buf, "IOT2050-BASIC") == 0 ||
++	       strcmp(buf, "IOT2050-ADVANCED") == 0;
+ }
+ 
+ static bool board_is_m2(void)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
++	char *buf = get_board_name();
+ 
+-	return info->magic == IOT2050_INFO_MAGIC &&
+-		strcmp((char *)info->name, "IOT2050-ADVANCED-M2") == 0;
++	return strcmp(buf, "IOT2050-ADVANCED-M2") == 0;
+ }
+ 
+ static bool board_is_sm(void)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
++	char *buf = get_board_name();
+ 
+-	return info->magic == IOT2050_INFO_MAGIC &&
+-		strcmp((char *)info->name, "IOT2050-ADVANCED-SM") == 0;
++	return strcmp(buf, "IOT2050-ADVANCED-SM") == 0;
+ }
+ 
+ static void remove_mmc1_target(void)
+@@ -206,33 +209,46 @@ static void enable_pcie_connector_power(void)
+ 
+ void set_board_info_env(void)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
++	struct udevice *sysinfo;
++	char buf[MAX_ENV_NAME_LEN];
+ 	u8 __maybe_unused mac_cnt;
+ 	const char *fdtfile;
+ 
+-	if (info->magic != IOT2050_INFO_MAGIC) {
+-		pr_err("IOT2050: Board info parsing error!\n");
++	if (sysinfo_get(&sysinfo)) {
++		pr_err("IOT2050: set_board_info_env: Could not find sysinfo device.\n");
++		return;
++	}
++
++	if (sysinfo_detect(sysinfo)) {
++		pr_err("IOT2050: set_board_info_env: Board info parsing error!\n");
+ 		return;
+ 	}
+ 
+ 	if (env_get("board_uuid"))
+ 		return;
+ 
+-	env_set("board_name", info->name);
+-	env_set("board_serial", info->serial);
+-	env_set("mlfb", info->mlfb);
+-	env_set("board_uuid", info->uuid);
+-	env_set("board_a5e", info->a5e);
++	if (sysinfo_get_str(sysinfo, BOARD_NAME, MAX_ENV_NAME_LEN, buf) == 0)
++		env_set("board_name", buf);
++	if (sysinfo_get_str(sysinfo, BOARD_SERIAL, MAX_ENV_NAME_LEN, buf) == 0)
++		env_set("board_serial", buf);
++	if (sysinfo_get_str(sysinfo, BOARD_MLFB, MAX_ENV_NAME_LEN, buf) == 0)
++		env_set("mlfb", buf);
++	if (sysinfo_get_str(sysinfo, BOARD_UUID, MAX_ENV_NAME_LEN, buf) == 0)
++		env_set("board_uuid", buf);
++	if (sysinfo_get_str(sysinfo, BOARD_A5E, MAX_ENV_NAME_LEN, buf) == 0)
++		env_set("board_a5e", buf);
++	if (sysinfo_get_str(sysinfo, BOARD_SEBOOT_VER, MAX_ENV_NAME_LEN, buf) == 0)
++		env_set("seboot_version", buf);
+ 	env_set("fw_version", PLAIN_VERSION);
+-	env_set("seboot_version", info->seboot_version);
+ 
+ 	if (IS_ENABLED(CONFIG_NET)) {
++		sysinfo_get_int(sysinfo, BOARD_MAC_ADDR_CNT, &mac_cnt);
+ 		/* set MAC addresses to ensure forwarding to the OS */
+-		for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
+-			if (is_valid_ethaddr(info->mac_addr[mac_cnt]))
+-				eth_env_set_enetaddr_by_index("eth",
+-							      mac_cnt + 1,
+-							      info->mac_addr[mac_cnt]);
++		for (int i = 0; i < mac_cnt; i++) {
++			int j = BOARD_MAC_ADDR_START + i;
++			sysinfo_get_str(sysinfo, j, MAX_ENV_NAME_LEN, buf);
++			if (is_valid_ethaddr(buf))
++				eth_env_set_enetaddr_by_index("eth", i + 1, buf);
+ 		}
+ 	}
+ 
+@@ -362,9 +378,31 @@ int board_init(void)
+ 
+ int dram_init(void)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
+-	gd->ram_size = ((phys_size_t)(info->ddr_size_mb)) << 20;
++	struct udevice *sysinfo;
++	char buf[10];
++
++	if (sysinfo_get(&sysinfo)) {
++		pr_err("IOT2050: dram_init: Could not find sysinfo device.\n");
++		return false;
++	}
++
++	if (sysinfo_detect(sysinfo)) {
++		pr_err("IOT2050: dram_init: Board info parsing error!\n");
++		return false;
++	}
++
++	sysinfo_get_str(sysinfo, BOARD_DDR_SIZE, 10, buf);
++
++	u32 ddr_size_mb = *((u32 *)buf);
+ 
++#ifdef CONFIG_PHYS_64BIT
++	gd->ram_size = ((phys_size_t)(ddr_size_mb)) << 20;
++#else
++	if (ddr_size_mb > 2048)
++		gd->ram_size = SZ_2G;
++	else
++		gd->ram_size = ((phys_size_t)(ddr_size_mb)) << 20;
++#endif
+ 	return 0;
+ }
+ 
+@@ -405,18 +443,30 @@ int dram_init_banksize(void)
+ #ifdef CONFIG_SPL_LOAD_FIT
+ int board_fit_config_name_match(const char *name)
+ {
+-	struct iot2050_info *info = IOT2050_INFO_DATA;
++	struct udevice *sysinfo;
++	char buf[MAX_ENV_NAME_LEN];
+ 	char upper_name[32];
+ 
++	if (sysinfo_get(&sysinfo)) {
++		pr_err("IOT2050: board_fit_config_name_match: Could not find sysinfo device.\n");
++		return -1;
++	}
++
++	if (sysinfo_detect(sysinfo)) {
++		pr_err("IOT2050: board_fit_config_name_match: Board info parsing error!\n");
++		return -1;
++	}
++
++	sysinfo_get_str(sysinfo, BOARD_NAME, MAX_ENV_NAME_LEN, buf);
++
+ 	/* skip the prefix "k3-am65x8-" */
+ 	name += 10;
+ 
+-	if (info->magic != IOT2050_INFO_MAGIC ||
+-	    strlen(name) >= sizeof(upper_name))
++	if (strlen(name) >= sizeof(upper_name))
+ 		return -1;
+ 
+ 	str_to_upper(name, upper_name, sizeof(upper_name));
+-	if (!strcmp(upper_name, (char *)info->name))
++	if (!strcmp(upper_name, buf))
+ 		return 0;
+ 
+ 	return -1;
+diff --git a/common/spl/Kconfig b/common/spl/Kconfig
+index c5dd476db58c..701521bc2275 100644
+--- a/common/spl/Kconfig
++++ b/common/spl/Kconfig
+@@ -1463,6 +1463,11 @@ config SPL_AT91_MCK_BYPASS
+ 	  The external source has to provide a stable clock on the XIN pin.
+ 	  If this option is disabled, the SoC expects a crystal oscillator
+ 	  that needs driving on both XIN and XOUT lines.
++
++config SPL_SYSINFO
++	bool "Support sysinfo drivers"
++	help
++	  Enable support for sysinfo drivers in SPL.
+ endmenu
+ 
+ config TPL
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index 4fc3bcb56b8f..9ea91becc742 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -151,3 +151,6 @@ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+ CONFIG_EFI_SCROLL_ON_CLEAR_SCREEN=y
++CONFIG_SYSINFO=y
++CONFIG_SPL_SYSINFO=y
++CONFIG_SYSINFO_IOT2050=y
+diff --git a/drivers/sysinfo/Kconfig b/drivers/sysinfo/Kconfig
+index e35f7cb17914..02f6dcf020ce 100644
+--- a/drivers/sysinfo/Kconfig
++++ b/drivers/sysinfo/Kconfig
+@@ -24,6 +24,13 @@ config SYSINFO_RCAR3
+ 	help
+ 	  Support querying SoC version information for Renesas R-Car Gen3.
+ 
++config SYSINFO_IOT2050
++	bool "Enable sysinfo driver for the Siemens IOT2050"
++	depends on TARGET_IOT2050_A53
++	default y if TARGET_IOT2050_A53
++	help
++	  Support querying device information for Siemens IOT2050.
++
+ config SYSINFO_SANDBOX
+ 	bool "Enable sysinfo driver for the Sandbox board"
+ 	help
+diff --git a/drivers/sysinfo/Makefile b/drivers/sysinfo/Makefile
+index 680dde77fe88..26ca31509997 100644
+--- a/drivers/sysinfo/Makefile
++++ b/drivers/sysinfo/Makefile
+@@ -5,6 +5,7 @@
+ obj-y += sysinfo-uclass.o
+ obj-$(CONFIG_SYSINFO_GAZERBEAM) += gazerbeam.o
+ obj-$(CONFIG_SYSINFO_GPIO) += gpio.o
++obj-$(CONFIG_SYSINFO_IOT2050) += iot2050.o
+ obj-$(CONFIG_SYSINFO_RCAR3) += rcar3.o
+ obj-$(CONFIG_SYSINFO_SANDBOX) += sandbox.o
+ obj-$(CONFIG_SYSINFO_SMBIOS) += smbios.o
+diff --git a/drivers/sysinfo/iot2050.c b/drivers/sysinfo/iot2050.c
+new file mode 100644
+index 000000000000..a5031181eaac
+--- /dev/null
++++ b/drivers/sysinfo/iot2050.c
+@@ -0,0 +1,144 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <log.h>
++#include <sysinfo.h>
++#include <net.h>
++#include <asm/arch/hardware.h>
++
++#include "iot2050.h"
++
++#define IOT2050_INFO_MAGIC		0x20502050
++
++struct iot2050_info {
++	u32 magic;
++	u16 size;
++	char name[20 + 1];
++	char serial[16 + 1];
++	char mlfb[18 + 1];
++	char uuid[32 + 1];
++	char a5e[18 + 1];
++	u8 mac_addr_cnt;
++	u8 mac_addr[8][ARP_HLEN];
++	char seboot_version[40 + 1];
++	u8 padding[3];
++	u32 ddr_size_mb;
++} __packed;
++
++/**
++ * struct sysinfo_iot2050_priv - sysinfo private data
++ * @info: iot2050 board info
++ */
++struct sysinfo_iot2050_priv {
++	struct iot2050_info *info;
++};
++
++static int sysinfo_iot2050_detect(struct udevice *dev)
++{
++	struct sysinfo_iot2050_priv *priv = dev_get_priv(dev);
++
++	if (priv->info == NULL || priv->info->magic != IOT2050_INFO_MAGIC)
++		return -EFAULT;
++
++	return 0;
++}
++
++static int sysinfo_iot2050_get_str(struct udevice *dev, int id, size_t size, char *val)
++{
++	struct sysinfo_iot2050_priv *priv = dev_get_priv(dev);
++
++	switch (id) {
++	case BOARD_NAME:
++		strncpy(val, priv->info->name, size);
++		break;
++	case BOARD_SERIAL:
++		strncpy(val, priv->info->serial, size);
++		break;
++	case BOARD_MLFB:
++		strncpy(val, priv->info->mlfb, size);
++		break;
++	case BOARD_UUID:
++		char buffer[3] = {0};
++		char byte_array[16] = {0};
++		for (int i = 0;i < 16; ++i) {
++			buffer[0] = priv->info->uuid[2 * i];
++			buffer[1] = priv->info->uuid[2 * i + 1];
++			byte_array[i] = simple_strtoul(buffer, NULL, 16);
++		}
++		strncpy(val, byte_array, size);
++		break;
++	case BOARD_A5E:
++		strncpy(val, priv->info->a5e, size);
++		break;
++	case BOARD_SEBOOT_VER:
++		strncpy(val, priv->info->seboot_version, size);
++		break;
++	case BOARD_MAC_ADDR_1:
++	case BOARD_MAC_ADDR_2:
++	case BOARD_MAC_ADDR_3:
++	case BOARD_MAC_ADDR_4:
++	case BOARD_MAC_ADDR_5:
++	case BOARD_MAC_ADDR_6:
++	case BOARD_MAC_ADDR_7:
++	case BOARD_MAC_ADDR_8:
++		memcpy(val, priv->info->mac_addr[id - BOARD_MAC_ADDR_START],
++		       ARP_HLEN);
++		return 0;
++	case BOARD_DDR_SIZE:
++		memcpy(val, &priv->info->ddr_size_mb, sizeof(priv->info->ddr_size_mb));
++		return 0;
++	default:
++		return -EINVAL;
++	};
++
++	val[size - 1] = '\0';
++	return 0;
++}
++
++static int sysinfo_iot2050_get_int(struct udevice *dev, int id, char *val)
++{
++	struct sysinfo_iot2050_priv *priv = dev_get_priv(dev);
++
++	switch (id) {
++	case BOARD_MAC_ADDR_CNT:
++		*val = priv->info->mac_addr_cnt;
++		return 0;
++	default:
++		return -EINVAL;
++	};
++}
++
++static const struct sysinfo_ops sysinfo_iot2050_ops = {
++	.detect = sysinfo_iot2050_detect,
++	.get_str = sysinfo_iot2050_get_str,
++	.get_int = sysinfo_iot2050_get_int,
++};
++
++static int sysinfo_iot2050_probe(struct udevice *dev)
++{
++	struct sysinfo_iot2050_priv *priv = dev_get_priv(dev);
++	u32 offset;
++
++	offset = dev_read_u32_default(dev, "offset",
++				      TI_SRAM_SCRATCH_BOARD_EEPROM_START);
++	priv->info = (struct iot2050_info *)(offset);
++
++	return 0;
++}
++
++static const struct udevice_id sysinfo_iot2050_ids[] = {
++	{ .compatible = "siemens,iot2050-sysinfo" },
++	{ /* sentinel */ }
++};
++
++U_BOOT_DRIVER(sysinfo_iot2050) = {
++	.name           = "sysinfo_iot2050",
++	.id             = UCLASS_SYSINFO,
++	.of_match       = sysinfo_iot2050_ids,
++	.ops		= &sysinfo_iot2050_ops,
++	.priv_auto	= sizeof(struct sysinfo_iot2050_priv),
++	.probe          = sysinfo_iot2050_probe,
++};
+diff --git a/drivers/sysinfo/iot2050.h b/drivers/sysinfo/iot2050.h
+new file mode 100644
+index 000000000000..8e10d9db327d
+--- /dev/null
++++ b/drivers/sysinfo/iot2050.h
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ *
++ */
++
++#include <sysinfo.h>
++
++enum sysinfo_id_iot2050 {
++	BOARD_MLFB = SYSINFO_ID_SMBIOS_SYSTEM_VERSION,
++	BOARD_SERIAL = SYSINFO_ID_SMBIOS_SYSTEM_SERIAL_NUMBER,
++	BOARD_UUID = SYSINFO_ID_SMBIOS_SYSTEM_UUID,
++	BOARD_NAME = SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
++	BOARD_A5E,
++	BOARD_SEBOOT_VER,
++	BOARD_MAC_ADDR_CNT,
++	BOARD_MAC_ADDR_START,
++	BOARD_MAC_ADDR_1 = BOARD_MAC_ADDR_START,
++	BOARD_MAC_ADDR_2,
++	BOARD_MAC_ADDR_3,
++	BOARD_MAC_ADDR_4,
++	BOARD_MAC_ADDR_5,
++	BOARD_MAC_ADDR_6,
++	BOARD_MAC_ADDR_7,
++	BOARD_MAC_ADDR_8,
++	BOARD_DDR_SIZE,
++};
