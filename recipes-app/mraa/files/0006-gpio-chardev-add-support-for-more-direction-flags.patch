@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+Date: Fri, 12 Apr 2024 10:25:28 +0200
+Subject: [PATCH] gpio-chardev: add support for more direction flags
+
+This adds support for the MRAA_GPIO_OUT_HIGH and
+MRAA_GPIO_OUT_LOW direction flags when setting the direction
+via gpio-chardev.
+
+Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+---
+ src/gpio/gpio.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/gpio/gpio.c b/src/gpio/gpio.c
+index a0c56c1e7e16..ae84d324ff2c 100644
+--- a/src/gpio/gpio.c
++++ b/src/gpio/gpio.c
+@@ -1208,6 +1208,8 @@ mraa_gpio_chardev_dir(mraa_gpio_context dev, mraa_gpio_dir_t dir)
+     }
+ 
+     switch (dir) {
++        case MRAA_GPIO_OUT_HIGH:
++        case MRAA_GPIO_OUT_LOW:
+         case MRAA_GPIO_OUT:
+             flags |= GPIOHANDLE_REQUEST_OUTPUT;
+             flags &= ~GPIOHANDLE_REQUEST_INPUT;
+@@ -1237,6 +1239,15 @@ mraa_gpio_chardev_dir(mraa_gpio_context dev, mraa_gpio_dir_t dir)
+         gpio_iter->gpiod_handle = line_handle;
+     }
+ 
++    switch (dir) {
++        case MRAA_GPIO_OUT_LOW:
++            mraa_gpio_write(dev, 0);
++            break;
++        case MRAA_GPIO_OUT_HIGH:
++            mraa_gpio_write(dev, 1);
++            break;
++    }
++
+     return MRAA_SUCCESS;
+ }
+ 

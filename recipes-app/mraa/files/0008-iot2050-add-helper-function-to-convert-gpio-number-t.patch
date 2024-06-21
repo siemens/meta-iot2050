@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+Date: Fri, 12 Apr 2024 10:00:34 +0200
+Subject: [PATCH] iot2050: add helper function to convert gpio number to name
+
+This function converts a GPIO number known to the OS into a name
+provided by the GPIO subsystem.
+
+This prepares for gpio-chardev support on the iot2050 platform and
+should be replaced as soon as the pin definitions in
+mraa_siemens_iot2050() have been adopted to use GPIO pin names
+instead of GPIO pin numbers.
+
+Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+---
+ src/arm/siemens/iot2050.c | 44 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
+
+diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
+index ace9a0790090..47ea628725df 100644
+--- a/src/arm/siemens/iot2050.c
++++ b/src/arm/siemens/iot2050.c
+@@ -65,6 +65,50 @@ iot2050_locate_phy_pin_by_name(mraa_board_t *board, char *pin_name)
+     return -1;
+ }
+ 
++static int
++iot2050_pin_to_name(int pin, char *name)
++{
++    int i, base, lines, offset, num_chips;
++    mraa_gpiod_line_info *linfo;
++    mraa_gpiod_chip_info* cinfo;
++
++    num_chips = mraa_get_number_of_gpio_chips();
++    if(num_chips < 0)
++        goto err;
++
++    for (i=0; i<num_chips; i++) {
++        base = mraa_get_chip_base_by_number(i);
++        if(base < 0){
++            syslog(LOG_ERR, "iot2050: mraa_get_chip_base_by_number failed: chip%d", i);
++            goto err;
++        }
++
++        cinfo = mraa_get_chip_info_by_number(i);
++        if(cinfo == NULL){
++            syslog(LOG_ERR, "iot2050: mraa_get_chip_info_by_number failed: chip%d", i);
++            goto err;
++        }
++
++        lines = cinfo->chip_info.lines;
++        close(cinfo->chip_fd);
++        free(cinfo);
++        if(pin >= base && pin < base + lines) {
++            offset = pin - base;
++            linfo = mraa_get_line_info_by_chip_number(i, offset);
++            if(linfo == NULL) {
++                syslog(LOG_ERR, "iot2050: mraa_get_line_info_by_chip_number(%d, %d) failed", i, offset);
++                goto err;
++            }
++            strncpy(name, linfo->name, MRAA_PIN_NAME_SIZE);
++            free(linfo);
++            return 0;
++        }
++    }
++err:
++    syslog(LOG_ERR, "iot2050: conversion from pin id to gpio-name failed: pin%d", pin);
++    return -1;
++}
++
+ static inline regmux_info_t*
+ iot2050_get_regmux_by_pinmap(int pinmap)
+ {
