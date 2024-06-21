@@ -1,4 +1,4 @@
-From 1236b3418b6566614d3b5f12626f007541399959 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Li Hua Qian <huaqian.li@siemens.com>
 Date: Fri, 22 Mar 2024 09:36:47 +0800
 Subject: [PATCH] arm64: dts: ti: iot2050: Disable lock-step for all iot2050
@@ -18,7 +18,7 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  3 files changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
-index 42adb8815..48f187f23 100644
+index 42adb8815f38..48f187f23cf8 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
 @@ -9,11 +9,6 @@
@@ -34,7 +34,7 @@ index 42adb8815..48f187f23 100644
  	cp2102n_reset_pin_default: cp2102n-reset-default-pins {
  		pinctrl-single,pins = <
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index f602dbc4e..35675663e 100644
+index f602dbc4e917..35675663ef1a 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 @@ -780,3 +780,8 @@ icssg0_eth1_phy: ethernet-phy@1 {
@@ -47,7 +47,7 @@ index f602dbc4e..35675663e 100644
 +	ti,cluster-mode = <0>;
 +};
 diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
-index be9c8db4c..87928ff28 100644
+index be9c8db4c43a..87928ff28214 100644
 --- a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
 +++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic.dts
 @@ -22,8 +22,3 @@ / {
@@ -59,6 +59,3 @@ index be9c8db4c..87928ff28 100644
 -	/* lock-step mode not supported on this board */
 -	ti,cluster-mode = <0>;
 -};
--- 
-2.30.2
-
