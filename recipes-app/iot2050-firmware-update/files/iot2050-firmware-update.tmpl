@@ -941,13 +941,13 @@ def main(argv):
                         help='Rollback the firmware to the version before the \
                         upgrade',
                         action='store_true')
-    parser.add_argument('-n', '--no-backup',
+    group2 = parser.add_mutually_exclusive_group()
+    group2.add_argument('-n', '--no-backup',
                         help='Do not generate a firmware backup',
                         action='store_true')
-    parser.add_argument('-d', '--backup-dir',
+    group2.add_argument('-d', '--backup-dir',
                         help='Specify the firmware backup directory',
-                        nargs=1,
-                        default=os.getenv('HOME'))
+                        nargs=1)
     parser.add_argument('-q', '--quiet',
                         help='Update firmware quietly with the original \
                         firmware auto backed up and rollback in case of \
@@ -956,6 +956,8 @@ def main(argv):
 
     try:
         args = parser.parse_args()
+        if args.force and (args.no_backup or args.backup_dir):
+            parser.error("argument -f/--force: not allowed with -n/--no-backup, -d/--backup-dir")
     except IOError as e:
         print(e.strerror, file=sys.stderr)
         return ErrorCode.INVALID_ARG.value
@@ -997,6 +999,8 @@ def main(argv):
         if args.force:
             updater = ForceUpdate(interactor, args.firmware)
         else:
+            if not args.backup_dir:
+                args.backup_dir = os.getenv('HOME')
             updater = FirmwareUpdate(
                 tarball,
                 args.backup_dir,
