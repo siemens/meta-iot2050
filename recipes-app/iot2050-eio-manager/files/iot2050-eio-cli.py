@@ -67,7 +67,7 @@ def do_update_firmware(firmwares):
                 future = pool.submit(
                     stub.UpdateFirmware,
                     UpdateFirmwareRequest(firmware=firmwares[entity],
-                                          firmware_type=entity)
+                                          entity=entity)
                 )
                 show_progress_bar(future, 0.3)
             print()
