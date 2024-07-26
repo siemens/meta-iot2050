@@ -1,4 +1,4 @@
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2023-2024
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -41,6 +41,7 @@ $defs:
           - 6ES7231-5PD32-0XB0
           - 6ES7231-5PF32-0XB0
           - 6ES7238-5XA32-0XB0
+          - 6ES7647-0CM00-1AA2
           - NA
 
     allOf:
@@ -74,6 +75,13 @@ $defs:
               const: 6ES7238-5XA32-0XB0
         then:
           $ref: https://iot2050-sm/sm1238-em-480vac
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7647-0CM00-1AA2
+        then:
+          $ref: https://iot2050-sm/sm-sens-di
 
       - if:
           properties:
