@@ -14,6 +14,10 @@ import {
   convertToDeviceFormat as convertToDeviceFmtForSM1238,
   convertToUIFormat as convertToUIFmtForSM1238
 } from '@/components/ExtendedModules/SM1238_EM480VAC/SM1238EM480VACConf';
+import {
+  convertToDeviceFormat as convertToDeviceFmtForSMSensDI,
+  convertToUIFormat as convertToUIFmtForSMSensDI
+} from '@/components/ExtendedModules/SMSensDI/SMSensDIConf';
 
 export function exportYamlConfig (configData) {
   const yamlConfig = {};
@@ -33,6 +37,9 @@ export function exportYamlConfig (configData) {
         break;
       case '6ES7238-5XA32-0XB0': // SM1238 EM 480VAC
         yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1238(confSlot);
+        break;
+      case '6ES7647-0CM00-1AA2': // SM SENS DI
+        yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSMSensDI(confSlot);
         break;
       case 'None':
       default:
@@ -72,6 +79,9 @@ export function importYamlConfig (configData) {
         break;
       case '6ES7238-5XA32-0XB0': // SM1238 EM 480VAC
         uiConfig.config[i - 1] = convertToUIFmtForSM1238(configData['slot' + i]);
+        break;
+      case '6ES7647-0CM00-1AA2': // SM SENS DI
+        uiConfig.config[i - 1] = convertToUIFmtForSMSensDI(configData['slot' + i]);
         break;
       case 'None':
       default:
