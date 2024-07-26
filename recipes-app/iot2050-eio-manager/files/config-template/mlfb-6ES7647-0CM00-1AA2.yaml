@@ -1,0 +1,19 @@
+# Copyright (c) Siemens AG, 2024
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+description: |
+  SM SENS DI module
+
+  Configuration Items:
+
+  0. MLFB
+
+    Must be "6ES7647-0CM00-1AA2"
+
+  There is no configuration entry for this module other than mlfb.
+
+mlfb: "6ES7647-0CM00-1AA2"

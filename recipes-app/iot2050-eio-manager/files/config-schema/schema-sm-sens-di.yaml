@@ -1,0 +1,20 @@
+# Copyright (c) Siemens AG, 2024
+#
+# Authors:
+#  Su Bao Cheng <baocheng.su@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm-sens-di'
+
+type: object
+properties:
+  description:
+    type: string
+  mlfb:
+    const: "6ES7647-0CM00-1AA2"
+
+required:
+  - mlfb
+
+unevaluatedProperties: false

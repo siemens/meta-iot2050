@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2023-2024
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -224,6 +224,23 @@ class SM1223RTDSerDes(ModuleSerDes):
         return config
 
 
+class SMSensDISerDes(ModuleSerDes):
+    """SM SENS DI Configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+
+    def serialize(self, config: Dict) -> bytes:
+        blob = bytearray(14)
+        struct.pack_into('B', blob, 1, 0x02)
+        return blob
+
+    def deserialize(self, blob: bytes) -> Dict:
+        return {
+            "description": "SM SENS DI",
+            "mlfb": self.mlfb
+        }
+
+
 class SM1238SerDes(ModuleSerDes):
     """SM1238 EM 480VAC Configuration (de)/serializer"""
     def __init__(self, mlfb):
@@ -354,6 +371,8 @@ class ModSerDesFactory(object):
             return SM1223RTDSerDes(mlfb)
         elif mlfb == '6ES7238-5XA32-0XB0':
             return SM1238SerDes(mlfb)
+        elif mlfb == '6ES7647-0CM00-1AA2':
+            return SMSensDISerDes(mlfb)
         else:
             return NoModSerDes(mlfb)
 
