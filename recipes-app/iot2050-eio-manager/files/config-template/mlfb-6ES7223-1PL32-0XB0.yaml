@@ -1,0 +1,105 @@
+# Copyright (c) Siemens AG, 2024
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+description: |
+  SM1223-DC/RLY (16-channel digital input and 16-channel output module)
+
+  Configuration Items:
+
+  0. MLFB
+
+    Must be "6ES7223-1PL32-0XB0"
+
+  1. Digital inputs
+  
+    - di.ch0_3_delay_time:
+        Input delay time of di channel 0 ~ channel 3
+        
+        value options:
+          - 2: 0.2 msec
+          - 3: 0.4 msec
+          - 4: 0.8 msec
+          - 5: 1.6 msec
+          - 6: 3.2 msec
+          - 7: 6.4 msec
+          - 9: 12.8 msec
+    
+    - di.ch4_7_delay_time:
+        input delay time of di channel 4 ~ channel 7
+        
+        value options: same as di.ch0_3_delay_time
+
+    - di.ch8_11_delay_time:
+        input delay time of di channel 8 ~ channel 11
+        
+        value options: same as di.ch0_3_delay_time
+
+    - di.ch12_15_delay_time:
+        input delay time of di channel 12 ~ channel 15
+        
+        value options: same as di.ch0_3_delay_time
+
+  2. Digital outputs
+
+    - dq.behavior_with_OD:
+      All dq channels behavior with OD
+      
+      value options:
+        - 2: hold last value
+        - 3: use substitute
+
+    - dq.ch[0-15]:
+
+      - substitute:
+          Substitute value for the channel
+          
+          value options:
+            - 0: use 0 as the substitute value for this channel
+            - 1: use 1 as the substitute value for this channel
+
+mlfb: "6ES7223-1PL32-0XB0"
+
+di:
+  ch0_3_delay_time: 9
+  ch4_7_delay_time: 9
+  ch8_11_delay_time: 9
+  ch12_15_delay_time: 9
+
+dq:
+  behavior_with_OD: 3
+  ch0:
+    substitute: 0
+  ch1:
+    substitute: 0
+  ch2:
+    substitute: 0
+  ch3:
+    substitute: 0
+  ch4:
+    substitute: 0
+  ch5:
+    substitute: 0
+  ch6:
+    substitute: 0
+  ch7:
+    substitute: 0
+  ch8:
+    substitute: 0
+  ch9:
+    substitute: 0
+  ch10:
+    substitute: 0
+  ch11:
+    substitute: 0
+  ch12:
+    substitute: 0
+  ch13:
+    substitute: 0
+  ch14:
+    substitute: 0
+  ch15:
+    substitute: 0

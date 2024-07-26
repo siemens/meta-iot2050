@@ -66,7 +66,7 @@ EIO_CONFIG_TEMP_ROOT = effective_conf['EIO_CONFIG_TEMP_ROOT']
 eio_schema_top = f"{EIO_SCHEMA_ROOT}/schema-sm-config.yaml"
 eio_schema_refs = [
     f"{EIO_SCHEMA_ROOT}/schema-na.yaml",
-    f"{EIO_SCHEMA_ROOT}/schema-sm1223-ac-rly.yaml",
+    f"{EIO_SCHEMA_ROOT}/schema-sm1223-di-dq.yaml",
     f"{EIO_SCHEMA_ROOT}/schema-sm1231-ai.yaml",
     f"{EIO_SCHEMA_ROOT}/schema-sm1231-rtd.yaml",
     f"{EIO_SCHEMA_ROOT}/schema-sm-sens-di.yaml",
@@ -76,6 +76,7 @@ eio_schema_refs = [
 
 eio_conf_templates = [
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7223-1QH32-0XB0.yaml",
+    f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7223-1PL32-0XB0.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7231-4HF32-0XB0.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7231-5PD32-0XB0.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7231-5PF32-0XB0.yaml",
