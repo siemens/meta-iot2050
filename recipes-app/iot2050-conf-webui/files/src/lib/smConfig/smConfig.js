@@ -1,6 +1,6 @@
 import {
-  convertToDeviceFormat as convertToDeviceFmtForSM1223,
-  convertToUIFormat as convertToUIFmtForSM1223
+  convertToDeviceFormat as convertToDeviceFmtForSM1223DIDQ,
+  convertToUIFormat as convertToUIFmtForSM1223DIDQ
 } from '@/components/ExtendedModules/SM1223/SM1223Conf';
 import {
   convertToDeviceFormat as convertToDeviceFmtForSM1231RTD,
@@ -29,8 +29,9 @@ export function exportYamlConfig (configData) {
     const slotIndex = i + 1;
     const confSlot = configData.config[i];
     switch (confSlot.mlfb) {
-      case '6ES7223-1QH32-0XB0': // SM1223
-        yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1223(confSlot);
+      case '6ES7223-1QH32-0XB0': // SM1223-AC-DI8-DQ8
+      case '6ES7223-1PL32-0XB0': // SM1223-DC-DI16-DQ16
+        yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1223DIDQ(confSlot);
         break;
       case '6ES7231-5PD32-0XB0': // SM1231-4RTD
       case '6ES7231-5PF32-0XB0': // SM1231-8RTD
@@ -75,8 +76,9 @@ export function importYamlConfig (configData) {
   };
   for (let i = 1; i < 7; i++) {
     switch (configData['slot' + i].mlfb) {
-      case '6ES7223-1QH32-0XB0': // SM1223
-        uiConfig.config[i - 1] = convertToUIFmtForSM1223(configData['slot' + i]);
+      case '6ES7223-1QH32-0XB0': // SM1223-AC-DI8-DQ8
+      case '6ES7223-1PL32-0XB0': // SM1223-DC-DI16-DQ16
+        uiConfig.config[i - 1] = convertToUIFmtForSM1223DIDQ(configData['slot' + i]);
         break;
       case '6ES7231-5PD32-0XB0': // SM1231-4RTD
       case '6ES7231-5PF32-0XB0': // SM1231-8RTD
