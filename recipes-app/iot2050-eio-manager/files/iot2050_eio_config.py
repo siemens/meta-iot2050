@@ -64,17 +64,26 @@ class SM1223SerDes(ModuleSerDes):
         header_fmt = 'p8 u8'
         di_ch_fmt = 'p8 p4u4'
         dq_ch_fmt = 'p8 u1p1u2p1p3'
-        self.serdesfmt = ''.join([header_fmt, di_ch_fmt * 8, header_fmt, dq_ch_fmt * 8])
+        if self.mlfb == '6ES7223-1QH32-0XB0':
+            self.ch_num = 8
+        else:
+            self.ch_num = 16
+        self.serdesfmt = ''.join([header_fmt, di_ch_fmt * self.ch_num,
+                                  header_fmt, dq_ch_fmt * self.ch_num])
 
     def serialize(self, config: Dict) -> bytes:
         parameters = [0x02]
-        for i in range(0, 8):
+        for i in range(0, self.ch_num):
             if i < 4:
                 parameters.append(config['di']['ch0_3_delay_time'])
-            else:
+            elif i < 8:
                 parameters.append(config['di']['ch4_7_delay_time'])
+            elif i < 12:
+                parameters.append(config['di']['ch8_11_delay_time'])
+            else:
+                parameters.append(config['di']['ch12_15_delay_time'])
         parameters.append(0x02)
-        for i in range(0, 8):
+        for i in range(0, self.ch_num):
             parameters.append(config['dq'][f'ch{i}']['substitute'])
             parameters.append(config['dq']['behavior_with_OD'])
         return bitstruct.pack(self.serdesfmt, *parameters)
@@ -88,30 +97,31 @@ class SM1223SerDes(ModuleSerDes):
                 "ch4_7_delay_time": ""
             },
             "dq": {
-                "behavior_with_OD": "",
-                "ch0": {"substitute": ""},
-                "ch1": {"substitute": ""},
-                "ch2": {"substitute": ""},
-                "ch3": {"substitute": ""},
-                "ch4": {"substitute": ""},
-                "ch5": {"substitute": ""},
-                "ch6": {"substitute": ""},
-                "ch7": {"substitute": ""}
+                "behavior_with_OD": ""
             }
         }
 
-        _, \
-        config['di']['ch0_3_delay_time'], _, _, _, \
-        config['di']['ch4_7_delay_time'], _, _, _, \
-        _, \
-        config['dq']['ch0']['substitute'], config['dq']['behavior_with_OD'], \
-        config['dq']['ch1']['substitute'], _, \
-        config['dq']['ch2']['substitute'], _, \
-        config['dq']['ch3']['substitute'], _, \
-        config['dq']['ch4']['substitute'], _, \
-        config['dq']['ch5']['substitute'], _, \
-        config['dq']['ch6']['substitute'], _, \
-        config['dq']['ch7']['substitute'], _ = bitstruct.unpack(self.serdesfmt, blob)
+        unpack_elements = ['_']
+        unpack_elements.extend([
+            "config['di']['ch0_3_delay_time']", "_", "_", "_",
+            "config['di']['ch4_7_delay_time']", "_", "_", "_"])
+
+        if self.ch_num == 16:
+            unpack_elements.extend([
+                "config['di']['ch8_11_delay_time']", "_", "_", "_",
+                "config['di']['ch12_15_delay_time']", "_", "_", "_"])
+
+        unpack_elements.extend(["_"])
+
+        for i in range(0, self.ch_num):
+            config['dq'][f'ch{i}'] = {}
+            unpack_elements.extend([
+                f"config['dq']['ch{i}']['substitute']",
+                "_" if i > 0 else "config['dq']['behavior_with_OD']"])
+
+        unpack_statement = ",".join(unpack_elements)
+        unpack_statement += ' = bitstruct.unpack(self.serdesfmt, blob)'
+        exec(unpack_statement) # pylint: disable=exec-used
         return config
 
 
@@ -401,7 +411,7 @@ class ModSerDesFactory(object):
     @classmethod
     def produce(cls, mlfb='NA') -> ModuleSerDes:
         mlfb = mlfb.rstrip('\0')
-        if mlfb == '6ES7223-1QH32-0XB0':
+        if mlfb == '6ES7223-1QH32-0XB0' or mlfb == '6ES7223-1PL32-0XB0':
             return SM1223SerDes(mlfb)
         elif mlfb == '6ES7231-4HD32-0XB0' or mlfb == '6ES7231-4HF32-0XB0':
             return SM1231AISerDes(mlfb)

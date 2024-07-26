@@ -1,0 +1,106 @@
+# Copyright (c) Siemens AG, 2024
+#
+# Authors:
+#  Gao Nian <nian.gao@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm1223-di-dq'
+
+type: object
+properties:
+  description:
+    type: string
+  mlfb:
+    enum:
+      - "6ES7223-1QH32-0XB0"
+      - "6ES7223-1PL32-0XB0"
+  di:
+    type: object
+    properties:
+      ch0_3_delay_time:
+        enum: [2, 3, 4, 5, 6, 7, 9]
+      ch4_7_delay_time:
+        enum: [2, 3, 4, 5, 6, 7, 9]
+      ch8_11_delay_time:
+        enum: [2, 3, 4, 5, 6, 7, 9]
+      ch12_15_delay_time:
+        enum: [2, 3, 4, 5, 6, 7, 9]
+    required:
+      - ch0_3_delay_time
+      - ch4_7_delay_time
+    unevaluatedProperties: false
+  dq:
+    type: object
+    properties:
+      behavior_with_OD:
+        enum: [2, 3]
+    patternProperties:
+      ^ch([0-9]|1[0-5])$:
+        $ref: "#/$defs/channel"
+    required:
+      - behavior_with_OD
+    unevaluatedProperties: false
+
+required:
+  - mlfb
+  - di
+  - dq
+
+$defs:
+  channel:
+    type: object
+    properties:
+      substitute:
+        enum: [0, 1]
+    required:
+      - substitute
+
+if:
+  properties:
+    mlfb:
+      const: 6ES7223-1PL32-0XB0
+then:
+  properties:
+    di:
+      required:
+      - ch0_3_delay_time
+      - ch4_7_delay_time
+      - ch8_11_delay_time
+      - ch12_15_delay_time
+    dq:
+      if:
+        properties:
+          behavior_with_OD:
+            const: 3
+      then:
+        required: [
+          ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7,
+          ch8, ch9, ch10, ch11, ch12, ch13, ch14, ch15
+        ]
+else:
+  properties:
+    di:
+      not:
+        anyOf:
+        - required: [ch8_11_delay_time]
+        - required: [ch12_15_delay_time]
+    dq:
+      not:
+        anyOf:
+        - required: [ch8]
+        - required: [ch9]
+        - required: [ch10]
+        - required: [ch11]
+        - required: [ch12]
+        - required: [ch13]
+        - required: [ch14]
+        - required: [ch15]
+      if:
+        properties:
+          behavior_with_OD:
+            const: 3
+      then:
+        required: [ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7]
+
+unevaluatedProperties: false
