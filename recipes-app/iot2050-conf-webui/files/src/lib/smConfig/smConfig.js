@@ -18,6 +18,10 @@ import {
   convertToDeviceFormat as convertToDeviceFmtForSMSensDI,
   convertToUIFormat as convertToUIFmtForSMSensDI
 } from '@/components/ExtendedModules/SMSensDI/SMSensDIConf';
+import {
+  convertToDeviceFormat as convertToDeviceFmtForSM1221with8DI,
+  convertToUIFormat as convertToUIFmtForSM1221with8DI
+} from '@/components/ExtendedModules/SM1221_8DI/SM1221with8DIConf';
 
 export function exportYamlConfig (configData) {
   const yamlConfig = {};
@@ -41,6 +45,9 @@ export function exportYamlConfig (configData) {
         break;
       case '6ES7647-0CM00-1AA2': // SM SENS DI
         yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSMSensDI(confSlot);
+        break;
+      case '6ES7221-1BF32-0XB0': // SM1221-8DI
+        yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1221with8DI(confSlot);
         break;
       case 'None':
       default:
@@ -84,6 +91,9 @@ export function importYamlConfig (configData) {
         break;
       case '6ES7647-0CM00-1AA2': // SM SENS DI
         uiConfig.config[i - 1] = convertToUIFmtForSMSensDI(configData['slot' + i]);
+        break;
+      case '6ES7221-1BF32-0XB0': // SM1221-8DI
+        uiConfig.config[i - 1] = convertToUIFmtForSM1221with8DI(configData['slot' + i]);
         break;
       case 'None':
       default:

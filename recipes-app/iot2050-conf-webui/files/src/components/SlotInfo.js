@@ -12,6 +12,7 @@ import SM1231with8AIConf, { SM1231with8AIConfDefault } from '@/components/Extend
 import SMSensDIConf, { SMSensDIConfDefault } from '@/components/ExtendedModules/SMSensDI/SMSensDIConf';
 import SM1238EM480VACConf, { SM1238EM480VACConfDefault } from '@/components/ExtendedModules/SM1238_EM480VAC/SM1238EM480VACConf';
 import SM1231with4AIConf, { SM1231with4AIConfDefault } from '@/components/ExtendedModules/SM1231_AI/SM1231with4AIConf';
+import SM1221with8DIConf, { SM1221with8DIConfDefault } from '@/components/ExtendedModules/SM1221_8DI/SM1221with8DIConf';
 
 function Mod ({ modType, slotNum, config, updateConfig }) {
   switch (modType) {
@@ -57,6 +58,12 @@ function Mod ({ modType, slotNum, config, updateConfig }) {
         configData={config}
         updateConfig={updateConfig}
       />;
+    case '6ES7221-1BF32-0XB0':
+      return <SM1221with8DIConf
+        slotNum={slotNum}
+        configData={config}
+        updateConfig={updateConfig}
+      />;
     default:
       return <Typography>No module in this slot!!!</Typography>;
   }
@@ -83,9 +90,12 @@ export default function SlotInfo ({ slotNum, configData, updateSlot }) {
       case '6ES7238-5XA32-0XB0':
         updateSlot(slotNum, JSON.parse(JSON.stringify(SM1238EM480VACConfDefault)));
         break;
-        case '6ES7231-4HD32-0XB0':
-          updateSlot(slotNum, JSON.parse(JSON.stringify(SM1231with4AIConfDefault)));
-          break;
+      case '6ES7231-4HD32-0XB0':
+        updateSlot(slotNum, JSON.parse(JSON.stringify(SM1231with4AIConfDefault)));
+        break;
+      case '6ES7221-1BF32-0XB0':
+        updateSlot(slotNum, JSON.parse(JSON.stringify(SM1221with8DIConfDefault)));
+        break;
       default:
         updateSlot(slotNum, { mlfb: 'None' });
     }
@@ -99,7 +109,8 @@ export default function SlotInfo ({ slotNum, configData, updateSlot }) {
     '6ES7231-4HF32-0XB0', // SM1231-8AI
     '6ES7238-5XA32-0XB0', // SM1238 Energy Meter 480VAC
     '6ES7647-0CM00-1AA2', // SM SENS DI
-    '6ES7231-4HD32-0XB0'  // SM1231-4AI
+    '6ES7231-4HD32-0XB0', // SM1231-4AI
+    '6ES7221-1BF32-0XB0' // SM1221-8DI
   ];
 
   return (
