@@ -1,0 +1,120 @@
+# Copyright (c) Siemens AG, 2024
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+description: |
+  SM1231-AI (4-channel analog measurement module for measuring current or voltage)
+
+  Configuration Items:
+
+  0. MLFB
+
+    Must be "6ES7231-4HD32-0XB0"
+
+  1. Per module configuration
+
+    - power_alarm:
+        user power alarm of all channels
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+    - integ_time:
+        integration time
+
+        value options:
+          - 0: 400 Hz
+          - 1: 60 Hz
+          - 2: 50 Hz
+          - 3: 10 Hz
+
+  2. Per channel configuration
+
+    - ch[0-3].type:
+        measurement type
+
+        value options:
+          - 1: voltage
+          - 3: 2 wire current
+
+    - ch[0-3].range:
+        measurement range
+
+        value options:
+          - 2: 0 - 20ma
+          - 3: 4 - 20ma
+          - 7: +/- 2.5v
+          - 8: +/- 5v
+          - 9: +/- 10v
+
+    - ch[0-3].smooth:
+        smoothing
+
+        value options:
+          - 0: 1X rejection period
+          - 1: 4X rejection period
+          - 2: 16X rejection period
+          - 3: 32X rejection period
+
+    - ch[0-3].open_wire_alarm:
+        open wire alarm
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+    - ch[0-3].overflow_alarm:
+        overflow alarm
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+    - ch[0-3].underflow_alarm:
+        underflow alarm
+
+        value options:
+          - true: enabled
+          - false: disabled
+
+mlfb: "6ES7231-4HD32-0XB0"
+
+power_alarm: true
+
+integ_time: 2
+
+ch0:
+  type: 1
+  range: 9
+  smooth: 1
+  open_wire_alarm: false
+  overflow_alarm: true
+  underflow_alarm: true
+
+ch1:
+  type: 1
+  range: 9
+  smooth: 1
+  open_wire_alarm: false
+  overflow_alarm: true
+  underflow_alarm: true
+
+ch2:
+  type: 1
+  range: 9
+  smooth: 1
+  open_wire_alarm: false
+  overflow_alarm: true
+  underflow_alarm: true
+
+ch3:
+  type: 1
+  range: 9
+  smooth: 1
+  open_wire_alarm: false
+  overflow_alarm: true
+  underflow_alarm: true

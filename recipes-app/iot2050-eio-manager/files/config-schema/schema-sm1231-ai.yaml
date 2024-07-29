@@ -1,7 +1,7 @@
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2024
 #
 # Authors:
-#  Su Bao Cheng <baocheng.su@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # SPDX-License-Identifier: MIT
 $schema: 'https://json-schema.org/draft/2020-12/schema'
@@ -12,7 +12,9 @@ properties:
   description:
     type: string
   mlfb:
-    const: "6ES7231-4HF32-0XB0"
+    enum:
+      - "6ES7231-4HD32-0XB0"
+      - "6ES7231-4HF32-0XB0"
   power_alarm:
     type: boolean
   integ_time:
@@ -25,16 +27,35 @@ properties:
     $ref: "#/$defs/channel"
   ch3:
     $ref: "#/$defs/channel"
-  ch4:
-    $ref: "#/$defs/channel"
-  ch5:
-    $ref: "#/$defs/channel"
-  ch6:
-    $ref: "#/$defs/channel"
-  ch7:
-    $ref: "#/$defs/channel"
 
-required: [mlfb, power_alarm, integ_time, ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7]
+required:
+  - mlfb
+  - power_alarm
+  - integ_time
+  - ch0
+  - ch1
+  - ch2
+  - ch3
+
+if:
+  properties:
+    mlfb:
+      const: 6ES7231-4HF32-0XB0
+then:
+  properties:
+    ch4:
+      $ref: "#/$defs/channel"
+    ch5:
+      $ref: "#/$defs/channel"
+    ch6:
+      $ref: "#/$defs/channel"
+    ch7:
+      $ref: "#/$defs/channel"
+  required:
+    - ch4
+    - ch5
+    - ch6
+    - ch7
 
 $defs:
   channel:
@@ -64,7 +85,7 @@ $defs:
           properties:
             range:
               enum: [2, 3]
-      
+
       - if:
           properties:
             range:
@@ -73,7 +94,7 @@ $defs:
           properties:
             open_wire_alarm:
               const: false
-      
+
       - if:
           properties:
             range:
