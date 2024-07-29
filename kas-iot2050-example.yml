@@ -22,12 +22,3 @@ local_conf_header:
     USERS += "root"
     USER_root[password] ??= "root"
     USER_root[flags] ??= "clear-text-password force-passwd-change"
-
-  iot2050_user: |
-    GROUPS += "gpio pinctrl i2c spi pwm iio dialout"
-
-    USERS += "iot2050"
-    USER_iot2050[password] ??= "iot2050"
-    USER_iot2050[flags] ??= "clear-text-password force-passwd-change create-home"
-    USER_iot2050[groups] ??= "gpio pinctrl i2c spi pwm iio dialout"
-    USER_iot2050[shell] ??= "/bin/bash"
