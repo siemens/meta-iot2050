@@ -1,5 +1,6 @@
 {
-  "DESC_MOD": "Analog input module AI8 x 13 bits",
+  "DESC_MOD_4CH": "Analog input module AI4 x 13 bits",
+  "DESC_MOD_8CH": "Analog input module AI8 x 13 bits",
   "LABEL_POWER_ALARM": "Enable module 24V DC power supply diagnostics",
   "LABEL_TYPE": "Measurement type:",
   "LABEL_RANGE_VOL": "Voltage range:",

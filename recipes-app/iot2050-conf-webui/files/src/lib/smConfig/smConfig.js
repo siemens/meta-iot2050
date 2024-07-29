@@ -7,9 +7,9 @@ import {
   convertToUIFormat as convertToUIFmtForSM1231RTD
 } from '@/components/ExtendedModules/SM1231_RTD/SM1231_RTDConf';
 import {
-  convertToDeviceFormat as convertToDeviceFmtForSM1231with8AI,
-  convertToUIFormat as convertToUIFmtForSM1231with8AI
-} from '@/components/ExtendedModules/SM1231_8AI/SM1231with8AIConf';
+  convertToDeviceFormat as convertToDeviceFmtForSM1231AI,
+  convertToUIFormat as convertToUIFmtForSM1231AI
+} from '@/components/ExtendedModules/SM1231_AI/SM1231AIConf';
 import {
   convertToDeviceFormat as convertToDeviceFmtForSM1238,
   convertToUIFormat as convertToUIFmtForSM1238
@@ -32,8 +32,9 @@ export function exportYamlConfig (configData) {
       case '6ES7231-5PF32-0XB0': // SM1231-8RTD
         yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1231RTD(confSlot);
         break;
+      case '6ES7231-4HD32-0XB0': // SM1231-4AI
       case '6ES7231-4HF32-0XB0': // SM1231-8AI
-        yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1231with8AI(confSlot);
+        yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1231AI(confSlot);
         break;
       case '6ES7238-5XA32-0XB0': // SM1238 EM 480VAC
         yamlConfig['slot' + slotIndex] = convertToDeviceFmtForSM1238(confSlot);
@@ -74,8 +75,9 @@ export function importYamlConfig (configData) {
       case '6ES7231-5PF32-0XB0': // SM1231-8RTD
         uiConfig.config[i - 1] = convertToUIFmtForSM1231RTD(configData['slot' + i]);
         break;
+      case '6ES7231-4HD32-0XB0': // SM1231-4AI
       case '6ES7231-4HF32-0XB0': // SM1231-8AI
-        uiConfig.config[i - 1] = convertToUIFmtForSM1231with8AI(configData['slot' + i]);
+        uiConfig.config[i - 1] = convertToUIFmtForSM1231AI(configData['slot' + i]);
         break;
       case '6ES7238-5XA32-0XB0': // SM1238 EM 480VAC
         uiConfig.config[i - 1] = convertToUIFmtForSM1238(configData['slot' + i]);

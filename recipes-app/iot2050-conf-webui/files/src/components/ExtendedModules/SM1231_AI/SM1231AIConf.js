@@ -9,7 +9,7 @@ import SelectionConfig from '@/components/ConfigEntry/SelectionConfig';
 import CheckConfig from '@/components/ConfigEntry/CheckConfig';
 import ConfigGroupLabel from '@/components/ConfigEntry/ConfigGroupLabel';
 import ConfTextConverter from '@/lib/smConfig/ConfTextConverter';
-import uiString from '@/lib/uiString/SM1231_8AI.json';
+import uiString from '@/lib/uiString/SM1231_AI.json';
 import { range } from 'lodash';
 
 const yamlUIMapping = [
@@ -83,7 +83,7 @@ const rangeSelectionOfVoltage = [
   uiString.RANGE_9
 ];
 
-const channelConfigDefault = {
+export const channelConfigDefault = {
   type: {
     label: uiString.LABEL_TYPE,
     selection: [
@@ -121,41 +121,30 @@ const channelConfigDefault = {
   }
 };
 
-export const SM1231with8AIConfDefault = {
-  mlfb: '6ES7231-4HF32-0XB0',
-  power_alarm: {
-    label: uiString.LABEL_POWER_ALARM,
-    value: true
-  },
-  integ_time: {
-    label: uiString.LABEL_INT_TIME,
-    selection: [
-      uiString.INT_TIME_0,
-      uiString.INT_TIME_1,
-      uiString.INT_TIME_2,
-      uiString.INT_TIME_3
-    ],
-    value: uiString.INT_TIME_2
-  },
-  channels: [
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault)),
-    JSON.parse(JSON.stringify(channelConfigDefault))
-  ]
-};
-
 export function convertToUIFormat (config) {
-  const ret = JSON.parse(JSON.stringify(SM1231with8AIConfDefault));
+  const ret = {
+    mlfb: config.mlfb,
+    power_alarm: {
+      label: uiString.LABEL_POWER_ALARM,
+      value: config.power_alarm
+    },
+    integ_time: {
+      label: uiString.LABEL_INT_TIME,
+      selection: [
+        uiString.INT_TIME_0,
+        uiString.INT_TIME_1,
+        uiString.INT_TIME_2,
+        uiString.INT_TIME_3
+      ],
+      value: converter.yamlToUi('integ_time', config.integ_time)
+    },
+    channels: []
+  };
 
-  ret.power_alarm.value = config.power_alarm;
-  ret.integ_time.value = converter.yamlToUi('integ_time', config.integ_time);
+  const channelNums = config.mlfb === '6ES7231-4HD32-0XB0' ? 4 : 8;
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < channelNums; i++) {
+    ret.channels[i] = JSON.parse(JSON.stringify(channelConfigDefault));
     ret.channels[i].type.value = converter.yamlToUi(`ch${i}.type`, config[`ch${i}`].type);
     ret.channels[i].range.value = converter.yamlToUi(`ch${i}.range`, config[`ch${i}`].range);
     if (ret.channels[i].type.value === uiString.TYPE_1) {
@@ -176,12 +165,21 @@ export function convertToUIFormat (config) {
 
 export function convertToDeviceFormat (config) {
   const ret = {
-    description: uiString.DESC_MOD,
+    description: '',
     mlfb: config.mlfb,
     power_alarm: config.power_alarm.value,
     integ_time: converter.uiToYaml('integ_time', config.integ_time.value)
   };
-  for (let i = 0; i < 8; i++) {
+
+  const channelNums = config.mlfb === '6ES7231-4HD32-0XB0' ? 4 : 8;
+
+  if (channelNums === 4) {
+    ret.description = uiString.DESC_MOD_4CH;
+  } else {
+    ret.description = uiString.DESC_MOD_8CH;
+  }
+
+  for (let i = 0; i < channelNums; i++) {
     ret['ch' + i] = {
       type: converter.uiToYaml(`ch${i}.type`, config.channels[i].type.value),
       range: converter.uiToYaml(`ch${i}.range`, config.channels[i].range.value),
@@ -194,7 +192,7 @@ export function convertToDeviceFormat (config) {
   return ret;
 };
 
-export default function SM1231with8AIConf ({ slotNum, configData, updateConfig }) {
+export default function SM1231AIConf ({ slotNum, configData, updateConfig, chTotal }) {
   const setChannelRange = (event) => {
     const chIndex = parseInt(event.target.name.slice(-1), 10);
     const newType = configData.channels[chIndex].type.value;
@@ -234,8 +232,8 @@ export default function SM1231with8AIConf ({ slotNum, configData, updateConfig }
       spacing={2}
     >
       <ModuleInfo
-        description={uiString.DESC_MOD}
-        artNumber="6ES7 231-4HF32-0XB0"
+        description={chTotal === 4 ? uiString.DESC_MOD_4CH : uiString.DESC_MOD_8CH}
+        artNumber={configData.mlfb === '6ES7 231-4HD32-0XB0' ? '6ES7 231-4HD32-0XB0' : '6ES7 231-4HF32-0XB0'}
         fwVersion="NA"
       />
 
@@ -251,7 +249,7 @@ export default function SM1231with8AIConf ({ slotNum, configData, updateConfig }
         updateConfig={updateSlotConfig}
       />
 
-      {range(0, 8).map((index) => (
+      {range(0, chTotal).map((index) => (
         <Paper elevation={3} key={'ch-' + index}>
           <FormControl sx={{ m: 2 }} component="fieldset" variant="standard">
             <ConfigGroupLabel label={'Channel ' + index} />
