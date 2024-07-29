@@ -3,6 +3,7 @@
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -39,6 +40,7 @@ SRC_URI += " \
     file://config-schema/schema-sm1231-rtd.yaml \
     file://config-schema/schema-sm1238-em-480vac.yaml \
     file://config-schema/schema-sm-sens-di.yaml \
+    file://config-schema/schema-sm1221-8di.yaml \
     file://config-template/sm-config-example.yaml \
     file://config-template/mlfb-6ES7223-1QH32-0XB0.yaml \
     file://config-template/mlfb-6ES7231-4HF32-0XB0.yaml \
@@ -47,6 +49,7 @@ SRC_URI += " \
     file://config-template/mlfb-6ES7238-5XA32-0XB0.yaml \
     file://config-template/mlfb-6ES7647-0CM00-1AA2.yaml \
     file://config-template/mlfb-6ES7231-4HD32-0XB0.yaml \
+    file://config-template/mlfb-6ES7221-1BF32-0XB0.yaml \
     file://config-template/mlfb-NA.yaml \
     "
 
@@ -114,6 +117,7 @@ do_install() {
     install -v -m 644 ${WORKDIR}/config-schema/schema-sm1231-rtd.yaml ${D}/usr/lib/iot2050/eio/schema/
     install -v -m 644 ${WORKDIR}/config-schema/schema-sm1238-em-480vac.yaml ${D}/usr/lib/iot2050/eio/schema/
     install -v -m 644 ${WORKDIR}/config-schema/schema-sm-sens-di.yaml ${D}/usr/lib/iot2050/eio/schema/
+    install -v -m 644 ${WORKDIR}/config-schema/schema-sm1221-8di.yaml ${D}/usr/lib/iot2050/eio/schema/
     install -v -m 644 ${WORKDIR}/config-template/sm-config-example.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7223-1QH32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7231-4HF32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
@@ -122,6 +126,7 @@ do_install() {
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7238-5XA32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7647-0CM00-1AA2.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7231-4HD32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
+    install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7221-1BF32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-NA.yaml ${D}/usr/lib/iot2050/eio/config-template/
 
     install -v -d ${D}/lib/systemd/system/

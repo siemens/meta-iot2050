@@ -4,6 +4,7 @@
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # SPDX-License-Identifier: MIT
 import struct
@@ -348,6 +349,39 @@ class SM1231AISerDes(ModuleSerDes):
         return config
 
 
+class SM1221DI8SerDes(ModuleSerDes):
+    """SM1221 8DI x 24VDC Configuration (de)/serializer"""
+    def __init__(self, mlfb):
+        super().__init__(mlfb)
+        header_fmt = 'p8 u8'
+        di_ch_fmt = 'p8 p4u4'
+        self.serdesfmt = ''.join([header_fmt, di_ch_fmt * 8])
+
+    def serialize(self, config: Dict) -> bytes:
+        parameters = [0x02]
+        for i in range(0, 8):
+            if i < 4:
+                parameters.append(config['di']['ch0_3_delay_time'])
+            else:
+                parameters.append(config['di']['ch4_7_delay_time'])
+        return bitstruct.pack(self.serdesfmt, *parameters)
+
+    def deserialize(self, blob: bytes) -> Dict:
+        config = {
+            "description": "SM 1221 DI8 x 24VDC",
+            "mlfb": self.mlfb,
+            "di": {
+                "ch0_3_delay_time": "",
+                "ch4_7_delay_time": ""
+            }
+        }
+
+        _, \
+        config['di']['ch0_3_delay_time'], _, _, _, \
+        config['di']['ch4_7_delay_time'], _, _, _ = bitstruct.unpack(self.serdesfmt, blob)
+        return config
+
+
 class NoModSerDes(ModuleSerDes):
     """No module configuration (de)/serializer"""
     def __init__(self, mlfb):
@@ -377,6 +411,8 @@ class ModSerDesFactory(object):
             return SM1238SerDes(mlfb)
         elif mlfb == '6ES7647-0CM00-1AA2':
             return SMSensDISerDes(mlfb)
+        elif mlfb == '6ES7221-1BF32-0XB0':
+            return SM1221DI8SerDes(mlfb)
         else:
             return NoModSerDes(mlfb)
 
