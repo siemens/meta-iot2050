@@ -42,13 +42,6 @@ def setPinmux(index, mode):
         uart = mraa.Uart(0)
         uart.setFlowcontrol(False, True)
 
-def preAllocatePwm():
-    """ Allocate PWM pins upfront for creating PWM sysfs entries and adjusting permissions accordingly.
-        This is required for non-root access to PWM pins.
-    """
-    for i in [4, 5, 6, 7, 8, 9]:
-        p = mraa.Pwm(i, owner=False)
-        p.close()
 
 def initAruinoPins():
     for i in range(0, 20):
@@ -81,7 +74,6 @@ def getBoardModel():
 def main():
     initExternalSerialMode()
     if "IOT2050 Advanced SM" != getBoardModel():
-        preAllocatePwm()
         initAruinoPins()
 
 
