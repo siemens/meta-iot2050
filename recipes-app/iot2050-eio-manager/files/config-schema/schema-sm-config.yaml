@@ -43,6 +43,7 @@ $defs:
           - 6ES7238-5XA32-0XB0
           - 6ES7647-0CM00-1AA2
           - 6ES7231-4HD32-0XB0
+          - 6ES7221-1BF32-0XB0
           - NA
 
     allOf:
@@ -85,6 +86,13 @@ $defs:
               const: 6ES7647-0CM00-1AA2
         then:
           $ref: https://iot2050-sm/sm-sens-di
+
+      - if:
+          properties:
+            mlfb:
+              const: 6ES7221-1BF32-0XB0
+        then:
+          $ref: https://iot2050-sm/sm1221-8di
 
       - if:
           properties:

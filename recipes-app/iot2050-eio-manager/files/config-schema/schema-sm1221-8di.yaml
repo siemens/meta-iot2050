@@ -1,0 +1,32 @@
+# Copyright (c) Siemens AG, 2024
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://iot2050-sm/sm1221-8di'
+
+type: object
+properties:
+  description:
+    type: string
+  mlfb:
+    const: "6ES7221-1BF32-0XB0"
+  di:
+    type: object
+    properties:
+      ch0_3_delay_time:
+        enum: [2, 3, 4, 5, 6, 7, 9]
+      ch4_7_delay_time:
+        enum: [2, 3, 4, 5, 6, 7, 9]
+    required:
+      - ch0_3_delay_time
+      - ch4_7_delay_time
+    unevaluatedProperties: false
+
+required:
+  - mlfb
+  - di
+
+unevaluatedProperties: false

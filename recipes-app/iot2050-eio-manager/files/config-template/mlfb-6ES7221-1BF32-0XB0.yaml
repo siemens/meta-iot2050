@@ -1,0 +1,43 @@
+# Copyright (c) Siemens AG, 2024
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+# This is an example config file for IOT2050-SM signal modules to demonstrate
+# how to config the external signal modules via YAML config file
+#
+description: |
+  SM1221-8DI (8-channel digital input and 8-channel output module)
+
+  Configuration Items:
+
+  0. MLFB
+
+    Must be "6ES7221-1BF32-0XB0"
+
+  1. Digital inputs
+  
+    - di.ch0_3_delay_time:
+        Input delay time of di channel 0 ~ channel 3
+        
+        value options:
+          - 2: 0.2 msec
+          - 3: 0.4 msec
+          - 4: 0.8 msec
+          - 5: 1.6 msec
+          - 6: 3.2 msec
+          - 7: 6.4 msec
+          - 9: 12.8 msec
+    
+    - di.ch4_7_delay_time:
+        input delay time of di channel 4 ~ channel 7
+        
+        value options: same as di.ch0_3_delay_time
+
+mlfb: "6ES7221-1BF32-0XB0"
+
+di:
+  ch0_3_delay_time: 9
+  ch4_7_delay_time: 9
