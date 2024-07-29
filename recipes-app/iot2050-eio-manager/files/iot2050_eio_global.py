@@ -79,6 +79,7 @@ eio_conf_templates = [
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7231-5PF32-0XB0.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7647-0CM00-1AA2.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7238-5XA32-0XB0.yaml",
+    f"{EIO_CONFIG_TEMP_ROOT}/mlfb-6ES7231-4HD32-0XB0.yaml",
     f"{EIO_CONFIG_TEMP_ROOT}/mlfb-NA.yaml"
 ]
 
