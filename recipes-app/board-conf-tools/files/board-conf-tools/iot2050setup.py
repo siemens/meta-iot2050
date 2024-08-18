@@ -23,8 +23,7 @@ from json_ops.json_ops import BoardConfigurationUtility
 
 def threadDecorator(func):
     def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
-        thread.setDaemon(True)
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
         thread.start()
         thread.join(3)
         if thread.is_alive():
