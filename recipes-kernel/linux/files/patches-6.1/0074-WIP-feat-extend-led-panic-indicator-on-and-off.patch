@@ -69,7 +69,7 @@ index 092eb59a7d32..055272aa8289 100644
  		ret = create_gpio_led(&led, led_dat, dev, child, NULL);
  		if (ret < 0) {
 diff --git a/drivers/leds/trigger/ledtrig-panic.c b/drivers/leds/trigger/ledtrig-panic.c
-index 64abf2e91608..579c84bc4d79 100644
+index 5a6b21bfeb9a..87c1e5218254 100644
 --- a/drivers/leds/trigger/ledtrig-panic.c
 +++ b/drivers/leds/trigger/ledtrig-panic.c
 @@ -33,6 +33,7 @@ static void led_trigger_set_panic(struct led_classdev *led_cdev)

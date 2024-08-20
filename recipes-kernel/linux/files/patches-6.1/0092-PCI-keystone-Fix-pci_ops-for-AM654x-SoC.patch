@@ -28,7 +28,7 @@ Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
  1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index a5dbe8c9b077..356bfdec00eb 100644
+index 50a777cbfb77..623aafc0303a 100644
 --- a/drivers/pci/controller/dwc/pci-keystone.c
 +++ b/drivers/pci/controller/dwc/pci-keystone.c
 @@ -581,6 +581,12 @@ static struct pci_ops ks_pcie_ops = {

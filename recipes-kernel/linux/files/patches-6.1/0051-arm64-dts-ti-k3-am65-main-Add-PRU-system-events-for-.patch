@@ -31,7 +31,7 @@ Signed-off-by: MD Danish Anwar <danishanwar@ti.com>
  1 file changed, 36 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index a3edfec481ce..5d862f4f45cf 100644
+index e239287ee9d7..231634fdc469 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 @@ -1015,6 +1015,9 @@ pru0_0: pru@34000 {

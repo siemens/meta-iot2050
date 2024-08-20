@@ -13,10 +13,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index b0286df3383d..bbc26c18a590 100644
+index 53f3c08dd256..a4316c759392 100644
 --- a/drivers/dma/ti/k3-udma.c
 +++ b/drivers/dma/ti/k3-udma.c
-@@ -4784,7 +4784,10 @@ static int bcdma_setup_resources(struct udma_dev *ud)
+@@ -4790,7 +4790,10 @@ static int bcdma_setup_resources(struct udma_dev *ud)
  				irq_res.desc[i].num = rm_res->desc[i].num;
  			}
  		}

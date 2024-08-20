@@ -18,7 +18,7 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 120 insertions(+), 91 deletions(-)
 
 diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 78818853af9e..44545536641d 100644
+index 7ecad72cff7e..273bd221e948 100644
 --- a/drivers/pci/controller/dwc/pci-keystone.c
 +++ b/drivers/pci/controller/dwc/pci-keystone.c
 @@ -69,6 +69,7 @@

@@ -29,10 +29,10 @@ Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
  5 files changed, 16 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index db3c0ce08e44..54dda4309892 100644
+index 04f75a9f7091..7d758df19b64 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
-@@ -196,7 +196,7 @@ static int generic_ops_register(void)
+@@ -217,7 +217,7 @@ static int generic_ops_register(void)
  		generic_ops.set_variable = efi.set_variable;
  		generic_ops.set_variable_nonblocking = efi.set_variable_nonblocking;
  	}
@@ -42,10 +42,10 @@ index db3c0ce08e44..54dda4309892 100644
  
  static void generic_ops_unregister(void)
 diff --git a/drivers/firmware/efi/vars.c b/drivers/firmware/efi/vars.c
-index de36d4e4bd95..26a05bf37fdd 100644
+index d22160e7c785..e19e8f19ebc0 100644
 --- a/drivers/firmware/efi/vars.c
 +++ b/drivers/firmware/efi/vars.c
-@@ -40,37 +40,30 @@ static efi_status_t check_var_size(bool nonblocking, u32 attributes,
+@@ -40,31 +40,25 @@ static efi_status_t check_var_size(bool nonblocking, u32 attributes,
  }
  
  /**
@@ -81,8 +81,10 @@ index de36d4e4bd95..26a05bf37fdd 100644
 -		     struct kobject *kobject)
 +		     const struct efivar_operations *ops)
  {
- 	if (down_interruptible(&efivars_lock))
- 		return -EINTR;
+ 	int rv;
+ 
+@@ -78,7 +72,6 @@ int efivars_register(struct efivars *efivars,
+ 	}
  
  	efivars->ops = ops;
 -	efivars->kobject = kobject;
@@ -103,10 +105,10 @@ index 871bedf533a8..96ea1fa76d35 100644
  		printk(KERN_INFO "gsmi: Failed to register efivars\n");
  		sysfs_remove_files(gsmi_kobj, gsmi_attrs);
 diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 0994446a3544..36d5fcf2591e 100644
+index 9c7e17657468..225c4854b8eb 100644
 --- a/fs/efivarfs/super.c
 +++ b/fs/efivarfs/super.c
-@@ -290,7 +290,7 @@ static struct file_system_type efivarfs_type = {
+@@ -305,7 +305,7 @@ static struct file_system_type efivarfs_type = {
  
  static __init int efivarfs_init(void)
  {
@@ -116,10 +118,10 @@ index 0994446a3544..36d5fcf2591e 100644
  
  	return register_filesystem(&efivarfs_type);
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index b8cd4db7a1bf..953575e29da6 100644
+index cffd2d4f8f71..558ce68a5c5d 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
-@@ -1050,7 +1050,6 @@ struct efivar_operations {
+@@ -1043,7 +1043,6 @@ struct efivar_operations {
  
  struct efivars {
  	struct kset *kset;
@@ -127,7 +129,7 @@ index b8cd4db7a1bf..953575e29da6 100644
  	const struct efivar_operations *ops;
  };
  
-@@ -1070,10 +1069,14 @@ static inline u64 efivar_reserved_space(void) { return 0; }
+@@ -1063,10 +1062,14 @@ static inline u64 efivar_reserved_space(void) { return 0; }
  #define EFI_VAR_NAME_LEN	1024
  
  int efivars_register(struct efivars *efivars,

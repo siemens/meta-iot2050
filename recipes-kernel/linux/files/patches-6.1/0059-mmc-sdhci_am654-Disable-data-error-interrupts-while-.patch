@@ -15,10 +15,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 7cdf0f54e3a5..596e80d3d4c0 100644
+index d47672bcc508..526d25e6961c 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -390,8 +390,18 @@ static void sdhci_am654_reset(struct sdhci_host *host, u8 mask)
+@@ -414,8 +414,18 @@ static void sdhci_am654_reset(struct sdhci_host *host, u8 mask)
  static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
  {
  	struct sdhci_host *host = mmc_priv(mmc);
@@ -38,7 +38,7 @@ index 7cdf0f54e3a5..596e80d3d4c0 100644
  	if (err)
  		return err;
  	/*
-@@ -400,6 +410,13 @@ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
+@@ -424,6 +434,13 @@ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
  	 */
  	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
  

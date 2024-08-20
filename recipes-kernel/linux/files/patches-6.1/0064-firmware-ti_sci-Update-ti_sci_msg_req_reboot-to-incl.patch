@@ -22,10 +22,10 @@ Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
  2 files changed, 3 insertions(+)
 
 diff --git a/drivers/firmware/ti_sci.c b/drivers/firmware/ti_sci.c
-index 4c550cfbc086..b7a52e5855e3 100644
+index 6231c98ba291..94372441ac55 100644
 --- a/drivers/firmware/ti_sci.c
 +++ b/drivers/firmware/ti_sci.c
-@@ -1690,6 +1690,7 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
+@@ -1677,6 +1677,7 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
  		return ret;
  	}
  	req = (struct ti_sci_msg_req_reboot *)xfer->xfer_buf;

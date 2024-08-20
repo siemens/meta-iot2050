@@ -37,7 +37,7 @@ Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
  1 file changed, 54 insertions(+)
 
 diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index b86b809eb1f7..b0286df3383d 100644
+index 82e7acfda6ed..53f3c08dd256 100644
 --- a/drivers/dma/ti/k3-udma.c
 +++ b/drivers/dma/ti/k3-udma.c
 @@ -303,6 +303,8 @@ struct udma_chan {
@@ -49,7 +49,7 @@ index b86b809eb1f7..b0286df3383d 100644
  
  	/* dmapool for packet mode descriptors */
  	bool use_dma_pool;
-@@ -5504,11 +5506,63 @@ static int udma_probe(struct platform_device *pdev)
+@@ -5510,11 +5512,63 @@ static int udma_probe(struct platform_device *pdev)
  	return ret;
  }
  

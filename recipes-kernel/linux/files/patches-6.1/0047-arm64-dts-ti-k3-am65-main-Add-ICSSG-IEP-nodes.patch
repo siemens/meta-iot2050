@@ -16,7 +16,7 @@ Signed-off-by: MD Danish Anwar <danishanwar@ti.com>
  1 file changed, 36 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index ebb1c5ce7aec..a3edfec481ce 100644
+index 83dd8993027a..e239287ee9d7 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
 @@ -967,6 +967,18 @@ icssg0_iepclk_mux: iepclk-mux@30 {
