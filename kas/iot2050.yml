@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2023
+# Copyright (c) Siemens AG, 2019-2024
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -27,13 +27,13 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: 9dc362cd7115074c0f60843e687ed89db5c9339a
+    commit: a2a997b66daf3d684a7ad29108971a463cfac522
     layers:
       meta:
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    commit: 704353612238cb2ac1c16f29db6f314b60cd83b0
+    commit: bafd102601ae21c2b2643d536d62fb7cc5f98767
 
 local_conf_header:
   standard: |
