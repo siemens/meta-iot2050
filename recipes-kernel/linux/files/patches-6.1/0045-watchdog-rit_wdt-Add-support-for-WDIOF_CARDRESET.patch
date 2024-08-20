@@ -22,7 +22,7 @@ Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
  1 file changed, 48 insertions(+)
 
 diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index 6e9253761fc1..bc13e7687f04 100644
+index fe27039f6f5a..486438c41e1d 100644
 --- a/drivers/watchdog/rti_wdt.c
 +++ b/drivers/watchdog/rti_wdt.c
 @@ -14,6 +14,8 @@
@@ -34,9 +34,9 @@ index 6e9253761fc1..bc13e7687f04 100644
  #include <linux/platform_device.h>
  #include <linux/pm_runtime.h>
  #include <linux/types.h>
-@@ -52,6 +54,11 @@
+@@ -54,6 +56,11 @@
  
- #define DWDST			BIT(1)
+ #define MAX_HW_ERROR		250
  
 +#define PON_REASON_SOF_NUM	0xBBBBCCCC
 +#define PON_REASON_MAGIC_NUM	0xDDDDDDDD
@@ -46,7 +46,7 @@ index 6e9253761fc1..bc13e7687f04 100644
  static int heartbeat = DEFAULT_HEARTBEAT;
  
  /*
-@@ -198,6 +205,11 @@ static int rti_wdt_probe(struct platform_device *pdev)
+@@ -207,6 +214,11 @@ static int rti_wdt_probe(struct platform_device *pdev)
  	struct rti_wdt_device *wdt;
  	struct clk *clk;
  	u32 last_ping = 0;
@@ -58,7 +58,7 @@ index 6e9253761fc1..bc13e7687f04 100644
  
  	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
  	if (!wdt)
-@@ -284,6 +296,42 @@ static int rti_wdt_probe(struct platform_device *pdev)
+@@ -285,6 +297,42 @@ static int rti_wdt_probe(struct platform_device *pdev)
  		}
  	}
  

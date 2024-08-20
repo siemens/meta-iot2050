@@ -20,10 +20,10 @@ Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
  2 files changed, 15 insertions(+)
 
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 54dda4309892..65850e445f93 100644
+index 7d758df19b64..756d38db19f7 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
-@@ -204,6 +204,18 @@ static void generic_ops_unregister(void)
+@@ -228,6 +228,18 @@ static void generic_ops_unregister(void)
  	efivars_unregister(&generic_efivars);
  }
  
@@ -43,10 +43,10 @@ index 54dda4309892..65850e445f93 100644
  #define EFIVAR_SSDT_NAME_MAX	16UL
  static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 953575e29da6..f19abc71995b 100644
+index 558ce68a5c5d..4a8f9db5f751 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
-@@ -1370,4 +1370,7 @@ struct linux_efi_initrd {
+@@ -1363,4 +1363,7 @@ struct linux_efi_initrd {
  /* Header of a populated EFI secret area */
  #define EFI_SECRET_TABLE_HEADER_GUID	EFI_GUID(0x1e74f542, 0x71dd, 0x4d66,  0x96, 0x3e, 0xef, 0x42, 0x87, 0xff, 0x17, 0x3b)
  

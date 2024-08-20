@@ -16,10 +16,10 @@ Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index 8e22b375247e..672d37ea98d0 100644
+index 52d6cc07e38c..55f457126f8f 100644
 --- a/drivers/mmc/host/sdhci_am654.c
 +++ b/drivers/mmc/host/sdhci_am654.c
-@@ -834,7 +834,7 @@ static int sdhci_am654_probe(struct platform_device *pdev)
+@@ -909,7 +909,7 @@ static int sdhci_am654_probe(struct platform_device *pdev)
  
  	ret = mmc_of_parse(host->mmc);
  	if (ret) {

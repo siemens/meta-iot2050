@@ -53,10 +53,10 @@ index b0b848d6933a..f0cc00032751 100644
   * In the nonblocking case we do not attempt to perform garbage
   * collection if we do not have enough free space. Rather, we do the
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index b43e5e6ddaf6..db3c0ce08e44 100644
+index 28d4defc5d0c..04f75a9f7091 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
-@@ -190,6 +190,7 @@ static int generic_ops_register(void)
+@@ -211,6 +211,7 @@ static int generic_ops_register(void)
  	generic_ops.get_variable = efi.get_variable;
  	generic_ops.get_next_variable = efi.get_next_variable;
  	generic_ops.query_variable_store = efi_query_variable_store;
@@ -65,10 +65,10 @@ index b43e5e6ddaf6..db3c0ce08e44 100644
  	if (efi_rt_services_supported(EFI_RT_SUPPORTED_SET_VARIABLE)) {
  		generic_ops.set_variable = efi.set_variable;
 diff --git a/drivers/firmware/efi/vars.c b/drivers/firmware/efi/vars.c
-index 0ba9f18312f5..de36d4e4bd95 100644
+index 4ca256bcd697..d22160e7c785 100644
 --- a/drivers/firmware/efi/vars.c
 +++ b/drivers/firmware/efi/vars.c
-@@ -241,3 +241,15 @@ efi_status_t efivar_set_variable(efi_char16_t *name, efi_guid_t *vendor,
+@@ -250,3 +250,15 @@ efi_status_t efivar_set_variable(efi_char16_t *name, efi_guid_t *vendor,
  	return status;
  }
  EXPORT_SYMBOL_NS_GPL(efivar_set_variable, EFIVAR);
@@ -85,18 +85,18 @@ index 0ba9f18312f5..de36d4e4bd95 100644
 +}
 +EXPORT_SYMBOL_NS_GPL(efivar_query_variable_info, EFIVAR);
 diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 6780fc81cc11..0994446a3544 100644
+index 77c7615bba5e..9c7e17657468 100644
 --- a/fs/efivarfs/super.c
 +++ b/fs/efivarfs/super.c
-@@ -13,6 +13,7 @@
- #include <linux/ucs2_string.h>
+@@ -14,6 +14,7 @@
  #include <linux/slab.h>
  #include <linux/magic.h>
+ #include <linux/printk.h>
 +#include <linux/statfs.h>
  
  #include "internal.h"
  
-@@ -23,8 +24,44 @@ static void efivarfs_evict_inode(struct inode *inode)
+@@ -24,8 +25,44 @@ static void efivarfs_evict_inode(struct inode *inode)
  	clear_inode(inode);
  }
  
@@ -143,10 +143,10 @@ index 6780fc81cc11..0994446a3544 100644
  	.evict_inode = efivarfs_evict_inode,
  };
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 4e1bfee9675d..b8cd4db7a1bf 100644
+index a849b533be5b..cffd2d4f8f71 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
-@@ -1045,6 +1045,7 @@ struct efivar_operations {
+@@ -1038,6 +1038,7 @@ struct efivar_operations {
  	efi_set_variable_t *set_variable;
  	efi_set_variable_t *set_variable_nonblocking;
  	efi_query_variable_store_t *query_variable_store;
@@ -154,7 +154,7 @@ index 4e1bfee9675d..b8cd4db7a1bf 100644
  };
  
  struct efivars {
-@@ -1053,6 +1054,12 @@ struct efivars {
+@@ -1046,6 +1047,12 @@ struct efivars {
  	const struct efivar_operations *ops;
  };
  
@@ -167,7 +167,7 @@ index 4e1bfee9675d..b8cd4db7a1bf 100644
  /*
   * The maximum size of VariableName + Data = 1024
   * Therefore, it's reasonable to save that much
-@@ -1087,6 +1094,10 @@ efi_status_t efivar_set_variable_locked(efi_char16_t *name, efi_guid_t *vendor,
+@@ -1080,6 +1087,10 @@ efi_status_t efivar_set_variable_locked(efi_char16_t *name, efi_guid_t *vendor,
  efi_status_t efivar_set_variable(efi_char16_t *name, efi_guid_t *vendor,
  				 u32 attr, unsigned long data_size, void *data);
  

@@ -80,7 +80,7 @@ index 93a5f0817efc..6c6655369e52 100644
  			AM62X_IOPAD(0x01d4, PIN_INPUT, 7) /* (B15) UART0_RTSn.GPIO1_23 */
  		>;
 diff --git a/arch/arm64/boot/dts/ti/k3-am62a7-sk.dts b/arch/arm64/boot/dts/ti/k3-am62a7-sk.dts
-index b08a083d722d..7152b04eec52 100644
+index 7f265c671654..4a0ae0c817fe 100644
 --- a/arch/arm64/boot/dts/ti/k3-am62a7-sk.dts
 +++ b/arch/arm64/boot/dts/ti/k3-am62a7-sk.dts
 @@ -114,35 +114,35 @@ led-0 {

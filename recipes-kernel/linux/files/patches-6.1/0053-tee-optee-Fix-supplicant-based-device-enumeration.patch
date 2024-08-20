@@ -24,9 +24,9 @@ Tested-by: Masahisa Kojima <masahisa.kojima@linaro.org>
 [Taken from https://lore.kernel.org/all/20230728134832.326467-1-sumit.garg@linaro.org/]
 ---
  drivers/tee/optee/core.c          | 13 ++-----------
- drivers/tee/optee/device.c        | 13 ++++++++++---
+ drivers/tee/optee/device.c        |  9 ++++++++-
  drivers/tee/optee/optee_private.h |  2 --
- 3 files changed, 12 insertions(+), 16 deletions(-)
+ 3 files changed, 10 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
 index daf07737c4fd..52c08055826b 100644
@@ -67,22 +67,18 @@ index daf07737c4fd..52c08055826b 100644
  }
  
 diff --git a/drivers/tee/optee/device.c b/drivers/tee/optee/device.c
-index 64f0e047c23d..78fc0a15c463 100644
+index 1892e49a8e6a..56ef3b1faf35 100644
 --- a/drivers/tee/optee/device.c
 +++ b/drivers/tee/optee/device.c
-@@ -60,9 +60,10 @@ static void optee_release_device(struct device *dev)
- 	kfree(optee_device);
- }
- 
--static int optee_register_device(const uuid_t *device_uuid)
-+static int optee_register_device(const uuid_t *device_uuid, u32 func)
+@@ -72,6 +72,7 @@ static DEVICE_ATTR_RO(need_supplicant);
+ static int optee_register_device(const uuid_t *device_uuid, u32 func)
  {
  	struct tee_client_device *optee_device = NULL;
 +	const char *dev_name_fmt = NULL;
  	int rc;
  
  	optee_device = kzalloc(sizeof(*optee_device), GFP_KERNEL);
-@@ -71,7 +72,13 @@ static int optee_register_device(const uuid_t *device_uuid)
+@@ -80,7 +81,13 @@ static int optee_register_device(const uuid_t *device_uuid, u32 func)
  
  	optee_device->dev.bus = &tee_bus_type;
  	optee_device->dev.release = optee_release_device;
@@ -96,15 +92,6 @@ index 64f0e047c23d..78fc0a15c463 100644
 +	if (dev_set_name(&optee_device->dev, dev_name_fmt, device_uuid)) {
  		kfree(optee_device);
  		return -ENOMEM;
- 	}
-@@ -142,7 +149,7 @@ static int __optee_enumerate_devices(u32 func)
- 	num_devices = shm_size / sizeof(uuid_t);
- 
- 	for (idx = 0; idx < num_devices; idx++) {
--		rc = optee_register_device(&device_uuid[idx]);
-+		rc = optee_register_device(&device_uuid[idx], func);
- 		if (rc)
- 			goto out_shm;
  	}
 diff --git a/drivers/tee/optee/optee_private.h b/drivers/tee/optee/optee_private.h
 index 04ae58892608..7e9b3e7cd26b 100644
