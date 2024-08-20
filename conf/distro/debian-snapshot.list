@@ -1,8 +1,0 @@
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20231023T151630Z/ bookworm main contrib non-free-firmware non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20231023T151630Z/ bookworm main contrib non-free-firmware non-free
-
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20231023T151630Z/ bookworm-security/updates main contrib non-free-firmware non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20231023T151630Z/ bookworm-security/updates main contrib non-free-firmware non-free
-
-deb	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20231023T151630Z/ bookworm-updates main contrib non-free-firmware non-free
-deb-src	[check-valid-until=no] http://snapshot.debian.org/archive/debian/20231023T151630Z/ bookworm-updates main contrib non-free-firmware non-free

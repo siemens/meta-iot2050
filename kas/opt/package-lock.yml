@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2024
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -13,4 +13,6 @@ header:
 
 local_conf_header:
   package-lock: |
-    PACKAGES_SELECTION := "packages-snapshot"
+    # 2023-10-23 15:16:30 UTC
+    ISAR_APT_SNAPSHOT_TIMESTAMP = "1698074190"
+    ISAR_USE_APT_SNAPSHOT = "1"
