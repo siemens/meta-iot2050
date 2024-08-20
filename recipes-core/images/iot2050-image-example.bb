@@ -42,6 +42,7 @@ IMAGE_INSTALL += " \
     optee-client-dev \
     tee-supplicant \
     iot2050-event-record \
+    linux-headers-${KERNEL_NAME} \
     "
 
 IOT2050_NODE_RED_SUPPORT ?= "1"
