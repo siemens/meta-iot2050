@@ -1,0 +1,107 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Felix Moessbauer <felix.moessbauer@siemens.com>
+Date: Sat, 13 Jan 2024 12:12:14 +0100
+Subject: [PATCH] install independent of build target
+
+Previously, cmake did only install the components  when building the
+Release target. However, the configuration should be selectable by the
+user (or the distro). This patch removes this condition, so the user can
+always install the currently built configuration.
+
+Signed-off-by: Felix Moessbauer <felix.moessbauer@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ hailort/hailort_service/CMakeLists.txt                | 3 ---
+ hailort/hailortcli/CMakeLists.txt                     | 1 -
+ hailort/libhailort/bindings/gstreamer/CMakeLists.txt  | 2 +-
+ hailort/libhailort/bindings/python/src/CMakeLists.txt | 2 --
+ hailort/libhailort/doc/CMakeLists.txt                 | 2 +-
+ hailort/libhailort/src/CMakeLists.txt                 | 1 -
+ 6 files changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/hailort/hailort_service/CMakeLists.txt b/hailort/hailort_service/CMakeLists.txt
+index 4d3c52095f58..5f7facc48c0b 100644
+--- a/hailort/hailort_service/CMakeLists.txt
++++ b/hailort/hailort_service/CMakeLists.txt
+@@ -52,7 +52,6 @@ if (UNIX)
+     install(
+         FILES "${HAILORT_SERVICE_ENV_VARS_FILE}"
+         DESTINATION "${ENV_VARS_FILE_DIR}"
+-        CONFIGURATIONS Release
+         COMPONENT hailort_service
+     )
+ 
+@@ -61,7 +60,6 @@ if (UNIX)
+     install(
+         FILES "${HAILORT_SERVICE_UNIT_FILE}"
+         DESTINATION "${SYSTEMD_UNIT_DIR}"
+-        CONFIGURATIONS Release
+         COMPONENT hailort_service
+     )
+ endif()
+@@ -69,7 +67,6 @@ endif()
+ install(
+     TARGETS hailort_service
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+-    CONFIGURATIONS Release
+ )
+ 
+ set(DAEMON_PID_DIR "/run/hailo")
+diff --git a/hailort/hailortcli/CMakeLists.txt b/hailort/hailortcli/CMakeLists.txt
+index 1add7146af56..4a2d5e751802 100644
+--- a/hailort/hailortcli/CMakeLists.txt
++++ b/hailort/hailortcli/CMakeLists.txt
+@@ -88,6 +88,5 @@ target_include_directories(hailortcli
+ 
+ install(TARGETS hailortcli
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+-   CONFIGURATIONS Release
+ )
+ cli11_install_completion_file(hailortcli)
+\ No newline at end of file
+diff --git a/hailort/libhailort/bindings/gstreamer/CMakeLists.txt b/hailort/libhailort/bindings/gstreamer/CMakeLists.txt
+index 5a601802738a..012e17c4bfea 100644
+--- a/hailort/libhailort/bindings/gstreamer/CMakeLists.txt
++++ b/hailort/libhailort/bindings/gstreamer/CMakeLists.txt
+@@ -61,4 +61,4 @@ install(TARGETS gsthailo
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     # TODO: get gstreamer-1.0 in an automate way
+     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/gstreamer-1.0/gst/hailo/"
+-    CONFIGURATIONS Release)
++)
+diff --git a/hailort/libhailort/bindings/python/src/CMakeLists.txt b/hailort/libhailort/bindings/python/src/CMakeLists.txt
+index 913716297564..4d25762df8d9 100644
+--- a/hailort/libhailort/bindings/python/src/CMakeLists.txt
++++ b/hailort/libhailort/bindings/python/src/CMakeLists.txt
+@@ -99,6 +99,4 @@ add_dependencies(pyhailort_venv _pyhailort)
+ 
+ install(TARGETS _pyhailort
+     LIBRARY DESTINATION ${HAILO_PYHAILORT_TARGET_DIR}
+-    CONFIGURATIONS Release
+ )
+-
+diff --git a/hailort/libhailort/doc/CMakeLists.txt b/hailort/libhailort/doc/CMakeLists.txt
+index 73d0964c5e6f..9f2ea9c2778c 100644
+--- a/hailort/libhailort/doc/CMakeLists.txt
++++ b/hailort/libhailort/doc/CMakeLists.txt
+@@ -25,7 +25,7 @@ if(DOXYGEN_FOUND)
+ 
+     install(
+         DIRECTORY "${DOXYGEN_OUTPUT_DIR}" DESTINATION "doc/"
+-        CONFIGURATIONS Release)
++    )
+ 
+     add_custom_target(doc ALL DEPENDS doxygen)
+ 
+diff --git a/hailort/libhailort/src/CMakeLists.txt b/hailort/libhailort/src/CMakeLists.txt
+index 8a3e9b8e0a50..048fdd0ffe38 100644
+--- a/hailort/libhailort/src/CMakeLists.txt
++++ b/hailort/libhailort/src/CMakeLists.txt
+@@ -163,7 +163,6 @@ target_compile_definitions(libhailort PUBLIC
+ 
+ install(TARGETS libhailort
+     EXPORT HailoRTTargets
+-    CONFIGURATIONS Release
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

@@ -1,0 +1,3 @@
+usr/include/hailo
+usr/lib/*/libhailort.so
+usr/lib/*/cmake/HailoRT

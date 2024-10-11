@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@ --with python3
+
+ifeq ($(DEB_HOST_ARCH),arm64)
+    CMAKE_TOOLCHAIN_FILE := $(CURDIR)/hailort/libhailort/cmake/toolchains/linux.aarch64.cmake
+endif
+
+override_dh_auto_configure:
+	dh_auto_configure --buildsystem=pybuild --sourcedir=hailort/libhailort/bindings/python/platform
+	dh_auto_configure --buildsystem=cmake -- \
+		-DHAILO_BUILD_SERVICE=ON \
+		-DHAILO_BUILD_GSTREAMER=ON \
+		-DCMAKE_BUILD_TYPE=Release
+
+override_dh_auto_build:
+	CMAKE_TOOLCHAIN_FILE=$(CMAKE_TOOLCHAIN_FILE) \
+	dh_auto_build --buildsystem=pybuild --sourcedir=hailort/libhailort/bindings/python/platform
+	dh_auto_build --buildsystem=cmake
+
+override_dh_auto_install:
+	CMAKE_TOOLCHAIN_FILE=$(CMAKE_TOOLCHAIN_FILE) \
+	dh_auto_install --buildsystem=pybuild --sourcedirectory=hailort/libhailort/bindings/python/platform
+	dh_auto_install --buildsystem=cmake

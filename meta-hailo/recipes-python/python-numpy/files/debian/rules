@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=numpy
+
+%:
+	set -x
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_configure:
+	python3 setup.py build
+
+override_dh_auto_clean:
+	echo "setup.py clean is not supported"

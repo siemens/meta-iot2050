@@ -1,0 +1,94 @@
+Source: hailort
+Maintainer: Felix Moessbauer <felix.moessbauer@siemens.com>, Li Hua Qian <huaqian.li@siemens.com>
+Section: devel
+Priority: optional
+Standards-Version: 4.6.1
+Build-Depends:
+  debhelper-compat (=13),
+  cmake,
+  bash-completion,
+  libspdlog-dev,
+  libprotobuf-dev,
+  nlohmann-json3-dev,
+  libgrpc-dev,
+  libgrpc++-dev,
+  libreaderwriterqueue-dev:native,
+  protobuf-compiler,
+  protobuf-compiler-grpc,
+  libbenchmark-dev,
+  dh-python,
+  libpython3-all-dev,
+  python3-all-dev:any,
+  pybind11-dev,
+  python3-setuptools,
+  python3-wheel:native,
+  python3-verboselogs (>= 1.7~),
+  libeigen3-dev,
+  pkg-config,
+  libglib2.0-dev,
+  libgstreamer1.0-dev,
+  libgstreamer-plugins-base1.0-dev
+
+Package: hailortcli
+Architecture: any
+Multi-Arch: foreign
+Description: userspace API for running inference on the hailo8 chip (tool)
+Depends:
+  libhailort,
+  ${misc:Depends},
+  ${shlibs:Depends}
+Suggests:
+  bash-completion
+
+Package: hailort
+Architecture: any
+Multi-Arch: foreign
+Description: userspace API for running inference on the hailo8 chip (service)
+Depends:
+  libhailort,
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: libhailort
+Architecture: any
+Multi-Arch: same
+Description: userspace API for running inference on the hailo8 chip (lib)
+Depends:
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: python3-hailort
+Architecture: any
+Multi-Arch: same
+Description: userspace API for running inference on the hailo8 chip (python package)
+Depends:
+  ${python3:Depends},
+  ${misc:Depends},
+  ${shlibs:Depends},
+  python3-numpy (= 1.23.3)
+
+Package: libhailort-dev
+Architecture: any
+Multi-Arch: foreign
+Description: userspace API for running inference on the hailo8 chip (dev)
+Depends:
+  libhailort (=${binary:Version}),
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: libgsthailo
+Architecture: any
+Multi-Arch: same
+Description: hailort GStreamer element (HailoNet) (lib)
+Depends:
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: libgsthailo-dev
+Architecture: any
+Multi-Arch: foreign
+Description: hailort GStreamer element (HailoNet) (dev)
+Depends:
+  libgsthailo (=${binary:Version}),
+  ${misc:Depends},
+  ${shlibs:Depends}
