@@ -1,0 +1,4 @@
+etc/default/hailort_service
+usr/bin/hailort_service
+# erronous upstream install path, fix here
+usr/usr/share/bash-completion/completions/hailortcli usr/share/bash-completion/completions/

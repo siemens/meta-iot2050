@@ -49,6 +49,16 @@ Then build with
 (or select `EIO subsystem support` in `kas menu`)
 
 
+### Build with Hailo8 AI card support
+
+To build the example image with the Hailo8 AI card support:
+
+```shell
+./kas-container build kas-iot2050-example.yml:kas/opt/meta-hailo.yml
+```
+
+Please visit [meta-hailo](./meta-hailo/README.md) for the details.
+
 ## Build user SDK
 >>>
 **Note:** Current SDK only supports Linux x86-64 host machine

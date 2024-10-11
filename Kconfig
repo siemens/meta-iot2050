@@ -119,6 +119,17 @@ config KAS_INCLUDE_EIO
 	default "kas/opt/eio.yml"
 	depends on EIO
 
+config META_HAILO
+	bool "Meta-Hailo AI card support"
+	help
+	  Enable building of meta-hailo, which includes the hailo driver,
+	  firmware and userspace runtime libraries. 
+
+config KAS_INCLUDE_META_HAILO
+	string
+	default "kas/opt/meta-hailo.yml"
+	depends on META_HAILO
+
 endif
 
 # Provide two entries so that the help text can be adjusted to the image.
