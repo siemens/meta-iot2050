@@ -1,0 +1,3 @@
+usr/bin/hailo
+usr/lib/systemd/system/hailort.service
+usr/lib/python3.*/dist-packages/hailo_tutorials/*
