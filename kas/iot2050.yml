@@ -24,6 +24,8 @@ defaults:
 
 repos:
   meta-iot2050:
+    layers:
+      .:
 
   isar:
     url: https://github.com/ilbers/isar

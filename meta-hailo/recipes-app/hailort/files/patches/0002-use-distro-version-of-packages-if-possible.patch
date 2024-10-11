@@ -1,0 +1,451 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Felix Moessbauer <felix.moessbauer@siemens.com>
+Date: Fri, 12 Jan 2024 18:12:26 +0100
+Subject: [PATCH] use distro version of packages if possible
+
+This patch replaces the vendored components with the version shipped
+by the linux distribution (if possible).
+
+Signed-off-by: Felix Moessbauer <felix.moessbauer@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ hailort/CMakeLists.txt                        | 15 +++++-
+ hailort/hailort_server/CMakeLists.txt         |  3 +-
+ hailort/hailort_service/CMakeLists.txt        |  5 +-
+ hailort/hailortcli/CMakeLists.txt             |  7 +--
+ hailort/hrpc/server.cpp                       | 33 ++++++++++++
+ hailort/hrpc_protocol/CMakeLists.txt          |  2 +-
+ hailort/libhailort/CMakeLists.txt             |  6 +--
+ .../bindings/python/src/CMakeLists.txt        | 21 +++-----
+ hailort/libhailort/src/CMakeLists.txt         |  7 +--
+ .../src/network_group/network_group.cpp       | 33 ++++++++++++
+ .../src/utils/measurement_utils.hpp           |  2 +-
+ .../src/vdma/driver/hailort_driver.cpp        | 52 +++++++++++++++++++
+ hailort/prepare_externals/CMakeLists.txt      | 11 ----
+ hailort/rpc/CMakeLists.txt                    |  4 +-
+ 14 files changed, 149 insertions(+), 52 deletions(-)
+
+diff --git a/hailort/CMakeLists.txt b/hailort/CMakeLists.txt
+index 5dcaa06c2537..edea76ee3804 100644
+--- a/hailort/CMakeLists.txt
++++ b/hailort/CMakeLists.txt
+@@ -46,9 +46,20 @@ endif()
+ # TODO: move protobuf and grpc to inner cmake files
+ set(HAILO_EXTERNAL_DIR ${CMAKE_CURRENT_LIST_DIR}/external)
+ set(HAILO_EXTERNALS_CMAKE_SCRIPTS ${CMAKE_CURRENT_LIST_DIR}/cmake/external/)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/protobuf.cmake)
++find_package(Protobuf REQUIRED)
++find_package(nlohmann_json 3.9.1 REQUIRED)
++find_package(benchmark REQUIRED)
++find_package(spdlog 1.8 REQUIRED)
++find_package(Eigen3 REQUIRED)
++find_path(RWQ_FOUND name readerwriterqueue.h REQUIRED)
+ if(HAILO_BUILD_SERVICE)
+-    include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/grpc.cmake)
++    find_package(gRPC REQUIRED)
++endif()
++if(HAILO_BUILD_PYBIND)
++    find_package(pybind11 REQUIRED)
++endif()
++if(ENABLE_TESTING)
++    find_package(Catch2 REQUIRED)
+ endif()
+ 
+ set(HAILORT_INC_DIR ${PROJECT_SOURCE_DIR}/hailort/libhailort/include)
+diff --git a/hailort/hailort_server/CMakeLists.txt b/hailort/hailort_server/CMakeLists.txt
+index d288066dc741..b9263c8282dc 100644
+--- a/hailort/hailort_server/CMakeLists.txt
++++ b/hailort/hailort_server/CMakeLists.txt
+@@ -1,6 +1,5 @@
+ cmake_minimum_required(VERSION 3.0.0)
+ 
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/spdlog.cmake)
+ include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/readerwriterqueue.cmake)
+ 
+ set(THREADS_PREFER_PTHREAD_FLAG ON)
+@@ -52,4 +51,4 @@ target_link_libraries(hailort_server PRIVATE
+     rpc_proto
+     spdlog::spdlog
+     readerwriterqueue
+-)
+\ No newline at end of file
++)
+diff --git a/hailort/hailort_service/CMakeLists.txt b/hailort/hailort_service/CMakeLists.txt
+index a470a3ddf0a0..4d3c52095f58 100644
+--- a/hailort/hailort_service/CMakeLists.txt
++++ b/hailort/hailort_service/CMakeLists.txt
+@@ -1,7 +1,5 @@
+ cmake_minimum_required(VERSION 3.0.0)
+ 
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/spdlog.cmake)
+-
+ if(WIN32)
+     set(HAILORT_SERVICE_OS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/windows")
+ elseif(UNIX)
+@@ -23,9 +21,8 @@ set_property(TARGET hailort_service PROPERTY CXX_STANDARD 14)
+ target_link_libraries(hailort_service
+     libhailort
+     spdlog::spdlog
+-    grpc++_unsecure
++    gRPC::grpc++_unsecure
+     hailort_rpc_grpc_proto
+-    readerwriterqueue
+ )
+ if(WIN32)
+     # Needed in order to compile eth utils (we compile here ${HAILORT_COMMON_CPP_SOURCES}, consider removing)
+diff --git a/hailort/hailortcli/CMakeLists.txt b/hailort/hailortcli/CMakeLists.txt
+index 8b180dadc291..1add7146af56 100644
+--- a/hailort/hailortcli/CMakeLists.txt
++++ b/hailort/hailortcli/CMakeLists.txt
+@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.0.0)
+ 
+ include(GNUInstallDirs)
+ include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/cli11.cmake)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/json.cmake)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/spdlog.cmake)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/readerwriterqueue.cmake)
+ include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/dotwriter.cmake)
+ 
+ set(HAILORTCLI_CPP_FILES
+@@ -69,10 +66,8 @@ set_property(TARGET hailortcli PROPERTY INSTALL_RPATH "$ORIGIN" "../lib/") # Lin
+ target_link_libraries(hailortcli
+     libhailort
+     CLI11::CLI11
+-    nlohmann_json
++    nlohmann_json::nlohmann_json
+     spdlog::spdlog
+-    readerwriterqueue
+-    eigen
+     DotWriter
+     scheduler_mon_proto
+     profiler_proto)
+diff --git a/hailort/hrpc/server.cpp b/hailort/hrpc/server.cpp
+index 304c41c67a25..e72de4112f1a 100644
+--- a/hailort/hrpc/server.cpp
++++ b/hailort/hrpc/server.cpp
+@@ -9,6 +9,39 @@
+ 
+ #include "server.hpp"
+ 
++// Add a formatter spec for HailoRpcActionID
++template <>
++struct fmt::formatter<HailoRpcActionID> {
++    constexpr auto parse(format_parse_context& ctx) {
++        return ctx.begin();
++    }
++
++    template <typename FormatContext>
++    auto format(const HailoRpcActionID& id, FormatContext& ctx) {
++        std::string name;
++        switch (id) {
++            case HailoRpcActionID::VDEVICE__CREATE: name = "VDEVICE__CREATE"; break;
++            case HailoRpcActionID::VDEVICE__DESTROY: name = "VDEVICE__DESTROY"; break;
++            case HailoRpcActionID::VDEVICE__CREATE_INFER_MODEL: name = "VDEVICE__CREATE_INFER_MODEL"; break;
++            case HailoRpcActionID::INFER_MODEL__DESTROY: name = "INFER_MODEL__DESTROY"; break;
++            case HailoRpcActionID::INFER_MODEL__CREATE_CONFIGURED_INFER_MODEL: name = "INFER_MODEL__CREATE_CONFIGURED_INFER_MODEL"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__DESTROY: name = "CONFIGURED_INFER_MODEL__DESTROY"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__SET_SCHEDULER_TIMEOUT: name = "CONFIGURED_INFER_MODEL__SET_SCHEDULER_TIMEOUT"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__SET_SCHEDULER_THRESHOLD: name = "CONFIGURED_INFER_MODEL__SET_SCHEDULER_THRESHOLD"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__SET_SCHEDULER_PRIORITY: name = "CONFIGURED_INFER_MODEL__SET_SCHEDULER_PRIORITY"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__GET_HW_LATENCY_MEASUREMENT: name = "CONFIGURED_INFER_MODEL__GET_HW_LATENCY_MEASUREMENT"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__ACTIVATE: name = "CONFIGURED_INFER_MODEL__ACTIVATE"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__DEACTIVATE: name = "CONFIGURED_INFER_MODEL__DEACTIVATE"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__SHUTDOWN: name = "CONFIGURED_INFER_MODEL__SHUTDOWN"; break;
++            case HailoRpcActionID::CONFIGURED_INFER_MODEL__RUN_ASYNC: name = "CONFIGURED_INFER_MODEL__RUN_ASYNC"; break;
++            case HailoRpcActionID::CALLBACK_CALLED: name = "CALLBACK_CALLED"; break;
++            case HailoRpcActionID::MAX_VALUE: name = "MAX_VALUE"; break;
++            default: name = "UNKNOWN"; break;
++        }
++        return format_to(ctx.out(), "{}", name);
++    }
++};
++
+ namespace hrpc
+ {
+ 
+diff --git a/hailort/hrpc_protocol/CMakeLists.txt b/hailort/hrpc_protocol/CMakeLists.txt
+index d6b925ad1b87..591b3928be91 100644
+--- a/hailort/hrpc_protocol/CMakeLists.txt
++++ b/hailort/hrpc_protocol/CMakeLists.txt
+@@ -4,7 +4,7 @@ protobuf_generate_cpp(PROTO_RPC_SRC PROTO_RPC_HEADER rpc.proto)
+ get_filename_component(PROTO_HEADER_DIRECTORY ${PROTO_RPC_HEADER} DIRECTORY)
+ 
+ add_library(rpc_proto STATIC EXCLUDE_FROM_ALL ${PROTO_RPC_SRC} ${PROTO_RPC_HEADER})
+-target_link_libraries(rpc_proto libprotobuf-lite)
++target_link_libraries(rpc_proto protobuf::libprotobuf-lite)
+ set_target_properties(rpc_proto PROPERTIES CXX_STANDARD 14 GENERATED TRUE POSITION_INDEPENDENT_CODE ON)
+ if(CMAKE_HOST_WIN32)
+     # https://github.com/protocolbuffers/protobuf/tree/master/cmake#notes-on-compiler-warnings
+diff --git a/hailort/libhailort/CMakeLists.txt b/hailort/libhailort/CMakeLists.txt
+index 33e183a98910..ab46f83483ad 100644
+--- a/hailort/libhailort/CMakeLists.txt
++++ b/hailort/libhailort/CMakeLists.txt
+@@ -14,7 +14,7 @@ protobuf_generate_python(PROTO_HEF_PY hef.proto) # TODO (HRT-12504): Copy hef_pb
+ protobuf_generate_python(PROTO_HEF_PY tracer_profiler.proto)
+ 
+ add_library(hef_proto ${PROTO_HEF_SRC} ${PROTO_HEF_HEADER} ${PROTO_HEF_PY})
+-target_link_libraries(hef_proto libprotobuf-lite)
++target_link_libraries(hef_proto protobuf::libprotobuf-lite)
+ set_target_properties(hef_proto PROPERTIES CXX_STANDARD 14 GENERATED TRUE POSITION_INDEPENDENT_CODE ON)
+ if(CMAKE_HOST_WIN32)
+     # https://github.com/protocolbuffers/protobuf/tree/master/cmake#notes-on-compiler-warnings
+@@ -33,7 +33,7 @@ endif()
+ 
+ protobuf_generate_cpp(PROTO_SCHEDULER_MON_SRC PROTO_SCHEDULER_MON_HEADR scheduler_mon.proto)
+ add_library(scheduler_mon_proto ${PROTO_SCHEDULER_MON_SRC} ${PROTO_SCHEDULER_MON_HEADR})
+-target_link_libraries(scheduler_mon_proto libprotobuf-lite)
++target_link_libraries(scheduler_mon_proto protobuf::libprotobuf-lite)
+ set_target_properties(scheduler_mon_proto PROPERTIES CXX_STANDARD 14 GENERATED TRUE POSITION_INDEPENDENT_CODE ON)
+ if(CMAKE_HOST_WIN32)
+     target_compile_options(scheduler_mon_proto PRIVATE /wd4244)
+@@ -47,7 +47,7 @@ target_include_directories(scheduler_mon_proto
+ 
+ protobuf_generate_cpp(PROTO_PROFILER_SRC PROTO_PROFILER_HEADR tracer_profiler.proto)
+ add_library(profiler_proto ${PROTO_PROFILER_SRC} ${PROTO_PROFILER_HEADR})
+-target_link_libraries(profiler_proto libprotobuf-lite)
++target_link_libraries(profiler_proto protobuf::libprotobuf-lite)
+ set_target_properties(profiler_proto PROPERTIES CXX_STANDARD 14 GENERATED TRUE POSITION_INDEPENDENT_CODE ON)
+ if(CMAKE_HOST_WIN32)
+     target_compile_options(profiler_proto PRIVATE /wd4244)
+diff --git a/hailort/libhailort/bindings/python/src/CMakeLists.txt b/hailort/libhailort/bindings/python/src/CMakeLists.txt
+index 1b5706c98862..913716297564 100644
+--- a/hailort/libhailort/bindings/python/src/CMakeLists.txt
++++ b/hailort/libhailort/bindings/python/src/CMakeLists.txt
+@@ -13,7 +13,6 @@ option(HAILORT_INCLUDE_DIR "Path to include dir of libhailort" "")
+ 
+ include(ExternalProject)
+ include(GNUInstallDirs)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/pybind11.cmake)
+ include_directories(${HAILORT_COMMON_DIR})
+ 
+ FUNCTION(exclude_archive_libs_symbols target) # should be same as in common_compiler_options.cmake
+@@ -26,19 +25,7 @@ FUNCTION(exclude_archive_libs_symbols target) # should be same as in common_comp
+     endif()
+ ENDFUNCTION()
+ 
+-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+-    if(NOT DEFINED PYBIND11_PYTHON_VERSION)
+-        message(FATAL_ERROR "PYBIND11_PYTHON_VERSION is not defined. To build _pyhailort, pass python version")
+-    endif()
+-    string(REPLACE "." "" dpython ${PYBIND11_PYTHON_VERSION}) # E.g "3.5" -> "35"
+-    if(${dpython} LESS "38")
+-        set(m_flag "m")
+-    else()
+-        set(m_flag "")
+-    endif()
+-    set(PYTHON_MODULE_EXTENSION ".cpython-${dpython}${m_flag}-${CMAKE_SYSTEM_PROCESSOR}-linux-gnu.so")
+-endif()
+-
++find_package(pybind11 REQUIRED)
+ pybind11_add_module(_pyhailort
+     pyhailort.cpp
+     device_api.cpp
+@@ -82,8 +69,12 @@ if(LIBHAILORT_PATH AND HAILORT_INCLUDE_DIR)
+ elseif(LIBHAILORT_PATH OR HAILORT_INCLUDE_DIR)
+     message(FATAL_ERROR "Both LIBHAILORT_PATH and HAILORT_INCLUDE_DIR must be defined or none of them")
+ else()
++    message(STATUS "skip find_package, CMAKE_SYSTEM_NAME is ${CMAKE_SYSTEM_NAME}")
++    message(STATUS "CMAKE_SYSTEM_PROCESSOR is ${CMAKE_SYSTEM_PROCESSOR}")
+     find_package(HailoRT 4.18.0 EXACT REQUIRED)
+-    target_link_libraries(_pyhailort PRIVATE HailoRT::libhailort)
++    
++    include_directories("${HAILORT_PROJECT_SOURCE_DIR}/hailort/libhailort/include")
++    target_link_libraries(_pyhailort PRIVATE libhailort)
+ endif()
+ 
+ if(WIN32)
+diff --git a/hailort/libhailort/src/CMakeLists.txt b/hailort/libhailort/src/CMakeLists.txt
+index 5136024403c5..8a3e9b8e0a50 100644
+--- a/hailort/libhailort/src/CMakeLists.txt
++++ b/hailort/libhailort/src/CMakeLists.txt
+@@ -5,9 +5,6 @@ find_package(Threads REQUIRED)
+ include(GNUInstallDirs)
+ include(CMakePackageConfigHelpers)
+ include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/common_compiler_options.cmake)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/spdlog.cmake)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/readerwriterqueue.cmake)
+-include(${HAILO_EXTERNALS_CMAKE_SCRIPTS}/eigen.cmake)
+ 
+ FUNCTION(relative_to_absolute_paths output)
+     SET(listVar "")
+@@ -91,11 +88,11 @@ target_link_libraries(libhailort PRIVATE hef_proto)
+ target_link_libraries(libhailort PRIVATE profiler_proto)
+ target_link_libraries(libhailort PRIVATE scheduler_mon_proto)
+ target_link_libraries(libhailort PRIVATE spdlog::spdlog)
+-target_link_libraries(libhailort PRIVATE readerwriterqueue)
+ target_link_libraries(libhailort PRIVATE Eigen3::Eigen)
++
+ target_link_libraries(libhailort PRIVATE rpc_proto)
+ if(HAILO_BUILD_SERVICE)
+-    target_link_libraries(libhailort PRIVATE grpc++_unsecure)
++    target_link_libraries(libhailort PRIVATE gRPC::grpc++_unsecure)
+     target_link_libraries(libhailort PRIVATE hailort_rpc_grpc_proto)
+ endif()
+ if(CMAKE_SYSTEM_NAME STREQUAL QNX)
+diff --git a/hailort/libhailort/src/network_group/network_group.cpp b/hailort/libhailort/src/network_group/network_group.cpp
+index bc3de09bae4c..de1a2a06cd58 100644
+--- a/hailort/libhailort/src/network_group/network_group.cpp
++++ b/hailort/libhailort/src/network_group/network_group.cpp
+@@ -27,6 +27,39 @@
+ #include "utils/buffer_storage.hpp"
+ #include "hef/hef_internal.hpp"
+ 
++namespace fmt {
++    // Add a formatter spec for BufferType
++    template <>
++    struct formatter<hailort::BufferType> {
++        constexpr auto parse(format_parse_context& ctx) {
++            return ctx.begin();
++        }
++
++        template <typename FormatContext>
++        auto format(const hailort::BufferType& type, FormatContext& ctx) {
++            std::string type_str;
++            switch (type) {
++                case hailort::BufferType::UNINITIALIZED:
++                    type_str = "UNINITIALIZED";
++                    break;
++                case hailort::BufferType::VIEW:
++                    type_str = "VIEW";
++                    break;
++                case hailort::BufferType::PIX_BUFFER:
++                    type_str = "PIX_BUFFER";
++                    break;
++                case hailort::BufferType::DMA_BUFFER:
++                    type_str = "DMA_BUFFER";
++                    break;
++                default:
++                    type_str = "UNKNOWN";
++                    break;
++            }
++            return fmt::format_to(ctx.out(), "{}", type_str);
++        }
++    };
++}
++
+ namespace hailort
+ {
+ 
+diff --git a/hailort/libhailort/src/utils/measurement_utils.hpp b/hailort/libhailort/src/utils/measurement_utils.hpp
+index ae9e3fbfe8b5..6923c6d13e49 100644
+--- a/hailort/libhailort/src/utils/measurement_utils.hpp
++++ b/hailort/libhailort/src/utils/measurement_utils.hpp
+@@ -87,7 +87,7 @@
+ #define _HAILO_MEASUREMENT_UTILS_HPP_
+ 
+ #include "measurement_utils_internal.hpp"
+-#include <spdlog/fmt/bundled/format.h>
++#include <spdlog/fmt/fmt.h>
+ 
+ namespace hailort {
+ namespace utils {
+diff --git a/hailort/libhailort/src/vdma/driver/hailort_driver.cpp b/hailort/libhailort/src/vdma/driver/hailort_driver.cpp
+index 891eb92eb379..f7d3f1263f25 100755
+--- a/hailort/libhailort/src/vdma/driver/hailort_driver.cpp
++++ b/hailort/libhailort/src/vdma/driver/hailort_driver.cpp
+@@ -25,6 +25,58 @@
+ #error "unsupported platform!"
+ #endif
+ 
++namespace fmt {
++    // Add a formatter spec for HailoRTDriver::PcieSessionType
++    template <>
++    struct formatter<hailort::HailoRTDriver::PcieSessionType> {
++    constexpr auto parse(format_parse_context& ctx) {
++        return ctx.begin();
++    }
++
++    template <typename FormatContext>
++    auto format(const hailort::HailoRTDriver::PcieSessionType& type, FormatContext& ctx) {
++        std::string type_str;
++            switch (type) {
++                case hailort::HailoRTDriver::PcieSessionType::CLIENT:
++                    type_str = "CLIENT";
++                    break;
++                case hailort::HailoRTDriver::PcieSessionType::SERVER:
++                    type_str = "SERVER";
++                    break;
++                default:
++                    type_str = "UNKNOWN";
++                    break;
++            }
++            return fmt::format_to(ctx.out(), "{}", type_str);
++        }
++    };
++
++    // Add a formatter spec for HailoRTDriver::DmaDirection
++    template <>
++    struct formatter<hailort::HailoRTDriver::DmaBufferType> {
++        constexpr auto parse(format_parse_context& ctx) {
++            return ctx.begin();
++        }
++
++        template <typename FormatContext>
++        auto format(const hailort::HailoRTDriver::DmaBufferType& type, FormatContext& ctx) {
++            std::string type_str;
++            switch (type) {
++                case hailort::HailoRTDriver::DmaBufferType::USER_PTR_BUFFER:
++                    type_str = "USER_PTR_BUFFER";
++                    break;
++                case hailort::HailoRTDriver::DmaBufferType::DMABUF_BUFFER:
++                    type_str = "DMABUF_BUFFER";
++                    break;
++                default:
++                    type_str = "UNKNOWN";
++                    break;
++            }
++            return fmt::format_to(ctx.out(), "{}", type_str);
++        }
++    };    
++}
++
+ namespace hailort
+ {
+ 
+diff --git a/hailort/prepare_externals/CMakeLists.txt b/hailort/prepare_externals/CMakeLists.txt
+index 6166c4ce4f0c..6f518610689f 100644
+--- a/hailort/prepare_externals/CMakeLists.txt
++++ b/hailort/prepare_externals/CMakeLists.txt
+@@ -4,19 +4,8 @@ project(hailort_prebuild)
+ set(HAILO_EXTERNALS_EXCLUDE_TARGETS ON)
+ 
+ message("Downloading dependencies to ${HAILO_EXTERNAL_DIR} ...")
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/pybind11.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/catch2.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/spdlog.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/json.cmake)
+ include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/dotwriter.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/benchmark.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/readerwriterqueue.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/eigen.cmake)
+ include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/cli11.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/protobuf.cmake)
+-if(HAILO_BUILD_SERVICE)
+-    include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/grpc.cmake)
+-endif()
+ if(CMAKE_SYSTEM_NAME STREQUAL QNX)
+     include(${CMAKE_CURRENT_LIST_DIR}/../cmake/external/pevents.cmake)
+ endif()
+diff --git a/hailort/rpc/CMakeLists.txt b/hailort/rpc/CMakeLists.txt
+index 7823cb57f0ba..c2a89df1de43 100644
+--- a/hailort/rpc/CMakeLists.txt
++++ b/hailort/rpc/CMakeLists.txt
+@@ -12,7 +12,7 @@ set(hailort_rpc_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/hailort_rpc.grpc.pb.h")
+ set(HAILO_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+ if(HAILO_BUILD_SERVICE)
+     if(CMAKE_HOST_UNIX)
+-        set(HAILO_GRPC_CPP_PLUGIN_EXECUTABLE "${HAILO_EXTERNAL_DIR}/grpc-build/grpc_cpp_plugin")
++        set(HAILO_GRPC_CPP_PLUGIN_EXECUTABLE "$<TARGET_FILE:gRPC::grpc_cpp_plugin>")
+     else()
+         set(HAILO_GRPC_CPP_PLUGIN_EXECUTABLE "${HAILO_EXTERNAL_DIR}/grpc-build/Release/grpc_cpp_plugin.exe")
+     endif()
+@@ -36,7 +36,7 @@ add_library(hailort_rpc_grpc_proto STATIC EXCLUDE_FROM_ALL
+     ${hailort_rpc_proto_hdrs})
+ 
+ set_target_properties(hailort_rpc_grpc_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
+-target_link_libraries(hailort_rpc_grpc_proto libprotobuf-lite grpc++_unsecure)
++target_link_libraries(hailort_rpc_grpc_proto protobuf::libprotobuf-lite gRPC::grpc++_unsecure)
+ # Include generated *.pb.h files
+ target_include_directories(hailort_rpc_grpc_proto PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
+ disable_exceptions(hailort_rpc_grpc_proto)
+\ No newline at end of file
