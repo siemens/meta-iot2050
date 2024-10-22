@@ -1,0 +1,130 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Wed, 16 Oct 2024 17:03:10 +0800
+Subject: [PATCH] board: iot2050: Reset the eMMC when it isn't reachable
+
+After approximately 2 months of operation, the device may fail to detect
+the eMMC when rebooting. This commit provides a temporary workaround to
+reset the eMMC if detection issues occur.
+
+TODO: Implement a permanent solution for eMMC detection issues.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ board/siemens/iot2050/board.c     | 61 +++++++++++++++++++++++++++++++
+ board/siemens/iot2050/iot2050.env |  9 +++++
+ configs/iot2050_defconfig         |  3 +-
+ 3 files changed, 72 insertions(+), 1 deletion(-)
+
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 8497212ab890..f9b7f4d344d3 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -464,8 +464,69 @@ static bool user_button_pressed(void)
+ 
+ #define SERDES0_LANE_SELECT	0x00104080
+ 
++static int reset_emmc(void)
++{
++	const char *gpio_name = "gpio@601000_14";
++	struct gpio_desc gpio;
++	int ret;
++
++	ret = dm_gpio_lookup_name(gpio_name, &gpio);
++	if (ret < 0) {
++		pr_err("dm_gpio_lookup_name failed for %s: %d\n", gpio_name, ret);
++		return -1;
++	}
++
++	ret = dm_gpio_request(&gpio, "RESET_EMMC");
++	if (ret < 0) {
++		pr_err("dm_gpio_request failed for %s: %d\n", gpio_name, ret);
++		return -1;
++	}
++
++	ret = dm_gpio_set_dir_flags(&gpio, GPIOD_IS_OUT);
++	if (ret < 0) {
++		pr_err("dm_gpio_set_dir_flags failed for %s: %d\n", gpio_name, ret);
++		return -1;
++	}
++
++	dm_gpio_set_value(&gpio, 0);
++	mdelay(4 * 100);
++	dm_gpio_set_value(&gpio, 1);
++
++	return 0;
++}
++
+ int board_late_init(void)
+ {
++	/*
++	 * TODO: Implement a permanent solution for eMMC detection issues.
++	 * After approximately 2 months of operation, the device may fail to
++	 * detect the eMMC when rebooting. This following code snippet pulls the
++	 * reset pin of eMMC, providing a temporary workaround to reset the eMMC
++	 * if detection issues occur.
++	 */
++	struct mmc *mmc;
++	int mmc_available = 0;
++
++	if (board_is_advanced()) {
++		for (int i = 0; i < 2; i++) {
++			mmc = find_mmc_device(i);
++			if (mmc && !mmc_init(mmc)) {
++				mmc_available = 1;
++				printf("%s-[%d]: mmc %d is available!\n",
++				       __func__, __LINE__, i);
++				break;
++			}
++		}
++
++		if (!mmc_available) {
++			printf("%s-[%d]: eMMC wasn't found, reset eMMC ...\n",
++			       __func__, __LINE__);
++			if(reset_emmc())
++				pr_err("%s [%d]: Failed to reset eMMC ...\n",
++				       __func__, __LINE__);
++		}
++	}
++
+ 	/* change CTRL_MMR register to let serdes0 not output USB3.0 signals. */
+ 	writel(0x3, SERDES0_LANE_SELECT);
+ 
+diff --git a/board/siemens/iot2050/iot2050.env b/board/siemens/iot2050/iot2050.env
+index caa9f80e3fca..c8b855852da4 100644
+--- a/board/siemens/iot2050/iot2050.env
++++ b/board/siemens/iot2050/iot2050.env
+@@ -17,3 +17,12 @@ start_watchdog=
+ 		wdt start ${watchdog_timeout_ms};
+ 		echo Watchdog started, timeout ${watchdog_timeout_ms} ms;
+ 	fi
++
++/*
++ * TODO: Implement a permanent solution for eMMC detection issues.
++ * After approximately 2 months of operation, the device may fail to detect the
++ * eMMC when rebooting. This command enables the eMMC ECSD reset function on
++ * the board, providing a temporary workaround to reset the eMMC if detection
++ * issues occur.
++ */
++mmc_reset_enable=mmc rst-function 1 1 || true
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index 4fc3bcb56b8f..d3ba26705d33 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -39,7 +39,7 @@ CONFIG_AUTOBOOT_KEYED=y
+ CONFIG_AUTOBOOT_FLUSH_STDIN=y
+ CONFIG_AUTOBOOT_PROMPT="Hit SPACE to stop autoboot in %d seconds...\n"
+ CONFIG_AUTOBOOT_STOP_STR=" "
+-CONFIG_BOOTCOMMAND="run start_watchdog; run distro_bootcmd"
++CONFIG_BOOTCOMMAND="run start_watchdog; run mmc_reset_enable; run distro_bootcmd"
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_SPL_MAX_SIZE=0x58000
+ CONFIG_SPL_HAS_BSS_LINKER_SECTION=y
+@@ -68,6 +68,7 @@ CONFIG_CMD_DFU=y
+ CONFIG_CMD_GPT=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
++CONFIG_SUPPORT_EMMC_BOOT=y
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_REMOTEPROC=y
+ CONFIG_CMD_USB=y
