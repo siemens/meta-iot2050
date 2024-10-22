@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 17 Oct 2024 11:31:38 +0800
+Subject: [PATCH] qspi: iot2050: Add temporary workaround for the QSPI issue
+
+After approximately 2 months of operation, the device may fail to check
+the QSPI idle status. Here is the strange phenomenon: The QSPI remains
+busy when checking the idle status, becoming idle once stop checking.
+This commit provides a temporary workaround to bypass the QSPI idle
+checking.
+
+TODO: Implement a permanent solution for QSPI idle checking issue.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ drivers/spi/cadence_qspi_apb.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/spi/cadence_qspi_apb.c b/drivers/spi/cadence_qspi_apb.c
+index 9ce2c0f254f3..2c32c4fc6b10 100644
+--- a/drivers/spi/cadence_qspi_apb.c
++++ b/drivers/spi/cadence_qspi_apb.c
+@@ -173,7 +173,20 @@ static unsigned int cadence_qspi_wait_idle(void *reg_base)
+ 	/* Timeout, still in busy mode. */
+ 	printf("QSPI: QSPI is still busy after poll for %d times.\n",
+ 	       CQSPI_REG_RETRY);
+-	return 0;
++
++	/*
++	 * TODO: Implement a permanent solution for QSPI idle checking issue.
++	 * After approximately 2 months of operation, the device may fail to check
++	 * the QSPI idle status. Here is the strange phenomenon: The QSPI remains
++	 * busy when checking the idle status, becoming idle once stop checking.
++	 * Providing a temporary workaround to bypass the QSPI idle checking.
++	 */
++	if (CQSPI_REG_IS_IDLE(reg_base)) {
++		printf("QSPI: Idle state is %d, continue boot.\n",
++		       CQSPI_REG_IS_IDLE(reg_base));
++	}
++
++	return 1;
+ }
+ 
+ void cadence_qspi_apb_readdata_capture(void *reg_base,
