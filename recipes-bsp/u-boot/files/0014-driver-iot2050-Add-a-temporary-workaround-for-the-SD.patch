@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Fri, 8 Nov 2024 10:23:52 +0800
+Subject: [PATCH] driver: iot2050: Add a temporary workaround for the SD Card
+ issue
+
+After approximately 2 months of operation, the device may fail to detect
+the SD Card when rebooting. This commit provides a temporary workaround to
+bypass the SD Card issue.
+
+TODO: Implement a permanent solution for SD Card detection issues.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ drivers/mmc/mmc.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index dff0ff89a801..99a92f44bef4 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -651,8 +651,16 @@ static int sd_send_op_cond(struct mmc *mmc, bool uhs_en)
+ 		if (cmd.response[0] & OCR_BUSY)
+ 			break;
+ 
+-		if (timeout-- <= 0)
+-			return -EOPNOTSUPP;
++		/*
++		 * TODO: Implement a permanent solution for the SD Card detection issues.
++		 * After approximately 2 months of operation, the device may fail to
++		 * detect the SD when rebooting. Here provides a temporary workaround
++		 * to bypass the issue.
++		 */
++		if (timeout-- <= 0) {
++			printf("mmc: SD Card is busy, continue booting\n");
++			break; //return -EOPNOTSUPP;
++		}
+ 
+ 		udelay(1000);
+ 	}
