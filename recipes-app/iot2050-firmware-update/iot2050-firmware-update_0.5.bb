@@ -20,7 +20,7 @@ TEMPLATE_FILES = "update.conf.json.tmpl iot2050-firmware-update.tmpl"
 
 inherit dpkg-raw
 
-DEBIAN_DEPENDS = "python3-progress"
+DEBIAN_DEPENDS = "python3-progress, u-boot-tools"
 
 do_install() {
     install -v -d ${D}/usr/sbin/
