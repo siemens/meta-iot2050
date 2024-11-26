@@ -26,6 +26,9 @@ SRC_URI += " \
     file://0012-spi-cadence-quadspi-Fix-error-message-on-stuck-busy-.patch \
     file://0013-spi-cadence-quadspi-fix-potential-malfunction-after-.patch \
     file://0014-mmc-Fix-potential-timer-value-truncation.patch \
+    file://0015-arm-dts-iot2050-Add-overlay-for-DMA-isolation-for-de.patch \
+    file://0016-board-siemens-iot2050-Generalize-overlay_prepare.patch \
+    file://0017-board-siemens-iot2050-Allow-to-enable-and-adjust-res.patch \
     "
 
 SRC_URI[sha256sum] = "e00e6c6f014e046101739d08d06f328811cebcf5ae101348f409cbbd55ce6900"

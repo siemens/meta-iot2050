@@ -1,0 +1,284 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Tue, 3 Sep 2024 21:56:26 +0200
+Subject: [PATCH] board: siemens: iot2050: Allow to enable and adjust
+ restricted DMA pool size
+
+Read from an environment variable alternative pool sizes for isolating
+DMA requests from main memory. If the variable is unset or 0 and
+CONFIG_IOT2050_REQUIRE_DMA_ISOLATION is not enable, DMA isolation will
+not be configured into the device tree.
+
+The kernel can handle a maximum of 320 MB due to constraints of its
+swiotlb subsystem. Limit the size to this value. Also, less than 64 MB
+is easily causing DMA allocation issues. Therefore, this is the minimum
+when enabling the DMA isolation.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 35 +++++++-
+ board/siemens/iot2050/Kconfig                |  9 ++
+ board/siemens/iot2050/board.c                | 89 +++++++++++++++-----
+ configs/iot2050_defconfig                    |  1 +
+ include/configs/iot2050.h                    |  2 +-
+ 5 files changed, 114 insertions(+), 22 deletions(-)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 5d83109389cc..0e1fee5b8fe7 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -207,6 +207,22 @@
+ 		fit@380000 {
+ 			fit,fdt-list-val = "k3-am6528-iot2050-basic", "k3-am6548-iot2050-advanced";
+ 
++			images {
++				dma-isolation-overlay {
++					description = "DMA isolation overlay";
++					type = "blob";
++					load = <0x82120000>;
++					arch = "arm64";
++					compression = "none";
++					blob-ext {
++						filename = "k3-am6548-iot2050-advanced-dma-isolation-overlay.dtbo";
++					};
++					hash {
++						algo = "sha256";
++					};
++				};
++			};
++
+ 			configurations {
+ 				default = "k3-am6528-iot2050-basic";
+ 				@config-SEQ {
+@@ -214,7 +230,7 @@
+ #ifdef CONFIG_WDT_K3_RTI_FW_FILE
+ 						"k3-rti-wdt-firmware",
+ #endif
+-						<>;
++						"dma-isolation-overlay";
+ 				};
+ 			};
+ 		};
+@@ -262,6 +278,20 @@
+ 						algo = "sha256";
+ 					};
+ 				};
++
++				dma-isolation-overlay {
++					description = "DMA isolation overlay";
++					type = "blob";
++					load = <0x82120000>;
++					arch = "arm64";
++					compression = "none";
++					blob-ext {
++						filename = "k3-am6548-iot2050-advanced-dma-isolation-overlay.dtbo";
++					};
++					hash {
++						algo = "sha256";
++					};
++				};
+ 			};
+ 
+ 			configurations {
+@@ -272,7 +302,8 @@
+ 						"k3-rti-wdt-firmware",
+ #endif
+ 						"bkey-usb3-overlay",
+-						"bkey-ekey-pcie-overlay";
++						"bkey-ekey-pcie-overlay",
++						"dma-isolation-overlay";
+ 				};
+ 			};
+ 		};
+diff --git a/board/siemens/iot2050/Kconfig b/board/siemens/iot2050/Kconfig
+index a6170aae8079..07ca36f0cd27 100644
+--- a/board/siemens/iot2050/Kconfig
++++ b/board/siemens/iot2050/Kconfig
+@@ -21,6 +21,15 @@ if TARGET_IOT2050_A53
+ config SYS_BOARD
+ 	default "iot2050"
+ 
++config IOT2050_REQUIRE_DMA_ISOLATION
++	bool "Always configure DMA isolation into device tree (Advanced version only)"
++	help
++	  When enabled, DMA isolation is always enabled for Advanced devices in
++	  their device trees. This means that the environment variable
++	  'restricted_dma_pool_mb' can only control the size of restricted DMA
++	  pool, but it can no longer we used to disable this by setting it to
++	  0.
++
+ config SYS_VENDOR
+ 	default "siemens"
+ 
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index ee6456be968c..af4863abcf43 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -118,8 +118,8 @@ static const char *m2_connector_mode_name[] = {
+ static enum m2_connector_mode connector_mode;
+ 
+ #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+-static void *connector_overlay;
+-static u32 connector_overlay_size;
++static void *connector_overlay, *dma_isolation_overlay;
++static u32 connector_overlay_size, dma_isolation_overlay_size;
+ #endif
+ 
+ static int get_pinvalue(const char *gpio_name, const char *label)
+@@ -360,6 +360,47 @@ static void m2_connector_setup(void)
+ 	m2_overlay_prepare();
+ }
+ 
++static __noreturn void dma_isolation_panic(void)
++{
++	panic("Cannot enforce DMA isolation as requested!\n");
++}
++
++static void dma_isolation_setup(void)
++{
++	u32 val[] = {0, cpu_to_fdt32(0xc0000000), 0, 0};
++	unsigned long pool_size;
++
++	pool_size = env_get_ulong("restricted_dma_pool_mb", 10, 0);
++
++	if (pool_size > 0) {
++		pool_size = round_up(pool_size, 32);
++		if (pool_size < 64)
++			pool_size = 64;
++		if (pool_size > 320)
++			pool_size = 320;
++	}
++	if (IS_ENABLED(CONFIG_IOT2050_REQUIRE_DMA_ISOLATION) && pool_size == 0)
++		pool_size = 64;
++
++	if (pool_size == 0)
++		return;
++
++	dma_isolation_overlay =
++		overlay_prepare("/fit-images/dma-isolation-overlay",
++				&dma_isolation_overlay_size);
++
++	if (IS_ENABLED(CONFIG_IOT2050_REQUIRE_DMA_ISOLATION) &&
++	    !dma_isolation_overlay)
++		dma_isolation_panic();
++
++	val[3] = cpu_to_fdt32(pool_size * 1024 *1024);
++	do_fixup_by_path(dma_isolation_overlay,
++			 "/fragment@0/__overlay__/restricted-dma@c0000000",
++			 "reg", val, sizeof(val), 0);
++
++	printf("Using restricted DMA pool, size %ld MB\n", pool_size);
++}
++
+ int board_init(void)
+ {
+ 	return 0;
+@@ -479,6 +520,9 @@ int board_late_init(void)
+ 	if (board_is_m2())
+ 		m2_connector_setup();
+ 
++	if (board_is_advanced())
++		dma_isolation_setup();
++
+ 	set_board_info_env();
+ 
+ 	/* remove the eMMC if requested via button */
+@@ -490,15 +534,15 @@ int board_late_init(void)
+ }
+ 
+ #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+-static void variants_fdt_fixup(void *blob)
++int ft_board_setup(void *blob, struct bd_info *bd)
+ {
+ 	void *overlay_copy = NULL;
+ 	void *fdt_copy = NULL;
+ 	u32 fdt_size;
+ 	int err;
+ 
+-	if (!connector_overlay)
+-		return;
++	if (!connector_overlay && !dma_isolation_overlay)
++		return 0;
+ 
+ 	/*
+ 	 * We need to work with temporary copies here because fdt_overlay_apply
+@@ -512,35 +556,42 @@ static void variants_fdt_fixup(void *blob)
+ 
+ 	memcpy(fdt_copy, blob, fdt_size);
+ 
+-	overlay_copy = malloc(connector_overlay_size);
++	overlay_copy = malloc(max(connector_overlay_size,
++				  dma_isolation_overlay_size));
+ 	if (!overlay_copy)
+ 		goto fixup_error;
+ 
+-	memcpy(overlay_copy, connector_overlay, connector_overlay_size);
++	if (connector_overlay) {
++		memcpy(overlay_copy, connector_overlay,
++		       connector_overlay_size);
+ 
+-	err = fdt_overlay_apply_verbose(fdt_copy, overlay_copy);
+-	if (err)
+-		goto fixup_error;
++		err = fdt_overlay_apply_verbose(fdt_copy, overlay_copy);
++		if (err)
++			goto fixup_error;
++	}
++	if (dma_isolation_overlay) {
++		memcpy(overlay_copy, dma_isolation_overlay,
++		       dma_isolation_overlay_size);
++
++		err = fdt_overlay_apply_verbose(fdt_copy, overlay_copy);
++		if (err)
++			goto fixup_error;
++	}
+ 
+ 	memcpy(blob, fdt_copy, fdt_size);
+ 
+ cleanup:
+ 	free(fdt_copy);
+ 	free(overlay_copy);
+-	return;
++	return 0;
+ 
+ fixup_error:
+ 	pr_err("Could not apply device tree overlay\n");
++	if (dma_isolation_overlay &&
++	    IS_ENABLED(CONFIG_IOT2050_REQUIRE_DMA_ISOLATION))
++		dma_isolation_panic();
+ 	goto cleanup;
+ }
+-
+-int ft_board_setup(void *blob, struct bd_info *bd)
+-{
+-	if (board_is_m2())
+-		variants_fdt_fixup(blob);
+-
+-	return 0;
+-}
+ #endif
+ 
+ void spl_board_init(void)
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index 4fc3bcb56b8f..93f3e0ab72cd 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -151,3 +151,4 @@ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+ CONFIG_EFI_SCROLL_ON_CLEAR_SCREEN=y
++CONFIG_OF_OVERLAY_LIST="ti/k3-am6548-iot2050-advanced-m2-bkey-usb3 ti/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie ti/k3-am6548-iot2050-advanced-dma-isolation"
+diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
+index 5e97ea0d9438..d155ee10be2f 100644
+--- a/include/configs/iot2050.h
++++ b/include/configs/iot2050.h
+@@ -42,7 +42,7 @@
+ #define CFG_ENV_FLAGS_LIST_STATIC					\
+ 	"board_uuid:sw,board_name:sw,board_serial:sw,board_a5e:sw,"	\
+ 	"mlfb:sw,fw_version:sw,seboot_version:sw,"			\
+-	"m2_manuel_config:sw,"						\
++	"m2_manual_config:sw,restricted_dma_pool_mb:sw,"						\
+ 	"eth1addr:mw,eth2addr:mw,watchdog_timeout_ms:dw,boot_targets:sw"
+ #endif
+ 
