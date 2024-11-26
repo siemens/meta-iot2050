@@ -1,0 +1,74 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Sun, 8 Sep 2024 09:22:41 +0200
+Subject: [PATCH] board: siemens: iot2050: Generalize overlay_prepare
+
+Will be reused for another upcoming overlay.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ board/siemens/iot2050/board.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 8497212ab890..ee6456be968c 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -258,12 +258,13 @@ void set_board_info_env(void)
+ 	env_save();
+ }
+ 
+-static void do_overlay_prepare(const char *overlay_path)
++static void *overlay_prepare(const char *overlay_path, u32 *poverlay_size)
+ {
+ #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+-	void *overlay;
++	void *overlay, *result;
+ 	u64 loadaddr;
+ 	ofnode node;
++	u32 size;
+ 	int ret;
+ 
+ 	node = ofnode_path(overlay_path);
+@@ -274,21 +275,24 @@ static void do_overlay_prepare(const char *overlay_path)
+ 	if (ret)
+ 		goto fit_error;
+ 
+-	ret = ofnode_read_u32(node, "size", &connector_overlay_size);
++	ret = ret = ofnode_read_u32(node, "size", &size);
+ 	if (ret)
+ 		goto fit_error;
+ 
+-	overlay = map_sysmem(loadaddr, connector_overlay_size);
++	overlay = map_sysmem(loadaddr, size);
+ 
+-	connector_overlay = malloc(connector_overlay_size);
+-	if (!connector_overlay)
++	result = malloc(size);
++	if (!result)
+ 		goto fit_error;
+ 
+-	memcpy(connector_overlay, overlay, connector_overlay_size);
+-	return;
++	memcpy(result, overlay, size);
++	*poverlay_size = size;
++
++	return result;
+ 
+ fit_error:
+-	pr_err("M.2 device tree overlay %s not available,\n", overlay_path);
++	pr_err("Device tree overlay %s not available.\n", overlay_path);
++	return NULL;
+ #endif
+ }
+ 
+@@ -304,7 +308,8 @@ static void m2_overlay_prepare(void)
+ 	else
+ 		overlay_path = "/fit-images/bkey-usb3-overlay";
+ 
+-	do_overlay_prepare(overlay_path);
++	connector_overlay = overlay_prepare(overlay_path,
++					    &connector_overlay_size);
+ }
+ 
+ static void m2_connector_setup(void)

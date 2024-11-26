@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Wed, 4 Dec 2024 13:52:02 +0800
+Subject: [PATCH] arm: dts: iot2050: Add overlay for DMA isolation for devices
+ behind PCI RC
+
+Reserve a 64M memory region and ensure that all PCI devices do their DMA
+only inside that region. This is configured via a restricted-dma-pool
+and enforced with the help of the first PVU.
+
+Applying this isolation is not totally free in terms of overhead and
+memory consumption. It  makes only sense for variants that support
+secure booting, and generally only when this is actually enable.
+Therefore model it as overlay that can be activated on demand. The
+firmware will take care of this via DT fixup during boot and will also
+provide a way to adjust the pool size.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm/dts/Makefile                         |  1 +
+ ...iot2050-advanced-dma-isolation-overlay.dts | 33 +++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+ create mode 100644 arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 0edd5b73a414..6ea916c16cc2 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -1317,6 +1317,7 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
+ 	k3-am6548-iot2050-advanced-m2.dtb \
+ 	k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dtbo \
+ 	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo \
++	k3-am6548-iot2050-advanced-dma-isolation-overlay.dtbo \
+ 	k3-am6548-iot2050-advanced-sm.dtb
+ 
+ dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
+diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+new file mode 100644
+index 000000000000..dfd75d2dc245
+--- /dev/null
++++ b/arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+@@ -0,0 +1,33 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * IOT2050, overlay for isolating DMA requests via PVU
++ * Copyright (c) Siemens AG, 2024
++ *
++ * Authors:
++ *   Jan Kiszka <jan.kiszka@siemens.com>
++ */
++
++/dts-v1/;
++/plugin/;
++
++&{/reserved-memory} {
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	pci_restricted_dma_region: restricted-dma@c0000000 {
++		compatible = "restricted-dma-pool";
++		reg = <0 0xc0000000 0 0x4000000>;
++	};
++};
++
++&pcie0_rc {
++	memory-region = <&pci_restricted_dma_region>;
++};
++
++&pcie1_rc {
++	memory-region = <&pci_restricted_dma_region>;
++};
++
++&ti_pvu0 {
++	status = "okay";
++};
