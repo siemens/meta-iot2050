@@ -26,8 +26,8 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  drivers/soc/ti/Kconfig  |   4 +
  drivers/soc/ti/Makefile |   1 +
  drivers/soc/ti/ti-pvu.c | 487 ++++++++++++++++++++++++++++++++++++++++
- include/linux/ti-pvu.h  |  11 +
- 4 files changed, 503 insertions(+)
+ include/linux/ti-pvu.h  |  16 ++
+ 4 files changed, 508 insertions(+)
  create mode 100644 drivers/soc/ti/ti-pvu.c
  create mode 100644 include/linux/ti-pvu.h
 
@@ -57,7 +57,7 @@ index cc3c972fad2e..15a0d598ac60 100644
 +obj-$(CONFIG_TI_PVU)			+= ti-pvu.o
 diff --git a/drivers/soc/ti/ti-pvu.c b/drivers/soc/ti/ti-pvu.c
 new file mode 100644
-index 000000000000..af1cadc2f4bc
+index 000000000000..5b71d503051f
 --- /dev/null
 +++ b/drivers/soc/ti/ti-pvu.c
 @@ -0,0 +1,487 @@
@@ -446,7 +446,7 @@ index 000000000000..af1cadc2f4bc
 +	u32 val;
 +	int ret;
 +
-+	pvu = devm_kzalloc(dev, sizeof(struct ti_pvu), GFP_KERNEL);
++	pvu = devm_kzalloc(dev, sizeof(*pvu), GFP_KERNEL);
 +	if (!pvu)
 +		return -ENOMEM;
 +
@@ -550,10 +550,10 @@ index 000000000000..af1cadc2f4bc
 +module_platform_driver(ti_pvu_driver);
 diff --git a/include/linux/ti-pvu.h b/include/linux/ti-pvu.h
 new file mode 100644
-index 000000000000..d40642522cf0
+index 000000000000..acd4d9e0dc86
 --- /dev/null
 +++ b/include/linux/ti-pvu.h
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,16 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * TI Peripheral Virtualization Unit driver for static DMA isolation
@@ -561,7 +561,12 @@ index 000000000000..d40642522cf0
 + * Copyright (c) 2024, Siemens AG
 + */
 +
++#ifndef _LINUX_TI_PVU_H
++#define _LINUX_TI_PVU_H
++
 +#include <linux/ioport.h>
 +
 +int ti_pvu_create_region(unsigned int virt_id, const struct resource *region);
 +int ti_pvu_remove_region(unsigned int virt_id, const struct resource *region);
++
++#endif /* _LINUX_TI_PVU_H */

@@ -9,48 +9,22 @@ across the series, space left for firmware carve-outs) and ensure that
 all PCI devices do their DMA only inside that region. This is configured
 via a restricted-dma-pool and enforced with the help of the first PVU.
 
+Modification by Li Hua Qian:
+- The restricted-dma-pool is overlaid by U-Boot.
+- U-Boot DTS path:
+  arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
 ---
- .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 32 +++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 21 +++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-index 35675663ef1a..dbc7ddf273eb 100644
+index 35675663ef1a..a403fec1d43e 100644
 --- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
-@@ -72,6 +72,11 @@ wdt_reset_memory_region: wdt-memory@a2200000 {
- 			reg = <0x00 0xa2200000 0x00 0x1000>;
- 			no-map;
- 		};
-+
-+		pci_restricted_dma_region: restricted-dma@ba000000 {
-+			compatible = "restricted-dma-pool";
-+			reg = <0 0xba000000 0 0x4000000>;
-+		};
- 	};
- 
- 	leds {
-@@ -643,6 +648,10 @@ &pcie0_ep {
- 	status = "disabled";
- };
- 
-+&pcie0_rc {
-+	memory-region = <&pci_restricted_dma_region>;
-+};
-+
- &pcie1_rc {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&minipcie_pins_default>;
-@@ -651,6 +660,8 @@ &pcie1_rc {
- 	phys = <&serdes1 PHY_TYPE_PCIE 0>;
- 	phy-names = "pcie-phy0";
- 	reset-gpios = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
-+
-+	memory-region = <&pci_restricted_dma_region>;
- };
- 
- &m_can0 {
-@@ -785,3 +796,24 @@ &mcu_r5fss0 {
+@@ -785,3 +785,24 @@ &mcu_r5fss0 {
  	/* lock-step mode not supported on iot2050 boards */
  	ti,cluster-mode = <0>;
  };
