@@ -48,6 +48,12 @@ Then build with
 ```
 (or select `EIO subsystem support` in `kas menu`)
 
+A tool to upgrade the customized signal module (SENS SM) firmware is also
+avaiable, to build it with:
+
+```shell
+./kas-container build kas-iot2050-example.yml:kas/opt/eio.yml:kas/opt/module.yml
+```
 
 ### Build with Hailo8 AI card support
 
