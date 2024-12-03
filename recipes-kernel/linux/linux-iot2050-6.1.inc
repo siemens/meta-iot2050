@@ -17,6 +17,15 @@ def get_patches(d, patchdir):
 
     return ' '.join(['file://' + patch[len(files_dir)+1:] for patch in patches])
 
+python __anonymous() {
+    import re
+
+    overrides = d.getVar('OVERRIDES')
+
+    if re.search("pvu-dma", overrides) and re.search("meta-hailo", overrides):
+        d.setVar('PVU_HAILO_SWIOTLB', '1')
+}
+
 SRC_URI += " \
     https://cdn.kernel.org/pub/linux/kernel/projects/cip/6.1/linux-cip-${PV}.tar.xz \
     ${@get_patches(d, 'patches-6.1')} \
@@ -25,6 +34,8 @@ SRC_URI += " \
     file://iot2050_defconfig_extra.cfg"
 SRC_URI:append:pvu-dma = " \
     file://iot2050_defconfig_pvu.cfg"
+SRC_URI:append:PVU_HAILO_SWIOTLB = " \
+    file://iot2050_defconfig_hailo.cfg"
 
 S = "${WORKDIR}/linux-cip-${PV}"
 
