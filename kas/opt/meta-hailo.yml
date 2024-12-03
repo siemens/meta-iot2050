@@ -14,6 +14,8 @@ header:
 local_conf_header:
   hailo: |
     IOT2050_META_HAILO = "1"
+  hailo_override: |
+    OVERRIDES .= ":meta-hailo"
 
 repos:
   meta-iot2050:

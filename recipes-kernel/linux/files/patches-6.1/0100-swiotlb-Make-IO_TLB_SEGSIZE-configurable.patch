@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Tue, 3 Dec 2024 14:49:59 +0800
+Subject: [PATCH] swiotlb: Make IO_TLB_SEGSIZE configurable
+
+In some applications, the default value of 128 is not sufficient for
+memory allocation and can cause runtime errors. This change makes
+IO_TLB_SEGSIZE configurable, allowing it to be increased if needed.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ include/linux/swiotlb.h | 2 +-
+ kernel/dma/Kconfig      | 7 +++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 35bc4e281c21..09d0ad1304a9 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -22,7 +22,7 @@ struct scatterlist;
+  * must be a power of 2.  What is the appropriate value ?
+  * The complexity of {map,unmap}_single is linearly dependent on this value.
+  */
+-#define IO_TLB_SEGSIZE	128
++#define IO_TLB_SEGSIZE CONFIG_SWIOTLB_SEGSIZE
+ 
+ /*
+  * log of the size of each IO TLB slab.  The number of slabs is command line
+diff --git a/kernel/dma/Kconfig b/kernel/dma/Kconfig
+index 56866aaa2ae1..2eebe8836100 100644
+--- a/kernel/dma/Kconfig
++++ b/kernel/dma/Kconfig
+@@ -80,6 +80,13 @@ config SWIOTLB
+ 	bool
+ 	select NEED_DMA_MAP_STATE
+ 
++config SWIOTLB_SEGSIZE
++    int "SWIOTLB segment size"
++    default 128
++    help
++      Set the maximum allowable number of contiguous slabs to map.
++      Must be a power of 2.
++
+ config DMA_RESTRICTED_POOL
+ 	bool "DMA Restricted Pool"
+ 	depends on OF && OF_RESERVED_MEM && SWIOTLB
