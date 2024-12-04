@@ -12,5 +12,5 @@ header:
   version: 14
 
 local_conf_header:
-  no-module: |
+  module: |
     IOT2050_MODULE_FWU = "1"
