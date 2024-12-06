@@ -12,5 +12,5 @@ header:
   version: 14
 
 local_conf_header:
-  no-eio: |
+  eio: |
     IOT2050_EIO_SUPPORT = "1"
