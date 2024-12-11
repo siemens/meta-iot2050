@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Felix Moessbauer <felix.moessbauer@siemens.com>
+Date: Tue, 16 Jan 2024 16:28:15 +0100
+Subject: [PATCH] install python bindings into dist-packages
+
+This patch installs the hailort python bindings into the python
+site-packages location, so python can automatically find this
+dependency.
+
+Signed-off-by: Felix Moessbauer <felix.moessbauer@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ .../bindings/python/src/CMakeLists.txt          | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/hailort/libhailort/bindings/python/src/CMakeLists.txt b/hailort/libhailort/bindings/python/src/CMakeLists.txt
+index 4d25762df8d9..b96d64a77895 100644
+--- a/hailort/libhailort/bindings/python/src/CMakeLists.txt
++++ b/hailort/libhailort/bindings/python/src/CMakeLists.txt
+@@ -90,12 +90,19 @@ target_compile_options(_pyhailort PRIVATE ${HAILORT_COMPILE_OPTIONS})
+ exclude_archive_libs_symbols(_pyhailort)
+ 
+ # TODO (HRT-8637): change this hard-coded path
+-set(HAILO_PYHAILORT_TARGET_DIR ${CMAKE_CURRENT_LIST_DIR}/../platform/hailo_platform/pyhailort/)
++if(WIN32)
++    set(HAILO_PYHAILORT_TARGET_DIR ${CMAKE_CURRENT_LIST_DIR}/../platform/hailo_platform/pyhailort/)
++else()
++    find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
++    set(HAILO_PYHAILORT_TARGET_DIR "lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/dist-packages/hailo_platform/pyhailort")
++endif()
+ 
+-add_custom_target(pyhailort_venv ALL
+-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_pyhailort> ${HAILO_PYHAILORT_TARGET_DIR}
+-)
+-add_dependencies(pyhailort_venv _pyhailort)
++if(WIN32)
++    add_custom_target(pyhailort_venv ALL
++        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_pyhailort> ${HAILO_PYHAILORT_TARGET_DIR}
++    )
++    add_dependencies(pyhailort_venv _pyhailort)
++endif()
+ 
+ install(TARGETS _pyhailort
+     LIBRARY DESTINATION ${HAILO_PYHAILORT_TARGET_DIR}

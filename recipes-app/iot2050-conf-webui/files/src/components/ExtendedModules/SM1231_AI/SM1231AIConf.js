@@ -233,7 +233,7 @@ export default function SM1231AIConf ({ slotNum, configData, updateConfig, chTot
     >
       <ModuleInfo
         description={chTotal === 4 ? uiString.DESC_MOD_4CH : uiString.DESC_MOD_8CH}
-        artNumber={configData.mlfb === '6ES7 231-4HD32-0XB0' ? '6ES7 231-4HD32-0XB0' : '6ES7 231-4HF32-0XB0'}
+        artNumber={configData.mlfb === '6ES7231-4HD32-0XB0' ? '6ES7 231-4HD32-0XB0' : '6ES7 231-4HF32-0XB0'}
         fwVersion="NA"
       />
 
