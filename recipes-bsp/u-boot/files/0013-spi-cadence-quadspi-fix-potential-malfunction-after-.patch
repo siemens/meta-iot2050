@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ronald Wahl <ronald.wahl@legrand.com>
+Date: Wed, 11 Dec 2024 21:51:04 +0100
+Subject: [PATCH] spi: cadence-quadspi: fix potential malfunction after ~49
+ days uptime
+
+The get_timer function returns an unsigned long which may be calculated
+from the ARM system counter. This counter is reset only on a cold reset.
+U-boot divides this counter down to a 1000 Hz counter that will cross
+the 32bit barrier after a bit more than 49 days. Assigning the value to
+an unsigned int will truncate it on 64bit systems.
+Passing this truncated value back to the get_timer function will return
+a very large value that is certainly larger than the timeout and so will
+go down the error path and besides stopping U-Boot will lead to messages
+like
+
+    "SPI: QSPI is still busy after poll for 5000 ms."
+
+Signed-off-by: Ronald Wahl <ronald.wahl@legrand.com>
+Cc: Vignesh R <vigneshr@ti.com>
+Cc: Pratyush Yadav <p.yadav@ti.com>
+---
+ drivers/spi/cadence_qspi_apb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/spi/cadence_qspi_apb.c b/drivers/spi/cadence_qspi_apb.c
+index d033184aa466..ecbd6f9d147d 100644
+--- a/drivers/spi/cadence_qspi_apb.c
++++ b/drivers/spi/cadence_qspi_apb.c
+@@ -152,9 +152,9 @@ static int cadence_qspi_set_protocol(struct cadence_spi_priv *priv,
+ /* Return 1 if idle, otherwise return 0 (busy). */
+ static unsigned int cadence_qspi_wait_idle(void *reg_base)
+ {
+-	unsigned int start, count = 0;
++	unsigned long start, count = 0;
+ 	/* timeout in unit of ms */
+-	unsigned int timeout = 5000;
++	unsigned long timeout = 5000;
+ 
+ 	start = get_timer(0);
+ 	for ( ; get_timer(start) < timeout ; ) {
+@@ -171,7 +171,7 @@ static unsigned int cadence_qspi_wait_idle(void *reg_base)
+ 	}
+ 
+ 	/* Timeout, still in busy mode. */
+-	printf("QSPI: QSPI is still busy after poll for %d ms.\n", timeout);
++	printf("QSPI: QSPI is still busy after poll for %lu ms.\n", timeout);
+ 	return 0;
+ }
+ 
