@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 30 Oct 2023 17:20:29 +0100
+Subject: [PATCH] spi: cadence-quadspi: Fix error message on stuck busy state
+
+We are not iterating CQSPI_REG_RETRY, we are waiting 'timeout' ms, since
+day 1.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Reviewed-by: Stefan Roese <sr@denx.de>
+Reviewed-by: Jagan Teki <jagan@amarulasolutions.com>
+---
+ drivers/spi/cadence_qspi_apb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/spi/cadence_qspi_apb.c b/drivers/spi/cadence_qspi_apb.c
+index 9ce2c0f254f3..d033184aa466 100644
+--- a/drivers/spi/cadence_qspi_apb.c
++++ b/drivers/spi/cadence_qspi_apb.c
+@@ -171,8 +171,7 @@ static unsigned int cadence_qspi_wait_idle(void *reg_base)
+ 	}
+ 
+ 	/* Timeout, still in busy mode. */
+-	printf("QSPI: QSPI is still busy after poll for %d times.\n",
+-	       CQSPI_REG_RETRY);
++	printf("QSPI: QSPI is still busy after poll for %d ms.\n", timeout);
+ 	return 0;
+ }
+ 

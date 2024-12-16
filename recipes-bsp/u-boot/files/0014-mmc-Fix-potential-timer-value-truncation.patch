@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ronald Wahl <ronald.wahl@legrand.com>
+Date: Wed, 11 Dec 2024 21:52:00 +0100
+Subject: [PATCH] mmc: Fix potential timer value truncation
+
+On 64bit systems the timer value might be truncated to a 32bit value
+causing malfunctions. For example on ARM the timer might start from 0
+again only after a cold reset. The 32bit overflow occurs after a bit
+more than 49 days (1000 Hz counter) so booting after that time may lead
+to a surprise because the board might become stuck requiring a cold
+reset.
+
+Signed-off-by: Ronald Wahl <ronald.wahl@legrand.com>
+Cc: Peng Fan <peng.fan@nxp.com>
+Cc: Jaehoon Chung <jh80.chung@samsung.com>
+---
+ drivers/mmc/mmc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index 31cfda288587..2779302b843e 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -713,7 +713,7 @@ static int mmc_send_op_cond(struct mmc *mmc)
+ {
+ 	int err, i;
+ 	int timeout = 1000;
+-	uint start;
++	ulong start;
+ 
+ 	/* Some cards seem to need this */
+ 	mmc_go_idle(mmc);
+@@ -808,7 +808,8 @@ int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
+ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
+ 			bool send_status)
+ {
+-	unsigned int status, start;
++	ulong start;
++	unsigned int status;
+ 	struct mmc_cmd cmd;
+ 	int timeout_ms = DEFAULT_CMD6_TIMEOUT_MS;
+ 	bool is_part_switch = (set == EXT_CSD_CMD_SET_NORMAL) &&
