@@ -16,7 +16,7 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
-index dff0ff89a801..99a92f44bef4 100644
+index 2779302b843e..7554730a0489 100644
 --- a/drivers/mmc/mmc.c
 +++ b/drivers/mmc/mmc.c
 @@ -651,8 +651,16 @@ static int sd_send_op_cond(struct mmc *mmc, bool uhs_en)
