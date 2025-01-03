@@ -9,8 +9,15 @@
 #
 
 header:
-  version: 14
+  version: 15
 
 local_conf_header:
-  module: |
-    IOT2050_MODULE_FWU = "1"
+  hailo: |
+    IOT2050_META_HAILO = "1"
+  hailo_override: |
+    OVERRIDES .= ":meta-hailo"
+
+repos:
+  meta-iot2050:
+    layers:
+      meta-hailo:

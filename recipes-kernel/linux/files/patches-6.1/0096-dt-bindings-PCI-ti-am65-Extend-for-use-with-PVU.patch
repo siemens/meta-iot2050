@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 26 Aug 2024 22:53:40 +0200
+Subject: [PATCH] dt-bindings: PCI: ti,am65: Extend for use with PVU
+
+Describe also the VMAP registers which are needed in order to make use
+of the PVU with this PCI host. Furthermore, permit to specify a
+restricted DMA pool by phandle.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ .../devicetree/bindings/pci/ti,am65-pci-host.yaml   | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/pci/ti,am65-pci-host.yaml b/Documentation/devicetree/bindings/pci/ti,am65-pci-host.yaml
+index a20dccbafd94..8cd2c327da48 100644
+--- a/Documentation/devicetree/bindings/pci/ti,am65-pci-host.yaml
++++ b/Documentation/devicetree/bindings/pci/ti,am65-pci-host.yaml
+@@ -20,7 +20,7 @@ properties:
+       - ti,keystone-pcie
+ 
+   reg:
+-    maxItems: 4
++    maxItems: 6
+ 
+   reg-names:
+     items:
+@@ -28,6 +28,8 @@ properties:
+       - const: dbics
+       - const: config
+       - const: atu
++      - const: vmap_lp
++      - const: vmap_hp
+ 
+   interrupts:
+     maxItems: 1
+@@ -55,6 +57,9 @@ properties:
+ 
+   dma-coherent: true
+ 
++  memory-region:
++    description: phandle to restricted DMA pool to be used for all devices behind this controller
++
+ required:
+   - compatible
+   - reg
+@@ -88,8 +93,10 @@ examples:
+         reg =  <0x5500000 0x1000>,
+                <0x5501000 0x1000>,
+                <0x10000000 0x2000>,
+-               <0x5506000 0x1000>;
+-        reg-names = "app", "dbics", "config", "atu";
++               <0x5506000 0x1000>,
++               <0x2900000 0x1000>,
++               <0x2908000 0x1000>;
++        reg-names = "app", "dbics", "config", "atu", "vmap_lp", "vmap_hp";
+         power-domains = <&k3_pds 120 TI_SCI_PD_EXCLUSIVE>;
+         #address-cells = <3>;
+         #size-cells = <2>;
