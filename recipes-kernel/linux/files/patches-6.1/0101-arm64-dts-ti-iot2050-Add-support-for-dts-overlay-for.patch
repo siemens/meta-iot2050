@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Fri, 3 Jan 2025 10:02:14 +0800
+Subject: [PATCH] arm64: dts: ti: iot2050: Add support for dts overlay for PG2
+ and SM
+
+This commit adds support for device tree overlays for the IOT2050
+Advanced PG2 and SM variants. These overlays enable DMA isolation,
+allowing for more flexible and secure memory management.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm64/boot/dts/ti/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/Makefile b/arch/arm64/boot/dts/ti/Makefile
+index 725ad34cac4c..9428156c045c 100644
+--- a/arch/arm64/boot/dts/ti/Makefile
++++ b/arch/arm64/boot/dts/ti/Makefile
+@@ -15,6 +15,8 @@ dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-pg2.dtb
+ dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-sm.dtb
+ 
+ DTC_FLAGS_k3-am6548-iot2050-advanced-m2 += -@
++DTC_FLAGS_k3-am6548-iot2050-advanced-pg2 += -@
++DTC_FLAGS_k3-am6548-iot2050-advanced-sm += -@
+ 
+ dtb-$(CONFIG_ARCH_K3) += k3-j721e-common-proc-board.dtb
+ dtb-$(CONFIG_ARCH_K3) += k3-j721e-sk.dtb
