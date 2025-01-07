@@ -32,6 +32,7 @@ SRC_URI += " \
     file://debian/libgsthailo-dev.install \
     file://debian/not-installed \
     file://debian/rules \
+    file://debian/python-numpy.pref \
 "
 
 DEPENDS += "python3-verboselogs python3-numpy"
