@@ -11,7 +11,7 @@ Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts
-index b418c1eaed38..c00e4a9e8efd 100644
+index edf02244649c..c00d4c0f9575 100644
 --- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts
 +++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts
 @@ -148,6 +148,12 @@ &main_spi0 {

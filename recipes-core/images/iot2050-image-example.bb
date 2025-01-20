@@ -43,6 +43,7 @@ IMAGE_INSTALL += " \
     tee-supplicant \
     iot2050-event-record \
     linux-headers-${KERNEL_NAME} \
+    iot2050-proximity-driver \
     "
 
 IOT2050_NODE_RED_SUPPORT ?= "1"
