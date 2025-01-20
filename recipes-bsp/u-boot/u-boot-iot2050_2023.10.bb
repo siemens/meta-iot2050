@@ -29,6 +29,7 @@ SRC_URI += " \
     file://0015-arm-dts-iot2050-Add-overlay-for-DMA-isolation-for-de.patch \
     file://0016-board-siemens-iot2050-Generalize-overlay_prepare.patch \
     file://0017-board-siemens-iot2050-Allow-to-enable-and-adjust-res.patch \
+    file://0018-arm-dts-iot2050-Enforce-DMA-isolation-for-devices-be.patch \
     "
 
 SRC_URI[sha256sum] = "e00e6c6f014e046101739d08d06f328811cebcf5ae101348f409cbbd55ce6900"
