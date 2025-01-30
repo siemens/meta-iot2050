@@ -79,8 +79,39 @@ def check_mount_efivarfs() -> bool:
                 if 'rw' in mount_options and 'ro' not in mount_options:
                     mount_err_msg = ''
                 else:
-                    mount_err_msg = 'not mounted as read & write.'
+                    # efivarfs is mounted as read-only
+                    mount_err_msg = 'mounted as read-only.'
+                    # Try to remount as read-write
+                    print("efivarfs mounted as read-only. Attempting to remount efivarfs as read-write...", end='')
+                    try:
+                        subprocess.run(['mount', '-o', 'remount,rw', '/sys/firmware/efi/efivars'], check=True)
+                        print("Remount successful.")
+                        mount_err_msg = ''  # No error, remount was successful
+                    except subprocess.CalledProcessError:
+                        mount_err_msg = 'failed to remount as read-write.'
                 break
+
+    if mount_err_msg == 'not mounted.':
+        '''
+        By default, the kernel or systemd mounts efivarfs as read-only (ro) to prevent
+        accidental modifications to UEFI variables, which are critical for system operation.
+        However, the kernel permits remounting efivarfs as read-write (rw) since it is already
+        mounted, making this a controlled and intentional change when necessary.
+        '''
+        print("Not mounted. Mounting efivarfs ...", end='')
+        try:
+            subprocess.run(['mount', '-t', 'efivarfs', 'efivarfs', '/sys/firmware/efi/efivars'], check=True)
+            print("Mount successful.")
+            print("Attempting to remount as read-write...", end='')
+            # Remount as read-write
+            try:
+                subprocess.run(['mount', '-o', 'remount,rw', '/sys/firmware/efi/efivars'], check=True)
+                print("Remount as read-write successful.")
+                mount_err_msg = ''  # No error
+            except subprocess.CalledProcessError:
+                mount_err_msg = 'failed to remount as read-write.'
+        except subprocess.CalledProcessError:
+            mount_err_msg = 'failed to mount efivarfs.'
 
     if mount_err_msg == '':
         print("Done.")
