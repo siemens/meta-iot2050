@@ -34,7 +34,10 @@ To enable them, please create a systemd drop-in for `iot2050-event-record.servic
 as follows:
 
 ```sh
+mkdir -p /etc/systemd/system/iot2050-event-record.service.d/
 cp /usr/lib/iot2050/event/iot2050-event-record.conf /etc/systemd/system/iot2050-event-record.service.d/
+systemctl daemon-reload
+systemctl restart iot2050-event-record.service
 ```
 If changing the tilting threshold and uncovering threshold is expected, please
 refer to the ``iot2050-event-record.conf`` for the details.
