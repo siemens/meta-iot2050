@@ -1,0 +1,162 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 27 Feb 2025 17:09:24 +0800
+Subject: [PATCH] tappas: Adapt tappas apps for compatibility with meta-iot2050
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ .../configs/{yolov5.json => yolov.json}       |  0
+ apps/h8/gstreamer/imx8/detection/detection.sh | 46 +++++++++++++++----
+ .../license_plate_recognition.sh              |  6 +--
+ .../multi_stream_detection.sh                 |  3 +-
+ 4 files changed, 41 insertions(+), 14 deletions(-)
+ rename apps/h8/gstreamer/imx8/detection/configs/{yolov5.json => yolov.json} (100%)
+
+diff --git a/apps/h8/gstreamer/imx8/detection/configs/yolov5.json b/apps/h8/gstreamer/imx8/detection/configs/yolov.json
+similarity index 100%
+rename from apps/h8/gstreamer/imx8/detection/configs/yolov5.json
+rename to apps/h8/gstreamer/imx8/detection/configs/yolov.json
+diff --git a/apps/h8/gstreamer/imx8/detection/detection.sh b/apps/h8/gstreamer/imx8/detection/detection.sh
+index 62391831471d..86e501db7c22 100755
+--- a/apps/h8/gstreamer/imx8/detection/detection.sh
++++ b/apps/h8/gstreamer/imx8/detection/detection.sh
+@@ -3,33 +3,44 @@ set -e
+ 
+ CURRENT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+ 
++
+ function init_variables() {
+     readonly RESOURCES_DIR="${CURRENT_DIR}/resources"
+     readonly POSTPROCESS_DIR="/usr/lib/hailo-post-processes"
+-    readonly DEFAULT_POSTPROCESS_SO="$POSTPROCESS_DIR/libyolo_post.so"
+-    readonly DEFAULT_NETWORK_NAME="yolov5"
++    readonly DEFAULT_RAW_POSTPROCESS_SO="$POSTPROCESS_DIR/libyolo_post.so"
++    readonly DEFAULT_POSTPROCESS_SO="$POSTPROCESS_DIR/libyolo_hailortpp_post.so"
++    readonly DEFAULT_RAW_NETWORK_NAME="yolov5"
++    readonly DEFAULT_NETWORK_NAME="yolov8m"
+     readonly DEFAULT_VIDEO_SOURCE="/dev/video0"
+-    readonly DEFAULT_HEF_PATH="${RESOURCES_DIR}/${DEFAULT_NETWORK_NAME}m_yuv.hef"
+-    readonly DEFAULT_JSON_CONFIG_PATH="$RESOURCES_DIR/configs/yolov5.json" 
++    readonly DEFAULT_RAW_HEF_PATH="${RESOURCES_DIR}/${DEFAULT_RAW_NETWORK_NAME}m_yuv.hef"
++    readonly DEFAULT_HEF_PATH="${RESOURCES_DIR}/${DEFAULT_NETWORK_NAME}.hef"
++    readonly DEFAULT_JSON_CONFIG_PATH="$RESOURCES_DIR/configs/yolov.json"
+ 
++    postprocess_raw_so=$DEFAULT_RAW_POSTPROCESS_SO
+     postprocess_so=$DEFAULT_POSTPROCESS_SO
++    network_raw_name=$DEFAULT_RAW_NETWORK_NAME
+     network_name=$DEFAULT_NETWORK_NAME
+     input_source=$DEFAULT_VIDEO_SOURCE
++    hef_raw_path=$DEFAULT_RAW_HEF_PATH
+     hef_path=$DEFAULT_HEF_PATH
+-    json_config_path=$DEFAULT_JSON_CONFIG_PATH 
++    json_config_path=$DEFAULT_JSON_CONFIG_PATH
+ 
+     print_gst_launch_only=false
++    use_raw_pipeline=false
+     additional_parameters=""
+ }
+ 
++
++
+ function print_usage() {
+-    echo "IMX8 Detection pipeline usage:"
++    echo "Detection pipeline usage:"
+     echo ""
+     echo "Options:"
+     echo "  --help              Show this help"
+     echo "  -i INPUT --input INPUT          Set the video source (default $input_source)"
+     echo "  --show-fps          Print fps"
+     echo "  --print-gst-launch  Print the ready gst-launch command without running it"
++    echo "  --use-raw           Use the raw pipeline"
+     exit 0
+ }
+ 
+@@ -46,6 +57,8 @@ function parse_args() {
+         elif [ "$1" = "--input" ] || [ "$1" = "-i" ]; then
+             input_source="$2"
+             shift
++        elif [ "$1" = "--use-raw" ]; then
++            use_raw_pipeline=true
+         else
+             echo "Received invalid argument: $1. See expected arguments below:"
+             print_usage
+@@ -61,16 +74,31 @@ init_variables $@
+ parse_args $@
+ 
+ PIPELINE="gst-launch-1.0 \
+-    v4l2src device=$input_source ! video/x-raw,format=YUY2,width=1280,height=720,framerate=30/1 ! \
++    v4l2src device=$input_source ! video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! \
+     queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
++    videoconvert ! video/x-raw,format=RGB ! \
++    videoscale ! video/x-raw,width=640,height=640 ! \
+     hailonet hef-path=$hef_path ! \
+     queue leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
+     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
+     queue leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
+     hailooverlay ! \
+     queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
+-    videoconvert ! \
+-    fpsdisplaysink video-sink=autovideosink name=hailo_display sync=false text-overlay=false ${additional_parameters}"
++    videoconvert ! avimux ! filesink location=output.avi"
++
++if [ "$use_raw_pipeline" = true ]; then
++    PIPELINE="gst-launch-1.0 \
++        v4l2src device=$input_source ! video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! \
++        queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
++        videoconvert ! videoscale ! video/x-raw,format=YUY2,width=1280,height=720,framerate=30/1 ! \
++        hailonet hef-path=$hef_raw_path ! \
++        queue leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
++        hailofilter function-name=$network_raw_name config-path=$json_config_path so-path=$postprocess_raw_so qos=false ! \
++        queue leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
++        hailooverlay ! \
++        queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
++        videoconvert ! avimux ! filesink location=output.avi"
++fi
+ 
+ echo "Running $network_name"
+ echo ${PIPELINE}
+diff --git a/apps/h8/gstreamer/imx8/license_plate_recognition/license_plate_recognition.sh b/apps/h8/gstreamer/imx8/license_plate_recognition/license_plate_recognition.sh
+index d9d611129ea8..bd5d01348cd2 100755
+--- a/apps/h8/gstreamer/imx8/license_plate_recognition/license_plate_recognition.sh
++++ b/apps/h8/gstreamer/imx8/license_plate_recognition/license_plate_recognition.sh
+@@ -69,7 +69,7 @@ function print_help_if_needed() {
+ }
+ 
+ function print_usage() {
+-    echo "IMX8 LPR pipeline usage:"
++    echo "LPR pipeline usage:"
+     echo ""
+     echo "Options:"
+     echo "  -h --help                  Show this help"
+@@ -102,7 +102,7 @@ function parse_args() {
+ }
+ 
+ function load_file_to_cache() {
+-    # Loading the file to the cache is required after every reboot when using iMX8 based machines
++    # Loading the file to the cache is required after every reboot when using based machines
+     # This file is an indication that we already loaded the file to the cache
+     if [ ! -f "$FILE_LOADED_TO_CACHE_PATH" ]; then
+         load_file_to_cache_pipeline="$source_element ! fakesink sync=false"
+@@ -167,7 +167,7 @@ PIPELINE="${debug_stats_export} gst-launch-1.0 ${stats_element} \
+     queue leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
+     hailooverlay line-thickness=3 font-thickness=1 qos=false ! \
+     hailofilter use-gst-buffer=true so-path=$LPR_OVERLAY qos=false ! \
+-    fpsdisplaysink video-sink=autovideosink name=hailo_display sync=$sync_pipeline text-overlay=false \
++    videoconvert ! avimux ! filesink location=output.avi \
+     $tee_name. ! \
+     $pipeline_1 ! \
+     hailofilter use-gst-buffer=true so-path=$LPR_OCR_SINK qos=false ! \
+diff --git a/apps/h8/gstreamer/imx8/multistream_detection/multi_stream_detection.sh b/apps/h8/gstreamer/imx8/multistream_detection/multi_stream_detection.sh
+index aff1f17e618a..c9103f74d7f4 100755
+--- a/apps/h8/gstreamer/imx8/multistream_detection/multi_stream_detection.sh
++++ b/apps/h8/gstreamer/imx8/multistream_detection/multi_stream_detection.sh
+@@ -98,8 +98,7 @@ function main() {
+            streamiddemux name=sid compositor name=comp start-time-selection=0 $compositor_locations ! \
+            queue name=hailo_video_q_0 leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
+            videoconvert ! queue name=hailo_display_q_0 leaky=no max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! \
+-           fpsdisplaysink video-sink=\" $videosink \" name=hailo_display sync=false text-overlay=false \
+-           $sources ${additional_parameters}"
++           videoconvert ! avimux ! filesink location=output.avi $sources"
+ 
+     echo ${pipeline}
+     if [ "$print_gst_launch_only" = true ]; then

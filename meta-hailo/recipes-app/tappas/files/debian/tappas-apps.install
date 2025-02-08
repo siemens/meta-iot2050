@@ -1,0 +1,16 @@
+usr/lib/${DEB_HOST_MULTIARCH}/libhailo_cv_singleton.so*
+usr/lib/${DEB_HOST_MULTIARCH}/libhailo_gst_image.so*
+
+# detection
+apps/h8/gstreamer/imx8/detection/detection.sh usr/share/tappas/detection/
+apps/h8/gstreamer/imx8/detection/configs/* usr/share/tappas/detection/resources/configs/
+
+# license_plate_recognition
+apps/h8/gstreamer/imx8/license_plate_recognition/license_plate_recognition.sh usr/share/tappas/license_plate_recognition/
+apps/h8/gstreamer/imx8/license_plate_recognition/configs/* usr/share/tappas/license_plate_recognition/resources/configs
+usr/lib/license_plate_recognition/resources/liblpr_ocrsink.so usr/share/tappas/license_plate_recognition/resources/
+usr/lib/license_plate_recognition/resources/liblpr_overlay.so usr/share/tappas/license_plate_recognition/resources/
+
+# multistream_detection
+apps/h8/gstreamer/imx8/multistream_detection/*.sh usr/share/tappas/multistream_detection/
+apps/h8/gstreamer/imx8/multistream_detection/configs/* usr/share/tappas/multistream_detection/resources/configs
