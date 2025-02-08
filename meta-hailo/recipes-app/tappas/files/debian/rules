@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+# Tappas currently supports only Hailo15 and IMX8 (ARM64) platforms
+override_dh_auto_configure:
+	@echo "Current working directory: $(CURDIR)"
+	@echo "Contents of /usr/include:"
+	@ls -l /usr/include || true
+	@echo "Contents of /usr/include/hailo:"
+	@ls -l /usr/include/hailo || true
+	dh_auto_configure --buildsystem=meson --sourcedirectory=core/hailo -- \
+		-Dlibargs="-I/usr/include/gst-hailo/metadata,-I/usr/include/hailo" \
+		-Dlibxtensor="/usr/include/xtensor" \
+		-Dinclude_blas=false \
+		-Dtarget="plugins" \
+		-Dtarget_platform="imx8" \
+		-Dcpp_std="c++17" \
+		-Dlibrapidjson='/usr/include/rapidjson' \
+		--buildtype="release"
+
+override_dh_auto_build:
+	dh_auto_build --buildsystem=meson --sourcedirectory=core/hailo
+
+override_dh_auto_install:
+	dh_auto_install
+	rm -f debian/libgsthailotools/usr/lib/gstreamer-1.0/libgsthailotools.so
+	find debian/libgsthailotools/usr/lib/gstreamer-1.0/ -name 'libgsthailotools.so.[0-9]' -delete
+	mv -f debian/libgsthailotools/usr/lib/gstreamer-1.0/libgsthailotools.so.${PV} debian/libgsthailotools/usr/lib/gstreamer-1.0/libgsthailotools.so

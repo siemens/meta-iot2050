@@ -76,4 +76,8 @@ IMAGE_INSTALL += "${@ ' \
     libgsthailo-dev \
     python3-hailort \
     hailort \
+    libgsthailotools \
+    tappas-apps \
+    hailo-post-processes \
+    tappas-tracers \
     ' if d.getVar('IOT2050_META_HAILO') == '1' else '' }"

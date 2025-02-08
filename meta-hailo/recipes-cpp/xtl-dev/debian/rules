@@ -1,0 +1,6 @@
+#!/usr/bin/make -f
+
+export BUILD_NAME=xtl-dev
+
+%:
+    dh $@ --buildsystem=cmake
