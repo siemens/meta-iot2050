@@ -1,0 +1,3 @@
+usr/lib/${DEB_HOST_MULTIARCH}/gstreamer-1.0/libgsthailotools.so*
+usr/lib/${DEB_HOST_MULTIARCH}/libgsthailometa.so*
+usr/lib/${DEB_HOST_MULTIARCH}/libhailo_tracker.so*

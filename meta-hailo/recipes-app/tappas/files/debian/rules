@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+# Tappas currently supports gstreamer well on Hailo8 with IMX8 (ARM64)
+# platform. Therefore, 'imx8' is used for the initial version.
+override_dh_auto_configure:
+	dh_auto_configure --buildsystem=meson --sourcedirectory=core/hailo -- \
+		-Dlibargs="-I/usr/include/gst-hailo/metadata,\
+				-I/usr/include/hailo,\
+				-I/usr/include/gstreamer-1.0/gst/hailo" \
+		-Dlibxtensor="/usr/include/xtensor" \
+		-Dlibcxxopts='/usr/include' \
+		-Dlibrapidjson='/usr/include/rapidjson' \
+        -Dpost_processes_install_dir='/usr/lib/hailo-post-processes' \
+		-Dapps_install_dir='/usr/lib/' \
+		-Dinclude_blas=false \
+		-Dcpp_std="c++17" \
+        -Dtarget="all" \
+		-Dtarget_platform="imx8" \
+		--buildtype="release"
+
+override_dh_auto_build:
+	dh_auto_build --buildsystem=meson --sourcedirectory=core/hailo
+
+override_dh_auto_install:
+	dh_auto_install --buildsystem=meson --sourcedirectory=core/hailo

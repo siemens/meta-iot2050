@@ -1,0 +1,3 @@
+usr/lib/hailo-post-processes/*
+usr/lib/hailo-post-processes/cropping_algorithms/*
+usr/lib/hailo-post-processes/post_processes_data/*
