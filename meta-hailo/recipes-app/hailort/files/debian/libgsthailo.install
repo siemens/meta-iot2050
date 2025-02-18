@@ -1,1 +1,1 @@
-usr/lib/aarch64-linux-gnu/libgsthailo.so
+usr/lib/${DEB_HOST_MULTIARCH}/libgsthailo.so /usr/lib/${DEB_HOST_MULTIARCH}/gstreamer-1.0/
