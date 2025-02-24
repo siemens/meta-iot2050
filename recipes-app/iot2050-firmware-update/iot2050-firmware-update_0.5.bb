@@ -18,6 +18,8 @@ SRC_URI = " \
 
 TEMPLATE_FILES = "update.conf.json.tmpl iot2050-firmware-update.tmpl"
 
+DPKG_ARCH = "any"
+
 inherit dpkg-raw
 
 DEBIAN_DEPENDS = "python3-progress, u-boot-tools"
