@@ -8,11 +8,14 @@
 
 [Unit]
 Description=update u-boot environment for swupdate
+After=local-fs.target systemd-udev-settle.service
 Conflicts=shutdown.target
 Before=swupdate.service shutdown.target
+DefaultDependencies=no
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 ExecStart=sh -c '/usr/share/u-boot-env/patch-u-boot-env.sh watchdog_timeout_ms /usr/share/u-boot-env/patch-u-boot-env.config; fw_setenv watchdog_timeout_ms 60000'
 ExecStartPost=-/bin/systemctl disable patch-u-boot-env.service
 
