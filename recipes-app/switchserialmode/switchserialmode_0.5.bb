@@ -18,8 +18,13 @@ SRC_URI = "file://src"
 
 S = "${WORKDIR}/src"
 
+PROVIDES := "${BPN}"
+DEBIAN_CONFLICTS := "${BPN}"
+DEBIAN_PROVIDES := "${BPN}"
+DEBIAN_REPLACES := "${BPN}"
 DEBIAN_BUILD_DEPENDS = "cmake, libusb-1.0-0-dev, libgpiod-dev"
 DEBIAN_DEPENDS = "\${shlibs:Depends}"
+PN := "iot2050-${BPN}"
 
 do_prepare_build[cleandirs] += "${S}/debian"
 

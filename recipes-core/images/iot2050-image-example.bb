@@ -33,7 +33,7 @@ IMAGE_INSTALL += " \
     regen-rootfs-uuid \
     install-on-emmc \
     customizations-example \
-    switchserialmode \
+    iot2050-switchserialmode \
     iot2050-firmware-update \
     tcf-agent \
     mraa \
