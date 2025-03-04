@@ -31,7 +31,6 @@ def get_extra_cfg(d):
 SRC_URI += " \
     https://cdn.kernel.org/pub/linux/kernel/projects/cip/6.1/linux-cip-${PV}.tar.xz \
     ${@get_patches(d, 'patches-6.1')} \
-    file://patches-6.1/ \
     file://${KERNEL_DEFCONFIG} \
     file://iot2050_defconfig_extra.cfg"
 SRC_URI:append:pvu-dma = " \
