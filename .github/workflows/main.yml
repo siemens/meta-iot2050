@@ -15,6 +15,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
+      - name: Set resource limits
+        run: |
+          ulimit -n 65535
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
