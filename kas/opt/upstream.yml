@@ -10,4 +10,5 @@ header:
 
 local_conf_header:
   upstream-versions: |
+    BBMASK:remove = "linux-iot2050_.+-upstream\.bb"
     PREFERRED_VERSION_linux-iot2050 = "6.x-upstream"
