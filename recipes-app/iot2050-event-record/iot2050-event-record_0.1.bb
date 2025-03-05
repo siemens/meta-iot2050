@@ -32,7 +32,7 @@ SRC_URI = " \
 
 S = "${WORKDIR}/src"
 
-DEBIAN_DEPENDS = "python3, python3-grpcio, python3-psutil, python3-systemd, python3-pystemd"
+DEBIAN_DEPENDS = "python3, python3-grpcio, python3-psutil, python3-systemd"
 
 do_install() {
     install -v -d ${D}/usr/lib/iot2050/event/
