@@ -1,0 +1,65 @@
+Source: tappas
+Maintainer: Li Hua Qian <huaqian.li@siemens.com>
+Section: devel
+Priority: optional
+Standards-Version: 4.6.1
+Build-Depends:
+  debhelper-compat (= 13),
+  meson,
+  ninja-build,
+  pkg-config,
+  gstreamer1.0-tools,
+  libgstreamer1.0-dev,
+  gstreamer1.0-plugins-base,
+  libgstreamer-plugins-base1.0-dev,
+  libopencv-dev,
+  libcxxopts-dev,
+  rapidjson-dev,
+  xtl-dev:all,
+  xtensor-dev:all,
+  libglib2.0-dev,
+  cppzmq-dev,
+  libzmq3-dev,
+  libhailort-dev,
+  libgsthailo-dev,
+  procps
+
+Package: libgsthailotools
+Architecture: any
+Multi-Arch: foreign
+Description: GStreamer tools for Hailo
+Depends:
+  libhailort-dev,
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: tappas-apps
+Architecture: any
+Multi-Arch: foreign
+Description: Tappas applications for Hailo
+Depends:
+  bash,
+  libgsthailotools,
+  gstreamer1.0-tools,
+  gstreamer1.0-plugins-base,
+  gstreamer1.0-plugins-good,
+  gstreamer1.0-plugins-bad,
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: hailo-post-processes
+Architecture: any
+Multi-Arch: foreign
+Description: Post-processing tools for Hailo
+Depends:
+  libgsthailotools,
+  ${misc:Depends},
+  ${shlibs:Depends}
+
+Package: tappas-tracers
+Architecture: any
+Multi-Arch: foreign
+Description: Tracing tools for Tappas
+Depends:
+  ${misc:Depends},
+  ${shlibs:Depends}

@@ -39,7 +39,7 @@ jobs:
           touch ./recipes-app/iot2050-eio-manager/files/bin/map3-fw.bin
           touch ./recipes-app/iot2050-eio-manager/files/bin/firmware-version
       - name: Build image
-        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml:kas/opt/meta-hailo.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:

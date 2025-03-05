@@ -69,7 +69,7 @@ Depends:
 
 Package: libhailort-dev
 Architecture: any
-Multi-Arch: foreign
+Multi-Arch: same
 Description: userspace API for running inference on the hailo8 chip (dev)
 Depends:
   libhailort (=${binary:Version}),
@@ -86,7 +86,7 @@ Depends:
 
 Package: libgsthailo-dev
 Architecture: any
-Multi-Arch: foreign
+Multi-Arch: same
 Description: hailort GStreamer element (HailoNet) (dev)
 Depends:
   libgsthailo (=${binary:Version}),
