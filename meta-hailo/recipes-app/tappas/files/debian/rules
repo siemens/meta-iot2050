@@ -15,11 +15,11 @@ override_dh_auto_configure:
 		-Dlibxtensor="/usr/include/xtensor" \
 		-Dlibcxxopts='/usr/include' \
 		-Dlibrapidjson='/usr/include/rapidjson' \
-        -Dpost_processes_install_dir='/usr/lib/hailo-post-processes' \
+		-Dpost_processes_install_dir='/usr/lib/hailo-post-processes' \
 		-Dapps_install_dir='/usr/lib/' \
 		-Dinclude_blas=false \
 		-Dcpp_std="c++17" \
-        -Dtarget="all" \
+		-Dtarget="all" \
 		-Dtarget_platform="imx8" \
 		--buildtype="release"
 

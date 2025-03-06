@@ -1,8 +1,8 @@
 # Hailo TAPPAS
 
 TAPPAS is Hailo's set of full application examples, implementing
-pipeline elements and pre-trained AI tasks. It can be used for
-evaluations, reference code, and demos:
+pipeline elements and pre-trained AI tasks. According to Hailo's
+announcement, it can be used for evaluations, reference code, and demos:
  - Accelerating time to market by reducing development time and
   deployment effort
  - Simplifying integration with Hailo’s runtime SW stack
