@@ -13,7 +13,7 @@ inherit dpkg
 
 PV = "1.8.0-1f11747e"
 SRC_URI = " \
-    git://git.eclipse.org/r/tcf/org.eclipse.tcf.agent.git;protocol=https;branch=master \
+    git://gitlab.eclipse.org/eclipse/tcf/tcf.agent.git;protocol=https;branch=master \
     file://debian"
 SRCREV = "1f11747e83ebf4f53e8d17f430136f92ec378709"
 
