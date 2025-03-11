@@ -158,6 +158,16 @@ The installation can also be triggered automatically by creating the file
 `/etc/install-on-emmc` on the vanilla image by mounting it under Linux and
 executing, e.g., `touch <mountpoint>/etc/install-on-emmc`.
 
+## Updating the U-Boot firmware
+
+Starting from V01.05.x, the updated firmware tarball is integrated into the
+`/usr/share/iot2050/fwu/` directory by default. To update the U-Boot firmware,
+execute the following command:
+
+```sh
+iot2050-firmware-update /usr/share/iot2050/fwu/IOT2050-FW-Update-PKG-<Version>.tar.xz
+```
+
 ## Selecting a boot device
 
 By default, the boot loader will pick the first bootable device. If that device

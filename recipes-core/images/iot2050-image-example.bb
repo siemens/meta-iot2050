@@ -35,6 +35,7 @@ IMAGE_INSTALL += " \
     customizations-example \
     iot2050-switchserialmode \
     iot2050-firmware-update \
+    firmware-update-package \
     tcf-agent \
     mraa \
     ${@ 'board-conf-tools' if d.getVar('QEMU_IMAGE') != '1' else '' } \
