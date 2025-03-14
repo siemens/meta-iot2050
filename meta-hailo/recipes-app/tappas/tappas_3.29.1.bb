@@ -20,6 +20,7 @@ SRC_URI += " \
     file://debian/tappas-tracers.install \
     file://debian/not-installed \
     file://files/patches/0001-tappas-Adapt-tappas-apps-for-compatibility-with-meta.patch \
+    file://files/patches/0002-Do-not-install-binaries-without-clear-license-clarif.patch \
 "
 
 DEPENDS += " hailort "

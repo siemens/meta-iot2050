@@ -9,6 +9,27 @@ announcement, it can be used for evaluations, reference code, and demos:
  - Providing a starting point for customers to fine-tune their
   applications
 
+If facial landmarking is necessary for your practice, please download the
+following binaries into `/usr/lib/hailo-post-processes/post_processes_data`:
+- [w_exp_base.npy](https://github.com/hailo-ai/tappas/raw/refs/tags/v3.29.1/core/hailo/libs/postprocesses/post_processes_data/w_exp_base.npy)
+- [w_shp_base.npy](https://github.com/hailo-ai/tappas/raw/refs/tags/v3.29.1/core/hailo/libs/postprocesses/post_processes_data/w_shp_base.npy)
+
+> Note: All paths starting with `/usr/*` refer to directories on the device.
+> The same applies to the paths mentioned below.
+
+Alternatively, you can use the following shell script to download all the
+required files for facial landmarking:
+
+```sh
+#!/bin/bash
+
+mkdir -p /usr/lib/hailo-post-processes/post_processes_data/
+
+# Download the facial landmarking library data
+wget -O /usr/lib/hailo-post-processes/post_processes_data/w_exp_base.npy https://github.com/hailo-ai/tappas/raw/refs/tags/v3.29.1/core/hailo/libs/postprocesses/post_processes_data/w_exp_base.npy
+wget -O /usr/lib/hailo-post-processes/post_processes_data/w_shp_base.npy https://github.com/hailo-ai/tappas/raw/refs/tags/v3.29.1/core/hailo/libs/postprocesses/post_processes_data/w_shp_base.npy
+```
+
 Three typical demos are integrated and supported by default in this
 TAPPAS:
  - Detection Pipeline
@@ -74,7 +95,7 @@ Options:
   --use-raw           Use the raw pipeline (YUY2 Model)
 ```
 
-The output video should be like:
+The output video should be similar to:
 
 ![detection](./detection_pipeline.gif)
 
