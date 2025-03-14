@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 13 Mar 2025 16:53:56 +0800
+Subject: [PATCH] Do not install binaries without clear license clarification
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ core/hailo/libs/postprocesses/meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/hailo/libs/postprocesses/meson.build b/core/hailo/libs/postprocesses/meson.build
+index dddb59e5fc4c..a77fec7951cb 100644
+--- a/core/hailo/libs/postprocesses/meson.build
++++ b/core/hailo/libs/postprocesses/meson.build
+@@ -1,4 +1,4 @@
+-install_subdir('post_processes_data', install_dir: post_proc_install_dir)
++install_emptydir(post_proc_install_dir / 'post_processes_data')
+ 
+ ################################################
+ # DETECTION SOURCES - MobilenetSSD
