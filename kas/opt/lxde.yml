@@ -13,4 +13,4 @@ header:
 
 local_conf_header:
   add-lxde: |
-    IMAGE_INSTALL += "lxde-touch"
+    IMAGE_INSTALL += "lxde-touch lightdm-fb"
