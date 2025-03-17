@@ -8,12 +8,14 @@
 
 [Unit]
 Description=update u-boot environment for swupdate
+After=multi-user.target
 Conflicts=shutdown.target
 Before=swupdate.service shutdown.target
+DefaultDependencies=no
 
 [Service]
 Type=oneshot
-ExecStart=sh -c '/usr/share/u-boot-env/patch-u-boot-env.sh watchdog_timeout_ms /usr/share/u-boot-env/patch-u-boot-env.config; fw_setenv watchdog_timeout_ms 60000'
+ExecStart=/usr/share/u-boot-env/patch-u-boot-env.sh watchdog_timeout_ms /usr/share/u-boot-env/patch-u-boot-env.config
 ExecStartPost=-/bin/systemctl disable patch-u-boot-env.service
 
 [Install]
