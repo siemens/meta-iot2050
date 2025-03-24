@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2023-2025
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -144,6 +145,23 @@ def change_efivarfs_immutable_flag(immutable: bool):
             chattr_i(filepath, immutable)
             print("Done.")
 
+def remount_efivarfs(mode):
+    """
+    Remount efivarfs with the specified mode (rw or ro).
+    :param mode: 'rw' for read-write, 'ro' for read-only
+    """
+    if mode not in ['rw', 'ro']:
+        raise ValueError("Invalid mode. Use 'rw' for read-write or 'ro' for read-only.")
+
+    try:
+        subprocess.run(
+            ['mount', '-o', f'remount,{mode}', '/sys/firmware/efi/efivars'],
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to remount efivarfs as {mode}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def do_prepare():
     '''Prepare the operation environment for manipulating efivarfs'''
@@ -194,7 +212,7 @@ def do_efi_updatevar(options):
         # command finished, need to change back the immutable flag.
         change_efivarfs_immutable_flag(immutable=True)
 
-    sys.exit(exit_code)
+    return exit_code
 
 
 if __name__ == '__main__':
@@ -224,6 +242,13 @@ examples:
         exit_on_failure('You have to be root to run this program. \
 If you really want to run as non-root, please use the --force option.')
 
+    remount_efivarfs('rw')
+
     do_prepare()
 
-    do_efi_updatevar(args.efi_updatevar_opts)
+    exit_code = do_efi_updatevar(args.efi_updatevar_opts)
+
+    # Remount back as read-only
+    remount_efivarfs('ro')
+
+    sys.exit(exit_code)
