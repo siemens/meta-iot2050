@@ -19,6 +19,12 @@ GStreamer and tappas. The main components included are:
 > `hailort v4.18.0` requires this specific version. Upgrading `numpy` may 
 > cause `pyhailort` to fail to execute.
 
+The following configurations are supported and recommended for achieving optimal
+performance with the Hailo8 AI Card:
+
+- IoT2050 SM with Hailo-8™ mPCIe or Hailo-8™M.2 B+M
+- IoT2050 Advanced with Hailo-8™ mPCIe and heatsink
+
 For more information about Hailo, please refer to the 
 [Hailo website](https://hailo.ai/) and the 
 [Hailo Open Source repository](https://github.com/hailo-ai).
@@ -42,6 +48,10 @@ to avoid dependency issues)
 > 2. The examples are continuously updated and may not always be compatible 
 > with our current Hailo version. If you encounter any problems with the latest 
 > examples, please try using an older version of the examples.
+> 3. The examples provided are not officially supported by Hailo, solely on  
+> an “AS IS” basis and “with all faults”. They may not offer an optimal  
+> experience on our platform. Please use them as references to learn how  
+> to use Hailo and develop your own AI applications.
 
 Additionally, we have integrated three Tappas (GStreamer) demos to provide
 users with a hands-on experience or quick practice. For more details, please

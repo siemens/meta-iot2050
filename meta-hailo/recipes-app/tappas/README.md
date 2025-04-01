@@ -45,6 +45,11 @@ an RGB input video resolution of 640x640. In the demo, a 480p YUY2 camera
 input is used, which is then converted to HD (720p) or 640x640 RGB in the
 GStreamer pipeline for the model.
 
+This demo originates from the IMX8 Demo. For the original version, visit
+the following link:
+
+[IMX8 Detection Demo](https://github.com/hailo-ai/tappas/tree/v3.29.1/apps/h8/gstreamer/imx8/detection).
+
 ### Drill Down
 
 The camera sends the raw video stream, encoded in YUV color format using
@@ -114,6 +119,11 @@ network-switch capability.
 complex pipeline with inference-based decision making. The task is to
 detect and track vehicles and then detect/extract license plate numbers
 from newly tracked instances.
+
+This demo originates from the IMX8 Demo. For the original version, visit
+the following link:
+
+[IMX8 LPR Demo](https://github.com/hailo-ai/tappas/tree/v3.29.1/apps/h8/gstreamer/imx8/license_plate_recognition)
 
 ### Configuration
 
@@ -187,6 +197,11 @@ to its respective stream and outputs all of them to the display.
 
 All elements in this pipeline operate in NV12 format, and the HEF file
 is also in NV12 format, so no format conversion is performed.
+
+This demo originates from the IMX8 Demo. For the original version, visit
+the following link:
+
+`IMX8 Multi-Stream Detection Demo <https://github.com/hailo-ai/tappas/tree/v3.29.1/apps/h8/gstreamer/imx8/multistream_detection>`_.
 
 ### Run Option
 
