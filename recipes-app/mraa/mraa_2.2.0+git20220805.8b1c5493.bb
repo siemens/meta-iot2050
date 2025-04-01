@@ -7,6 +7,9 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
+PR = "1"
+
 inherit dpkg
 
 DESCRIPTION = "Low Level Skeleton Library for Communication on GNU/Linux platforms"
@@ -17,6 +20,8 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0003-iot2050-add-debugfs-pinmux-support.patch \
             file://0004-iot2050-Add-support-for-the-new-IOT2050-SM-variant.patch \
             file://rules"
+
+CHANGELOG_V = "${PV}-${PR}"
 SRCREV = "8b1c54934e80edc2d36abac9d9c96fe1e01cb669"
 
 S = "${WORKDIR}/git"
