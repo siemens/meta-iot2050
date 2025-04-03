@@ -34,8 +34,8 @@ SRC_URI += " \
     file://patches-6.1/ \
     file://${KERNEL_DEFCONFIG} \
     file://iot2050_defconfig_extra.cfg"
-SRC_URI:append:pvu-dma = " \
-    file://iot2050_defconfig_pvu.cfg \
+SRC_URI:append:secureboot = " \
+    file://iot2050_defconfig_secure.cfg \
     ${@get_extra_cfg(d)}"
 
 S = "${WORKDIR}/linux-cip-${PV}"
