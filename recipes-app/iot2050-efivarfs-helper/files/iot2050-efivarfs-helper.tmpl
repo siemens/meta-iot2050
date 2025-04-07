@@ -32,20 +32,6 @@ def exit_on_failure(message, code=1):
     exit(code)
 
 
-def check_mod_tee_stmm_efi() -> bool:
-    '''Check if the kernel mod tee_stmm_efi is successfully loaded.'''
-    mod_name = 'tee_stmm_efi'
-
-    print(f"Checking for the kernel module {mod_name}... ", end='')
-
-    if not os.path.isdir(f"/sys/module/{mod_name}"):
-        print(f"ERROR: {mod_name} is not loaded!")
-        return False
-
-    print("Done.")
-    return True
-
-
 def check_srv_tee_supplicant() -> bool:
     '''
     Check if the tee-supplicant is loaded an running
@@ -150,8 +136,7 @@ def do_prepare():
     message_prepare_fail = "Fail to prepare the efivarfs for manipulating. \
 You may need to check the environment."
 
-    if (not check_mod_tee_stmm_efi() or
-            not check_srv_tee_supplicant() or
+    if (not check_srv_tee_supplicant() or
             not check_mount_efivarfs() or
             not check_efitools_installation()):
         exit_on_failure(message_prepare_fail)
