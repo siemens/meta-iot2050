@@ -18,28 +18,15 @@ provide a way to adjust the pool size.
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
 ---
- arch/arm/dts/Makefile                         |  1 +
- ...iot2050-advanced-dma-isolation-overlay.dts | 33 +++++++++++++++++++
- 2 files changed, 34 insertions(+)
- create mode 100644 arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+ ...am6548-iot2050-advanced-dma-isolation.dtso | 33 +++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-dma-isolation.dtso
 
-diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 0edd5b73a414..6ea916c16cc2 100644
---- a/arch/arm/dts/Makefile
-+++ b/arch/arm/dts/Makefile
-@@ -1317,6 +1317,7 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
- 	k3-am6548-iot2050-advanced-m2.dtb \
- 	k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dtbo \
- 	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo \
-+	k3-am6548-iot2050-advanced-dma-isolation-overlay.dtbo \
- 	k3-am6548-iot2050-advanced-sm.dtb
- 
- dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
-diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts b/arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-dma-isolation.dtso b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-dma-isolation.dtso
 new file mode 100644
 index 000000000000..dfd75d2dc245
 --- /dev/null
-+++ b/arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-dma-isolation.dtso
 @@ -0,0 +1,33 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
