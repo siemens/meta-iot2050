@@ -11,7 +11,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 15 insertions(+), 10 deletions(-)
 
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index 8497212ab890..ee6456be968c 100644
+index e6bedc389173..615a1d7facf1 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
 @@ -258,12 +258,13 @@ void set_board_info_env(void)
