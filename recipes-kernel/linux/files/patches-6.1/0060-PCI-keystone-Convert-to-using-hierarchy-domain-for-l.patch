@@ -18,10 +18,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 120 insertions(+), 91 deletions(-)
 
 diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 7ecad72cff7e..273bd221e948 100644
+index a4f25a98a531..6d097fa522df 100644
 --- a/drivers/pci/controller/dwc/pci-keystone.c
 +++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -69,6 +69,7 @@
+@@ -74,6 +74,7 @@
  
  #define IRQ_STATUS(n)			(0x184 + ((n) << 4))
  #define IRQ_ENABLE_SET(n)		(0x188 + ((n) << 4))
@@ -29,7 +29,7 @@ index 7ecad72cff7e..273bd221e948 100644
  #define INTx_EN				BIT(0)
  
  #define ERR_IRQ_STATUS			0x1c4
-@@ -116,7 +117,6 @@ struct keystone_pcie {
+@@ -123,7 +124,6 @@ struct keystone_pcie {
  	struct dw_pcie		*pci;
  	/* PCI Device ID */
  	u32			device_id;
@@ -37,7 +37,7 @@ index 7ecad72cff7e..273bd221e948 100644
  	struct			device_node *legacy_intc_np;
  
  	int			msi_host_irq;
-@@ -125,7 +125,6 @@ struct keystone_pcie {
+@@ -132,7 +132,6 @@ struct keystone_pcie {
  	struct phy		**phy;
  	struct device_link	**link;
  	struct			device_node *msi_intc_np;
@@ -45,7 +45,7 @@ index 7ecad72cff7e..273bd221e948 100644
  	struct device_node	*np;
  
  	/* Application register space */
-@@ -253,24 +252,6 @@ static int ks_pcie_msi_host_init(struct dw_pcie_rp *pp)
+@@ -320,24 +319,6 @@ static int ks_pcie_msi_host_init(struct dw_pcie_rp *pp)
  	return dw_pcie_allocate_domains(pp);
  }
  
@@ -70,7 +70,7 @@ index 7ecad72cff7e..273bd221e948 100644
  static void ks_pcie_enable_error_irq(struct keystone_pcie *ks_pcie)
  {
  	ks_pcie_app_writel(ks_pcie, ERR_IRQ_ENABLE_SET, ERR_IRQ_ALL);
-@@ -308,39 +289,120 @@ static irqreturn_t ks_pcie_handle_error_irq(struct keystone_pcie *ks_pcie)
+@@ -375,39 +356,120 @@ static irqreturn_t ks_pcie_handle_error_irq(struct keystone_pcie *ks_pcie)
  	return IRQ_HANDLED;
  }
  
@@ -205,8 +205,8 @@ index 7ecad72cff7e..273bd221e948 100644
 +	.translate	= ks_pcie_irq_domain_translate,
  };
  
- /**
-@@ -605,34 +667,6 @@ static void ks_pcie_msi_irq_handler(struct irq_desc *desc)
+ static int ks_pcie_setup_rc_app_regs(struct keystone_pcie *ks_pcie)
+@@ -649,34 +711,6 @@ static void ks_pcie_msi_irq_handler(struct irq_desc *desc)
  	chained_irq_exit(chip, desc);
  }
  
@@ -241,7 +241,7 @@ index 7ecad72cff7e..273bd221e948 100644
  static int ks_pcie_config_msi_irq(struct keystone_pcie *ks_pcie)
  {
  	struct device *dev = ks_pcie->pci->dev;
-@@ -692,20 +726,33 @@ static int ks_pcie_config_legacy_irq(struct keystone_pcie *ks_pcie)
+@@ -736,20 +770,33 @@ static int ks_pcie_config_legacy_irq(struct keystone_pcie *ks_pcie)
  	struct device *dev = ks_pcie->pci->dev;
  	struct irq_domain *legacy_irq_domain;
  	struct device_node *np = ks_pcie->np;
@@ -283,7 +283,7 @@ index 7ecad72cff7e..273bd221e948 100644
  
  	irq_count = of_irq_count(intc_np);
  	if (!irq_count) {
-@@ -714,31 +761,13 @@ static int ks_pcie_config_legacy_irq(struct keystone_pcie *ks_pcie)
+@@ -758,31 +805,13 @@ static int ks_pcie_config_legacy_irq(struct keystone_pcie *ks_pcie)
  		goto err;
  	}
  

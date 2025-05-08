@@ -23,10 +23,10 @@ Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
  1 file changed, 82 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 273bd221e948..1f80a08b8ca7 100644
+index 6d097fa522df..8ba64ade863d 100644
 --- a/drivers/pci/controller/dwc/pci-keystone.c
 +++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -118,6 +118,7 @@ struct keystone_pcie {
+@@ -125,6 +125,7 @@ struct keystone_pcie {
  	/* PCI Device ID */
  	u32			device_id;
  	struct			device_node *legacy_intc_np;
@@ -34,7 +34,7 @@ index 273bd221e948..1f80a08b8ca7 100644
  
  	int			msi_host_irq;
  	int			num_lanes;
-@@ -289,6 +290,29 @@ static irqreturn_t ks_pcie_handle_error_irq(struct keystone_pcie *ks_pcie)
+@@ -356,6 +357,29 @@ static irqreturn_t ks_pcie_handle_error_irq(struct keystone_pcie *ks_pcie)
  	return IRQ_HANDLED;
  }
  
@@ -64,7 +64,7 @@ index 273bd221e948..1f80a08b8ca7 100644
  void ks_pcie_irq_eoi(struct irq_data *data)
  {
  	struct keystone_pcie *ks_pcie = irq_data_get_irq_chip_data(data);
-@@ -721,6 +745,54 @@ static int ks_pcie_config_msi_irq(struct keystone_pcie *ks_pcie)
+@@ -765,6 +789,54 @@ static int ks_pcie_config_msi_irq(struct keystone_pcie *ks_pcie)
  	return ret;
  }
  
@@ -119,7 +119,7 @@ index 273bd221e948..1f80a08b8ca7 100644
  static int ks_pcie_config_legacy_irq(struct keystone_pcie *ks_pcie)
  {
  	struct device *dev = ks_pcie->pci->dev;
-@@ -835,12 +907,17 @@ static int __init ks_pcie_host_init(struct dw_pcie_rp *pp)
+@@ -879,12 +951,17 @@ static int __init ks_pcie_host_init(struct dw_pcie_rp *pp)
  	int ret;
  
  	pp->bridge->ops = &ks_pcie_ops;

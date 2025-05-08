@@ -53,7 +53,7 @@ index b0b848d6933a..f0cc00032751 100644
   * In the nonblocking case we do not attempt to perform garbage
   * collection if we do not have enough free space. Rather, we do the
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 28d4defc5d0c..04f75a9f7091 100644
+index 9786dfff9f84..83b63dd2de9b 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
 @@ -211,6 +211,7 @@ static int generic_ops_register(void)
@@ -85,7 +85,7 @@ index 4ca256bcd697..d22160e7c785 100644
 +}
 +EXPORT_SYMBOL_NS_GPL(efivar_query_variable_info, EFIVAR);
 diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 77c7615bba5e..9c7e17657468 100644
+index b8c4641ed152..6bd100f03aa5 100644
 --- a/fs/efivarfs/super.c
 +++ b/fs/efivarfs/super.c
 @@ -14,6 +14,7 @@
@@ -143,10 +143,10 @@ index 77c7615bba5e..9c7e17657468 100644
  	.evict_inode = efivarfs_evict_inode,
  };
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index a849b533be5b..cffd2d4f8f71 100644
+index 1d73c77051c0..5868c4b29332 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
-@@ -1038,6 +1038,7 @@ struct efivar_operations {
+@@ -1039,6 +1039,7 @@ struct efivar_operations {
  	efi_set_variable_t *set_variable;
  	efi_set_variable_t *set_variable_nonblocking;
  	efi_query_variable_store_t *query_variable_store;
@@ -154,7 +154,7 @@ index a849b533be5b..cffd2d4f8f71 100644
  };
  
  struct efivars {
-@@ -1046,6 +1047,12 @@ struct efivars {
+@@ -1047,6 +1048,12 @@ struct efivars {
  	const struct efivar_operations *ops;
  };
  
@@ -167,7 +167,7 @@ index a849b533be5b..cffd2d4f8f71 100644
  /*
   * The maximum size of VariableName + Data = 1024
   * Therefore, it's reasonable to save that much
-@@ -1080,6 +1087,10 @@ efi_status_t efivar_set_variable_locked(efi_char16_t *name, efi_guid_t *vendor,
+@@ -1081,6 +1088,10 @@ efi_status_t efivar_set_variable_locked(efi_char16_t *name, efi_guid_t *vendor,
  efi_status_t efivar_set_variable(efi_char16_t *name, efi_guid_t *vendor,
  				 u32 attr, unsigned long data_size, void *data);
  

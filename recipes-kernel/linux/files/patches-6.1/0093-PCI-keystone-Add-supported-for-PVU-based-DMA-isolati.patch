@@ -20,7 +20,7 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 101 insertions(+)
 
 diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 623aafc0303a..06f634f600bd 100644
+index 8ba64ade863d..1cc190d886e0 100644
 --- a/drivers/pci/controller/dwc/pci-keystone.c
 +++ b/drivers/pci/controller/dwc/pci-keystone.c
 @@ -20,6 +20,7 @@

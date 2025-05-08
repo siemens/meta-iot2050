@@ -15,10 +15,10 @@ Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
  1 file changed, 1 deletion(-)
 
 diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index a4316c759392..8e3cd33b3bca 100644
+index 7bd13d1d01d1..2b22078ba35e 100644
 --- a/drivers/dma/ti/k3-udma.c
 +++ b/drivers/dma/ti/k3-udma.c
-@@ -5368,7 +5368,6 @@ static int udma_probe(struct platform_device *pdev)
+@@ -5370,7 +5370,6 @@ static int udma_probe(struct platform_device *pdev)
  	dev->msi.domain = of_msi_get_domain(dev, dev->of_node,
  					    DOMAIN_BUS_TI_SCI_INTA_MSI);
  	if (!dev->msi.domain) {

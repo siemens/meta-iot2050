@@ -17,11 +17,11 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  4 files changed, 29 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/leds/led-triggers.c b/drivers/leds/led-triggers.c
-index 072491d3e17b..d310690432d1 100644
+index 3d3673c197e3..e7d8b43001dd 100644
 --- a/drivers/leds/led-triggers.c
 +++ b/drivers/leds/led-triggers.c
-@@ -386,8 +386,14 @@ void led_trigger_event(struct led_trigger *trig,
- 		return;
+@@ -388,8 +388,14 @@ void led_trigger_event(struct led_trigger *trig,
+ 	trig->brightness = brightness;
  
  	rcu_read_lock();
 -	list_for_each_entry_rcu(led_cdev, &trig->led_cdevs, trig_list)
@@ -92,7 +92,7 @@ index 5a6b21bfeb9a..87c1e5218254 100644
  	return NOTIFY_DONE;
  }
 diff --git a/include/linux/leds.h b/include/linux/leds.h
-index ba4861ec73d3..09697564645b 100644
+index 01fccb1c5001..33b938f3aa70 100644
 --- a/include/linux/leds.h
 +++ b/include/linux/leds.h
 @@ -85,6 +85,8 @@ struct led_classdev {
@@ -104,7 +104,7 @@ index ba4861ec73d3..09697564645b 100644
  
  	/* set_brightness_work / blink_timer flags, atomic, private. */
  	unsigned long		work_flags;
-@@ -520,7 +522,7 @@ struct gpio_led {
+@@ -518,7 +520,7 @@ struct gpio_led {
  	unsigned 	gpio;
  	unsigned	active_low : 1;
  	unsigned	retain_state_suspended : 1;
@@ -113,7 +113,7 @@ index ba4861ec73d3..09697564645b 100644
  	unsigned	default_state : 2;
  	unsigned	retain_state_shutdown : 1;
  	/* default_state should be one of LEDS_GPIO_DEFSTATE_(ON|OFF|KEEP) */
-@@ -530,6 +532,10 @@ struct gpio_led {
+@@ -528,6 +530,10 @@ struct gpio_led {
  #define LEDS_GPIO_DEFSTATE_ON		LEDS_DEFSTATE_ON
  #define LEDS_GPIO_DEFSTATE_KEEP		LEDS_DEFSTATE_KEEP
  
