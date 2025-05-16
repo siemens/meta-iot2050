@@ -8,7 +8,7 @@ We welcome contributions in several forms, e.g.
 * Coding
 * etc.
 
-Please read [14 Ways to Contribute to Open Source without Being a Programming Genius or a Rock Star](https://smartbear.com/blog/test-and-monitor/14-ways-to-contribute-to-open-source-without-being/ ).
+Please read [14 Ways to Contribute to Open Source without Being a Programming Genius or a Rock Star](https://web.archive.org/web/20200919165912/https://smartbear.com/blog/test-and-monitor/14-ways-to-contribute-to-open-source-without-being/?feed=test-monitor).
 
 Please check issue page and look for unassigned ones or create a new one.
 
