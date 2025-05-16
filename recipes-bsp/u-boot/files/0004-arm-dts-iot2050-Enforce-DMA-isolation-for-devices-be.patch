@@ -11,18 +11,18 @@ via a restricted-dma-pool and enforced with the help of the first PVU.
 
 - The restricted-dma-pool is overlaid by U-Boot.
 - U-Boot DTS path:
-  arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+  dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-dma-isolation.dtso
 
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
 ---
- arch/arm/dts/k3-am65-iot2050-common.dtsi | 21 +++++++++++++++++++++
+ .../src/arm64/ti/k3-am65-iot2050-common.dtsi  | 21 +++++++++++++++++++
  1 file changed, 21 insertions(+)
 
-diff --git a/arch/arm/dts/k3-am65-iot2050-common.dtsi b/arch/arm/dts/k3-am65-iot2050-common.dtsi
-index f4f6aeba2586..85911fad2941 100644
---- a/arch/arm/dts/k3-am65-iot2050-common.dtsi
-+++ b/arch/arm/dts/k3-am65-iot2050-common.dtsi
-@@ -604,3 +604,24 @@
+diff --git a/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi b/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
+index e5136ed94765..b0a399923663 100644
+--- a/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
++++ b/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
+@@ -686,3 +686,24 @@
  	/* lock-step mode not supported on iot2050 boards */
  	ti,cluster-mode = <0>;
  };

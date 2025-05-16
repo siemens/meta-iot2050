@@ -34,7 +34,7 @@ DEPENDS += "trusted-firmware-a-iot2050 optee-os-iot2050 k3-rti-wdt"
 DEBIAN_BUILD_DEPENDS =. "openssl, libssl-dev:native, libssl-dev:arm64, \
     trusted-firmware-a-iot2050, optee-os-iot2050, k3-rti-wdt, \
     swig, python3-dev:native, python3-pkg-resources, python3-setuptools, \
-    python3-pyelftools,"
+    python3-pyelftools, libgnutls28-dev, libgnutls28-dev:native,"
 DEBIAN_BUILD_DEPENDS:append:secureboot = ", python3-pycryptodome:native, \
     pesign, python3-openssl:native"
 

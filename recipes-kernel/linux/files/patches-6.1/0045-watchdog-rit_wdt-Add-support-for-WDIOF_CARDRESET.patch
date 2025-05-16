@@ -22,7 +22,7 @@ Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
  1 file changed, 48 insertions(+)
 
 diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index fe27039f6f5a..486438c41e1d 100644
+index 8a09d26cfe10..ed6bb71a38a2 100644
 --- a/drivers/watchdog/rti_wdt.c
 +++ b/drivers/watchdog/rti_wdt.c
 @@ -14,6 +14,8 @@
@@ -43,7 +43,7 @@ index fe27039f6f5a..486438c41e1d 100644
 +#define PON_REASON_EOF_NUM	0xCCCCBBBB
 +#define RESERVED_MEM_MIN_SIZE	12
 +
- static int heartbeat = DEFAULT_HEARTBEAT;
+ static int heartbeat;
  
  /*
 @@ -207,6 +214,11 @@ static int rti_wdt_probe(struct platform_device *pdev)
@@ -58,7 +58,7 @@ index fe27039f6f5a..486438c41e1d 100644
  
  	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
  	if (!wdt)
-@@ -285,6 +297,42 @@ static int rti_wdt_probe(struct platform_device *pdev)
+@@ -286,6 +298,42 @@ static int rti_wdt_probe(struct platform_device *pdev)
  		}
  	}
  

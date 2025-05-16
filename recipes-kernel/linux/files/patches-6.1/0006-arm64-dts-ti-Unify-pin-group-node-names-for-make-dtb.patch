@@ -1022,7 +1022,7 @@ index b1691ac3442d..0cfc361cc876 100644
  			J721E_WKUP_IOPAD(0xb8, PIN_INPUT, 7) /* (F28) WKUP_GPIO0_2 */
  		>;
 diff --git a/arch/arm64/boot/dts/ti/k3-j721e-sk.dts b/arch/arm64/boot/dts/ti/k3-j721e-sk.dts
-index 80358cba6954..f0118a74c97d 100644
+index f4a76926c4e6..e1d294222edf 100644
 --- a/arch/arm64/boot/dts/ti/k3-j721e-sk.dts
 +++ b/arch/arm64/boot/dts/ti/k3-j721e-sk.dts
 @@ -281,7 +281,7 @@ tfp410_out: endpoint {
