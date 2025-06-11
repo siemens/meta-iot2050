@@ -13,6 +13,7 @@ DESCRIPTION = "Efivarfs Helper"
 MAINTAINER = "baocheng.su@siemens.com"
 
 SRC_URI = "file://iot2050-efivarfs-helper.tmpl"
+PR = "1"
 
 TEMPLATE_FILES = "iot2050-efivarfs-helper.tmpl"
 
