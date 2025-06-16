@@ -39,6 +39,8 @@ SRC_URI = " \
 NPM_MAPPED_NAME = "${PN}"
 NPM_REGISTRY = "https://registry.npmjs.org"
 
+PR = "1"
+
 # function maps arch names to npm arch names
 def npm_arch_map(target_arch, d):
     import re

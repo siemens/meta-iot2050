@@ -4,7 +4,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   modularizeImports: {
     '@mui/icons-material': {
       transform: '@mui/icons-material/{{member}}',
