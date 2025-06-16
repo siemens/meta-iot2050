@@ -29,6 +29,17 @@ from the package.json.
 
 If any new dependency package is added, make sure to generate both these files.
 
+To update the dependencies, run the following commands on the **target** Debian
+version within the `files` directory:
+
+```shell
+npx npm-check-updates -u
+npm install --install-strategy=shallow
+```
+
+This will update the dependencies listed in `package.json` and update the
+`npm-shrinkwrap.json`.
+
 Install dependencies and run via `npm`:
 
 ```shell
