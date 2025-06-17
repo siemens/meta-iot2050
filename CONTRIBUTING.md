@@ -35,6 +35,27 @@ as linux kernel or u-boot. Please use the command below to generate such patches
 git format-patch --abbrev=12 --no-numbered --zero-commit --no-signature ...
 ```
 
+## Recipe Maintenance and Versioning Guidelines
+
+This repository follows the Yocto Project’s conventions for recipe versioning.
+For comprehensive details on PV (recipe version) and PR (recipe revision),
+contributors should consult the official Yocto documentation:
+
+- [Yocto Reference Manual: Variables](https://docs.yoctoproject.org/ref-manual/variables.html)
+- [Yocto Development Manual: Packages](https://docs.yoctoproject.org/dev-manual/packages.html)
+
+### Repository-specific conventions
+
+In addition to the Yocto standards, please observe the following rules when
+contributing to this repository:
+
+- **PR (recipe revision) starts at `1`** (not `r0`).
+- **PV (recipe version) for all in-repo packages must follow
+  [Semantic Versioning 2.0](https://semver.org/)**.
+
+By adhering to these guidelines, we ensure consistency and compatibility across
+all contributions. Thank you for helping maintain high standards in this project.
+
 ## Developer's Certificate of Origin 1.1
 
 In order to pass the checks, commit with signoff option
