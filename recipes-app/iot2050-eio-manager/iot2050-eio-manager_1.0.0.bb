@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2023-2024
+# Copyright (c) Siemens AG, 2023-2025
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -8,6 +8,9 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
+PR = "1"
+
 inherit dpkg-raw
 
 DESCRIPTION = "IOT2050 Extended IO Manager"

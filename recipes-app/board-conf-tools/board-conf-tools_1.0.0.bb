@@ -1,12 +1,15 @@
 #
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2023-2025
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
+PR = "1"
 
 inherit dpkg-raw
 
