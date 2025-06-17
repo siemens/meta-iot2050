@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2022
+# Copyright (c) Siemens AG, 2019-2025
 #
 # Authors:
 #  Gao Nian <nian.gao@siemens.com>
@@ -8,6 +8,8 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
+PR = "1"
 
 inherit dpkg
 

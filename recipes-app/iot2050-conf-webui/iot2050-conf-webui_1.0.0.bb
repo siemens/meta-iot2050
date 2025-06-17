@@ -1,4 +1,4 @@
-# Copyright (c) Siemens AG, 2018-2024
+# Copyright (c) Siemens AG, 2018-2025
 #
 # SPDX-License-Identifier: MIT
 inherit dpkg-raw

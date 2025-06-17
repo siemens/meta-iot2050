@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020-2023
+# Copyright (c) Siemens AG, 2020-2025
 #
 # Authors:
 #  Chao Zeng <chao.zeng@siemens.com>
@@ -8,6 +8,8 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
+PR = "1"
 
 DESCRIPTION = "OSPI Firmware Update Scripts"
 MAINTAINER = "chao.zeng@siemens.com"

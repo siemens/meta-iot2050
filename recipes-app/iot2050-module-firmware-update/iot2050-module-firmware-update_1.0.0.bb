@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2024
+# Copyright (c) Siemens AG, 2024-2025
 #
 # Authors:
 #  Li Hua Qian <huaqian.li@siemens.com>
@@ -7,6 +7,8 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
+
+PR = "1"
 
 DESCRIPTION = "IOT2050 Customized External Signal Module Firmware Update"
 MAINTAINER = "huaqian.li@siemens.com"
