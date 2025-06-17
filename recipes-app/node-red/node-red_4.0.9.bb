@@ -7,6 +7,9 @@
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
+# 
+# To update the npm-shrinkwrap.json file, ensure you follow the guidelines
+# provided in classes/npm.bbclass.
 #
 
 inherit npm
