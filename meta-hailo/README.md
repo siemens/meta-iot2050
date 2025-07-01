@@ -22,8 +22,11 @@ GStreamer and tappas. The main components included are:
 The following configurations are supported and recommended for achieving optimal
 performance with the Hailo8 AI Card:
 
-- IoT2050 SM with Hailo-8™ mPCIe or Hailo-8™M.2 B+M
-- IoT2050 Advanced with Hailo-8™ mPCIe and heatsink
+- IoT2050 SM with Hailo-8™ mPCIe or Hailo-8™M.2 B+M  
+  ![hailo_sm](./hailo_sm.png)
+
+- IoT2050 Advanced with Hailo-8™ mPCIe and heatsink  
+  ![hailo_advanced](./hailo_advanced.png)
 
 For more information about Hailo, please refer to the 
 [Hailo website](https://hailo.ai/) and the 
