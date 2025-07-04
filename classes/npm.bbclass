@@ -218,15 +218,16 @@ do_install() {
 }
 
 do_prepare_build:append() {
-    INSTALL_FLAGS="--offline --only=production --no-package-lock --verbose \
+    INSTALL_FLAGS="--only=production --no-package-lock --verbose \
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} \
                    --no-audit"
 
     if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
         CHDIR=${PP}/image/${NPM_LOCAL_INSTALL_DIR}
+        INSTALL_FLAGS="$INSTALL_FLAGS --offline"
     else
         CHDIR=/
-        INSTALL_FLAGS="$INSTALL_FLAGS --prefix ${PP}/image/usr -g"
+        INSTALL_FLAGS="$INSTALL_FLAGS --prefer-offline  --prefix ${PP}/image/usr -g"
     fi
 
     if [ -n "${NPM_REBUILD}" ]; then
