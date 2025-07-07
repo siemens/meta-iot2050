@@ -166,7 +166,7 @@ python fetch_npm() {
         json_objs = {'dependencies': { npmpn: '' }}
         json.dump(json_objs, outfile, indent=2)
 
-    runcmd(d, "npm ci --global-style --ignore-scripts --verbose")
+    runcmd(d, "npm ci --install-strategy=shallow --ignore-scripts --verbose")
 
     package_filename = "node_modules/" + npmpn + "/package.json"
     with open(package_filename) as infile:
