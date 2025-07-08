@@ -29,13 +29,13 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: 938dab363006529f0b5296dfbc09ef306fc8c3d7
+    commit: 8e3122249a52db470efb32b92ed9c44e4b758712
     layers:
       meta:
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    commit: 8a1e4f0b1e699f7bef02c1ddbee90daa08efc32d
+    commit: bc9a063e6b7b7663e0de0b412ac24e4f816ef253
 
 local_conf_header:
   standard: |
