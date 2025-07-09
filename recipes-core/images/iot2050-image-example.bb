@@ -32,7 +32,11 @@ IMAGE_INSTALL += " \
     sshd-regen-keys \
     regen-rootfs-uuid \
     install-on-emmc \
-    customizations-example \
+    iot2050-status-led \
+    iot2050-nm-settings \
+    nodejs-module-path \
+    ssh-root-login \
+    change-root-homedir \
     iot2050-switchserialmode \
     iot2050-firmware-update \
     firmware-update-package \

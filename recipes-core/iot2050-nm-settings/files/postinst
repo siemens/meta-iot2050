@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2025
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -7,8 +7,6 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
-
-echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 # Networkmanager service
 systemctl disable systemd-networkd.service
@@ -18,10 +16,3 @@ chmod 600 /etc/NetworkManager/system-connections/eno1-default
 if ! grep -q "wifi.scan-rand-mac-address=no" /etc/NetworkManager/NetworkManager.conf; then
 	echo "\n\n[device]\nwifi.scan-rand-mac-address=no" >> /etc/NetworkManager/NetworkManager.conf
 fi
-
-# Status LED service
-systemctl enable status-led.service
-
-# Relocate /root under /home
-mv /root /home/
-ln -s /home/root /root
