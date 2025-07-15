@@ -9,8 +9,10 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=optee-os-${PV}.tar.gz"
-SRC_URI[sha256sum] = "2c2c9525b36c96dfad6216520721b8e9663e6cacc61d0108a0c8bffc0ea175f1"
+SRC_URI += "https://github.com/OP-TEE/optee_os/archive/${PV}.tar.gz;downloadfilename=optee-os-${PV}.tar.gz \
+           file://0001-plat-k3-main-Add-platform-RNG-initialization-for-K3-.patch \
+           "
+SRC_URI[sha256sum] = "976b9c184678516038d4e79766608e81d10bf136f76fd0db2dc48f90f994fbd9"
 
 S = "${WORKDIR}/optee_os-${PV}"
 

@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Tue, 15 Jul 2025 09:55:01 +0800
+Subject: [PATCH] plat-k3: main: Add platform RNG initialization for K3
+ platform
+
+The upstream OP-TEE 4.7.0 now requires platforms to implement
+explicit plat_rng_init(). Use the same timestamp-based seeding
+algorithm as the previous default to ensure compatibility and
+avoid extensive development/verification effort for hardware
+RNG integration.
+
+While not optimal for production security, this proven approach
+resolves the build failure and maintains functional equivalence
+with previous OP-TEE versions.
+
+TODO: Implement hardware TRNG support for enhanced security, or
+adopt upstream implementation when available.
+
+Fixes: undefined reference to `plat_rng_init'
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ core/arch/arm/plat-k3/main.c | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/core/arch/arm/plat-k3/main.c b/core/arch/arm/plat-k3/main.c
+index cf4b1315cf4b..1cf17dd5b867 100644
+--- a/core/arch/arm/plat-k3/main.c
++++ b/core/arch/arm/plat-k3/main.c
+@@ -4,7 +4,9 @@
+  *	Andrew F. Davis <afd@ti.com>
+  */
+ 
++#include <arm.h>
+ #include <console.h>
++#include <crypto/crypto.h>
+ #include <drivers/gic.h>
+ #include <drivers/sec_proxy.h>
+ #include <drivers/serial8250_uart.h>
+@@ -12,11 +14,15 @@
+ #include <kernel/boot.h>
+ #include <kernel/panic.h>
+ #include <kernel/tee_common_otp.h>
++#include <kernel/tee_time.h>
+ #include <mm/core_memprot.h>
+ #include <mm/tee_pager.h>
+ #include <platform_config.h>
+ #include <stdint.h>
++#include <string.h>
+ #include <string_ext.h>
++#include <tee/tee_cryp_utl.h>
++#include <trace.h>
+ 
+ static struct serial8250_uart_data console_data;
+ 
+@@ -32,6 +38,35 @@ register_phys_mem_pgdir(MEM_AREA_IO_SEC, SEC_PROXY_RT_BASE, SEC_PROXY_RT_SIZE);
+ register_ddr(DRAM0_BASE, DRAM0_SIZE);
+ register_ddr(DRAM1_BASE, DRAM1_SIZE);
+ 
++void plat_rng_init(void)
++{
++    TEE_Result res = TEE_SUCCESS;
++    TEE_Time t;
++
++#ifndef CFG_SECURE_TIME_SOURCE_REE
++    /*
++     * This isn't much of a seed. Ideally we should either get a seed from
++     * a hardware RNG or from a previously saved seed.
++     *
++     * Seeding with hardware RNG is currently up to the platform to
++     * override this function.
++     *
++     * Seeding with a saved seed will require cooperation from normal
++     * world, this is still TODO.
++     */
++    res = tee_time_get_sys_time(&t);
++#else
++    EMSG("Warning: seeding RNG with zeroes");
++    memset(&t, 0, sizeof(t));
++#endif
++    if (!res)
++        res = crypto_rng_init(&t, sizeof(t));
++    if (res) {
++        EMSG("Failed to initialize RNG: %#" PRIx32, res);
++        panic();
++    }
++}
++
+ void boot_primary_init_intc(void)
+ {
+ 	gic_init(GICC_BASE, GICD_BASE);
