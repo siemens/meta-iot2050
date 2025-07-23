@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 DESCRIPTION = "OSPI Firmware Update Scripts"
 MAINTAINER = "chao.zeng@siemens.com"
@@ -24,7 +24,7 @@ DPKG_ARCH = "any"
 
 inherit dpkg-raw
 
-DEBIAN_DEPENDS = "python3-progress, u-boot-tools"
+DEBIAN_DEPENDS = "python3-progress, python3-packaging, u-boot-tools"
 
 do_install() {
     install -v -d ${D}/usr/sbin/
