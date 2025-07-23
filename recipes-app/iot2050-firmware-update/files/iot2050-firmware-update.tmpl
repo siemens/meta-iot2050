@@ -114,6 +114,7 @@ import time
 import tarfile
 import textwrap
 import tempfile
+from packaging import version
 from abc import ABC, abstractmethod
 from ctypes import *
 from enum import Enum
@@ -635,7 +636,9 @@ class FirmwareTarball(object):
 
     def __check_os(self, target_os, os_info) -> bool:
         for tos in target_os:
-            if tos.key in os_info and os_info[tos.key] >= (tos.min_version):
+            current_version = version.parse(os_info[tos.key])
+            required_version = version.parse(tos.min_version)
+            if current_version >= required_version:
                 return True
             print("\nFirmware requires a minimal version of ",
                   tos.min_version, ", the current OS has ",
