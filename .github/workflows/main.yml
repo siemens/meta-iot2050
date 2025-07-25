@@ -1,6 +1,39 @@
 name: CI
 
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      build_debian_example_image:
+        description: 'Build Debian example image'
+        required: false
+        default: true
+        type: boolean
+      build_debian_swupdate_image:
+        description: 'Build Debian secure boot SWUpdate image'
+        required: false
+        default: true
+        type: boolean
+      build_bootloaders:
+        description: 'Build bootloaders'
+        required: false
+        default: true
+        type: boolean
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths-ignore:
+      - '**.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
