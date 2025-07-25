@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2025
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -10,6 +10,3 @@
 
 echo $HOSTNAME > /etc/hostname
 echo "127.0.0.1	${HOSTNAME}" >> /etc/hosts
-
-# set nodejs environment for module searching
-echo "NODE_PATH=\"/usr/lib/node_modules/:/usr/local/lib/node_modules/\"" >> /etc/environment
