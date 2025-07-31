@@ -49,7 +49,9 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
-        run: ./kas-container build kas-iot2050-example.yml
+        run: |
+          ./kas-container build kas-iot2050-example.yml
+          ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
