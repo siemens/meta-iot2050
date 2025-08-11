@@ -56,7 +56,7 @@ do_prepare_build:append() {
         ${S}/debian/u-boot-${MACHINE}.install
     echo "flash-pg2.bin /usr/lib/u-boot/${MACHINE}" >> \
         ${S}/debian/u-boot-${MACHINE}.install
-    echo -$(${ISAR_RELEASE_CMD}) > ${S}/.scmversion
+    echo -$(${ISAR_RELEASE_CMD}) > ${S}/localversion
     cp ${WORKDIR}/rules ${S}/debian/rules
     rm -rf ${S}/keys
 }
