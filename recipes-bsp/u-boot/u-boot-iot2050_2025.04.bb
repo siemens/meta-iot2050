@@ -11,6 +11,8 @@
 
 require u-boot-iot2050.inc
 
+PR = "1"
+
 SRC_URI += " \
     https://ftp.denx.de/pub/u-boot/u-boot-${PV}.tar.bz2 \
     file://0001-arm-dts-iot2050-Add-overlay-for-DMA-isolation-for-de.patch \
