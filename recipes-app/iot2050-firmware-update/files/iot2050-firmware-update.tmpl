@@ -636,10 +636,14 @@ class FirmwareTarball(object):
 
     def __check_os(self, target_os, os_info) -> bool:
         for tos in target_os:
-            current_version = version.parse(os_info[tos.key])
-            required_version = version.parse(tos.min_version)
-            if current_version >= required_version:
-                return True
+            try:
+                current_version = version.parse(os_info[tos.key])
+                required_version = version.parse(tos.min_version)
+                if current_version >= required_version:
+                    return True
+            except version.InvalidVersion:
+                if tos.key in os_info and os_info[tos.key] >= (tos.min_version):
+                    return True
             print("\nFirmware requires a minimal version of ",
                   tos.min_version, ", the current OS has ",
                   os_info[tos.key], ".", sep="")
