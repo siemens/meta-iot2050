@@ -54,10 +54,10 @@ endchoice
 
 config KAS_INCLUDE_MAIN
 	string
-	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
-	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
-	default "kas-iot2050-boot.yml" if IMAGE_BOOT
-	default "kas-iot2050-fwu-package.yml" if IMAGE_FWU_PKG
+	default "kas/machine/kas-iot2050-example.yml" if IMAGE_EXAMPLE
+	default "kas/machine/kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
+	default "kas/machine/kas-iot2050-boot.yml" if IMAGE_BOOT
+	default "kas/machine/kas-iot2050-fwu-package.yml" if IMAGE_FWU_PKG
 
 comment "Image features"
 
@@ -201,7 +201,7 @@ config IMAGE_QEMU
 
 config KAS_INCLUDE_QEMU_IMAGE
 	string
-	default "kas-iot2050-qemu.yml"
+	default "kas/machine/kas-iot2050-qemu.yml"
 	depends on IMAGE_QEMU
 
 config KAS_INCLUDE_SECURE_BOOT
