@@ -8,7 +8,7 @@
 header:
   version: 14
   includes:
-   - kas-iot2050-example.yml
+   - kas/machine/kas-iot2050-example.yml
 
 build_system: isar
 

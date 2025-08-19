@@ -50,8 +50,8 @@ jobs:
         uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: |
-          ./kas-container build kas-iot2050-example.yml
-          ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
+          ./kas-container build kas/machine/kas-iot2050-example.yml
+          ./kas-container build kas/machine/kas-iot2050-example.yml:kas/machine/kas-iot2050-qemu.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
@@ -75,8 +75,8 @@ jobs:
           touch ./recipes-app/iot2050-eio-manager/files/bin/firmware-version
       - name: Build image
         run: |
-          ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml:kas/opt/meta-hailo.yml
-          ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml
+          ./kas-container build kas/machine/kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml:kas/opt/meta-hailo.yml
+          ./kas-container build kas/machine/kas-iot2050-swupdate.yml:kas/machine/kas-iot2050-qemu.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
@@ -94,7 +94,7 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image
-        run: ./kas-container build kas-iot2050-boot.yml
+        run: ./kas-container build kas/machine/kas-iot2050-boot.yml
       - name: Archive bootloaders
         uses: actions/upload-artifact@v4
         with:

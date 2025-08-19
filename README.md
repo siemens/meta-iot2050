@@ -44,7 +44,7 @@ and extracted to `recipes-app/iot2050-eio-manager/files/bin` before the building
 Then build with
 
 ```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/eio.yml
+./kas-container build kas/machine/kas-iot2050-example.yml:kas/opt/eio.yml
 ```
 (or select `EIO subsystem support` in `kas menu`)
 
@@ -52,7 +52,7 @@ A tool to upgrade the customized signal module (SENS SM) firmware is also
 avaiable, to build it with:
 
 ```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/eio.yml:kas/opt/module.yml
+./kas-container build kas/machine/kas-iot2050-example.yml:kas/opt/eio.yml:kas/opt/module.yml
 ```
 
 ### Build with Hailo8 AI card support
@@ -60,7 +60,7 @@ avaiable, to build it with:
 To build the example image with the Hailo8 AI card support:
 
 ```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/meta-hailo.yml
+./kas-container build kas/machine/kas-iot2050-example.yml:kas/opt/meta-hailo.yml
 ```
 
 Please visit [meta-hailo](./meta-hailo/README.md) for the details.
@@ -71,7 +71,7 @@ Please visit [meta-hailo](./meta-hailo/README.md) for the details.
 >>>
 
 ```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml
+./kas-container build kas/machine/kas-iot2050-example.yml:kas/opt/sdk.yml
 ```
 (or select SDK in `kas menu`)
 
@@ -196,7 +196,7 @@ SWUpdate support` during the image configuration with `./kas-container
 menu`. You can also build the image by calling:
 
 ```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/swupdate-example.yml
+./kas-container build kas/machine/kas-iot2050-example.yml:kas/opt/swupdate-example.yml
 ```
 
 You can find the final image under
