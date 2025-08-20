@@ -40,7 +40,7 @@ IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
 # EFI Boot Guard is used instead
 IMAGE_INSTALL:remove = "u-boot-script"
 
-IMAGE_INSTALL += "swupdate-config"
+IMAGE_INSTALL += "swupdate-config-${MACHINE}"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
 IMAGE_INSTALL += "swupdate-complete-update-helper"
 IMAGE_INSTALL += "${@ 'iot2050-watchdog' if d.getVar('QEMU_IMAGE') != '1' else '' }"
