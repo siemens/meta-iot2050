@@ -11,7 +11,7 @@
 inherit dpkg-raw
 
 def get_prueth_fw(d, file, sha=''):
-    uri = "https://git.ti.com/cgit/processor-firmware/ti-linux-firmware/plain/ti-pruss/{file}?h={pv};downloadfilename={file}".format(
+    uri = "https://github.com/TexasInstruments/ti-linux-firmware/raw/refs/tags/{pv}/ti-pruss/{file};downloadfilename={file}".format(
         file=file, pv=d.getVar('PV'), sha=sha)
     if len(sha) > 0:
         uri += ';sha256sum=' + sha
