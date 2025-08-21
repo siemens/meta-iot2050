@@ -59,6 +59,7 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     efitools \
     mmc-utils \
     dmidecode \
+    mokutil \
     "
 
 # wifi support
