@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "2"
+PR = "3"
 
 DESCRIPTION = "OSPI Firmware Update Scripts"
 MAINTAINER = "chao.zeng@siemens.com"
@@ -33,9 +33,3 @@ do_install() {
     install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 644 ${WORKDIR}/update.conf.json ${D}/usr/share/iot2050/fwu/
 }
-
-do_deploy_deb:append() {
-    cp -f "${WORKDIR}/${PN}_${PV}_arm64.deb" "${DEPLOY_DIR_IMAGE}/"
-}
-
-do_deploy_deb[dirs] = "${DEPLOY_DIR_IMAGE}"

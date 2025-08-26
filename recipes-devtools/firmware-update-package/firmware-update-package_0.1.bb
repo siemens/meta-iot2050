@@ -10,6 +10,8 @@
 DESCRIPTION = "Generate The Firmware Update Package"
 MAINTAINER = "huaqian.li@siemens.com"
 
+PR = "2"
+
 SRC_URI = "file://iot2050-generate-fwu-tarball.sh \
            file://update.conf.json.tmpl"
 
@@ -32,10 +34,5 @@ do_install() {
     install -d ${D}/usr/share/iot2050/fwu
     install -m 644 ${DEPLOY_DIR_IMAGE}/IOT2050-FW-Update-PKG-$(${ISAR_RELEASE_CMD}).tar.xz \
     ${D}/usr/share/iot2050/fwu
+    rm -rf ${DEPLOY_DIR_IMAGE}/IOT2050-FW-Update-PKG-$(${ISAR_RELEASE_CMD}).tar.xz
 }
-
-do_deploy_deb:append() {
-    cp -f "${WORKDIR}/${PN}_${PV}_arm64.deb" "${DEPLOY_DIR_IMAGE}/"
-}
-
-do_deploy_deb[dirs] = "${DEPLOY_DIR_IMAGE}"
