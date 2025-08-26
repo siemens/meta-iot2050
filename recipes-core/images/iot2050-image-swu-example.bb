@@ -36,6 +36,7 @@ IMAGE_INSTALL:remove = "install-on-emmc"
 
 # not compatible with disk encryption
 IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
+CRYPT_PARTITIONS:append:secureboot = ":expand"
 
 # EFI Boot Guard is used instead
 IMAGE_INSTALL:remove = "u-boot-script"
