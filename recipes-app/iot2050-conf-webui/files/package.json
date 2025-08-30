@@ -18,7 +18,7 @@
     "@mui/material": "~7.1.1",
     "copy-webpack-plugin": "~13.0.0",
     "lodash": "~4.17.21",
-    "next": "~15.3.3",
+    "next": "~15.4.7",
     "prop-types": "^15.8.1",
     "react": "~19.1.0",
     "react-dom": "~19.1.0",
