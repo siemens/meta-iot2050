@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Wed, 9 Apr 2025 13:02:41 +0800
+Subject: [PATCH] spi: cadence-qspi: Workaround potential flash writing issue
+
+Some issues with writing to the flash were found, particularly at high
+frequencies where up to 50% of attempts would fail in certain cases.
+Disabling the DAC, Direct ACcess, has proven effective in addressing
+this issue. This commit uses indirect mode to mitigate the problem.
+
+Workaround issue mentioned in PR #585 and it comes from upstream
+cce2200dacd6d7e0501c3811f24f5216710968fb. Upstream has rolled back it
+with 3cb2a2f7eebbb0752a834708e720a914e61841a1, ultimately the real issue
+needs to be fixed.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ drivers/spi/spi-cadence-quadspi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index 56be0b6901a8..33de50a4979e 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -2041,7 +2041,7 @@ static const struct cqspi_driver_platdata k2g_qspi = {
+ 
+ static const struct cqspi_driver_platdata am654_ospi = {
+ 	.hwcaps_mask = CQSPI_SUPPORTS_OCTAL,
+-	.quirks = CQSPI_NEEDS_WR_DELAY,
++	.quirks = CQSPI_DISABLE_DAC_MODE | CQSPI_NEEDS_WR_DELAY,
+ };
+ 
+ static const struct cqspi_driver_platdata intel_lgm_qspi = {
