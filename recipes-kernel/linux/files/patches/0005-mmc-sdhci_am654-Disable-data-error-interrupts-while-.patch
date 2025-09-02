@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Aswath Govindraju <a-govindraju@ti.com>
+Date: Wed, 13 Apr 2022 18:44:03 +0530
+Subject: [PATCH] mmc: sdhci_am654: Disable data error interrupts while tuning
+
+Data end bit errors, data CRC errors and data timeout errors are expected
+while tuning and are to ignored. Therefore, disable these data error
+interrupts before entering tuning.
+
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+[Taken from TI 6.1 SDK]
+---
+ drivers/mmc/host/sdhci_am654.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
+index 8e0eb0acf442..150f204856ff 100644
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -416,8 +416,18 @@ static void sdhci_am654_reset(struct sdhci_host *host, u8 mask)
+ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
+ {
+ 	struct sdhci_host *host = mmc_priv(mmc);
+-	int err = sdhci_execute_tuning(mmc, opcode);
++	int err;
++	bool dcrc_was_enabled = false;
++
++	if (host->ier & SDHCI_INT_DATA_CRC) {
++		host->ier &= ~SDHCI_INT_DATA_CRC | ~SDHCI_INT_DATA_END_BIT |
++			     ~SDHCI_INT_DATA_TIMEOUT;
++		dcrc_was_enabled = true;
++		sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
++		sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
++	}
+ 
++	err = sdhci_execute_tuning(mmc, opcode);
+ 	if (err)
+ 		return err;
+ 	/*
+@@ -426,6 +436,13 @@ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
+ 	 */
+ 	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
+ 
++	/* Reenable forbidden interrupt */
++	if (dcrc_was_enabled) {
++		host->ier |= SDHCI_INT_DATA_CRC | SDHCI_INT_DATA_END_BIT | SDHCI_INT_DATA_TIMEOUT;
++		sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
++		sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
++	}
++
+ 	return 0;
+ }
+ 

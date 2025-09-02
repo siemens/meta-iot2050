@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Mon, 24 Jun 2024 14:41:30 +0200
+Subject: [PATCH] arm64: dts: ti: iot2050: Enforce DMA isolation for devices
+ behind PCI RC
+
+Reserve a 64M memory region below the top of 1G RAM (smallest RAM size
+across the series, space left for firmware carve-outs) and ensure that
+all PCI devices do their DMA only inside that region. This is configured
+via a restricted-dma-pool and enforced with the help of the first PVU.
+
+Modification by Li Hua Qian:
+- The restricted-dma-pool is overlaid by U-Boot.
+- U-Boot DTS path:
+  arch/arm/dts/k3-am6548-iot2050-advanced-dma-isolation-overlay.dts
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ .../boot/dts/ti/k3-am65-iot2050-common.dtsi   | 21 +++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+index fa1860fe9cd5..b84a88aee84b 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common.dtsi
+@@ -693,3 +693,24 @@ &mcu_r5fss0 {
+ 	/* lock-step mode not supported on iot2050 boards */
+ 	ti,cluster-mode = <0>;
+ };
++
++&main_navss {
++	ti_pvu0: ti-pvu@30f80000 {
++		compatible = "ti,am654-pvu";
++		reg = <0 0x30f80000 0 0x1000>,
++		      <0 0x36000000 0 0x100000>;
++		reg-names = "cfg", "tlbif";
++		interrupts-extended = <&intr_main_navss 390>;
++		interrupt-names = "pvu";
++	};
++
++	ti_pvu1: ti-pvu@30f81000 {
++		compatible = "ti,am654-pvu";
++		reg = <0 0x30f81000 0 0x1000>,
++		      <0 0x36100000 0 0x100000>;
++		reg-names = "cfg", "tlbif";
++		interrupts-extended = <&intr_main_navss 389>;
++		interrupt-names = "pvu";
++		status = "disabled";
++	};
++};
