@@ -70,9 +70,9 @@ jobs:
         uses: ./.github/workflows/free-disk-space
       - name: Mock EIO binary stubs
         run: |
-          touch ./recipes-app/iot2050-eio-manager/files/bin/iot2050-eiofsd
-          touch ./recipes-app/iot2050-eio-manager/files/bin/map3-fw.bin
-          touch ./recipes-app/iot2050-eio-manager/files/bin/firmware-version
+          touch ./meta/recipes-app/iot2050-eio-manager/files/bin/iot2050-eiofsd
+          touch ./meta/recipes-app/iot2050-eio-manager/files/bin/map3-fw.bin
+          touch ./meta/recipes-app/iot2050-eio-manager/files/bin/firmware-version
       - name: Build image
         run: |
           ./kas-container build kas/machine/kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml:kas/opt/meta-hailo.yml
