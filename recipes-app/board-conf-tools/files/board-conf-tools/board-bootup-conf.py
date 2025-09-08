@@ -68,7 +68,7 @@ def initExternalSerialMode():
                     initMode + terminateOpt, shell=True)
 
 def getBoardModel():
-    return subprocess.check_output('grep -a -o -P "IOT2050[\w\s]+" /proc/device-tree/model',
+    return subprocess.check_output('grep -a -o -P "IOT2050[\\w\\s]+" /proc/device-tree/model',
             shell=True).lstrip().rstrip().decode('utf-8')
 
 def main():

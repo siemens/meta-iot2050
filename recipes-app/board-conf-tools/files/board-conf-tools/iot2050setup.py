@@ -41,7 +41,7 @@ class ansicolors:
 class TopMenu:
     def __init__(self):
         self.gscreen = SnackScreen()
-        self.boardType = subprocess.check_output('grep -a -o -P "IOT2050[\w\s]+" /proc/device-tree/model',
+        self.boardType = subprocess.check_output('grep -a -o -P "IOT2050[\\w\\s]+" /proc/device-tree/model',
                                                  shell=True).lstrip().rstrip().decode('utf-8')
 
     def show(self):
@@ -599,7 +599,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
         |        | RST  SCK/13   MISO/12 |           |
         |        | GND  MOSI/11  5V      |           |
         |        +-----------------------+ __________/
-        \_________________________________/
+        \\_________________________________/
         '''
 
         g = GridForm(self.topmenu.gscreen,      # screen
