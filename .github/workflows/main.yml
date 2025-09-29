@@ -75,7 +75,7 @@ jobs:
           touch ./recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
         run: |
-          ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml:kas/opt/meta-hailo.yml
+          ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml
           ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
