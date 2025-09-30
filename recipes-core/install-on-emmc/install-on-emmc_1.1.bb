@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+PR="1"
 inherit dpkg-raw
 
 DESCRIPTION = "This service provides the option to install on eMMC during first boot"
@@ -19,8 +20,8 @@ SRC_URI = " \
     file://postinst"
 
 do_install() {
-    install -d -m 755 ${D}/lib/systemd/system
-    install -m 644 ${WORKDIR}/install-on-emmc-on-first-boot.service ${D}/lib/systemd/system/
+    install -d -m 755 ${D}/usr/lib/systemd/system
+    install -m 644 ${WORKDIR}/install-on-emmc-on-first-boot.service ${D}/usr/lib/systemd/system/
 
     install -d -m 755 ${D}/usr/share/install-on-emmc
     install -m 755 ${WORKDIR}/install-on-emmc.sh ${D}/usr/share/install-on-emmc/

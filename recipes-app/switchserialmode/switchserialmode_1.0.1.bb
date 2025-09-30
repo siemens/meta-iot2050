@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg
 
@@ -24,7 +24,7 @@ PROVIDES := "${BPN}"
 DEBIAN_CONFLICTS := "${BPN}"
 DEBIAN_PROVIDES := "${BPN}"
 DEBIAN_REPLACES := "${BPN}"
-DEBIAN_BUILD_DEPENDS = "cmake, libusb-1.0-0-dev, libgpiod-dev"
+DEBIAN_BUILD_DEPENDS = "cmake, libusb-1.0-0-dev, libgpiod-dev, pkg-config"
 DEBIAN_DEPENDS = "\${shlibs:Depends}"
 PN := "iot2050-${BPN}"
 

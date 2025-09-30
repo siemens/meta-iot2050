@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
@@ -21,6 +21,6 @@ SRC_URI = " \
 
 do_install() {
     # add board status led service
-    install -v -d ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/status-led.service ${D}/lib/systemd/system/
+    install -v -d ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/status-led.service ${D}/usr/lib/systemd/system/
 }

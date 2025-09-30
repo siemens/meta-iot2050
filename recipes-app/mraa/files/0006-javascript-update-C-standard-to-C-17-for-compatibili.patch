@@ -1,0 +1,96 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+Date: Tue, 2 Sep 2025 17:12:58 +0800
+Subject: [PATCH] javascript: update C++ standard to C++17 for compatibility
+ with newer Node.js versions
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When compiling mraa on Debian 13, the following error occurs:
+
+```
+/usr/include/node/node.h:696:8: error: ‘optional’ in namespace ‘std’ does not name a template type
+  696 |   std::optional<std::string> builder_script_path;
+      |        ^~~~~~~~
+/usr/include/node/node.h:696:3: note: ‘std::optional’ is only available from C++17 onwards
+  696 |   std::optional<std::string> builder_script_path;
+      |   ^~~
+```
+
+Root cause: Node.js version on Debian 13 is 20+, which requires C++17 feature support.
+
+Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+---
+ CMakeLists.txt                | 11 +++++++++++
+ src/javascript/CMakeLists.txt | 24 ++++++++++++++++++------
+ 2 files changed, 29 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 370b891..7a13eeb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -90,6 +90,17 @@ if (BUILDCPP)
+       message(FATAL_ERROR "Target '${targetname}' requires c++11 which is not supported by this compiler")
+     endif()
+   endfunction()
++
++  # This function adds the c++17 flag to a c++ target (if supported)
++  function(use_cxx_17 targetname)
++    include(CheckCXXCompilerFlag)
++    CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
++    if (COMPILER_SUPPORTS_CXX17)
++      set_target_properties(${targetname} PROPERTIES COMPILE_FLAGS "-std=c++17")
++    else()
++      message(FATAL_ERROR "Target '${targetname}' requires c++17 which is not supported by this compiler")
++    endif()
++  endfunction()
+ endif()
+ 
+ # Set CMAKE_INSTALL_LIBDIR if not defined
+diff --git a/src/javascript/CMakeLists.txt b/src/javascript/CMakeLists.txt
+index 5dbe2af..7b7ba35 100644
+--- a/src/javascript/CMakeLists.txt
++++ b/src/javascript/CMakeLists.txt
+@@ -44,8 +44,9 @@ if (BUILDCPP)
+     # Node 0.12.x V8 engine major version is '3'.
+     # Node 2.1.0  V8 engine major version is '4'.
+     # Node 16.0.0  V8 engine major version is '9'.
++    # Node 18.0.0+ requires C++17 for std::string_view, std::optional, etc.
+     if (${V8_VERSION_MAJOR} GREATER 8)
+-      set_property (TARGET mraajs PROPERTY CXX_STANDARD 14)
++      set_property (TARGET mraajs PROPERTY CXX_STANDARD 17)
+     else ()
+       set_property (TARGET mraajs PROPERTY CXX_STANDARD 11)
+     endif ()
+@@ -53,14 +54,25 @@ if (BUILDCPP)
+     if (CMAKE_VERSION VERSION_LESS "3.1")
+       message (WARNING "Need to use CMAKE version 3.1+, but it is ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}, using a workaround.")
+       if (CMAKE_COMPILER_IS_GNUCXX)
+-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
+-          message (FATAL_ERROR "GNU gcc compiler is also too old (need 4.7+, but ${CMAKE_CXX_COMPILER_VERSION}) and does not support C++11 standard.")
++        if (${V8_VERSION_MAJOR} GREATER 8)
++          if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0")
++            message (FATAL_ERROR "GNU gcc compiler is too old (need 7.0+, but ${CMAKE_CXX_COMPILER_VERSION}) and does not support C++17 standard.")
++          endif ()
++          set (MRAA_CXX_WORKAROUND_OPTION "-std=gnu++17")
++        else ()
++          if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
++            message (FATAL_ERROR "GNU gcc compiler is too old (need 4.7+, but ${CMAKE_CXX_COMPILER_VERSION}) and does not support C++11 standard.")
++          endif ()
++          set (MRAA_CXX_WORKAROUND_OPTION "-std=gnu++11")
+         endif ()
+-        set (MRAA_CXX11_WORKAROUND_OPTION "-std=gnu++11")
+       else ()
+-        set (MRAA_CXX11_WORKAROUND_OPTION "-std=c++11")
++        if (${V8_VERSION_MAJOR} GREATER 8)
++          set (MRAA_CXX_WORKAROUND_OPTION "-std=c++17")
++        else ()
++          set (MRAA_CXX_WORKAROUND_OPTION "-std=c++11")
++        endif ()
+       endif ()
+-      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MRAA_CXX11_WORKAROUND_OPTION} ")
++      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MRAA_CXX_WORKAROUND_OPTION} ")
+     endif ()
+   endif ()
+ endif ()

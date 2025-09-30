@@ -1,6 +1,9 @@
 # Copyright (c) Siemens AG, 2018-2025
 #
 # SPDX-License-Identifier: MIT
+
+PR="1"
+
 inherit dpkg-raw
 
 NPMPN ?= "${PN}"
@@ -39,7 +42,7 @@ SRC_URI = " \
 NPM_MAPPED_NAME = "${PN}"
 NPM_REGISTRY = "https://registry.npmjs.org"
 
-PR = "1"
+PR = "2"
 
 # function maps arch names to npm arch names
 def npm_arch_map(target_arch, d):
@@ -54,7 +57,7 @@ NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 NPM_CLASS_PACKAGE ?= "npm"
 OWN_NPM_CLASS_PACKAGE ?= "0"
 
-DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode108,' if d.getVar('NPM_REBUILD') == '1' else ''}"
+DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode115,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
 DEBIAN_DEPENDS =. "\${shlibs:Depends}, \${misc:Depends},"
 
@@ -218,8 +221,8 @@ do_install() {
     mkdir -p ${D}/${PKG_INSTALL_DIR}
 
     # install service
-    install -v -d ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-conf-webui.service ${D}/lib/systemd/system/
+    install -v -d ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-conf-webui.service ${D}/usr/lib/systemd/system/
 }
 
 do_prepare_build:append() {

@@ -6,6 +6,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+PR="1"
+
 inherit dpkg-raw
 
 DESCRIPTION = "This service generates an individual UUID for the rootfs during first boot"
@@ -19,8 +21,8 @@ SRC_URI = " \
     file://postinst"
 
 do_install() {
-    install -d -m 755 ${D}/lib/systemd/system
-    install -m 644 ${WORKDIR}/regen-rootfs-uuid-on-first-boot.service ${D}/lib/systemd/system/
+    install -d -m 755 ${D}/usr/lib/systemd/system
+    install -m 644 ${WORKDIR}/regen-rootfs-uuid-on-first-boot.service ${D}/usr/lib/systemd/system/
 
     install -d -m 755 ${D}/usr/share/regen-rootfs-uuid
     install -m 755 ${WORKDIR}/regen-rootfs-uuid.sh ${D}/usr/share/regen-rootfs-uuid/

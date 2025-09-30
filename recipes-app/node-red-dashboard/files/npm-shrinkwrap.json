@@ -5,19 +5,20 @@
   "packages": {
     "": {
       "dependencies": {
-        "node-red-dashboard": "^3.6.5"
+        "node-red-dashboard": "^3.6.6"
       }
     },
     "node_modules/node-red-dashboard": {
-      "version": "3.6.5",
-      "resolved": "https://registry.npmjs.org/node-red-dashboard/-/node-red-dashboard-3.6.5.tgz",
-      "integrity": "sha512-zoTVq13lh3OXzxBdFJByxaiijHLOCdkVfR5eCKXNm0RNFfGFyaqPQ06OoeLPXTmhU6KU/VDINxCKJUtdChg9Iw==",
+      "version": "3.6.6",
+      "resolved": "https://registry.npmjs.org/node-red-dashboard/-/node-red-dashboard-3.6.6.tgz",
+      "integrity": "sha512-+77TiX0CwFQkEVKqYZz5Xacsf2ycGl8ZVXXXIVvm51bol9ILzaOh0WyxWjWHrpYk8hPUhs2H34avD8l6Lx9ELw==",
+      "deprecated": "No longer maintained - please look at alternatives such as @flowfuse/node-red-dashboard or node-red-contrib-uibuilder",
       "hasInstallScript": true,
       "dependencies": {
-        "compression": "^1.7.4",
+        "compression": "^1.8.1",
         "gridstack": "^0.6.4",
-        "serve-static": "^1.15.0",
-        "socket.io": "^4.7.4"
+        "serve-static": "^1.16.2",
+        "socket.io": "^4.8.1"
       },
       "engines": {
         "node": ">=12"
@@ -37,11 +38,11 @@
       }
     },
     "node_modules/node-red-dashboard/node_modules/@types/node": {
-      "version": "24.0.3",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.0.3.tgz",
-      "integrity": "sha512-R4I/kzCYAdRLzfiCabn9hxWfbuHS573x+r0dJMkkzThEa7pbrcDWK+9zu3e7aBOouf+rQAciqPFMnxwr0aWgKg==",
+      "version": "24.5.2",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.5.2.tgz",
+      "integrity": "sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==",
       "dependencies": {
-        "undici-types": "~7.8.0"
+        "undici-types": "~7.12.0"
       }
     },
     "node_modules/node-red-dashboard/node_modules/accepts": {
@@ -92,15 +93,15 @@
       }
     },
     "node_modules/node-red-dashboard/node_modules/compression": {
-      "version": "1.8.0",
-      "resolved": "https://registry.npmjs.org/compression/-/compression-1.8.0.tgz",
-      "integrity": "sha512-k6WLKfunuqCYD3t6AsuPGvQWaKwuLLh2/xHNcX4qE+vIfDNXpSqnrhwA7O53R7WVQUnt8dVAIW+YHr7xTgOgGA==",
+      "version": "1.8.1",
+      "resolved": "https://registry.npmjs.org/compression/-/compression-1.8.1.tgz",
+      "integrity": "sha512-9mAqGPHLakhCLeNyxPkK4xVo746zQ/czLH1Ky+vkitMnWfWZps8r0qXuwhwizagCRttsL4lfG4pIOvaWLpAP0w==",
       "dependencies": {
         "bytes": "3.1.2",
         "compressible": "~2.0.18",
         "debug": "2.6.9",
         "negotiator": "~0.6.4",
-        "on-headers": "~1.0.2",
+        "on-headers": "~1.1.0",
         "safe-buffer": "5.2.1",
         "vary": "~1.1.2"
       },
@@ -339,9 +340,9 @@
       }
     },
     "node_modules/node-red-dashboard/node_modules/on-headers": {
-      "version": "1.0.2",
-      "resolved": "https://registry.npmjs.org/on-headers/-/on-headers-1.0.2.tgz",
-      "integrity": "sha512-pZAE+FJLoyITytdqK0U5s+FIpjN0JP3OzFi/u8Rx+EV5/W+JTWGXG8xFzevE7AjBfDqHv/8vL8qQsIhHnqRkrA==",
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/on-headers/-/on-headers-1.1.0.tgz",
+      "integrity": "sha512-737ZY3yNnXy37FHkQxPzt4UZ2UWPWiCZWLvFZ4fu5cueciegX0zGPnrlY6bwRg4FdQOe9YU8MkmJwGhoMybl8A==",
       "engines": {
         "node": ">= 0.8"
       }
@@ -554,9 +555,9 @@
       }
     },
     "node_modules/node-red-dashboard/node_modules/undici-types": {
-      "version": "7.8.0",
-      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-7.8.0.tgz",
-      "integrity": "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="
+      "version": "7.12.0",
+      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-7.12.0.tgz",
+      "integrity": "sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ=="
     },
     "node_modules/node-red-dashboard/node_modules/vary": {
       "version": "1.1.2",

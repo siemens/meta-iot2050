@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
@@ -66,7 +66,7 @@ do_install() {
     ln -sf ../lib/iot2050/event/iot2050-event-record.py ${D}/usr/bin/iot2050-event-record
     ln -sf ../lib/iot2050/event/iot2050-event-serve.py ${D}/usr/bin/iot2050-event-serve
 
-    install -v -d ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-event-record.service ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-event-serve.service ${D}/lib/systemd/system/
+    install -v -d ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-event-record.service ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-event-serve.service ${D}/usr/lib/systemd/system/
 }

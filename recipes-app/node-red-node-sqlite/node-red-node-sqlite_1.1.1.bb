@@ -8,9 +8,9 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit npm
 inherit node-red-module
-
+DEBIAN_BUILD_DEPENDS = "python3-setuptools"
 DESCRIPTION = "A sqlite node for Node-RED"

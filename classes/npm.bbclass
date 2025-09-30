@@ -35,7 +35,7 @@ NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
 NPM_CLASS_PACKAGE ?= "npm"
 OWN_NPM_CLASS_PACKAGE ?= "0"
 
-DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode108,' if d.getVar('NPM_REBUILD') == '1' else ''}"
+DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode115,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
 DEBIAN_DEPENDS =. "\${shlibs:Depends}, \${misc:Depends},"
 

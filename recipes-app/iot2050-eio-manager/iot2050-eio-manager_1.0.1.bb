@@ -29,7 +29,6 @@ SRC_URI = " \
     file://iot2050-eio-cli.py \
     file://iot2050-eio-time-syncing.service \
     file://iot2050-eiod.service \
-    file://iot2050-eiofsd.service \
     file://iot2050_eio_fwu.py \
     file://iot2050_eio_fwu_monitor.py \
     file://iot2050-eio-fwu-monitor.service \
@@ -57,36 +56,11 @@ SRC_URI += " \
     file://config-template/mlfb-NA.yaml \
     "
 
-SRC_URI_BIN_PREDOWNLOAD = "${@ ' \
-    file://bin/iot2050-eiofsd \
-    file://bin/map3-fw.bin \
-    file://bin/firmware-version ' if d.getVar('IOT2050_EIO_SUPPORT') == '1' else '' } \
-    "
-
-SRC_URI += "${SRC_URI_BIN_PREDOWNLOAD}"
 
 DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv, python3-jsonschema, \
 python3-yaml, python3-bitstruct, python3-libgpiod, libflashrom1, libflashrom-dev, \
-python3-progress, python3-psutil, libfuse2, "
+python3-progress, python3-psutil, iot2050-eiofsd, "
 
-DEBIAN_BUILD_DEPENDS = "libfuse2, libgpiod2"
-
-python do_fetch:prepend() {
-    import textwrap
-    src_uri_bin = (d.getVar('SRC_URI_BIN_PREDOWNLOAD') or "").split()
-    if len(src_uri_bin) == 0:
-        return
-
-    try:
-        fetcher = bb.fetch2.Fetch(src_uri_bin, d)
-        fetcher.checkstatus()
-    except bb.fetch2.BBFetchException as e:
-        text = textwrap.dedent(f"""\
-            {str(e)}
-            Please download the EIO binaries from SIOS before building!
-            Check the README.md for details.""")
-        bb.fatal(text)
-}
 
 do_install() {
     install -v -d ${D}/usr/lib/
@@ -108,9 +82,6 @@ do_install() {
     install -v -m 755 ${WORKDIR}/iot2050_eio_fwu_monitor.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050-eio-cli.py ${D}/usr/lib/iot2050/eio/
     install -v -m 755 ${WORKDIR}/iot2050_eio_fwu.py ${D}/usr/lib/iot2050/eio/
-
-    install -v -m 755 ${WORKDIR}/bin/map3-fw.bin ${D}/usr/lib/iot2050/eio/
-    install -v -m 755 ${WORKDIR}/bin/firmware-version ${D}/usr/lib/iot2050/eio/
 
     install -v -d ${D}/usr/lib/iot2050/eio/schema
     install -v -d ${D}/usr/lib/iot2050/eio/config-template
@@ -134,18 +105,15 @@ do_install() {
     install -v -m 644 ${WORKDIR}/config-template/mlfb-6ES7221-1BF32-0XB0.yaml ${D}/usr/lib/iot2050/eio/config-template/
     install -v -m 644 ${WORKDIR}/config-template/mlfb-NA.yaml ${D}/usr/lib/iot2050/eio/config-template/
 
-    install -v -d ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-eio-time-syncing.service ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-eiofsd.service ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-eiod.service ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-eio-fwu-monitor.service ${D}/lib/systemd/system/
+    install -v -d ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-eio-time-syncing.service ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-eiod.service ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/iot2050-eio-fwu-monitor.service ${D}/usr/lib/systemd/system/
 
     install -v -d ${D}/usr/bin/
-    install -v -m 755 ${WORKDIR}/bin/iot2050-eiofsd ${D}/usr/bin/
     ln -sf ../lib/iot2050/eio/iot2050-eio-time-syncing.py ${D}/usr/bin/iot2050-eio-time-syncing
     ln -sf ../lib/iot2050/eio/iot2050-eio-service.py ${D}/usr/bin/iot2050-eio-service
     ln -sf ../lib/iot2050/eio/iot2050-eio-cli.py ${D}/usr/bin/iot2050-eio
     ln -sf ../lib/iot2050/eio/iot2050_eio_fwu_monitor.py ${D}/usr/bin/iot2050-eio-fwu-monitor
 
-    install -v -d ${D}/eiofs
 }

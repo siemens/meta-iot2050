@@ -14,7 +14,7 @@ web server.
 
 Supported browser: Firefox, Chrome, Edge, etc. IE is not supported.
 
-## Development 
+## Development
 
 This application is using Next.JS + Material UI.
 
@@ -33,8 +33,22 @@ To update the dependencies, run the following commands on the **target** Debian
 version within the `files` directory:
 
 ```shell
+# 1. Update package.json firstly
 npx npm-check-updates -u
+# 2. update npm-shrinkwrap.json.nodev secondly
+# Before update npm-shrinkwrap.json.nodev, removing the devDependencies from package.json firstly
+cp package.json package.json.bak
+jq 'del(.devDependencies)' package.json > package.json.tmp && mv package.json.tmp package.json
+rm -rf node_modules package-lock.json npm-shrinkwrap.json
+npm install --omit=dev --install-strategy=shallow
+npm shrinkwrap
+mv npm-shrinkwrap.json npm-shrinkwrap.json.nodev
+mv package.json.bak package.json
+# 2. update npm-shrinkwrap.json
+rm -rf node_modules package-lock.json npm-shrinkwrap.json
 npm install --install-strategy=shallow
+npm shrinkwrap
+
 ```
 
 This will update the dependencies listed in `package.json` and update the

@@ -6,6 +6,9 @@
 Description=IOT2050 Extended IO Server daemon
 # Only run on IOT2050-SM variant
 ConditionFirmware=device-tree-compatible(siemens,iot2050-advanced-sm)
+Requires=iot2050-eiofsd.service
+After=iot2050-eiofsd.service
+BindsTo=iot2050-eiofsd.service
 
 [Service]
 Type=simple

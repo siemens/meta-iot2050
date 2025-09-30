@@ -5,15 +5,15 @@
   "packages": {
     "": {
       "dependencies": {
-        "node-red-contrib-modbus": "^5.43.0"
+        "node-red-contrib-modbus": "^5.44.1"
       }
     },
     "node_modules/node-red-contrib-modbus": {
-      "version": "5.43.0",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-modbus/-/node-red-contrib-modbus-5.43.0.tgz",
-      "integrity": "sha512-d4fpMpr27vlBC2Ue42AKTv0QbaZqcf2Y4a+9V6oFWg4A+2d4fejzPzcrf0/AHk4V3jwPGb6n9cry6S0P4ngdag==",
+      "version": "5.44.1",
+      "resolved": "https://registry.npmjs.org/node-red-contrib-modbus/-/node-red-contrib-modbus-5.44.1.tgz",
+      "integrity": "sha512-I3zB+zBOl/xjO5GTwRheKiK71cLlAnBe8eTCkQ5/VpDwHtfK8Mo38TaW5u5MiBeRGeqzw209JszBrzVt8ReHNg==",
       "dependencies": {
-        "@openp4nr/modbus-serial": "https://dl.cloudsmith.io/public/iniationware-gmbh/plus4nodered/npm/openp4nr/modbus-serial/8.2.0/modbus-serial-8.2.0.tgz",
+        "@openp4nr/modbus-serial": "https://dl.cloudsmith.io/public/iniationware-gmbh/plus4nodered/npm/openp4nr/modbus-serial/8.4.0/openp4nr-modbus-serial-8.4.0.tgz",
         "@xstate/fsm": "~2.1.0",
         "bson": "~6.9.0",
         "debug": "~4.3.7",
@@ -35,9 +35,9 @@
       }
     },
     "node_modules/node-red-contrib-modbus/node_modules/@openp4nr/modbus-serial": {
-      "version": "8.2.0",
-      "resolved": "https://dl.cloudsmith.io/public/iniationware-gmbh/plus4nodered/npm/openp4nr/modbus-serial/8.2.0/modbus-serial-8.2.0.tgz",
-      "integrity": "sha512-1uKqXOTwxM/iH1M4E8x6052EfTpfLO3epfQMMputN67M2VndRzl/YC+WLeEni07eScNxyvpgMe1U+EkREBKNug==",
+      "version": "8.4.0",
+      "resolved": "https://dl.cloudsmith.io/public/iniationware-gmbh/plus4nodered/npm/openp4nr/modbus-serial/8.4.0/openp4nr-modbus-serial-8.4.0.tgz",
+      "integrity": "sha512-mhbwagv/cbma/aBaeO6PkRiiakojdhGq5oS8+S/zLk1TBlL9iP8HuF1yYyhLIWYK4KcZl8Ym+HvuI03Zmsrm8Q==",
       "license": "ISC",
       "dependencies": {
         "debug": "^4.1.1",
