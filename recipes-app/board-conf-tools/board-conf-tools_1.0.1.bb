@@ -29,9 +29,9 @@ S = "${WORKDIR}/board-conf-tools"
 do_install() {
     install -v -d ${D}/usr/bin/
     install -v -d ${D}/etc
-    install -v -d ${D}/lib/systemd/system/
+    install -v -d ${D}/usr/lib/systemd/system/
     # add board bootup configuration service
-    install -v -m 644 ${WORKDIR}/board-bootup-configuration.service ${D}/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/board-bootup-configuration.service ${D}/usr/lib/systemd/system/
 
     cp -rf  ${WORKDIR}/board-conf-tools ${D}/etc
     ln -sf /etc/board-conf-tools/iot2050setup.py   ${D}/usr/bin/iot2050setup

@@ -11,18 +11,18 @@
   "dependencies": {
     "@emotion/cache": "~11.14.0",
     "@emotion/react": "~11.14.0",
-    "@emotion/styled": "~11.14.0",
-    "@grpc/grpc-js": "~1.13.4",
-    "@grpc/proto-loader": "~0.7.15",
-    "@mui/icons-material": "~7.1.1",
-    "@mui/material": "~7.1.1",
-    "copy-webpack-plugin": "~13.0.0",
+    "@emotion/styled": "~11.14.1",
+    "@grpc/grpc-js": "~1.14.0",
+    "@grpc/proto-loader": "~0.8.0",
+    "@mui/icons-material": "~7.3.2",
+    "@mui/material": "~7.3.2",
+    "copy-webpack-plugin": "~13.0.1",
     "lodash": "~4.17.21",
-    "next": "~15.3.3",
+    "next": "~15.5.4",
     "prop-types": "^15.8.1",
-    "react": "~19.1.0",
-    "react-dom": "~19.1.0",
-    "yaml": "~2.8.0"
+    "react": "~19.1.1",
+    "react-dom": "~19.1.1",
+    "yaml": "~2.8.1"
   },
   "devDependencies": {
     "eslint": "^8.51.0",

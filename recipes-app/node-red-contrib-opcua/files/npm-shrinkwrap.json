@@ -5,13 +5,13 @@
   "packages": {
     "": {
       "dependencies": {
-        "node-red-contrib-opcua": "^0.2.339"
+        "node-red-contrib-opcua": "^0.2.342"
       }
     },
     "node_modules/node-red-contrib-opcua": {
-      "version": "0.2.339",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-opcua/-/node-red-contrib-opcua-0.2.339.tgz",
-      "integrity": "sha512-kEQQqGcjsMEb4OdFI1PgDx2ZlL12Td7oQCvlbIa7cxR0+JiZGrNV6KU+Smc80Qen86m1d70361k4ZPdbjOfXxw==",
+      "version": "0.2.342",
+      "resolved": "https://registry.npmjs.org/node-red-contrib-opcua/-/node-red-contrib-opcua-0.2.342.tgz",
+      "integrity": "sha512-1YILq8M4n1FY5Ing1Oukgu0bY5dUA+2N5QkO7SopUKcl4UQQCiyO/xgWIusJjEL7r2mCf419f4m2xzrc+ML2gA==",
       "dependencies": {
         "async": "^3.2.1",
         "chalk": "4.1.2",
@@ -19,9 +19,10 @@
         "flatted": "^3.2.2",
         "get-user-locale": "^2.3.0",
         "lodash.clonedeep": "^4.5.0",
-        "node-opcua": "^2.138.1",
+        "node-opcua": "^2.156.0",
         "node-opcua-client-crawler": "2.127.1",
-        "node-opcua-file-transfer": "^2.138.1",
+        "node-opcua-crypto": "4.16.0",
+        "node-opcua-file-transfer": "^2.156.0",
         "os-locale": "^6.0.2"
       },
       "engines": {
@@ -34,118 +35,118 @@
       "integrity": "sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw=="
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-cms": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-cms/-/asn1-cms-2.3.15.tgz",
-      "integrity": "sha512-B+DoudF+TCrxoJSTjjcY8Mmu+lbv8e7pXGWrhNp2/EGJp9EEcpzjBCar7puU57sGifyzaRVM03oD5L7t7PghQg==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-cms/-/asn1-cms-2.5.0.tgz",
+      "integrity": "sha512-p0SjJ3TuuleIvjPM4aYfvYw8Fk1Hn/zAVyPJZTtZ2eE9/MIer6/18ROxX6N/e6edVSfvuZBqhxAj3YgsmSjQ/A==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "@peculiar/asn1-x509-attr": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "@peculiar/asn1-x509-attr": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-csr": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-csr/-/asn1-csr-2.3.15.tgz",
-      "integrity": "sha512-caxAOrvw2hUZpxzhz8Kp8iBYKsHbGXZPl2KYRMIPvAfFateRebS3136+orUpcVwHRmpXWX2kzpb6COlIrqCumA==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-csr/-/asn1-csr-2.5.0.tgz",
+      "integrity": "sha512-ioigvA6WSYN9h/YssMmmoIwgl3RvZlAYx4A/9jD2qaqXZwGcNlAxaw54eSx2QG1Yu7YyBC5Rku3nNoHrQ16YsQ==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-ecc": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-ecc/-/asn1-ecc-2.3.15.tgz",
-      "integrity": "sha512-/HtR91dvgog7z/WhCVdxZJ/jitJuIu8iTqiyWVgRE9Ac5imt2sT/E4obqIVGKQw7PIy+X6i8lVBoT6wC73XUgA==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-ecc/-/asn1-ecc-2.5.0.tgz",
+      "integrity": "sha512-t4eYGNhXtLRxaP50h3sfO6aJebUCDGQACoeexcelL4roMFRRVgB20yBIu2LxsPh/tdW9I282gNgMOyg3ywg/mg==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-pfx": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-pfx/-/asn1-pfx-2.3.15.tgz",
-      "integrity": "sha512-E3kzQe3J2xV9DP6SJS4X6/N1e4cYa2xOAK46VtvpaRk8jlheNri8v0rBezKFVPB1rz/jW8npO+u1xOvpATFMWg==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-pfx/-/asn1-pfx-2.5.0.tgz",
+      "integrity": "sha512-Vj0d0wxJZA+Ztqfb7W+/iu8Uasw6hhKtCdLKXLG/P3kEPIQpqGI4P4YXlROfl7gOCqFIbgsj1HzFIFwQ5s20ug==",
       "dependencies": {
-        "@peculiar/asn1-cms": "^2.3.15",
-        "@peculiar/asn1-pkcs8": "^2.3.15",
-        "@peculiar/asn1-rsa": "^2.3.15",
-        "@peculiar/asn1-schema": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-cms": "^2.5.0",
+        "@peculiar/asn1-pkcs8": "^2.5.0",
+        "@peculiar/asn1-rsa": "^2.5.0",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-pkcs8": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-pkcs8/-/asn1-pkcs8-2.3.15.tgz",
-      "integrity": "sha512-/PuQj2BIAw1/v76DV1LUOA6YOqh/UvptKLJHtec/DQwruXOCFlUo7k6llegn8N5BTeZTWMwz5EXruBw0Q10TMg==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-pkcs8/-/asn1-pkcs8-2.5.0.tgz",
+      "integrity": "sha512-L7599HTI2SLlitlpEP8oAPaJgYssByI4eCwQq2C9eC90otFpm8MRn66PpbKviweAlhinWQ3ZjDD2KIVtx7PaVw==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-pkcs9": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-pkcs9/-/asn1-pkcs9-2.3.15.tgz",
-      "integrity": "sha512-yiZo/1EGvU1KiQUrbcnaPGWc0C7ElMMskWn7+kHsCFm+/9fU0+V1D/3a5oG0Jpy96iaXggQpA9tzdhnYDgjyFg==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-pkcs9/-/asn1-pkcs9-2.5.0.tgz",
+      "integrity": "sha512-UgqSMBLNLR5TzEZ5ZzxR45Nk6VJrammxd60WMSkofyNzd3DQLSNycGWSK5Xg3UTYbXcDFyG8pA/7/y/ztVCa6A==",
       "dependencies": {
-        "@peculiar/asn1-cms": "^2.3.15",
-        "@peculiar/asn1-pfx": "^2.3.15",
-        "@peculiar/asn1-pkcs8": "^2.3.15",
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "@peculiar/asn1-x509-attr": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-cms": "^2.5.0",
+        "@peculiar/asn1-pfx": "^2.5.0",
+        "@peculiar/asn1-pkcs8": "^2.5.0",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "@peculiar/asn1-x509-attr": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-rsa": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-rsa/-/asn1-rsa-2.3.15.tgz",
-      "integrity": "sha512-p6hsanvPhexRtYSOHihLvUUgrJ8y0FtOM97N5UEpC+VifFYyZa0iZ5cXjTkZoDwxJ/TTJ1IJo3HVTB2JJTpXvg==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-rsa/-/asn1-rsa-2.5.0.tgz",
+      "integrity": "sha512-qMZ/vweiTHy9syrkkqWFvbT3eLoedvamcUdnnvwyyUNv5FgFXA3KP8td+ATibnlZ0EANW5PYRm8E6MJzEB/72Q==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-schema": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-schema/-/asn1-schema-2.3.15.tgz",
-      "integrity": "sha512-QPeD8UA8axQREpgR5UTAfu2mqQmm97oUqahDtNdBcfj3qAnoXzFdQW+aNf/tD2WVXF8Fhmftxoj0eMIT++gX2w==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-schema/-/asn1-schema-2.5.0.tgz",
+      "integrity": "sha512-YM/nFfskFJSlHqv59ed6dZlLZqtZQwjRVJ4bBAiWV08Oc+1rSd5lDZcBEx0lGDHfSoH3UziI2pXt2UM33KerPQ==",
       "dependencies": {
-        "asn1js": "^3.0.5",
+        "asn1js": "^3.0.6",
         "pvtsutils": "^1.3.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-x509": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-x509/-/asn1-x509-2.3.15.tgz",
-      "integrity": "sha512-0dK5xqTqSLaxv1FHXIcd4Q/BZNuopg+u1l23hT9rOmQ1g4dNtw0g/RnEi+TboB0gOwGtrWn269v27cMgchFIIg==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-x509/-/asn1-x509-2.5.0.tgz",
+      "integrity": "sha512-CpwtMCTJvfvYTFMuiME5IH+8qmDe3yEWzKHe7OOADbGfq7ohxeLaXwQo0q4du3qs0AII3UbLCvb9NF/6q0oTKQ==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "asn1js": "^3.0.6",
         "pvtsutils": "^1.3.6",
         "tslib": "^2.8.1"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/asn1-x509-attr": {
-      "version": "2.3.15",
-      "resolved": "https://registry.npmjs.org/@peculiar/asn1-x509-attr/-/asn1-x509-attr-2.3.15.tgz",
-      "integrity": "sha512-TWJVJhqc+IS4MTEML3l6W1b0sMowVqdsnI4dnojg96LvTuP8dga9f76fjP07MUuss60uSyT2ckoti/2qHXA10A==",
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/asn1-x509-attr/-/asn1-x509-attr-2.5.0.tgz",
+      "integrity": "sha512-9f0hPOxiJDoG/bfNLAFven+Bd4gwz/VzrCIIWc1025LEI4BXO0U5fOCTNDPbbp2ll+UzqKsZ3g61mpBp74gk9A==",
       "dependencies": {
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
-        "asn1js": "^3.0.5",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
+        "asn1js": "^3.0.6",
         "tslib": "^2.8.1"
       }
     },
@@ -176,17 +177,17 @@
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@peculiar/x509": {
-      "version": "1.12.4",
-      "resolved": "https://registry.npmjs.org/@peculiar/x509/-/x509-1.12.4.tgz",
-      "integrity": "sha512-4bWU48fN53nt3W683CrEVcUIus7WQlBq/EMVFx7K+FvQTOWJ5RmfJvTLVOfwDjAyxs7jVPbgUGBdqEDlLy1t9Q==",
+      "version": "1.14.0",
+      "resolved": "https://registry.npmjs.org/@peculiar/x509/-/x509-1.14.0.tgz",
+      "integrity": "sha512-Yc4PDxN3OrxUPiXgU63c+ZRXKGE8YKF2McTciYhUHFtHVB0KMnjeFSU0qpztGhsp4P0uKix4+J2xEpIEDu8oXg==",
       "dependencies": {
-        "@peculiar/asn1-cms": "^2.3.15",
-        "@peculiar/asn1-csr": "^2.3.15",
-        "@peculiar/asn1-ecc": "^2.3.15",
-        "@peculiar/asn1-pkcs9": "^2.3.15",
-        "@peculiar/asn1-rsa": "^2.3.15",
-        "@peculiar/asn1-schema": "^2.3.15",
-        "@peculiar/asn1-x509": "^2.3.15",
+        "@peculiar/asn1-cms": "^2.5.0",
+        "@peculiar/asn1-csr": "^2.5.0",
+        "@peculiar/asn1-ecc": "^2.5.0",
+        "@peculiar/asn1-pkcs9": "^2.5.0",
+        "@peculiar/asn1-rsa": "^2.5.0",
+        "@peculiar/asn1-schema": "^2.5.0",
+        "@peculiar/asn1-x509": "^2.5.0",
         "pvtsutils": "^1.3.6",
         "reflect-metadata": "^0.2.2",
         "tslib": "^2.8.1",
@@ -211,9 +212,9 @@
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@types/async": {
-      "version": "3.2.24",
-      "resolved": "https://registry.npmjs.org/@types/async/-/async-3.2.24.tgz",
-      "integrity": "sha512-8iHVLHsCCOBKjCF2KwFe0p9Z3rfM9mL+sSP8btyR5vTjJRAqpBYD28/ZLgXPf0pjG1VxOvtCV/BgXkQbpSe8Hw=="
+      "version": "3.2.25",
+      "resolved": "https://registry.npmjs.org/@types/async/-/async-3.2.25.tgz",
+      "integrity": "sha512-O6Th/DI18XjrL9TX8LO9F/g26qAz5vynmQqlXt/qLGrskvzCKXKc5/tATz3G2N6lM8eOf3M8/StB14FncAmocg=="
     },
     "node_modules/node-red-contrib-opcua/node_modules/@types/dns-packet": {
       "version": "5.6.5",
@@ -256,11 +257,11 @@
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@types/node": {
-      "version": "24.0.3",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.0.3.tgz",
-      "integrity": "sha512-R4I/kzCYAdRLzfiCabn9hxWfbuHS573x+r0dJMkkzThEa7pbrcDWK+9zu3e7aBOouf+rQAciqPFMnxwr0aWgKg==",
+      "version": "24.5.2",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.5.2.tgz",
+      "integrity": "sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==",
       "dependencies": {
-        "undici-types": "~7.8.0"
+        "undici-types": "~7.12.0"
       }
     },
     "node_modules/node-red-contrib-opcua/node_modules/@types/proper-lockfile": {
@@ -277,9 +278,9 @@
       "integrity": "sha512-3xSjTp3v03X/lSQLkczaN9UIEwJMoMCA1+Nb5HfbJEQWogdeQIyVtTvxPXDQjZ5zws8rFQfVfRdz03ARihPJgw=="
     },
     "node_modules/node-red-contrib-opcua/node_modules/@types/semver": {
-      "version": "7.7.0",
-      "resolved": "https://registry.npmjs.org/@types/semver/-/semver-7.7.0.tgz",
-      "integrity": "sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA=="
+      "version": "7.7.1",
+      "resolved": "https://registry.npmjs.org/@types/semver/-/semver-7.7.1.tgz",
+      "integrity": "sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA=="
     },
     "node_modules/node-red-contrib-opcua/node_modules/@types/sshpk": {
       "version": "1.17.4",
@@ -2544,9 +2545,9 @@
       "integrity": "sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA=="
     },
     "node_modules/node-red-contrib-opcua/node_modules/undici-types": {
-      "version": "7.8.0",
-      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-7.8.0.tgz",
-      "integrity": "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="
+      "version": "7.12.0",
+      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-7.12.0.tgz",
+      "integrity": "sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ=="
     },
     "node_modules/node-red-contrib-opcua/node_modules/util": {
       "version": "0.12.5",

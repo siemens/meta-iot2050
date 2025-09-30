@@ -5,13 +5,13 @@
   "packages": {
     "": {
       "dependencies": {
-        "node-red-contrib-s7": "^3.1.0"
+        "node-red-contrib-s7": "^3.1.1"
       }
     },
     "node_modules/node-red-contrib-s7": {
-      "version": "3.1.0",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.1.0.tgz",
-      "integrity": "sha512-5ETqfO7bEVZQZ9IJ85INGU6fIfh/BnQL7vx1PYz1Uk/Z/wF4+9PLabOI3SN3UEudjnbJyCU5PlgVcm0DwLhhZg==",
+      "version": "3.1.1",
+      "resolved": "https://registry.npmjs.org/node-red-contrib-s7/-/node-red-contrib-s7-3.1.1.tgz",
+      "integrity": "sha512-PatxYZXqGMDtwVZtvXtIZu8RCMc3DxCqn6aTNhr7Brnj1IlVthJawkCKhV94fvOMKNK8CL1f5LvqD5LgOHpe5g==",
       "dependencies": {
         "@st-one-io/nodes7": "1.1.0"
       }

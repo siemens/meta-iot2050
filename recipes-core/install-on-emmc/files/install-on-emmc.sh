@@ -89,14 +89,14 @@ if [ -e /etc/install-on-emmc ]; then
 else
 	echo "Press USER button to install on eMMC, you have 20 seconds"
 	echo "WARNING: All data on eMMC will be overwritten!"
-	GPIO_PIN=$(gpiofind USER-button)
+	GPIO_PIN="USER-button"
 
 	blink ${LED_ORANGE} 1
 
 	trap timer_expired ALRM
 	start_timer 20
 
-	gpiomon -f -s -n 1 ${GPIO_PIN} &
+	gpiomon -e falling -q -n 1 ${GPIO_PIN} &
 	GPIOMON_PID=$!
 	wait ${GPIOMON_PID}
 
@@ -106,8 +106,8 @@ else
 	blink ${LED_RED} 0.25
 
 	echo "Hold USER button for 5 seconds to confirm"
-	for N in $(seq 50); do
-		if [ $(gpioget ${GPIO_PIN}) = 1 ]; then
+	for _ in $(seq 50); do
+		if [ "$(gpioget --numeric ${GPIO_PIN})" = 1 ]; then
 			echo "Terminated - rebooting..."
 			reboot
 		fi

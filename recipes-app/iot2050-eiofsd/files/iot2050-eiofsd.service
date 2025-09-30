@@ -6,10 +6,14 @@
 Description=IOT2050 Extended IO FUSE filesystem daemon
 # Only run on IOT2050-SM variant
 ConditionFirmware=device-tree-compatible(siemens,iot2050-advanced-sm)
+Requires=local-fs.target
+After=local-fs.target
 
 [Service]
-Type=forking
-ExecStart=/usr/bin/iot2050-eiofsd /eiofs
+Type=simple
+ExecStartPre=/bin/sh -c '[ -d /eiofs ] || /usr/bin/mkdir /eiofs'
+ExecStart=/usr/bin/iot2050-eiofsd -f /eiofs
+ExecStop=/usr/bin/umount /eiofs
 Restart=on-failure
 
 [Install]

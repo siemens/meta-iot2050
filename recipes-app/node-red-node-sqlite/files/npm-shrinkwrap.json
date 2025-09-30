@@ -5,15 +5,15 @@
   "packages": {
     "": {
       "dependencies": {
-        "node-red-node-sqlite": "^1.1.0"
+        "node-red-node-sqlite": "^1.1.1"
       }
     },
     "node_modules/node-red-node-sqlite": {
-      "version": "1.1.0",
-      "resolved": "https://registry.npmjs.org/node-red-node-sqlite/-/node-red-node-sqlite-1.1.0.tgz",
-      "integrity": "sha512-DKziIiIy2ydeq7CL99r7PJPsoCzrs7ozGISLyTMIvUZ0DuZG5jbbBm6cJAo+TgsofQOMdqP4XlOg3yedJOAH5Q==",
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/node-red-node-sqlite/-/node-red-node-sqlite-1.1.1.tgz",
+      "integrity": "sha512-xctohLJhaVjQBB3pCKRY89d0N6ubAa0XuN9kCwo7sY3CAPWhv9Zr5RisL39Fc+HPawiVFbs4sj8EBnwNM3q9zQ==",
       "dependencies": {
-        "sqlite3": "^5.1.6"
+        "sqlite3": "^5.1.7"
       },
       "engines": {
         "node": ">=12"
@@ -111,9 +111,9 @@
       }
     },
     "node_modules/node-red-node-sqlite/node_modules/aproba": {
-      "version": "2.0.0",
-      "resolved": "https://registry.npmjs.org/aproba/-/aproba-2.0.0.tgz",
-      "integrity": "sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==",
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/aproba/-/aproba-2.1.0.tgz",
+      "integrity": "sha512-tLIEcj5GuR2RSTnxNKdkK0dJ/GrC7P38sUkiDmDuHfsHmbagTFAxDVIBltoklXEVIQ/f14IL8IMJ5pn9Hez1Ew==",
       "optional": true
     },
     "node_modules/node-red-node-sqlite/node_modules/are-we-there-yet": {
@@ -274,9 +274,9 @@
       "optional": true
     },
     "node_modules/node-red-node-sqlite/node_modules/debug": {
-      "version": "4.4.1",
-      "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.1.tgz",
-      "integrity": "sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==",
+      "version": "4.4.3",
+      "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+      "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
       "optional": true,
       "dependencies": {
         "ms": "^2.1.3"
@@ -319,9 +319,9 @@
       "optional": true
     },
     "node_modules/node-red-node-sqlite/node_modules/detect-libc": {
-      "version": "2.0.4",
-      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.0.4.tgz",
-      "integrity": "sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==",
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.0.tgz",
+      "integrity": "sha512-vEtk+OcP7VBRtQZ1EJ3bdgzSfBjgnEalLTp5zjJrS+2Z1w2KZly4SBdac/WDU3hhsNAZ9E8SC96ME4Ey8MZ7cg==",
       "engines": {
         "node": ">=8"
       }
@@ -576,14 +576,10 @@
       "integrity": "sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew=="
     },
     "node_modules/node-red-node-sqlite/node_modules/ip-address": {
-      "version": "9.0.5",
-      "resolved": "https://registry.npmjs.org/ip-address/-/ip-address-9.0.5.tgz",
-      "integrity": "sha512-zHtQzGojZXTwZTHQqra+ETKd4Sn3vgi7uBmlPoXVWZqYvuKmtI0l/VZTjqGmJY9x88GGOaZ9+G9ES8hC4T4X8g==",
+      "version": "10.0.1",
+      "resolved": "https://registry.npmjs.org/ip-address/-/ip-address-10.0.1.tgz",
+      "integrity": "sha512-NWv9YLW4PoW2B7xtzaS3NCot75m6nK7Icdv0o3lfMceJVRfSoQwqD4wEH5rLwoKJwUiZ/rfpiVBhnaF0FK4HoA==",
       "optional": true,
-      "dependencies": {
-        "jsbn": "1.1.0",
-        "sprintf-js": "^1.1.3"
-      },
       "engines": {
         "node": ">= 12"
       }
@@ -607,12 +603,6 @@
       "version": "2.0.0",
       "resolved": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==",
-      "optional": true
-    },
-    "node_modules/node-red-node-sqlite/node_modules/jsbn": {
-      "version": "1.1.0",
-      "resolved": "https://registry.npmjs.org/jsbn/-/jsbn-1.1.0.tgz",
-      "integrity": "sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==",
       "optional": true
     },
     "node_modules/node-red-node-sqlite/node_modules/lru-cache": {
@@ -810,9 +800,9 @@
       }
     },
     "node_modules/node-red-node-sqlite/node_modules/node-abi": {
-      "version": "3.75.0",
-      "resolved": "https://registry.npmjs.org/node-abi/-/node-abi-3.75.0.tgz",
-      "integrity": "sha512-OhYaY5sDsIka7H7AtijtI9jwGYLyl29eQn/W623DiN/MIv5sUqc4g7BIDThX+gb7di9f6xK02nkp8sdfFWZLTg==",
+      "version": "3.77.0",
+      "resolved": "https://registry.npmjs.org/node-abi/-/node-abi-3.77.0.tgz",
+      "integrity": "sha512-DSmt0OEcLoK4i3NuscSbGjOf3bqiDEutejqENSplMSFA/gmB8mkED9G4pKWnPl7MDU4rSHebKPHeitpDfyH0cQ==",
       "dependencies": {
         "semver": "^7.3.5"
       },
@@ -1119,12 +1109,12 @@
       }
     },
     "node_modules/node-red-node-sqlite/node_modules/socks": {
-      "version": "2.8.5",
-      "resolved": "https://registry.npmjs.org/socks/-/socks-2.8.5.tgz",
-      "integrity": "sha512-iF+tNDQla22geJdTyJB1wM/qrX9DMRwWrciEPwWLPRWAUEM8sQiyxgckLxWT1f7+9VabJS0jTGGr4QgBuvi6Ww==",
+      "version": "2.8.7",
+      "resolved": "https://registry.npmjs.org/socks/-/socks-2.8.7.tgz",
+      "integrity": "sha512-HLpt+uLy/pxB+bum/9DzAgiKS8CX1EvbWxI4zlmgGCExImLdiad2iCwXT5Z4c9c3Eq8rP2318mPW2c+QbtjK8A==",
       "optional": true,
       "dependencies": {
-        "ip-address": "^9.0.5",
+        "ip-address": "^10.0.1",
         "smart-buffer": "^4.2.0"
       },
       "engines": {
@@ -1145,12 +1135,6 @@
       "engines": {
         "node": ">= 10"
       }
-    },
-    "node_modules/node-red-node-sqlite/node_modules/sprintf-js": {
-      "version": "1.1.3",
-      "resolved": "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.1.3.tgz",
-      "integrity": "sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==",
-      "optional": true
     },
     "node_modules/node-red-node-sqlite/node_modules/sqlite3": {
       "version": "5.1.7",
@@ -1246,9 +1230,9 @@
       }
     },
     "node_modules/node-red-node-sqlite/node_modules/tar-fs": {
-      "version": "2.1.3",
-      "resolved": "https://registry.npmjs.org/tar-fs/-/tar-fs-2.1.3.tgz",
-      "integrity": "sha512-090nwYJDmlhwFwEW3QQl+vaNnxsO2yVsd45eTKRBzSzu+hlb1w2K9inVq5b0ngXuLVqQ4ApvsUHHnu/zQNkWAg==",
+      "version": "2.1.4",
+      "resolved": "https://registry.npmjs.org/tar-fs/-/tar-fs-2.1.4.tgz",
+      "integrity": "sha512-mDAjwmZdh7LTT6pNleZ05Yt65HC3E+NiQzl672vQG38jIrehtJk/J3mNwIg+vShQPcLF/LV7CMnDW6vjj6sfYQ==",
       "dependencies": {
         "chownr": "^1.1.1",
         "mkdirp-classic": "^0.5.2",

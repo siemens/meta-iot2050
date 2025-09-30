@@ -7,12 +7,12 @@
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
-# 
+#
 # To update the npm-shrinkwrap.json file, ensure you follow the guidelines
 # provided in classes/npm.bbclass.
 #
 
-PR = "1"
+PR = "2"
 
 inherit npm
 require recipes-app/node-red/node-red-home.inc
@@ -28,6 +28,6 @@ TEMPLATE_FILES = "node-red.service.tmpl"
 TEMPLATE_VARS  = "NODE_RED_HOME_DIR"
 
 do_install:append() {
-    install -v -d ${D}/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/node-red.service ${D}/lib/systemd/system/
+    install -v -d ${D}/usr/lib/systemd/system/
+    install -v -m 644 ${WORKDIR}/node-red.service ${D}/usr/lib/systemd/system/
 }

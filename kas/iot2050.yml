@@ -29,16 +29,13 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: 8e3122249a52db470efb32b92ed9c44e4b758712
+    commit: df63cc01345e07586ba483ab4b57febaa6067193
     layers:
       meta:
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    commit: bc9a063e6b7b7663e0de0b412ac24e4f816ef253
-    patches:
-      bump-edk2-standalonemm:
-        path: cip-core-patches/0001-edk2-standalonemm-rpmb-Bump-to-202505-and-refresh-cr.patch
+    commit: 640238410510929209d1478e994533e53bf74f34
 
 local_conf_header:
   standard: |

@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg
 
@@ -19,6 +19,9 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0002-common-increase-pin-name-size.patch \
             file://0003-iot2050-add-debugfs-pinmux-support.patch \
             file://0004-iot2050-Add-support-for-the-new-IOT2050-SM-variant.patch \
+            file://0005-python-binding-Fix-Python-3.13-compatibility.patch \
+            file://0006-javascript-update-C-standard-to-C-17-for-compatibili.patch \
+            file://0007-fix-iot2050-Correct-parent-IDs-for-PWM-pins.patch \
             file://rules"
 
 CHANGELOG_V = "${PV}-${PR}"
@@ -28,7 +31,7 @@ S = "${WORKDIR}/git"
 
 DEBIAN_BUILD_DEPENDS = " \
     cmake, \
-    swig4.0, \
+    swig, \
     libpython3-dev, \
     nodejs, \
     libnode-dev, \

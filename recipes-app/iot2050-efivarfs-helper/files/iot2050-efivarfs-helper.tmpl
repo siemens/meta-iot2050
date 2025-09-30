@@ -135,10 +135,18 @@ def do_prepare():
     '''Prepare the operation environment for manipulating efivarfs'''
     message_prepare_fail = "Fail to prepare the efivarfs for manipulating. \
 You may need to check the environment."
+    rpmb_routing_model="none"
+    with open("/sys/class/tee/tee0/rpmb_routing_model") as f:
+        rpmb_routing_model = f.read().strip()
 
-    if (not check_srv_tee_supplicant() or
-            not check_mount_efivarfs() or
-            not check_efitools_installation()):
+    if rpmb_routing_model == "kernel":
+        print("The RPMB routing model is 'kernel'.\nSkip to check tee-supplicant service.")
+    elif not check_srv_tee_supplicant():
+        print(f"{'Unsupported RPMB routing model' if rpmb_routing_model == 'none' else 'RPMB routing model is user'} and the tee-supplicant service is not running.\nPlease start the tee-supplicant service.")
+        exit_on_failure(message_prepare_fail)
+
+    if ( not check_mount_efivarfs() or
+        not check_efitools_installation()):
         exit_on_failure(message_prepare_fail)
 
     # By default the UEFI authenticated variable files in efivarfs have the
