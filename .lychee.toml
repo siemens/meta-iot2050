@@ -1,0 +1,27 @@
+# Lychee link checker configuration
+# Documentation: https://github.com/lycheeverse/lychee
+
+cache = true
+max_cache_age = "1d"
+timeout = 20
+retry_wait_time = 2
+max_retries = 2
+user_agent = "meta-iot2050-link-check"
+
+exclude = [
+  # Local network IP examples
+  "192.168.200.1",
+  # Placeholder tokens
+  "<Version>",
+]
+
+exclude_all_private = true
+accept = ["200", "204", "301", "302"]
+
+scheme = ["http", "https"]
+
+ignore_ssl_errors = false
+
+include_verbatim = false
+
+no_progress = true
