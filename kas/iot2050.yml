@@ -1,18 +1,20 @@
 #
-# Copyright (c) Siemens AG, 2019-2024
+# IoT2050 Base Configuration
+# Minimal bootable system with hardware enablement only
+#
+# Copyright (c) Siemens AG, 2019-2025
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
-# This file is subject to the terms and conditions of the MIT License.  See
-# COPYING.MIT file in the top-level directory.
+# SPDX-License-Identifier: MIT
 #
 
 header:
   version: 14
 
 build_system: isar
-
 distro: iot2050-debian
 target: iot2050-image-base
 machine: iot2050
@@ -25,7 +27,7 @@ defaults:
 repos:
   meta-iot2050:
     layers:
-      .:
+      meta:
 
   isar:
     url: https://github.com/ilbers/isar
@@ -45,7 +47,11 @@ local_conf_header:
     CONF_VERSION = "1"
   crossbuild: |
     ISAR_CROSS_COMPILE = "1"
-  ccache:
+  ccache: |
     USE_CCACHE = "1"
   compatsupport: |
     ISAR_ENABLE_COMPAT_ARCH = "1"
+  root_password: |
+    USERS += "root"
+    USER_root[password] ??= "root"
+    USER_root[flags] ??= "clear-text-password"
