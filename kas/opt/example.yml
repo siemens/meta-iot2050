@@ -1,0 +1,19 @@
+#
+# IoT2050 Example Configuration
+# Includes all example applications and sample configurations
+#
+# Copyright (c) Siemens AG, 2025
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+repos:
+  meta-iot2050:
+    layers:
+      meta-example:

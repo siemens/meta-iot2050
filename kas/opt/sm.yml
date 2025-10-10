@@ -1,0 +1,23 @@
+#
+# IoT2050-SM Board Variant Configuration
+# Adds SM board variant support to any base configuration
+#
+# Copyright (c) Siemens AG, 2025
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+repos:
+  meta-iot2050:
+    layers:
+      meta-sm:
+
+local_conf_header:
+  sm_config: |
+    IOT2050_SM_SUPPORT = "1"
