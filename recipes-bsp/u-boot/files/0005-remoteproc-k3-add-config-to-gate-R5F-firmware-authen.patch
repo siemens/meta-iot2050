@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Tue, 14 Oct 2025 16:33:17 +0800
+Subject: [PATCH] remoteproc: k3: add config to gate R5F firmware
+ authentication
+
+Upstream commit 5b5bb51af8b unconditionally authenticates K3 R5F firmware
+by calling ti_secure_image_post_process(). On IOT2050 the watchdog RTI R5
+helper binary (k3-rti-wdt-firmware) is embedded as a loadable inside the
+U-Boot FIT image which is already integrity protected as a whole.
+
+This causes an unwanted second-stage TI-SCI authentication attempt on a
+plain ELF, producing spurious failures on HS-SE parts.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ configs/iot2050_defconfig            |  1 +
+ drivers/remoteproc/Kconfig           | 11 +++++++++++
+ drivers/remoteproc/ti_k3_r5f_rproc.c |  4 ++++
+ 3 files changed, 16 insertions(+)
+
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index ad200bd563b0..f94afa8cb55a 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -153,4 +153,5 @@ CONFIG_USB_KEYBOARD=y
+ # CONFIG_WATCHDOG_AUTOSTART is not set
+ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
++# CONFIG_K3_RPROC_FIRMWARE_AUTH is not set
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
+diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
+index 2790b168b198..32f971fa92cd 100644
+--- a/drivers/remoteproc/Kconfig
++++ b/drivers/remoteproc/Kconfig
+@@ -70,9 +70,20 @@ config REMOTEPROC_TI_K3_DSP
+ 	  on various TI K3 family of SoCs through the remote processor
+ 	  framework.
+ 
++config K3_RPROC_FIRMWARE_AUTH
++	bool "Authenticate K3 R5F firmware"
++	depends on REMOTEPROC_TI_K3_R5F
++	help
++	  Perform TI secure image post-processing (authentication) for R5F
++	  remoteproc firmware. Some platforms embed small helper ELF binaries
++	  (e.g. watchdog RTI firmware) inside an already signed FIT image and
++	  do not provide a separate security certificate; they can leave this
++	  unset to skip the extra auth attempt.
++
+ config REMOTEPROC_TI_K3_R5F
+ 	bool "TI K3 R5F remoteproc support"
+ 	select REMOTEPROC
++	imply K3_RPROC_FIRMWARE_AUTH
+ 	depends on ARCH_K3
+ 	depends on TI_SCI_PROTOCOL
+ 	help
+diff --git a/drivers/remoteproc/ti_k3_r5f_rproc.c b/drivers/remoteproc/ti_k3_r5f_rproc.c
+index c822bbba745e..5369f4a63678 100644
+--- a/drivers/remoteproc/ti_k3_r5f_rproc.c
++++ b/drivers/remoteproc/ti_k3_r5f_rproc.c
+@@ -344,7 +344,11 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
+ 			b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
+ 	}
+ 
++#if IS_ENABLED(CONFIG_K3_RPROC_FIRMWARE_AUTH)
+ 	ti_secure_image_post_process(&image_addr, &size);
++#else
++	dev_dbg(dev, "Skipping remoteproc firmware authentication\n");
++#endif
+ 
+ 	if (IS_ENABLED(CONFIG_LOG)) {
+ 		u8 *b = (u8 *)image_addr;
