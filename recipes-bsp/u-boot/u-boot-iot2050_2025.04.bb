@@ -19,6 +19,7 @@ SRC_URI += " \
     file://0002-board-siemens-iot2050-Generalize-overlay_prepare.patch \
     file://0003-board-siemens-iot2050-Allow-to-enable-and-adjust-res.patch \
     file://0004-arm-dts-iot2050-Enforce-DMA-isolation-for-devices-be.patch \
+    file://0005-remoteproc-k3-add-config-to-gate-R5F-firmware-authen.patch \
     "
 
 SRC_URI[sha256sum] = "439d3bef296effd54130be6a731c5b118be7fddd7fcc663ccbc5fb18294d8718"
