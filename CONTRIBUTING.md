@@ -56,6 +56,53 @@ contributing to this repository:
 By adhering to these guidelines, we ensure consistency and compatibility across
 all contributions. Thank you for helping maintain high standards in this project.
 
+## Changelog Conventions
+
+This project keeps a human-readable `CHANGELOG.md` using a structure loosely
+based on Keep a Changelog plus additional sections (Security, Migration,
+Internal). Follow these rules when contributing changes:
+
+1. Always update `CHANGELOG.md` in the same commit (or series) that introduces
+    user-visible changes (features, deprecations, removals, security updates,
+    migration requirements, documentation restructuring).
+2. Use present tense and imperative mood (e.g. "Add fragment for...", "Deprecate
+    variable ...") for new entries.
+3. Categorize under one (or more if justified) of the standard headings:
+    - Added / Changed / Removed / Deprecated / Security / Migration / Internal.
+4. Avoid duplicate subsections: consolidate multiple bullet points under one
+    heading rather than creating additional repeated headings.
+5. For unreleased work target the `[Unreleased]` section. When preparing a patch
+    release (e.g. 1.6.1) create an empty placeholder section:
+    `## [1.x.y] - UNRELEASED` directly below `[Unreleased]` so PRs can move
+    entries there once scope is defined.
+6. Do NOT retroactively edit released sections except to correct typos or add
+    missing security disclosures (note corrections in a new bullet if impactful).
+7. Link additions (new docs) should briefly state purpose, not just filename.
+8. Migration bullets must be actionable (commands, flags, fragment chains) and
+    avoid ambiguous phrasing.
+9. Security section only for items affecting boot chain integrity, signing,
+     encryption, update verification, or vulnerability remediation.
+10. Comparison links must be updated for each release.
+11. Trivial typo-only doc fixes may omit changelog entry.
+
+Example bullet formatting:
+```
+### Added
+- Add `preempt-rt.yml` fragment providing low-latency kernel option.
+```
+
+If a PR only changes internal CI or test infrastructure, prefer the Internal
+section. Small typo-only doc fixes may omit changelog if truly trivial.
+
+Release Process (summary):
+1. Ensure `[Unreleased]` is empty (move items to new version block).
+2. Add comparison link references at bottom for the new tag.
+3. Replace `UNRELEASED` with the release date (UTC) in ISO format.
+4. Tag the release and push.
+5. Immediately add a new placeholder section for the next patch/minor.
+
+This keeps downstream consumers informed and lowers migration friction.
+
 ## Developer's Certificate of Origin 1.1
 
 In order to pass the checks, commit with signoff option

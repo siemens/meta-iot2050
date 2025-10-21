@@ -1,120 +1,70 @@
-# META-IOT2050
+# META-IOT2050  
+[![Build](https://github.com/siemens/meta-iot2050/actions/workflows/main.yml/badge.svg)](../../actions)
+[![Links](https://github.com/siemens/meta-iot2050/actions/workflows/link-check.yml/badge.svg)](../../actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](COPYING.MIT)
+[![Docs](https://img.shields.io/badge/docs-index-green)](doc/README.md)
+
+_Applies to version: v1.6.0+_
 
 This [Isar](https://github.com/ilbers/isar) layer contains recipes,
 configuration and other artifacts that are specific to  Debian-based IOT2050
-product.
+product. It is accompanied by a lean core BSP and modular, opt‑in layers plus
+KAS fragments for feature and variant enablement (e.g. Node-RED, examples, SM
+, Hailo AI, etc.).
 
-## Build example image
+For the complete architecture rationale and migration guide see:
+[layer-architecture](doc/layer-architecture.md).
+
+Recent changes and migration notes: refer to [CHANGELOG](CHANGELOG.md).
+
+## Prerequisites
 
 Before building the system, you will need to install docker on build host. For
-example under Debian Linux
-
+For the complete architecture rationale and migration guide see:
+example under Debian Linux:
 ```shell
 sudo apt install docker.io
 ```
 
 If you want to run docker as non-root user then you need to add your user to the
 docker group:
-
 ```shell
-sudo usermod -aG docker $USER
+sudo usermod -aG docker $USER   # may need to re-login after
 ```
 
-You may need to re-login or issue newgrp.
+## Quick Start
 
-Then open the menu to select the desired image and options:
+Interactive menu:
 
 ```shell
 ./kas-container menu
 ```
 
-After the build completed, the final image is under
+Or use `kas-container build`:
+```shell
+# Example image (includes demos, Node-RED, SM)
+./kas-container build kas-iot2050-example.yml
+```
+
+More composition patterns: [build-config §3](doc/build-config.md#3-manual-composition)
+
+After the build completed, the final image is under:
 
 ```text
 build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
 ```
 
-### Build with EIO subsystem support
-
-To build the example image with EIO subsystem, for example when building for
-IOT2050 SM variant, the EIO firmware & binaries must be downloaded from
-[Siemens Industry Online Support](https://support.industry.siemens.com/cs/document/109741799/downloads-for-simatic-iot20x0?dti=0&lc=en-WW)
-and extracted to `recipes-app/iot2050-eio-manager/files/bin` before the building.
-
-Then build with
-
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/eio.yml
-```
-(or select `EIO subsystem support` in `kas menu`)
-
-A tool to upgrade the customized signal module (SENS SM) firmware is also
-avaiable, to build it with:
-
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/eio.yml:kas/opt/module.yml
-```
-
-### Build with Hailo8 AI card support
-
-To build the example image with the Hailo8 AI card support:
-
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/meta-hailo.yml
-```
-
-Please visit [meta-hailo](./meta-hailo/README.md) for the details.
-
-## Build user SDK
->>>
-**Note:** Current SDK only supports Linux x86-64 host machine
->>>
-
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/sdk.yml
-```
-(or select SDK in `kas menu`)
-
-After the build completed, the SDK tarball is located at
-
-```text
-build/tmp/deploy/images/iot2050/sdk-isar-arm64.tar.xz
-```
-
-Please follow the further instruction file `README.sdk` in the SDK tarball.
-
-The SDK is also available as docker image. To import it into a docker host, run
-
-```shell
-docker load -i build/tmp/deploy/images/iot2050/sdk-iot2050-debian-arm64-docker-archive.tar.xz
-```
-
-## Build qemu image
-
-To boot IOT2050 image from qemu, you need a customized image for proper booting.
-Please use kas menu with the following command and select qemu image for target build
-with example image or example image with swupdate support
-
-```shell
-./kas-container menu
-```
-
-Then below command can be used to boot qemu image on a platform that
-qemu-system-aarch64 is installed.
-
-Run qemu:
-```shell
-/bin/sh start-qemu-iot2050.sh"
-```
-
-## Clean build result
+Clean build result:
 
 ```shell
 ./kas-container --isar clean
 ```
 
-## Booting the image from SD card
+For more detailed reference please visit [build-config](doc/build-config.md).
 
+## Deploy
+
+### Booting the image from SD card
 Under Linux, insert an unused SD card. Assuming the SD card takes device
 /dev/mmcblk0, use dd to copy the image to it. For example:
 
@@ -123,7 +73,7 @@ $ sudo dd if=build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debia
           of=/dev/mmcblk0 bs=4M oflag=sync
 ```
 
-Alternatively, install the bmap-tools package and run the following command
+Alternatively, install the `bmap-tools` package and run the following command
 which is generally faster and safer:
 
 ```shell
@@ -141,7 +91,7 @@ use that to ssh in.
 NOTE: To login, the default username and password is `root`. And you are
 required to change the default password when first login.
 
-## Installing the image on the eMMC (IOT2050 Advanced only)
+### Installing the image on the eMMC (IOT2050 Advanced only)
 
 During the very first boot of the image from an SD card or USB stick, you can
 request the installation to the eMMC. For that, press the USER button while
@@ -158,7 +108,7 @@ The installation can also be triggered automatically by creating the file
 `/etc/install-on-emmc` on the vanilla image by mounting it under Linux and
 executing, e.g., `touch <mountpoint>/etc/install-on-emmc`.
 
-## Updating the U-Boot firmware
+### Updating the U-Boot firmware
 
 Starting from V01.05.x, the updated firmware tarball is integrated into the
 `/usr/share/iot2050/fwu/` directory by default. To update the U-Boot firmware,
@@ -168,7 +118,7 @@ execute the following command:
 iot2050-firmware-update /usr/share/iot2050/fwu/IOT2050-FW-Update-PKG-<Version>.tar.xz
 ```
 
-## Selecting a boot device
+### Selecting a boot device
 
 By default, the boot loader will pick the first bootable device. If that device
 may no longer fully start, you can select an alternative boot device in the
@@ -186,91 +136,45 @@ to boot from the microSD card. Use `usb0` for the first USB mass storage device.
 NOTE: This selection is not persistent. The boot loader will fall back to its
 default boot order after reset.
 
-## Building with SWUpdate support
+## Images & Features Matrix
+Legend: ✅ = implicit / already included in example image & SWUpdate images, ➕ = optional fragment, 🧩 = descriptor (top-level KAS file)
 
-It is possible to create an image with a SWUpdate based [double copy
-root file
-system](https://sbabic.github.io/swupdate/overview.html#double-copy-with-fall-back)
-for Over-The-Air updates by selecting the option `Example image with
-SWUpdate support` during the image configuration with `./kas-container
-menu`. You can also build the image by calling:
+| Type / Feature | Default Contents / Purpose | How to Enable / Build | Extends With | Docs |
+|----------------|-----------------------------|-----------------------|--------------|------|
+| 🧩 Example image | Demos, Node-RED, SM variant bundled | `kas-iot2050-example.yml` | Hailo, LXDE, Docker, SDK, secure boot, QEMU | [Architecture](doc/layer-architecture.md) |
+| 🧩 Example image (SWUpdate A/B) | Example image + dual rootfs (A/B) | `kas-iot2050-swupdate.yml` | Same as example (larger footprint) | [SWUpdate](doc/swupdate.md) / [Details](#swupdate) |
+| 🧩 Example image (minimal HW enablement) | Core BSP only; lean baseline | `kas/iot2050.yml` | `example.yml`, `node-red.yml`, `sm.yml`, others | [Build Config](doc/build-config.md#22-image-types-choices--glossary) / [SM/EIO](#sm--eio-support) |
+| 🧩 Boot firmware descriptor | TF-A, OP-TEE, U-Boot, SPL artifacts (no rootfs) | `kas-iot2050-boot.yml` | Secure boot (signing), provisioning | [Maintenance](doc/maintenance.md#firmware) |
+| 🧩 Firmware update package | Boot chain update bundle (.tar.xz) for field updates | `kas-iot2050-fwu-package.yml` | N/A | [Maintenance](doc/maintenance.md#firmware) |
+| QEMU descriptor | Emulated target config | Chain `:kas-iot2050-qemu.yml` after image | Adds on top of minimal or example | [QEMU](doc/qemu.md) / [Details](#qemu-emulation) |
+| ✅ Example demos (fragment) | Reference apps & sample content | [`example.yml`](kas/opt/example.yml) or implicit | Combine with minimal image | [Build Config](doc/build-config.md#3-manual-composition) |
+| ✅ Node-RED (fragment) | Flow runtime + curated nodes | [`node-red.yml`](kas/opt/node-red.yml) or implicit | Combine with minimal image | [meta-node-red](meta-node-red/README.md) / [Security](#security) |
+| ✅ SM variant (fragment) | Sensors, extended IO services | [`sm.yml`](kas/opt/sm.yml) or implicit | Combine with minimal image | [meta-sm](meta-sm/README.md) / [SM/EIO](#sm--eio-support) |
+| ➕ Hailo AI (fragment) | Hailo8 runtime & integration | [`hailo.yml`](kas/opt/hailo.yml) | Demos, minimal, example | [meta-hailo](meta-hailo/README.md) / [Hailo8](#hailo8-ai-accelerator) |
+| ➕ LXDE desktop (fragment) | Lightweight desktop environment | [`lxde.yml`](kas/opt/lxde.yml) | GUI builds (example/minimal) | [Build Config](doc/build-config.md) |
+| ➕ Docker / containers (fragment) | Container runtime & helpers | [`docker.yml`](kas/opt/docker.yml) | Example/minimal variants | [Build Config](doc/build-config.md) |
+| ➕ SDK (fragment) | Cross-toolchain + sysroot | [`sdk.yml`](kas/opt/sdk.yml) or menu | Any image variant | [SDK](doc/sdk.md) / [Details](#sdk-toolchain) |
+| ➕ Secure boot (fragment) | Signing only unless a single provisioning fragment appended | [`secure-boot.yml`](kas/opt/secure-boot.yml) (+ one `otpcmd/*` to enforce) | Example/minimal/SWUpdate | [Secure Boot](doc/secure-boot.md) / [Security](#security) |
+| ➕ QEMU (fragment usage) | Emulation add-on (alternate view) | `:kas-iot2050-qemu.yml` | Minimal or example builds | [QEMU](doc/qemu.md) / [Details](#qemu-emulation) |
 
-```shell
-./kas-container build kas-iot2050-example.yml:kas/opt/swupdate-example.yml
-```
+See also composition reference: [build-config](doc/build-config.md#22-image-types-choices--glossary).
 
-You can find the final image under
-`build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic`.
-This image holds the necessary partition layout with two root file
-systems. The image
-`iot2050-image-swu-example-iot2050-debian-iot2050.wic` can be flashed
-directly to a SD card as described in section [Booting the image from SD
-card](#booting-the-image-from-sd-card).
+*Note:* Boot firmware & firmware update descriptors build only boot chain
+components (no rootfs image). Combine image descriptors separately when you
+need full system images.
 
-NOTE: As the image contains 2 root file systems, it has a size of 7 Gigabytes.
+Additional infrastructure / reproducibility / provisioning fragments (RT
+kernel, package locking, RPMB setup, upstream kernel, mirror override): see
+[Fragment Catalog](doc/fragment-catalog.md).
 
-It also will create a binary for updating the system at
-`build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.swu`
+## Versioning & Changelog
 
-### Update an image with SWUpdate
+Semantic Versioning. Migration notes & changes: [CHANGELOG](CHANGELOG.md). Always review the `Migration` section before upgrading.
 
-The following steps are necessary to update an image created with SWUpdate
-support.
+## Documentation
 
-1. Transfer the SWUpdate binary
-`iot2050-image-swu-example-iot2050-debian-iot2050.swu` to the target system.
+Index landing page: [docs index](doc/README.md)
 
-2. Update the system with SWUpdate by executing:
+## License
 
-```shell
-$ swupdate -i iot2050-image-swu-example-iot2050-debian-iot2050.swu
-```
-
-You can find more details and options for the command `swupdate` in the
-[SWUpdate
-documentation](https://sbabic.github.io/swupdate/swupdate.html#running-swupdate).
-
-NOTE: The used SWUpdate package does not contain a web-app example.
-
-SWUpdate will write the image to the unused root partition and updates the EFI
-Boot Guard state. EFI Boot Guard is the bootloader that controls which of the
-two kernels and root file systems are booted.
-
-3. Reboot the system into the new root file system. The switch between the root
-file systems occurs automatically and requires no user interaction.
-
-4. Confirm that the new root file system is correctly booted.
-
-After a reboot, the device boots into the new root file system. If the boot is
-successful the update process needs to be completed by calling:
-
-```shell
-$ complete_update.sh
-```
-
-The script sets the update state in the EFI Boot Guard configuration to the
-"success" state. It shall be considered as a placeholder for a more precise
-logic which first needs to validate if the new image version is sufficiently
-functional to accept the next update. The exact condition for this depends on
-the concrete integration and the way how updates are deployed to the device.
-If the update happens over network, checking the connection to the update
-server first before confirming the update is strongly recommended.
-
-If the update is deemed failed, resetting the device will select the previous
-root file system.
-
-### U-Boot environment
-
-The bootloader environment needs to be adapted to select the correct root file
-system during boot. This adaptation occurs automatically during the first boot
-by executing the `patch-u-boot-env.service`. This systemd-service activates the
-hardware watchdog in the U-Boot environment, setting it to 60 seconds by
-default.
-
-#### Revert to the default environment
-
-If it is necessary to revert to the default U-Boot environment the following
-command can be used:
-```shell
-$ fw_setenv -f /etc/u-boot-initial-env
-```
+MIT – see [COPYING.MIT](COPYING.MIT)

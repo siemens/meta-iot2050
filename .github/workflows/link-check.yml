@@ -1,0 +1,34 @@
+name: Link Check
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  pull_request:
+    paths:
+      - '**/*.md'
+  workflow_dispatch: {}
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run lychee link checker
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >-
+            --config .lychee.toml
+            --verbose
+            --no-progress
+            --exclude-path meta/recipes-bsp/secure-boot-otp-provisioning/README.md
+            .
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Annotate report
+        if: always()
+        run: |
+          echo 'Lychee exit code: $?' 
+      - name: Fail on broken links
+        if: steps.lychee.outcome == 'failure'
+        run: exit 1

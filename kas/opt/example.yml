@@ -1,0 +1,19 @@
+#
+# IoT2050 Full Example Configuration  
+# Includes all demo applications, Node-RED, and SM board variant support
+#
+# Copyright (c) Siemens AG, 2025
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+repos:
+  meta-iot2050:
+    layers:
+      meta-example:

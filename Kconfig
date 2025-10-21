@@ -26,42 +26,57 @@ config IMAGE_EXAMPLE
 	  Node-RED preinstalled. It comes without a graphical user interface.
 
 config IMAGE_SWUPDATE
-	bool "Example image with SWUpdate support"
+	bool "Example image (SWUpdate A/B)"
 	help
 	  Based on the example image, this adds SWUpdate and changes the
 	  partition layout to an A/B rootfs.
 
-config IMAGE_BOOT
-	bool "Firmware images"
+config IMAGE_BASE
+	bool "Example image (minimal HW enablement)"
 	help
-	  Build firmware images that are responsible for booting IOT2050
-	  devices. Two artifacts are generated: iot2050-pg1-image-boot.bin
-	  for Product Generation 1 devices and iot2050-pg2-image-boot.bin for
-	  Product Generation 2 devices, including M.2 and SM variants.
+	  Lean hardware enablement variant: core BSP and essential services,
+	  no demo applications or development tooling. Layer optional
+	  fragments (example demos, Node-RED, SM, Hailo, etc.) to grow
+	  functionality incrementally.
 
-	  WARNING: Do not flash this image onto your device unless you know
-	  that it fits AND you have an external flash programmer at hand that
-	  allows to recover. Otherwise you risk to BRICK THE IOT2050!
+config IMAGE_BOOT
+	bool "Firmware boot images"
+	help
+	  Build boot firmware bundle for IOT2050 devices.
+	  Generates:
+	    - iot2050-pg1-image-boot.bin (Product Generation 1)
+	    - iot2050-pg2-image-boot.bin (Product Generation 2 incl. M.2 & SM)
+
+	  WARNING: Only flash if you are certain it matches your hardware AND
+	  you have external recovery (flash programmer). A mismatch can brick
+	  the device.
 
 config IMAGE_FWU_PKG
-	bool "Firmware update package for all devices"
+	bool "Firmware update package"
 	help
-	  This is the official firmware update package in
-	  IOT2050-FW-Update-PKG-Vx.x.x.tar.xz format, which includes firmware bins,
-	  and update criteria, and builtin env, and it is for all IOT2050 devices.
+	  Build the universal firmware update package:
+	    IOT2050-FW-Update-PKG-Vx.x.x.tar.xz
+	  Includes:
+	    - Firmware boot images
+	    - Update criteria metadata
+	    - Built-in environment settings
+	  Applicable to all IOT2050 device variants.
 
 endchoice
 
 config KAS_INCLUDE_MAIN
 	string
+	default "kas/iot2050.yml" if IMAGE_BASE
 	default "kas-iot2050-example.yml" if IMAGE_EXAMPLE
 	default "kas-iot2050-swupdate.yml" if IMAGE_SWUPDATE
 	default "kas-iot2050-boot.yml" if IMAGE_BOOT
 	default "kas-iot2050-fwu-package.yml" if IMAGE_FWU_PKG
 
+if !IMAGE_FWU_PKG
 comment "Image features"
+endif
 
-if IMAGE_EXAMPLE || IMAGE_SWUPDATE
+if IMAGE_BASE || IMAGE_EXAMPLE || IMAGE_SWUPDATE
 
 config PREEMPT_RT
 	bool "Preempt-RT kernel"
@@ -76,15 +91,49 @@ config KAS_INCLUDE_RT
 	depends on PREEMPT_RT
 
 config NODE_RED
-	bool "Node-RED support"
-	default y
+	bool "Node-RED support" if IMAGE_BASE
+	depends on IMAGE_BASE
+	default n
 	help
-	  Building image with Node-RED support.
+	  Enable Node-RED runtime and curated nodes for the minimal hardware
+	  enablement variant. The full Example and SWUpdate images already
+	  include Node-RED via their main KAS descriptors, so this toggle is
+	  only relevant here.
 
-config KAS_INCLUDE_NO_NODE_RED
+config KAS_INCLUDE_NODE_RED
 	string
-	default "kas/opt/no-node-red.yml"
-	depends on !NODE_RED
+	default "kas/opt/node-red.yml"
+	depends on NODE_RED
+
+config SM
+	bool "SM variant support" if IMAGE_BASE
+	depends on IMAGE_BASE
+	default n
+	help
+	  Enable SM hardware variant support (extended IO / sensors) for the
+	  minimal hardware enablement variant. The full Example and SWUpdate
+	  images already integrate this via their main descriptor chains.
+
+config KAS_INCLUDE_SM
+	string
+	default "kas/opt/sm.yml"
+	depends on SM
+
+# Example demo content (apps / sample configs) selectable only for Base.
+config EXAMPLE_DEMOS
+	bool "Example demo content" if IMAGE_BASE
+	depends on IMAGE_BASE
+	default n
+	help
+	  Include example/demo applications and helper configuration that are
+	  present by default in the full Example / SWUpdate images. This lets
+	  you assemble a custom example-like stack starting from the minimal
+	  hardware enablement variant.
+
+config KAS_INCLUDE_EXAMPLE_DEMOS
+	string
+	default "kas/opt/example.yml"
+	depends on EXAMPLE_DEMOS
 
 config DOCKER
 	bool "Docker support"
@@ -106,18 +155,8 @@ config KAS_INCLUDE_LXDE
 	default "kas/opt/lxde.yml"
 	depends on LXDE
 
-config EIO
-	bool "EIO subsystem support"
-	help
-	  Building image with EIO subsystem support.
-
-	  NOTE: The EIO firmware and library need be downloaded before building. See
-	  the README.md for more information.
-
-config KAS_INCLUDE_EIO
-	string
-	default "kas/opt/eio.yml"
-	depends on EIO
+# EIO fragment deprecated: feature consolidated under SM variant layer.
+# Legacy Kconfig entries removed. Use SM layer / feature flags instead.
 
 config META_HAILO
 	bool "Meta-Hailo AI card support"
@@ -127,7 +166,7 @@ config META_HAILO
 
 config KAS_INCLUDE_META_HAILO
 	string
-	default "kas/opt/meta-hailo.yml"
+	default "kas/opt/hailo.yml"
 	depends on META_HAILO
 
 endif
@@ -188,7 +227,7 @@ config RPMB_SETUP
 
 config IMAGE_QEMU
 	bool "QEMU Image"
-	depends on IMAGE_EXAMPLE || IMAGE_SWUPDATE
+	depends on IMAGE_BASE || IMAGE_EXAMPLE || IMAGE_SWUPDATE
 	help
 	  QEMU image to boot image without real hardware. The device emulated
 	  by QEMU is not identical to a physical IOT2050. This leads to missing
@@ -286,8 +325,8 @@ config OTP_PROVISIONING_2KEYS_ENABLE
 	help
 	  OTP provisioning command data contains the public key hashes of 
 	  below keys and enabling secure boot:
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
 
 
 config OTP_PROVISIONING_2KEYS
@@ -295,17 +334,17 @@ config OTP_PROVISIONING_2KEYS
 	help
 	  OTP provisioning command data contains the public key hashes of 
 	  below keys but without enabling secure boot:
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
 
 config OTP_PROVISIONING_3KEYS_ENABLE
 	bool "3 keys & enabling secure boot"
 	help
 	  OTP provisioning command data contains the public key hashes of 
 	  below keys and enabling secure boot:
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
-	  * recipes-bsp/secure-boot-otp-provisioning/files/keys/custBmpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custMpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custSmpk.pem
+	  * meta/recipes-bsp/secure-boot-otp-provisioning/files/keys/custBmpk.pem
 
 config OTP_PROVISIONING_ENABLING_ONLY
 	bool "Enabling secure boot only"

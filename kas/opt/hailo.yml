@@ -1,0 +1,25 @@
+#
+# IoT2050 Hailo AI/ML Optional Configuration
+# Adds Hailo AI acceleration support to any base configuration
+#
+# Copyright (c) Siemens AG, 2024 - 2025
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+local_conf_header:
+  hailo: |
+    IOT2050_HAILO_SUPPORT = "1"
+  hailo_override: |
+    OVERRIDES .= ":meta-hailo"
+
+repos:
+  meta-iot2050:
+    layers:
+      meta-hailo:

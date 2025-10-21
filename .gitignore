@@ -1,6 +1,5 @@
 build/
 isar/
 /cip-core
-recipes-core/customizations-base/local.inc
 .config.yaml*
 .kas_shell_history

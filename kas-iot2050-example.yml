@@ -1,8 +1,9 @@
 #
-# Copyright (c) Siemens AG, 2019
+# Copyright (c) Siemens AG, 2019-2025
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -12,6 +13,9 @@ header:
   version: 14
   includes:
    - kas/iot2050.yml
+   - kas/opt/example.yml
+   - kas/opt/node-red.yml
+   - kas/opt/sm.yml
 
 build_system: isar
 

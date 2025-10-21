@@ -48,6 +48,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
+      - name: Mock EIO binary stubs
+        run: |
+          touch ./meta-sm/recipes-app/iot2050-eio-manager/files/bin/iot2050-eiofsd
+          touch ./meta-sm/recipes-app/iot2050-eio-manager/files/bin/map3-fw.bin
+          touch ./meta-sm/recipes-app/iot2050-eio-manager/files/bin/firmware-version
       - name: Build image
         run: |
           ./kas-container build kas-iot2050-example.yml
@@ -70,12 +75,12 @@ jobs:
         uses: ./.github/workflows/free-disk-space
       - name: Mock EIO binary stubs
         run: |
-          touch ./recipes-app/iot2050-eio-manager/files/bin/iot2050-eiofsd
-          touch ./recipes-app/iot2050-eio-manager/files/bin/map3-fw.bin
-          touch ./recipes-app/iot2050-eio-manager/files/bin/firmware-version
+          touch ./meta-sm/recipes-app/iot2050-eio-manager/files/bin/iot2050-eiofsd
+          touch ./meta-sm/recipes-app/iot2050-eio-manager/files/bin/map3-fw.bin
+          touch ./meta-sm/recipes-app/iot2050-eio-manager/files/bin/firmware-version
       - name: Build image
         run: |
-          ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/eio.yml:kas/opt/module.yml:kas/opt/meta-hailo.yml
+          ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/hailo.yml
           ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml
       - name: Upload image
         uses: actions/upload-artifact@v4

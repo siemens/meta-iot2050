@@ -1,0 +1,23 @@
+#
+# IoT2050 Node-RED Configuration
+# Adds Node-RED visual programming environment
+#
+# Copyright (c) Siemens AG, 2025
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+repos:
+  meta-iot2050:
+    layers:
+      meta-node-red:
+
+local_conf_header:
+  node_red: |
+    IOT2050_NODE_RED_SUPPORT = "1"
