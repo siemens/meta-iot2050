@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+Date: Mon, 27 Oct 2025 16:21:27 +0800
+Subject: [PATCH] fTPM: use TA_FLAG_DEVICE_ENUM_SUPP for kernels without
+ rpmb_kernel_routing
+
+Older kernel versions do not support rpmb_kernel_routing. To maintain backward
+compatibility, the fTPM TA flags are adjusted to use TA_FLAG_DEVICE_ENUM_SUPP.
+
+Note: fTPM TA requires tee-supplicant to function correctly after this change.
+
+Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+---
+ include/user_ta_header_defines.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/user_ta_header_defines.h b/include/user_ta_header_defines.h
+index 3f5586e..4857ea0 100644
+--- a/include/user_ta_header_defines.h
++++ b/include/user_ta_header_defines.h
+@@ -54,7 +54,7 @@
+ #define TA_FLAGS                (TA_FLAG_SINGLE_INSTANCE | \
+ 				 TA_FLAG_INSTANCE_KEEP_ALIVE | \
+ 				 TA_FLAG_INSTANCE_KEEP_CRASHED | \
+-				 TA_FLAG_DEVICE_ENUM_TEE_STORAGE_PRIVATE)
++				 TA_FLAG_DEVICE_ENUM_SUPP)
+ #define TA_STACK_SIZE           (64 * 1024)
+ #define TA_DATA_SIZE            (32 * 1024)
+ 

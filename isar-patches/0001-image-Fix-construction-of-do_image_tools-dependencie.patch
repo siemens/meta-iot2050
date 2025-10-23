@@ -1,0 +1,59 @@
+From 88b998f59bb0a7d7d1e1e4031bd1275a4ef865ef Mon Sep 17 00:00:00 2001
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Date: Thu, 16 Oct 2025 20:14:48 +0200
+Subject: [PATCH] image: Fix construction of do_image_tools dependencies
+
+The attempt to translate IMAGER_BUILD_DEPS into do_image_tools[depends]
+via an anonymous python functions failed because of an ordering issue
+between the anonymous functions in image-tools-extension.bbclass and
+image.bbclass. The latter was expanding IMAGER_BUILD_DEPS:<image-type>
+after image-tools-extension translated this variable into
+do_image_tools[depends]. Resolve this by using an inline function for
+the latter step.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ meta/classes/image-tools-extension.bbclass | 8 +++-----
+ meta/classes/image.bbclass                 | 2 +-
+ 2 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/meta/classes/image-tools-extension.bbclass b/meta/classes/image-tools-extension.bbclass
+index 5e248f2e..3f284b39 100644
+--- a/meta/classes/image-tools-extension.bbclass
++++ b/meta/classes/image-tools-extension.bbclass
+@@ -1,5 +1,5 @@
+ # This software is a part of ISAR.
+-# Copyright (C) Siemens AG, 2019-2024
++# Copyright (C) Siemens AG, 2019-2025
+ #
+ # SPDX-License-Identifier: MIT
+ #
+@@ -10,10 +10,8 @@ inherit sbuild
+ IMAGER_INSTALL ??= ""
+ IMAGER_BUILD_DEPS ??= ""
+ 
+-python() {
+-    for dep in d.getVar('IMAGER_BUILD_DEPS').split():
+-        d.appendVarFlag('do_image_tools', 'depends', ' ' + dep + ':do_deploy_deb')
+-}
++do_image_tools[depends] += " \
++    ${@' '.join(dep + ':do_deploy_deb' for dep in d.getVar('IMAGER_BUILD_DEPS').split())}"
+ 
+ SCHROOT_MOUNTS = "${WORKDIR}:${PP_WORK} ${IMAGE_ROOTFS}:${PP_ROOTFS} ${DEPLOY_DIR_IMAGE}:${PP_DEPLOY}"
+ SCHROOT_MOUNTS += "${REPO_ISAR_DIR}/${DISTRO}:/isar-apt"
+diff --git a/meta/classes/image.bbclass b/meta/classes/image.bbclass
+index bd1b8552..441ea936 100644
+--- a/meta/classes/image.bbclass
++++ b/meta/classes/image.bbclass
+@@ -373,7 +373,7 @@ python do_image_tools() {
+ addtask image_tools before do_build after do_rootfs
+ 
+ # all imagetypes are depend on schroot and isar-apt
+-do_image_tools[depends] = "${SCHROOT_DEP} isar-apt:do_cache_config"
++do_image_tools[depends] += "${SCHROOT_DEP} isar-apt:do_cache_config"
+ do_image_tools[deptask] = "do_deploy_deb"
+ 
+ python do_image() {
+-- 
+2.51.0
+
