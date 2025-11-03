@@ -13,8 +13,8 @@ include ebg-sysparts.inc
 part --source rawcopy --sourceparams "file=${IMAGE_FULLNAME}.squashfs" --align 1024 --fixed-size 4G --uuid "${ABROOTFS_PART_UUID_A}" --part-type 0FC63DAF-8483-4772-8E79-3D69D8477DE4
 part --source empty --align 1024 --fixed-size 4G --uuid "${ABROOTFS_PART_UUID_B}" --part-type 0FC63DAF-8483-4772-8E79-3D69D8477DE4
 
-# persistent partitions
-part /var --source rootfs --change-directory=var --label var --fstype=ext4 --mkfs-extraopts "-T default" --ondisk sda --align 1024  --size 512M
-part /home --source rootfs --change-directory=home --label home --fstype=ext4 --mkfs-extraopts "-T default" --ondisk sda --align 1024  --size 512M
+# var and optional home are extra partitions
+${WIC_HOME_PARTITION}
+part /var --source rootfs --change-directory=var --label var --fstype=ext4 --mkfs-extraopts "-T default" --ondisk sda --align 1024  --size 1G
 
 bootloader --ptable gpt --append "${CONSOLE_KERNEL_PARAMS} rootwait watchdog.handle_boot_enabled=0 ${EXTRA_KERNEL_PARAMS}"
