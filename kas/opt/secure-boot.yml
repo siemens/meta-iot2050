@@ -17,3 +17,6 @@ local_conf_header:
     IMAGER_INSTALL += "ebg-secure-boot-signer"
   secure-boot-fw-ver: |
     FIRMWARE_SECURE_VER ?= "0"
+  expand-before-encrypt: |
+    CRYPT_PARTITIONS:append = ":expand"
+
