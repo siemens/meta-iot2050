@@ -1,0 +1,62 @@
+From: Frederic Weisbecker <frederic@kernel.org>
+Date: Wed, 25 Aug 2021 14:24:54 +0200
+Subject: [RFC PATCH -RT] epoll: Fix eventpoll read-lock not writer-fair in PREEMPT_RT
+
+The eventpoll lock has been converted to an rwlock some time ago with:
+
+	a218cc491420 (epoll: use rwlock in order to reduce ep_poll
+					callback() contention)
+
+Unfortunately this can result in scenarios where a high priority caller
+of epoll_wait() need to wait for the completion of lower priority wakers.
+
+The typical scenario is:
+
+1) epoll_wait() waits and sleeps for new events in the ep_poll() loop.
+
+2) new events arrive in ep_poll_callback(), the waiter is awaken while
+   ep->lock is read-acquired.
+
+3) The high priority waiter preempts the waker but it can't acquire the
+   write lock in epoll_wait() so it blocks waiting for the low prio waker
+   without priority inheritance.
+
+I guess making readlock writer fair is still not the plan so all I can
+propose is to make that rwlock build-conditional.
+
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+---
+ fs/eventpoll.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 1e596e1d0bba..c1fb4b01ea4f 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1133,7 +1133,10 @@ static int ep_poll_callback(wait_queue_entry_t *wait, unsigned mode, int sync, v
+ 	unsigned long flags;
+ 	int ewake = 0;
+
+-	read_lock_irqsave(&ep->lock, flags);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		read_lock_irqsave(&ep->lock, flags);
++	else
++		write_lock_irqsave(&ep->lock, flags);
+
+ 	ep_set_busy_poll_napi_id(epi);
+
+@@ -1197,7 +1200,10 @@ static int ep_poll_callback(wait_queue_entry_t *wait, unsigned mode, int sync, v
+ 		pwake++;
+
+ out_unlock:
+-	read_unlock_irqrestore(&ep->lock, flags);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		read_unlock_irqrestore(&ep->lock, flags);
++	else
++		write_unlock_irqrestore(&ep->lock, flags);
+
+ 	/* We have to call this outside the lock */
+ 	if (pwake)
+--
+2.25.1
+
