@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+Date: Thu, 30 Oct 2025 15:52:30 +0800
+Subject: [PATCH] fix: GPIOs that number is larger than 512 cannot trigger
+ interrupt
+
+Default MRAA_SUB_PLATFORM_BIT_SHIFT is 9, so the sub‑platform mask is 1<<9 (512).
+As a result, any GPIO number ≥512 is treated as a sub‑platform GPIO and its interrupt
+is skipped, e.g. in `src/gpio/gpio.c`:
+
+```
+/* Is this pin on a subplatform? Do nothing... */
+    if (mraa_is_sub_platform_id(dev->pin)) {
+    }
+```
+
+On Linux 6.12 the GPIO numbering starts at 512, which is expected, but this makes mraa
+ignore all GPIO interrupts on that platform.
+see <path-to-linux6.12-src>/include/gpio.h for more details about GPIO numbering on
+Linux 6.12:
+
+```
+/*
+ * At the end we want all GPIOs to be dynamically allocated from 0.
+ * However, some legacy drivers still perform fixed allocation.
+ * Until they are all fixed, leave 0-512 space for them.
+ */
+#define GPIO_DYNAMIC_BASE	512
+```
+
+This commit raises MRAA_SUB_PLATFORM_BIT_SHIFT to 12 (mask = 1<<12 = 4096),
+so native GPIO numbers up to 4096 work correctly, while preserving existing
+sub‑platform behavior and without changing the type of the pin member in
+struct _gpio, maximizing forward compatibility.
+
+Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+---
+ api/mraa/common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/api/mraa/common.h b/api/mraa/common.h
+index 6675f2d..04ef976 100644
+--- a/api/mraa/common.h
++++ b/api/mraa/common.h
+@@ -35,7 +35,7 @@
+ #define MRAA_PIN_NAME_SIZE 12
+
+ /** Bit Shift for Mraa sub platform */
+-#define MRAA_SUB_PLATFORM_BIT_SHIFT 9
++#define MRAA_SUB_PLATFORM_BIT_SHIFT 12
+ /** Mask for Mraa sub platform */
+ #define MRAA_SUB_PLATFORM_MASK (1<<MRAA_SUB_PLATFORM_BIT_SHIFT)
+

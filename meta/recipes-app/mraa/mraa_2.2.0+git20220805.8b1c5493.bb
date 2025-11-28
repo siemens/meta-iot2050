@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "2"
+PR = "3"
 
 inherit dpkg
 
@@ -22,6 +22,7 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0005-python-binding-Fix-Python-3.13-compatibility.patch \
             file://0006-javascript-update-C-standard-to-C-17-for-compatibili.patch \
             file://0007-fix-iot2050-Correct-parent-IDs-for-PWM-pins.patch \
+            file://0008-fix-GPIOs-that-number-is-larger-than-512-cannot-trig.patch  \
             file://rules"
 
 CHANGELOG_V = "${PV}-${PR}"
