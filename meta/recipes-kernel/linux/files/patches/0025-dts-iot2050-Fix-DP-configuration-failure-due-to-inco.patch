@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+Date: Thu, 20 Nov 2025 10:28:57 +0800
+Subject: [PATCH] dts/iot2050: Fix DP configuration failure due to incorrect
+ dtsi include order
+
+Both `k3-am65-iot2050-common-pg2.dtsi` and `k3-am65-iot2050-dp.dtsi`
+contain Display Port (DP) related configurations.
+However, the DP configurations in `k3-am65-iot2050-common-pg2.dtsi`
+are intended to override those in `k3-am65-iot2050-dp.dtsi` to meet the
+special requirements of the PG2 variant.
+
+Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts    | 2 +-
+ arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts  | 2 +-
+ arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
+index c1faf9497b63..a312f6db15e3 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6528-iot2050-basic-pg2.dts
+@@ -16,8 +16,8 @@
+ /dts-v1/;
+ 
+ #include "k3-am6528-iot2050-basic-common.dtsi"
+-#include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-dp.dtsi"
++#include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-usb3.dtsi"
+ 
+ / {
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
+index cc619bbec181..abf0690fca89 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
+@@ -14,9 +14,9 @@
+  */
+ 
+ #include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-arduino-connector.dtsi"
+-#include "k3-am65-iot2050-dp.dtsi"
+ 
+ / {
+ 	compatible = "siemens,iot2050-advanced-m2", "ti,am654";
+diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
+index ec721275e8e2..231af1363d91 100644
+--- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
++++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2.dts
+@@ -16,9 +16,9 @@
+ /dts-v1/;
+ 
+ #include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-arduino-connector.dtsi"
+-#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-usb3.dtsi"
+ 
+ / {
