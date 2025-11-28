@@ -7,4 +7,4 @@
 
 require linux-iot2050-6.12.inc
 
-PR = "1"
+PR = "2"
