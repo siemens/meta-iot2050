@@ -9,9 +9,13 @@ import subprocess
 import mraa
 import sys
 from json_ops.json_ops import BoardConfigurationUtility
+import os
+import time
 
 board_conf = BoardConfigurationUtility()
 
+iio_device_path = "/sys/bus/iio/devices/iio:device0"
+max_wait = 30
 
 def setPinmux(index, mode):
     MODE = mode.upper()
@@ -31,6 +35,14 @@ def setPinmux(index, mode):
                      'PWM': mraa.Pwm}
         funcName = MODE.split('_')[0].lstrip().rstrip()
         pin = int(MODE.split('_')[1].lstrip().rstrip())
+        if 'ADC' in MODE:
+            '''Wait for the iio subsystem to be ready'''
+            for _ in range(max_wait):
+                if os.path.exists(iio_device_path):
+                    break
+                time.sleep(1)
+            else:
+                sys.stderr.write(f"Warning: {iio_device_path} not found after {max_wait} seconds\n")
         mraaFuncs[funcName](pin)
     elif 'I2C_SDA' in MODE:
         mraa.I2c(0)
