@@ -8,8 +8,18 @@ on:
         required: false
         default: true
         type: boolean
+      build_debian_example_qemu_image:
+        description: 'Build Debian example QEMU image'
+        required: false
+        default: true
+        type: boolean
       build_debian_swupdate_image:
         description: 'Build Debian secure boot SWUpdate image'
+        required: false
+        default: true
+        type: boolean
+      build_debian_swupdate_qemu_image:
+        description: 'Build Debian SWUpdate QEMU image'
         required: false
         default: true
         type: boolean
@@ -25,6 +35,7 @@ on:
       - '*'
     paths-ignore:
       - '**.md'
+      - '.github/workflows/link-check.yml'
   pull_request:
     branches:
       - master
@@ -34,6 +45,7 @@ on:
       - reopened
     paths-ignore:
       - '**.md'
+      - '.github/workflows/link-check.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -42,6 +54,7 @@ concurrency:
 jobs:
   debian-example-image:
     name: Debian example image
+    if: github.event_name != 'workflow_dispatch' || inputs.build_debian_example_image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,9 +67,7 @@ jobs:
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
-        run: |
-          ./kas-container build kas-iot2050-example.yml
-          ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
+        run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
@@ -65,8 +76,9 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.bmap
 
-  debian-swupdate-image:
-    name: Debian secure boot SWUpdate image
+  debian-example-qemu-image:
+    name: Debian example QEMU image
+    if: github.event_name != 'workflow_dispatch' || inputs.build_debian_example_qemu_image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -79,9 +91,24 @@ jobs:
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
+        run: ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
+
+  debian-swupdate-image:
+    name: Debian secure boot SWUpdate image
+    if: github.event_name != 'workflow_dispatch' || inputs.build_debian_swupdate_image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
+      - name: Mock EIO binary stubs
         run: |
-          ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml
-          ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml
+          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/iot2050-eiofsd
+          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
+          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
+      - name: Build image
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
@@ -90,8 +117,26 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic
             build/tmp/deploy/images/iot2050/iot2050-image-swu-example-iot2050-debian-iot2050.wic.bmap
 
+  debian-swupdate-qemu-image:
+    name: Debian SWUpdate QEMU image
+    if: github.event_name != 'workflow_dispatch' || inputs.build_debian_swupdate_qemu_image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Free Disk Space
+        uses: ./.github/workflows/free-disk-space
+      - name: Mock EIO binary stubs
+        run: |
+          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/iot2050-eiofsd
+          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
+          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
+      - name: Build image
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml
+
   bootloaders:
     name: Bootloaders
+    if: github.event_name != 'workflow_dispatch' || inputs.build_bootloaders
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
