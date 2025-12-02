@@ -31,7 +31,6 @@ IMAGE_INSTALL += " \
     sshd-regen-keys \
     install-on-emmc \
     iot2050-nm-settings \
-    nodejs-module-path \
     change-root-homedir \
     iot2050-firmware-update \
     ${@ 'firmware-update-package' if d.getVar('QEMU_IMAGE') != '1' else '' } \
