@@ -155,16 +155,18 @@ config KAS_INCLUDE_LXDE
 	default "kas/opt/lxde.yml"
 	depends on LXDE
 
+if HAILO_SUPPORT
 config META_HAILO
 	bool "Meta-Hailo AI card support"
 	help
 	  Enable building of meta-hailo, which includes the hailo driver,
-	  firmware and userspace runtime libraries. 
+	  firmware and userspace runtime libraries.
 
 config KAS_INCLUDE_META_HAILO
 	string
 	default "kas/opt/hailo.yml"
 	depends on META_HAILO
+endif # HAILO_SUPPORT
 
 endif
 

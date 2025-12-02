@@ -44,6 +44,24 @@ IMAGE_INSTALL += " \
     linux-headers-${KERNEL_NAME} \
     "
 
+python () {
+    if d.getVar('IOT2050_HAILO_SUPPORT') == '1':
+        msg = """
+
+=================================================================
+Building Hailo from source is temporarily disabled.
+
+This is due to a compatibility issue with the Debian 13 base.
+To use Hailo features, please use pre-built packages.
+
+For instructions, see the wiki:
+https://github.com/siemens/meta-iot2050/wiki/Hailo8
+=================================================================
+
+"""
+        bb.fatal(msg)
+}
+
 IMAGE_INSTALL += " \
     ${@ d.getVar('IOT2050_META_NODE_RED_PACKAGES') if d.getVar('IOT2050_NODE_RED_SUPPORT') == '1' else ''} \
     ${@ d.getVar('IOT2050_META_SM_PACKAGES')       if d.getVar('IOT2050_SM_SUPPORT')       == '1' else ''} \
