@@ -1,5 +1,12 @@
 # meta-hailo - Support for Hailo NPU Chips
 
+> **IMPORTANT NOTE:** Building this layer from source is temporarily disabled
+> due to compatibility issues with the Debian 13 (Trixie) base.
+>
+> To use Hailo features, you must use pre-built packages. For instructions,
+> please refer to the wiki:
+> [https://github.com/siemens/meta-iot2050/wiki/Hailo8](https://github.com/siemens/meta-iot2050/wiki/Hailo8)
+
 This layer provides recipes to build the kernel and userspace drivers and
 utilities (version 4.18) for the Hailo-8 NPU chip. It also supports GStreamer
 and Tappas.
