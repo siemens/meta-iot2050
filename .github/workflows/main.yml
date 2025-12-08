@@ -1,13 +1,38 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - stable/V01.05
+  pull_request:
+    branches:
+      - stable/V01.05
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      bootloader_only: ${{ steps.filter.outputs.bootloader_only }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            bootloader_only:
+              - 'recipes-bsp/u-boot/files/prebuild/seboot_pg[12].bin'
+
   debian-example-image:
+    needs: changes
+    if: needs.changes.outputs.bootloader_only != 'true'
     name: Debian example image
     runs-on: ubuntu-22.04
     steps:
@@ -26,6 +51,8 @@ jobs:
             build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic.bmap
 
   debian-swupdate-image:
+    needs: changes
+    if: needs.changes.outputs.bootloader_only != 'true'
     name: Debian secure boot SWUpdate image
     runs-on: ubuntu-22.04
     steps:
