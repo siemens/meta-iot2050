@@ -48,6 +48,12 @@ If you want to run Docker as a non-root user, you need to add your user to the
 sudo usermod -aG docker $USER   # may need to re-login after
 ```
 
+To build the example image with EIO subsystem support, which is required for
+the IOT2050 SM variant, the EIO firmware & binaries must be downloaded from
+[Siemens Industry Online Support](https://support.industry.siemens.com/cs/document/109741799/downloads-for-simatic-iot20x0?dti=0&lc=en-WW)
+and extracted to `meta-sm/recipes-app/iot2050-eiofsd/files/bin` before the
+building.
+
 ## Quick Start
 
 Interactive menu:
