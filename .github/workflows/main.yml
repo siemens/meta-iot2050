@@ -63,11 +63,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
-      - name: Mock EIO binary stubs
-        run: |
-          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/iot2050-eiofsd
-          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
-          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
@@ -87,11 +82,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
-      - name: Mock EIO binary stubs
-        run: |
-          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/iot2050-eiofsd
-          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
-          touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
 
