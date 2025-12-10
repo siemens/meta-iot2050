@@ -1,5 +1,4 @@
 # Building and Using the SDK
-_Applies to version: v1.6.0+_
 
 > TL;DR: Build with `:kas/opt/sdk.yml`, find the `iot2050-image-example-sdk-iot2050-debian-iot2050.tar.xz`
 > artifact, and follow the `README.sdk` inside the extracted tarball.

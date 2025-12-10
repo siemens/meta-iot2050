@@ -1,5 +1,4 @@
 # QEMU Emulation Guide
-_Applies to version: v1.6.0+_
 
 > TL;DR: Build with `kas-iot2050-qemu.yml` (chained after a minimal or full
 > example descriptor), then run `./scripts/host/start-qemu-iot2050.sh`.

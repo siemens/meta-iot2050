@@ -1,6 +1,5 @@
 # Documentation Index
 
-_Applies to version: v1.6.0+_
 
 This index is a discovery map for deeper tasks, providing entry points to
 detailed documentation for the IoT2050 project. Each document covers a

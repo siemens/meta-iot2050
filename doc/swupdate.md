@@ -1,5 +1,4 @@
 # SWUpdate Image & Update Procedure
-_Applies to version: v1.6.0+_
 
 > TL;DR: Build the A/B image via `kas-iot2050-swupdate.yml`, flash the
 > resulting `.wic` file, apply future updates using the `.swu` bundle, and

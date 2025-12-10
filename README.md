@@ -4,16 +4,35 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](COPYING.MIT)
 [![Docs](https://img.shields.io/badge/docs-index-green)](doc/README.md)
 
-_Applies to version: v1.6.0+_
+
+## Overview
+
+![Product Overview](doc/res/products.jpg)
+
+![SM Connection](doc/res/sm_connection.png)
+
+The Siemens IOT2050 is an industrial-grade Internet of Things (IoT) gateway
+designed for edge computing applications. It serves as a versatile platform
+for connecting operational technology (OT) with information technology (IT) in
+industrial environments.
+
+### Key Features
+
+- Robust design for industrial use
+- Powerful processor for edge computing tasks
+- Multiple connectivity options (Ethernet, USB, serial interfaces)
+- Open Debian based OS for various communication protocols
+- Expandable with Arduino and S7-1200 G1 SM
+
+For more information or to purchase, please visit:
+[SIMATIC IOT2050 - Siemens SiePortal](https://sieportal.siemens.com/en-us/products-services/10373416?tree=CatalogTree).
+
 
 This [Isar](https://github.com/ilbers/isar) layer contains recipes,
 configuration, and other artifacts specific to the Debian-based IOT2050
 product. It is accompanied by a lean core BSP and modular, opt-in layers plus
 KAS fragments for feature and variant enablement (e.g., Node-RED, examples, SM,
 Hailo AI, etc.).
-
-For the complete architecture rationale and migration guide, see:
-[layer-architecture](doc/layer-architecture.md).
 
 ## Prerequisites
 
@@ -164,7 +183,11 @@ kernel, package locking, RPMB setup, upstream kernel, mirror override): see
 
 ## Documentation
 
-Index landing page: [docs index](doc/README.md)
+Index landing page: [docs index](doc/README.md).
+
+For the complete architecture rationale and migration, see:
+[layer-architecture](doc/layer-architecture.md).
+
 
 ## License
 

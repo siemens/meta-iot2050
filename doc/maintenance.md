@@ -1,5 +1,4 @@
 # Maintenance & Firmware Operations
-_Applies to version: v1.6.0+_
 
 > TL;DR: Flash `.wic` (prefer `bmaptool`), configure or note default
 > networking, optionally install to eMMC via USER button, update firmware with
