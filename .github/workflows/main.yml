@@ -35,6 +35,7 @@ on:
       - '*'
     paths-ignore:
       - '**.md'
+      - 'doc/**'
       - '.github/workflows/link-check.yml'
   pull_request:
     branches:
@@ -45,6 +46,7 @@ on:
       - reopened
     paths-ignore:
       - '**.md'
+      - 'doc/**'
       - '.github/workflows/link-check.yml'
 
 concurrency:
