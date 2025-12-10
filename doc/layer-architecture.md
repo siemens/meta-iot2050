@@ -1,5 +1,4 @@
 # IoT2050 Layer Architecture
-_Applies to version: v1.6.0+_
 
 > TL;DR: Layers are now strictly modular. Core BSP lives in `meta/`, optional
 > features (Node-RED, Hailo, SM variant) each have their own layer, and image

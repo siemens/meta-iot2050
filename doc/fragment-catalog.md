@@ -1,6 +1,5 @@
 # Fragment Catalog (Descriptors & Optional Fragments)
 
-_Applies to version: v1.6.0+_
 
 This catalog lists supplemental KAS fragments and descriptors beyond the
 primary feature set, which is summarized in the top-level `README.md` and in

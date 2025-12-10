@@ -1,5 +1,4 @@
 # Build Configuration Guide (Menu & Manual)
-_Applies to version: v1.6.0+_
 
 > TL;DR: Use `./kas-container menu` for discovery; copy the printed colon
 > chain into CI. One base descriptor + zero or more feature / security /
