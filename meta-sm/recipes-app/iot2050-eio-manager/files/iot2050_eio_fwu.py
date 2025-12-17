@@ -12,6 +12,8 @@ import json
 import ctypes
 from types import SimpleNamespace as Namespace
 import gpiod
+from gpiod.line import Direction, Value
+import os
 from iot2050_eio_global import (
     EIO_FS_FW_VER,
     EIO_FWU_META,
@@ -75,13 +77,25 @@ class EIOFirmware():
 
     def __init__(self, firmware):
         self.firmware = firmware
-
-        self.chip = gpiod.Chip("/dev/gpiochip2")
-        self.spi_mux_pin = self.chip.get_line(86)
-        self.spi_mux_pin.request(consumer='map3', type=gpiod.LINE_REQ_DIR_OUT)
-
-        # Switch SPI Flash to AM65x
-        self.spi_mux_pin.set_value(1)
+        self.chip = None
+        self.spi_mux_pin_request = None
+        self.spi_mux_pin_offset = None
+        try:
+            self.chip, self.spi_mux_pin_offset = self.find_line_by_name("ASIC-spi-mux-ctrl")
+        except Exception as e:
+            raise UpgradeError(f"Failed to find SPI MUX GPIO: {e}")
+        else:
+            try:
+                self.spi_mux_pin_request = gpiod.request_lines(
+                self.chip,
+                consumer="map3",
+                config={self.spi_mux_pin_offset: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE)},
+            )
+            except Exception as e:
+                raise UpgradeError(f"Failed to request SPI MUX GPIO line: {e}")
+            else:
+                # Switch SPI Flash to AM65x
+                self.spi_mux_pin_request.set_value(self.spi_mux_pin_offset, Value.ACTIVE)
 
         try:
             self.flash_prog = \
@@ -90,6 +104,23 @@ class EIOFirmware():
             self.write_firmware = self.__get_write_firmware()
         except UpgradeError as e:
             raise UpgradeError("EIOFirmware: {}".format(e.err))
+
+    def find_gpio_chips(self):
+        for entry in os.scandir("/dev/"):
+            if gpiod.is_gpiochip_device(entry.path):
+                yield entry.path
+
+    def find_line_by_name(self, line_name):
+        for path in self.find_gpio_chips():
+            with gpiod.Chip(path) as chip:
+                try:
+                    offset = chip.line_offset_from_id(line_name)
+                    return path, offset
+                except OSError:
+                    # An OSError is raised if the name is not found.
+                    continue
+
+        raise RuntimeError(f"Line named '{line_name}' not found")
 
     def __get_write_firmware(self):
         read_buffer = ctypes.create_string_buffer(self.MAP3_FLASH_SIZE_1_MB)
@@ -124,7 +155,10 @@ class EIOFirmware():
         return read_buffer
 
     def __del__(self):
-        self.spi_mux_pin.release()
+        if self.spi_mux_pin_request is not None:
+            if self.spi_mux_pin_offset is not None:
+                self.spi_mux_pin_request.set_value(self.spi_mux_pin_offset, Value.INACTIVE)
+            self.spi_mux_pin_request.release()
         if hasattr(self, "flash_prog") and self.flash_prog:
             self.flash_prog.release()
 
