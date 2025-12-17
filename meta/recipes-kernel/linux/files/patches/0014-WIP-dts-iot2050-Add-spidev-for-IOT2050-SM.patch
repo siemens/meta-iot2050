@@ -6,16 +6,23 @@ Subject: [PATCH] WIP: dts: iot2050: Add spidev for IOT2050-SM
 This spidev is used for communicating between main SoC and the SM ASIC.
 
 Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
+Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
 ---
- arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts
-index b829f4bcab69..4d3a4fcfb8cf 100644
+index b829f4bcab69..0b2af588c012 100644
 --- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts
 +++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-sm.dts
-@@ -146,6 +146,12 @@ &main_spi0 {
- 
+@@ -141,11 +141,18 @@ &wkup_gpio0 {
+ };
+
+ &main_spi0 {
++	status = "okay";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&main_spi0_pins>;
+
  	#address-cells = <1>;
  	#size-cells= <0>;
 +
@@ -25,5 +32,5 @@ index b829f4bcab69..4d3a4fcfb8cf 100644
 +		reg = <0>;
 +	};
  };
- 
+
  &mcu_spi0 {
