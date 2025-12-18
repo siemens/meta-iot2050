@@ -11,7 +11,7 @@ import sys
 import time
 import os
 import textwrap
-import psutil
+import subprocess
 import grpc
 from gRPC.EIOManager.iot2050_eio_pb2 import CheckFWURequest
 from gRPC.EIOManager.iot2050_eio_pb2_grpc import EIOManagerStub
@@ -47,6 +47,23 @@ Hit the Enter Key to Exit:
     '''
     os.system(f'wall "{prompt}"')
 
+def list_logged_in_users():
+    """Return a list of (user, tty) for logged-in sessions.
+    """  
+    try:
+        results = subprocess.run(["who"], capture_output=True, text=True, check=False)
+        sessions = []
+        for line in results.stdout.splitlines():
+            parts = line.split()
+            if len(parts) >= 2:
+                user, tty = parts[0], parts[1]
+                sessions.append((user, tty))
+        if sessions:
+            return sessions
+    except Exception:
+        pass
+    return []
+
 
 def do_fwu_check():
     with grpc.insecure_channel(iot2050_eio_api_server) as channel:
@@ -64,12 +81,12 @@ def firmware_check():
 
     # Check the firmware and reminded once on every new session if firmware
     # is not the correct one
-    last_sessions = psutil.users()
+    last_sessions = set(list_logged_in_users())
     while True:
         time.sleep(5)
-        current_sessions = psutil.users()
-        new_sessions = [s for s in current_sessions if s not in last_sessions]
-        if len(new_sessions) > 0:
+        current_sessions = set(list_logged_in_users())
+        new_sessions = current_sessions - last_sessions
+        if new_sessions:
             broadcast_update_info(message)
         last_sessions = current_sessions
 
