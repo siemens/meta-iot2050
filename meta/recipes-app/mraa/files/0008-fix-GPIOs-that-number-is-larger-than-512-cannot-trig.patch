@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
-Date: Thu, 30 Oct 2025 15:52:30 +0800
+Date: Tue, 23 Dec 2025 10:40:22 +0800
 Subject: [PATCH] fix: GPIOs that number is larger than 512 cannot trigger
  interrupt
 
@@ -39,11 +39,11 @@ Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/api/mraa/common.h b/api/mraa/common.h
-index 6675f2d..04ef976 100644
+index 13df2f1..8df44cf 100644
 --- a/api/mraa/common.h
 +++ b/api/mraa/common.h
 @@ -35,7 +35,7 @@
- #define MRAA_PIN_NAME_SIZE 12
+ #define MRAA_PIN_NAME_SIZE 32
 
  /** Bit Shift for Mraa sub platform */
 -#define MRAA_SUB_PLATFORM_BIT_SHIFT 9
