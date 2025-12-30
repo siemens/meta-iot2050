@@ -37,6 +37,7 @@ on:
       - '**.md'
       - 'doc/**'
       - '.github/workflows/link-check.yml'
+      - '.lychee.toml'
   pull_request:
     branches:
       - master
@@ -48,6 +49,7 @@ on:
       - '**.md'
       - 'doc/**'
       - '.github/workflows/link-check.yml'
+      - '.lychee.toml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
