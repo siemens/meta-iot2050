@@ -34,6 +34,8 @@ INITRD_DEPLOY_FILE = "${INITRAMFS_RECIPE}-${DISTRO}-${MACHINE}.initrd.img"
 IMAGE_INSTALL:remove = "regen-rootfs-uuid"
 IMAGE_INSTALL:remove = "install-on-emmc"
 
+IMAGE_PREINSTALL:secureboot = "systemd-cryptsetup"
+
 # not compatible with disk encryption
 IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
 
