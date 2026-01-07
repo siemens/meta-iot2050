@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2019-2023
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -12,6 +12,8 @@ require recipes-core/images/meta-packages.inc
 inherit image
 
 DESCRIPTION = "IOT2050 Debian Base Image"
+
+IMAGE_PREINSTALL += "sshd-regen-keys"
 
 IMAGE_INSTALL += "${IOT2050_META_PACKAGES}"
 
