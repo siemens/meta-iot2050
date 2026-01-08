@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
@@ -36,19 +36,21 @@ python () {
     if not src_uri_bin_str:
         return
 
-    recipe_dir = d.getVar('FILE_DIRNAME')
-    bin_dir = os.path.join(recipe_dir, 'files', 'bin')
-
     uris_to_keep = []
     missing_bins = []
 
     for uri in src_uri_bin_str.split():
-        bin_name = os.path.basename(uri)
-        bin_path = os.path.join(bin_dir, bin_name)
+        try:
+            bin_name = os.path.basename(uri)
+            fetcher = bb.fetch2.Fetch([uri], d)
+            bin_path = fetcher.localpath(uri)
 
-        if os.path.exists(bin_path):
-            uris_to_keep.append(uri)
-        else:
+            if os.path.exists(bin_path):
+                uris_to_keep.append(uri)
+            else:
+                missing_bins.append(bin_name)
+
+        except bb.fetch2.FetchError:
             missing_bins.append(bin_name)
 
     if missing_bins:
