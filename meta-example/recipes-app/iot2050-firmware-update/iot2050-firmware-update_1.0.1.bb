@@ -18,7 +18,11 @@ SRC_URI = " \
     file://update.conf.json.tmpl \
     file://iot2050-firmware-update.tmpl"
 
+OS_VERSION_KEY ?= "BUILD_ID"
+MIN_OS_VERSION ?= "V01.01.01"
+
 TEMPLATE_FILES = "update.conf.json.tmpl iot2050-firmware-update.tmpl"
+TEMPLATE_VARS += "OS_VERSION_KEY MIN_OS_VERSION IMAGE_FULLNAME"
 
 DPKG_ARCH = "any"
 
