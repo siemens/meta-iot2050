@@ -145,7 +145,6 @@ class UpgradeError(Exception):
     def __str__(self):
         return self.err
 
-
 class Firmware():
     """The Firmware class represents flash base operations for all flashes"""
     def __init__(self, firmware):
@@ -165,7 +164,6 @@ class Firmware():
     @abstractmethod
     def read(self):
         """An Firmware can be read out from flash"""
-
 
 class MtdDevice():
     def __get_path_type_value(self, path):
@@ -268,7 +266,6 @@ class MtdDevice():
 
         return mtd_in_memory
 
-
 class BootloaderFirmware(Firmware):
     """The Bootloader Firmware class represents uboot flash operations"""
     def __init__(self, firmware):
@@ -301,7 +298,6 @@ class BootloaderFirmware(Firmware):
 
             mtd_num += 1
 
-
     def read(self, firmware_len=0x8c0000):
         mtd_in_memory = b''
         mtd_num = 0
@@ -324,7 +320,6 @@ class BootloaderFirmware(Firmware):
             mtd_num += 1
 
         return mtd_in_memory
-
 
 class EnvFirmware(Firmware):
     """The EnvFirmware class represents env partition operations"""
@@ -399,7 +394,6 @@ class EnvFirmware(Firmware):
             raise UpgradeError("EnvFirmware: {}".format(e.err))
 
         return mtd_in_memory
-
 
 class ForceUpdate():
     def __init__(self, interactor, firmware, firmware_type="uboot"):
@@ -582,7 +576,6 @@ class FirmwareUpdate():
         md5.update(content)
 
         return md5.hexdigest()
-
 
 class FirmwareTarball(object):
     """A FirmwareTarball models a upgrade package in specified format"""
@@ -829,7 +822,6 @@ class BoardInfo(object):
                 for l in f.readlines()
             }
 
-
 class UserInterface(object):
     """The UserInterface models the interaction for user"""
     BOLD = "\033[1m"
@@ -889,7 +881,6 @@ class UserInterface(object):
             except AttributeError as e:
                 print("Progress bar is not started yet!")
                 pass
-
 
 __version__ = "${PV}"
 def main(argv):
