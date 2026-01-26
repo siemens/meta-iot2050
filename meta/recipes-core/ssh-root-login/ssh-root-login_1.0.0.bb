@@ -8,13 +8,14 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
 DESCRIPTION = "Permit root login for ssh"
 
-DEBIAN_DEPENDS = "openssh-server"
+DEPENDS = "sshd-regen-keys"
+DEBIAN_DEPENDS = "openssh-server, sshd-regen-keys"
 
 SRC_URI = " \
     file://postinst \
