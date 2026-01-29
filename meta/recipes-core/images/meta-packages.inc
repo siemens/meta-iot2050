@@ -13,7 +13,6 @@ IOT2050_META_PACKAGES ?= " \
     ${@ 'u-boot-${MACHINE}-config' if d.getVar('QEMU_IMAGE') != '1' else '' } \
     iot2050-firmware \
     iot2050-base-packages \
-    libubootenv-tool \
     regen-rootfs-uuid \
     ssh-root-login \
     iot2050-status-led \
