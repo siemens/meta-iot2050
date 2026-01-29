@@ -15,6 +15,8 @@ DESCRIPTION = "IOT2050 Debian Base Image"
 
 IMAGE_INSTALL += "${IOT2050_META_PACKAGES}"
 
+IMAGE_PREINSTALL += "libubootenv-tool"
+
 # Make the .wic.img symlink to the .wic file for better backward compatibility
 do_deploy() {
     echo "Linking wic img"
