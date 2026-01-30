@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "2"
+PR = "1"
 
 DESCRIPTION = "OSPI Firmware Update Scripts"
 MAINTAINER = "chao.zeng@siemens.com"
@@ -18,13 +18,17 @@ SRC_URI = " \
     file://update.conf.json.tmpl \
     file://iot2050-firmware-update.tmpl"
 
+OS_VERSION_KEY ?= "BUILD_ID"
+MIN_OS_VERSION ?= "V01.01.01"
+
 TEMPLATE_FILES = "update.conf.json.tmpl iot2050-firmware-update.tmpl"
+TEMPLATE_VARS += "OS_VERSION_KEY MIN_OS_VERSION IMAGE_FULLNAME"
 
 DPKG_ARCH = "any"
 
 inherit dpkg-raw
 
-DEBIAN_DEPENDS = "python3-progress, python3-packaging, u-boot-tools"
+DEBIAN_DEPENDS = "python3-cryptography, python3-progress, python3-packaging, u-boot-tools"
 
 do_install() {
     install -v -d ${D}/usr/sbin/
