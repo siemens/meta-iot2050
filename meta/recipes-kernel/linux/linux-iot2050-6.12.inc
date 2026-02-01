@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2018-2024
+# Copyright (c) Siemens AG, 2018-2026
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
@@ -38,7 +38,7 @@ SRC_URI:append:secureboot = " \
     file://iot2050_defconfig_secure.cfg \
     ${@get_extra_cfg(d)}"
 
-SRC_URI[sha256sum] = "5a6ffd6c3c98e578c066d3e0864ac12cdbabd5dfdad1f86ee9eb532099db5f14"
+SRC_URI[sha256sum] = "8789118bef502c6ed32cab8dcf2de605b08152569a71ebe19ba8d0d4476c5cdb"
 
 S = "${WORKDIR}/linux-cip-${PV}"
 
