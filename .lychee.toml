@@ -14,7 +14,7 @@ exclude = [
   # Placeholder tokens
   "<Version>",
   # Inaccessible from the pipeline
-  "https://support.industry.siemens.com/cs/document/109741799/downloads-for-simatic-iot20x0?dti=0&lc=en-WW",
+  "support.industry.siemens.com",
 ]
 
 exclude_all_private = true
