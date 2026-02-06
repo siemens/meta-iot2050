@@ -19,6 +19,7 @@ The <firmware-update-package>.tar.xz should contain:
   - firmware.bin: The firmware to update, could be more than one.
   - update.conf.json: The update criteria.
   - u-boot-initial-env: Builtin environment
+  - firmware.bin.sig: (Optional)The signature file for the firmware.bin
 
 Example of update.conf.json:
 {
@@ -123,6 +124,11 @@ from progress.bar import Bar
 from threading import Thread, Event
 from types import SimpleNamespace as Namespace
 
+# Import cryptography modules for signature verification
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.exceptions import InvalidSignature
+
 class ErrorCode(Enum):
     """The ErrorCode class describes the return codes"""
     SUCCESS = 0
@@ -134,7 +140,9 @@ class ErrorCode(Enum):
     CANCELED = 6
     INVALID_FIRMWARE = 7
     FAILED = 8
-
+    MISSING_SIGNATURE = 9
+    MISSING_PUBLIC_KEY = 10
+    BAD_SIGNATURE = 11
 
 class UpgradeError(Exception):
     def __init__(self, ErrorInfo, code=ErrorCode.FAILED.value):
@@ -144,7 +152,6 @@ class UpgradeError(Exception):
 
     def __str__(self):
         return self.err
-
 
 class Firmware():
     """The Firmware class represents flash base operations for all flashes"""
@@ -165,7 +172,6 @@ class Firmware():
     @abstractmethod
     def read(self):
         """An Firmware can be read out from flash"""
-
 
 class MtdDevice():
     def __get_path_type_value(self, path):
@@ -268,7 +274,6 @@ class MtdDevice():
 
         return mtd_in_memory
 
-
 class BootloaderFirmware(Firmware):
     """The Bootloader Firmware class represents uboot flash operations"""
     def __init__(self, firmware):
@@ -301,7 +306,6 @@ class BootloaderFirmware(Firmware):
 
             mtd_num += 1
 
-
     def read(self, firmware_len=0x8c0000):
         mtd_in_memory = b''
         mtd_num = 0
@@ -324,7 +328,6 @@ class BootloaderFirmware(Firmware):
             mtd_num += 1
 
         return mtd_in_memory
-
 
 class EnvFirmware(Firmware):
     """The EnvFirmware class represents env partition operations"""
@@ -400,7 +403,6 @@ class EnvFirmware(Firmware):
 
         return mtd_in_memory
 
-
 class ForceUpdate():
     def __init__(self, interactor, firmware, firmware_type="uboot"):
         self.firmware = firmware
@@ -444,11 +446,12 @@ class FirmwareUpdate():
     firmware update.
     """
     def __init__(self, tarball, backup_path, interactor,
-                rollback=False, reset=False):
+                rollback=False, reset=False, verify_signature=False):
         self.back_fw_path = os.path.join("".join(backup_path), ".rollback_fw")
         self.rollback_fw_tar = os.path.join(self.back_fw_path,
                                             'rollback_backup_fw.tar')
         self.interactor = interactor
+        self.verify_signature = verify_signature
         try:
             if rollback:
                 if not os.path.exists(self.rollback_fw_tar) or \
@@ -457,7 +460,7 @@ class FirmwareUpdate():
                                        ErrorCode.ROLLBACK_FAILED.value)
 
                 tarball = open(self.rollback_fw_tar, "rb")
-                self.tarball = FirmwareTarball(tarball, interactor, None)
+                self.tarball = FirmwareTarball(tarball, interactor, None, False)
             else:
                 self.tarball = tarball
 
@@ -554,6 +557,19 @@ class FirmwareUpdate():
         print("===================================================")
 
         try:
+            # Perform signature verification before starting the actual flashing
+            if self.verify_signature:
+                print("Verifying firmware signatures...")
+                # The primary firmware (uboot) is the one to be signed
+                firmware_name_to_verify = self.tarball.get_file_name(self.tarball.FIRMWARE_TYPES[0])
+                if firmware_name_to_verify:
+                    self.tarball.verify_firmware_signature(firmware_name_to_verify)
+                    print(f"Signature for {firmware_name_to_verify} verified successfully.")
+                else:
+                    raise UpgradeError("Could not determine primary firmware name for signature verification.",
+                                       ErrorCode.INVALID_FIRMWARE.value)
+                print("Firmware signature verification complete. Proceeding with update.")
+
             for firmware_type in self.firmwares:
                 if firmware_type == self.tarball.FIRMWARE_TYPES[2]:
                     continue
@@ -573,7 +589,7 @@ class FirmwareUpdate():
                     raise UpgradeError("Firmware digest verification failed")
         except UpgradeError as e:
             self.interactor.progress_bar(start=False)
-            raise UpgradeError(e.err, ErrorCode.FLASHING_FAILED.value)
+            raise UpgradeError(e.err, e.code)
 
     def __get_md5_digest(self, content):
         """Verify the update integrity"""
@@ -583,12 +599,14 @@ class FirmwareUpdate():
 
         return md5.hexdigest()
 
-
 class FirmwareTarball(object):
     """A FirmwareTarball models a upgrade package in specified format"""
 
     CONF_JSON = 'update.conf.json'
     UBOOT_ENV_FILE = 'u-boot-initial-env'
+    FIRMWARE_SIG_EXT = '.sig'
+    PUBLIC_KEY_PATH = '/usr/share/iot2050/fwu/public.key'
+
     # "env" must be after "uboot" because uboot update will overwrite env
     # partition
     FIRMWARE_TYPES = [
@@ -597,10 +615,11 @@ class FirmwareTarball(object):
         "conf"
     ]
 
-    def __init__(self, firmware_tarball, interactor, env_list):
+    def __init__(self, firmware_tarball, interactor, env_list, verify_signature_flag=False):
         self.interactor = interactor
         self.firmware_tarball = firmware_tarball
         self.env_list = env_list
+        self.verify_signature_flag = verify_signature_flag
 
         # extract file path
         self.extract_path = "/tmp"
@@ -791,6 +810,53 @@ class FirmwareTarball(object):
 
         return uboot_env_assemble_file, open(uboot_env_assemble_file, 'rb')
 
+    def verify_firmware_signature(self, firmware_name):
+        """
+        Verifies the digital signature of a firmware file.
+        Expects a signature file with the same name as the firmware
+        but with a .sig extension in the tarball.
+        The public key is expected at PUBLIC_KEY_PATH.
+        """
+        firmware_path = self.get_file_path(firmware_name)
+        signature_path = firmware_path + self.FIRMWARE_SIG_EXT
+
+        if not os.path.exists(firmware_path):
+            raise UpgradeError(f"Firmware file not found: {firmware_path}",
+                               ErrorCode.INVALID_FIRMWARE.value)
+        if not os.path.exists(signature_path):
+            # If --verify is used, signature file is mandatory
+            if self.verify_signature_flag:
+                raise UpgradeError(f"Signature file not found {signature_path}. Signature verification is enabled, but the .sig file is missing.",
+                                   ErrorCode.MISSING_SIGNATURE.value)
+            else:
+                # This case should ideally not be reached if verify_signature_flag is false
+                # as this method would only be called if verify_signature_flag is true.
+                # However, as a safeguard:
+                print(f"Warning: Signature file not found for {firmware_name}. Skipping signature verification.")
+                return
+
+        if not os.path.exists(self.PUBLIC_KEY_PATH):
+            raise UpgradeError(f"Public key not found at {self.PUBLIC_KEY_PATH}. Cannot verify signature.",
+                               ErrorCode.MISSING_PUBLIC_KEY.value)
+
+        try:
+            with open(self.PUBLIC_KEY_PATH, "rb") as f:
+                pubkey = serialization.load_pem_public_key(f.read())
+
+            with open(firmware_path, "rb") as f:
+                message = f.read()
+
+            with open(signature_path, "rb") as f:
+                sig = f.read()
+
+            pubkey.verify(sig, message, padding.PKCS1v15(), hashes.SHA512())
+            print(f"Signature for {firmware_name} is GOOD.")
+        except InvalidSignature:
+            raise UpgradeError(f"BAD SIGNATURE for {firmware_name}. Firmware is malicious or corrupted. Aborting update.",
+                               ErrorCode.BAD_SIGNATURE.value)
+        except Exception as e:
+            raise UpgradeError(f"Error during signature verification for {firmware_name}: {e}",
+                               ErrorCode.FAILED.value)
 
 class BoardInfo(object):
     """The BoardInfo represents the updating IOT2050 board information"""
@@ -828,7 +894,6 @@ class BoardInfo(object):
                 l.strip().split('=')[-1].strip('"')
                 for l in f.readlines()
             }
-
 
 class UserInterface(object):
     """The UserInterface models the interaction for user"""
@@ -890,7 +955,6 @@ class UserInterface(object):
                 print("Progress bar is not started yet!")
                 pass
 
-
 __version__ = "${PV}"
 def main(argv):
     """The main function"""
@@ -908,6 +972,8 @@ def main(argv):
              using tarball format firmware, reset environment
         5. %(prog)s -b
              rollback the firmware to the version before the upgrade
+        6. %(prog)s --verify file.tar.xz
+             perform a regular update, but enforce signature verification for the firmware
          ''')
     epilog=textwrap.dedent('''\
         Return Value:
@@ -922,6 +988,9 @@ def main(argv):
           | 6           | User canceled                            |
           | 7           | Invalid firmware                         |
           | 8           | Failed to update                         |
+          | 9           | Missing firmware signature               |
+          | 10          | Missing public key                       |
+          | 11          | Bad firmware signature                   |
          ''')
     parser = argparse.ArgumentParser(
         description=description,
@@ -948,6 +1017,9 @@ def main(argv):
                         help='Rollback the firmware to the version before the \
                         upgrade',
                         action='store_true')
+    parser.add_argument('--verify',
+                        help='Enforce signature verification for the firmware in the tarball',
+                        action='store_true')
     group2 = parser.add_mutually_exclusive_group()
     group2.add_argument('-n', '--no-backup',
                         help='Do not generate a firmware backup',
@@ -963,25 +1035,28 @@ def main(argv):
 
     try:
         args = parser.parse_args()
-        if args.force and (args.no_backup or args.backup_dir):
-            parser.error("argument -f/--force: not allowed with -n/--no-backup, -d/--backup-dir")
+        if args.force and (args.no_backup or args.backup_dir or args.verify):
+            parser.error("argument -f/--force: not allowed with -n/--no-backup, -d/--backup-dir, or --verify")
+        # Ensure firmware is specified for any update or verify operation
+        if not args.rollback and not args.firmware:
+             print("No firmware or action specified. A firmware tarball is required for update or verification.", file=sys.stderr)
+             return ErrorCode.INVALID_ARG.value
+
     except IOError as e:
         print(e.strerror, file=sys.stderr)
-        return ErrorCode.INVALID_ARG.value
-
-    if not args.rollback and not args.firmware:
-        print("No firmware specified")
         return ErrorCode.INVALID_ARG.value
 
     interactor = UserInterface(args.quiet);
 
     try:
-        if args.rollback:
+        if args.rollback or args.force:
             tarball = None
-        elif not args.force:
+        else:
+            # For regular update or update with verification
             tarball = FirmwareTarball(args.firmware, interactor,
-                                      args.preserve_list)
-            # FirmwareTarball to check firmware
+                                      args.preserve_list, args.verify)
+
+            # FirmwareTarball to check firmware compatibility
             if not tarball.check_firmware():
                 print("OS image version must be newer than the minimal version, "
                       "no firmware image could be updated on this device!")
@@ -1013,7 +1088,8 @@ def main(argv):
                 args.backup_dir,
                 interactor,
                 args.rollback,
-                args.reset
+                args.reset,
+                args.verify
             )
 
         # FirmwareUpdate to rollback
@@ -1036,10 +1112,13 @@ def main(argv):
                 updater.update()
                 break
             except UpgradeError as e:
-                if index > 2:
+                if (index > 2 or
+                    e.code == ErrorCode.MISSING_SIGNATURE.value or
+                    e.code == ErrorCode.BAD_SIGNATURE.value or
+                    e.code == ErrorCode.MISSING_PUBLIC_KEY.value):
                     raise UpgradeError(e.err, e.code)
                 index += 1
-                print("{}, try again!".format(e.err))
+                print("{}, trying again!".format(e.err))
     except UpgradeError as e:
         print(e.err)
         input_reminder = '''
@@ -1064,7 +1143,6 @@ Hit the Enter Key to Exit:
     if not reboot_input == "y":
         return ErrorCode.SUCCESS.value
     os.system('reboot')
-
 
 if __name__ == '__main__':
     CODE = main(sys.argv)
