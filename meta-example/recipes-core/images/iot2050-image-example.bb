@@ -28,6 +28,7 @@ IMAGE_PREINSTALL += "${@ ' \
 
 IMAGE_INSTALL += " \
     expand-on-first-boot \
+    ssh-root-login \
     sshd-regen-keys \
     install-on-emmc \
     iot2050-nm-settings \

@@ -13,8 +13,6 @@ inherit image
 
 DESCRIPTION = "IOT2050 Debian Base Image"
 
-IMAGE_PREINSTALL += "sshd-regen-keys"
-
 IMAGE_INSTALL += "${IOT2050_META_PACKAGES}"
 
 IMAGE_PREINSTALL += "libubootenv-tool"

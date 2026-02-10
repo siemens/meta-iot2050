@@ -14,7 +14,6 @@ IOT2050_META_PACKAGES ?= " \
     iot2050-firmware \
     iot2050-base-packages \
     regen-rootfs-uuid \
-    ssh-root-login \
     iot2050-status-led \
     iot2050-switchserialmode \
     "
