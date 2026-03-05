@@ -37,7 +37,7 @@ class FlashRomProgrammer():
         self.flashctx = ctypes.c_void_p()
         self.prog_name = ctypes.create_string_buffer(prog_name)
         self.prog_param = ctypes.create_string_buffer(prog_param)
-        self.chip_names = ctypes.create_string_buffer(chip_names)
+        self.chip_names = ctypes.create_string_buffer(chip_names) if chip_names else None
 
         if self.c_lib.flashrom_programmer_init(ctypes.pointer(self.flashprog),
                                                   self.prog_name,
@@ -100,7 +100,7 @@ class EIOFirmware():
         try:
             self.flash_prog = \
                 FlashRomProgrammer(b"linux_spi", b"dev=/dev/spidev1.0",
-                                   b"MX25L8005/MX25L8006E/MX25L8008E/MX25V8005")
+                                   None)
             self.write_firmware = self.__get_write_firmware()
         except UpgradeError as e:
             raise UpgradeError("EIOFirmware: {}".format(e.err))
