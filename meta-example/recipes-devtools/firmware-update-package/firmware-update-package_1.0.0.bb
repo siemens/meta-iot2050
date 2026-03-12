@@ -10,6 +10,8 @@
 DESCRIPTION = "Generate The Firmware Update Package"
 MAINTAINER = "huaqian.li@siemens.com"
 
+PR = "1"
+
 SRC_URI = "file://iot2050-generate-fwu-tarball.sh \
            file://update.conf.json.tmpl"
 
