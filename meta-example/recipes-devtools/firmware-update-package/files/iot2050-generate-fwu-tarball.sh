@@ -19,27 +19,27 @@ generate_fwu_tarball()
 {
     echo "Generating the firmware tarball..."
 
-    if [ ! -e $2/iot2050-pg1-image-boot.bin ] || \
-       [ ! -e $2/iot2050-pg2-image-boot.bin ]; then
+    if [ ! -e "$2/iot2050-pg1-image-boot.bin" ] || \
+       [ ! -e "$2/iot2050-pg2-image-boot.bin" ]; then
         echo "Error: iot2050-pg1/2-image-boot.bin doesn't exist!"
         exit 2
     fi
 
-    if [ ! -e $2/u-boot-initial-env ]; then
+    if [ ! -e "$2/u-boot-initial-env" ]; then
         echo "Error: u-boot-initial-env doesn't exist!"
         exit 2
     fi
 
-    mkdir -p $2/.tarball
+    mkdir -p "$2/.tarball"
 
-    cp $1/update.conf.json.tmpl $2/.tarball/update.conf.json
-    update_json $2/.tarball/update.conf.json $3
-    cp $2/iot2050-pg*-image-boot.bin $2/.tarball
-    cp $2/u-boot-initial-env $2/.tarball
+    cp "$1/update.conf.json.tmpl" "$2/.tarball/update.conf.json"
+    update_json "$2/.tarball/update.conf.json" "$3"
+    cp "$2"/iot2050-pg*-image-boot.bin "$2/.tarball"
+    cp "$2/u-boot-initial-env" "$2/.tarball"
 
-    cd $2/.tarball
-    tar -cJvf $2/IOT2050-FW-Update-PKG-$3.tar.xz *
-    cd - && rm -rf $2/.tarball
+    cd "$2/.tarball" || exit
+    tar -cJvf "$2/IOT2050-FW-Update-PKG-$3.tar.xz" ./*
+    cd - && rm -rf "$2/.tarball"
 }
 
-generate_fwu_tarball $*
+generate_fwu_tarball "$@"
