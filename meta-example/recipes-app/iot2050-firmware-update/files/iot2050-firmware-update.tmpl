@@ -630,7 +630,11 @@ class FirmwareTarball(object):
                 file_tarfileinfo = f.getmember(name=member.name)
                 file_tarfileinfo.uid = os.getuid()
                 file_tarfileinfo.gid = os.getgid()
-                f.extract(file_tarfileinfo, path=self.extract_path)
+                try:
+                    f.extract(file_tarfileinfo, path=self.extract_path,
+                              filter='fully_trusted')
+                except TypeError:
+                    f.extract(file_tarfileinfo, path=self.extract_path)
                 self.extracted_files.append(self.extract_path + "/" + member.name)
 
         self._board_info = BoardInfo()
