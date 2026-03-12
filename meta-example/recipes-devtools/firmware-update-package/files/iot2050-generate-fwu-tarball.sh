@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) Siemens AG, 2023
+# Copyright (c) Siemens AG, 2023-2026
 #
 # Authors:
 #   Li Hua Qian <huaqian.li@siemens.com>
@@ -11,10 +11,8 @@
 
 update_json()
 {
-    version_letter="$(echo $2 | head -c 1)"
-    sed -i '/"version": ".*"/s/"V.*"/"'$2'"/g' $1
-    sed -i '/"description": ".*"/s/V.*["$]/'$2\"'/g' $1
-    sed -i '/"min_version": ".*"/s/"V/"'$version_letter'/g' $1
+    sed -i '/"version": ".*"/s/"V.*"/"'"$2"'"/g' "$1"
+    sed -i '/"description": ".*"/s/V.*["$]/'"$2"'"/g' "$1"
 }
 
 generate_fwu_tarball()
