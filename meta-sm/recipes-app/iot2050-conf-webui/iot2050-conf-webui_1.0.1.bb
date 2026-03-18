@@ -42,7 +42,7 @@ SRC_URI = " \
 NPM_MAPPED_NAME = "${PN}"
 NPM_REGISTRY = "https://registry.npmjs.org"
 
-PR = "2"
+PR = "3"
 
 # function maps arch names to npm arch names
 def npm_arch_map(target_arch, d):
@@ -230,9 +230,9 @@ do_prepare_build:append() {
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} \
                    --no-audit"
 
-    CHDIR=${PP}/image/${PKG_INSTALL_DIR}
+    CHDIR=image${PKG_INSTALL_DIR}
     # Must be installed as global style, maybe a npm issue?
-    INSTALL_FLAGS="$INSTALL_FLAGS --prefix ${CHDIR} -g"
+    INSTALL_FLAGS="$INSTALL_FLAGS --prefix . -g"
 
     if [ -n "${NPM_REBUILD}" ]; then
         INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source --no-save"

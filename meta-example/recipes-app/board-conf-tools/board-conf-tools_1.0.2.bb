@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
@@ -23,8 +23,6 @@ SRC_URI = "file://board-conf-tools  \
 
 RDEPENDS = "mraa"
 DEBIAN_DEPENDS = "python3-newt, mraa"
-
-S = "${WORKDIR}/board-conf-tools"
 
 do_install() {
     install -v -d ${D}/usr/bin/

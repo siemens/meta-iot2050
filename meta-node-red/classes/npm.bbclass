@@ -223,11 +223,13 @@ do_prepare_build:append() {
                    --no-audit"
 
     if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then
-        CHDIR=${PP}/image/${NPM_LOCAL_INSTALL_DIR}
+        CHDIR=image${NPM_LOCAL_INSTALL_DIR}
+        NODE_MODULES_DIR=${CHDIR}/node_modules
         INSTALL_FLAGS="$INSTALL_FLAGS --offline"
     else
-        CHDIR=/
-        INSTALL_FLAGS="$INSTALL_FLAGS --prefer-offline  --prefix ${PP}/image/usr -g"
+        CHDIR=.
+        NODE_MODULES_DIR=image/usr/lib/node_modules
+        INSTALL_FLAGS="$INSTALL_FLAGS --prefer-offline  --prefix image/usr -g"
     fi
 
     if [ -n "${NPM_REBUILD}" ]; then
@@ -240,13 +242,13 @@ export HOME=${PP}
 export npm_config_cache=${PP}/npm_cache
 
 override_dh_clean:
-	rm -rf ${CHDIR}/node_modules
+	rm -rf ${NODE_MODULES_DIR}
 	rm -rf $(npm_config_cache)
 
 override_dh_auto_build:
 	cd ${CHDIR} && npm install ${INSTALL_FLAGS} ${NPM_INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
 	if [ -n "${NPM_LOCAL_INSTALL_DIR}" ]; then \
-	    rm -f ${CHDIR}/node_modules/.package-lock.json; \
+		rm -f ${NODE_MODULES_DIR}/.package-lock.json; \
 	fi
 
 # disable slow stripping - not enough value for our ad-hoc npm packaging

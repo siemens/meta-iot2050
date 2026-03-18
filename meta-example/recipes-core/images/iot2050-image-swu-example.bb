@@ -28,7 +28,8 @@ SWU_HW_COMPAT = "IOT2050"
 # watchdog is managed by U-Boot - disable
 WDOG_TIMEOUT = "0"
 
-INITRD_DEPLOY_FILE = "${INITRAMFS_RECIPE}-${DISTRO}-${MACHINE}.initrd.img"
+IMAGE_INITRD = "${INITRAMFS_RECIPE}"
+do_image_wic[depends] += "${INITRAMFS_RECIPE}:do_build"
 
 # not compatible with SWUpdate images
 IMAGE_INSTALL:remove = "regen-rootfs-uuid"

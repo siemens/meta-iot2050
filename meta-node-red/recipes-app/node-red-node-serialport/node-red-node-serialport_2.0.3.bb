@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit node-red-module
 inherit npm
@@ -16,6 +16,6 @@ inherit npm
 DESCRIPTION = "Node-RED nodes to talk to serial ports"
 
 do_prepare_build:append() {
-    sed -i '/override_dh_install:/a\\trm -r ${PP}/image/${NPM_LOCAL_INSTALL_DIR}/node_modules/node-red-node-serialport/node_modules/@serialport/bindings-cpp/prebuilds' \
+    sed -i '/override_dh_install:/a\\trm -rf image${NPM_LOCAL_INSTALL_DIR}/node_modules/node-red-node-serialport/node_modules/@serialport/bindings-cpp/prebuilds' \
         ${S}/debian/rules
 }

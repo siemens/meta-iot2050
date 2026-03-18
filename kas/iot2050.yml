@@ -31,12 +31,9 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: 6b5280ccf5add8094f81df3647d0fc4fcba02e44
+    commit: 33ca03c711e34d38d303ca38c1259cb6c5fe55ef
     layers:
       meta:
-    patches:
-      image-Fix-construction:
-        path: isar-patches/0001-image-Fix-construction-of-do_image_tools-dependencie.patch
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
