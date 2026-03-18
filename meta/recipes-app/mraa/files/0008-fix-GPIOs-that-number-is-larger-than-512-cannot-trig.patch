@@ -3,6 +3,9 @@ From: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
 Date: Thu, 30 Oct 2025 15:52:30 +0800
 Subject: [PATCH] fix: GPIOs that number is larger than 512 cannot trigger
  interrupt
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 Default MRAA_SUB_PLATFORM_BIT_SHIFT is 9, so the sub‑platform mask is 1<<9 (512).
 As a result, any GPIO number ≥512 is treated as a sub‑platform GPIO and its interrupt
@@ -39,15 +42,15 @@ Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/api/mraa/common.h b/api/mraa/common.h
-index 6675f2d..04ef976 100644
+index 13df2f1681fe..8df44cfd298e 100644
 --- a/api/mraa/common.h
 +++ b/api/mraa/common.h
 @@ -35,7 +35,7 @@
- #define MRAA_PIN_NAME_SIZE 12
-
+ #define MRAA_PIN_NAME_SIZE 32
+ 
  /** Bit Shift for Mraa sub platform */
 -#define MRAA_SUB_PLATFORM_BIT_SHIFT 9
 +#define MRAA_SUB_PLATFORM_BIT_SHIFT 12
  /** Mask for Mraa sub platform */
  #define MRAA_SUB_PLATFORM_MASK (1<<MRAA_SUB_PLATFORM_BIT_SHIFT)
-
+ 
