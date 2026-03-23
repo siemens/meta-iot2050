@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require recipes-kernel/linux/linux-custom.inc
+inherit linux-kernel
 
 SRC_URI += " \
     git://github.com/siemens/linux.git;protocol=https;branch=jan/iot2050 \

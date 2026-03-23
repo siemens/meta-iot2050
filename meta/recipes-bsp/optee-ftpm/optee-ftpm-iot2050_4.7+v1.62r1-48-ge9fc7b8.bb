@@ -8,7 +8,7 @@
 
 PR="1"
 
-require recipes-bsp/optee-ftpm/optee-ftpm.inc
+inherit optee-ftpm
 
 SRC_URI += " \
     https://github.com/OP-TEE/optee_ftpm/archive/${SRCREV}.tar.gz;downloadfilename=optee_ftpm-${SRCREV}.tar.gz \

@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require recipes-bsp/trusted-firmware-a/trusted-firmware-a-custom.inc
+inherit trusted-firmware-a
 
 SRC_URI += "https://github.com/ARM-software/arm-trusted-firmware/archive/refs/tags/lts-v${PV}.tar.gz"
 SRC_URI[sha256sum] = "8fe5e74db3e15d447cb268d4965a46c93a81d1636ee326b5c4ec44cb31c0a2fc"

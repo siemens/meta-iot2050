@@ -5,7 +5,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require recipes-kernel/linux/linux-custom.inc
+inherit linux-kernel
 
 def get_patches(d, patchdir):
     import glob

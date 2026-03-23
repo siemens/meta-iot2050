@@ -8,5 +8,5 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require recipes-bsp/optee-os/optee-os-tadevkit-custom.inc
+inherit optee-os-tadevkit
 require optee-os-iot2050_${PV}.inc

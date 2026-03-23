@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-require recipes-bsp/u-boot/u-boot-custom.inc
+inherit u-boot
 
 SRC_URI += " \
     file://rules.tmpl \

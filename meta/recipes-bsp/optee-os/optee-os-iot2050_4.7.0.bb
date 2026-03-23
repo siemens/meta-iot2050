@@ -8,7 +8,7 @@
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
-require recipes-bsp/optee-os/optee-os-custom.inc
+inherit optee-os
 require optee-os-iot2050_${PV}.inc
 
 OPTEE_BINARIES = "tee-raw.bin"
