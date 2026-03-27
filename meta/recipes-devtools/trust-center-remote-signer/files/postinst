@@ -1,0 +1,7 @@
+# Create directories if they don't exist
+mkdir -p /var/spool/trust-center-remote-signer/in
+mkdir -p /var/spool/trust-center-remote-signer/out
+
+# Add w permission, do_install { install -m 777 } does not work for some reason
+chmod 777 /var/spool/trust-center-remote-signer/in
+chmod 777 /var/spool/trust-center-remote-signer/out
