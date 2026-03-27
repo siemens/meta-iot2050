@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+
+##
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+##
+
+export DH_VERBOSE = 1
+
+SOURCE = src/extsign_provider.c
+MODULE = run/extsign_provider.so
+
+CFLAGS += -Wall -Wextra -fPIC
+LDFLAGS += -shared
+LDLIBS += -lcrypto -lssl
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	install -d $(dir $(MODULE))
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SOURCE) $(LDFLAGS) -o $(MODULE) $(LDLIBS)
+
+override_dh_auto_clean:
+	rm -f $(MODULE)
