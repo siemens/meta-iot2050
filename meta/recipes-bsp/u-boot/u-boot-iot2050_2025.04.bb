@@ -11,7 +11,7 @@
 
 require u-boot-iot2050.inc
 
-PR = "1"
+PR = "2"
 
 SRC_URI += " \
     https://ftp.denx.de/pub/u-boot/u-boot-${PV}.tar.bz2 \
@@ -20,6 +20,7 @@ SRC_URI += " \
     file://0003-board-siemens-iot2050-Allow-to-enable-and-adjust-res.patch \
     file://0004-arm-dts-iot2050-Enforce-DMA-isolation-for-devices-be.patch \
     file://0005-remoteproc-k3-add-config-to-gate-R5F-firmware-authen.patch \
+    file://0006-mkimage-Add-openssl-provider-support.patch \
     "
 
 SRC_URI[sha256sum] = "439d3bef296effd54130be6a731c5b118be7fddd7fcc663ccbc5fb18294d8718"

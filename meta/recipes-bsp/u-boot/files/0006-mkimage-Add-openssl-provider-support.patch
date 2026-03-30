@@ -1,0 +1,487 @@
+From 3c73163be869e5f6157c240bc3f0f96f3852135c Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Tue, 18 Jun 2024 15:44:41 +0800
+Subject: [PATCH] u-boot-iot2050: Add openssl provider support
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ include/image.h           |  5 ++-
+ lib/rsa/rsa-sign.c        | 51 +++++++++++++++++++++++++++--
+ tools/binman/cmdline.py   |  2 ++
+ tools/binman/control.py   |  8 +++--
+ tools/binman/entry.py     |  2 +-
+ tools/binman/etype/fit.py |  8 +++--
+ tools/fit_image.c         |  1 +
+ tools/image-host.c        | 28 +++++++++-------
+ tools/imagetool.h         |  1 +
+ tools/iot2050-sign-fw.sh  | 67 +++++++++++++++++++++++++++++++++------
+ tools/mkimage.c           |  9 ++++--
+ 11 files changed, 150 insertions(+), 32 deletions(-)
+
+diff --git a/include/image.h b/include/image.h
+index 0791260..f13d600 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -1307,6 +1307,7 @@ struct image_summary {
+  * @comment:	Comment to add to signature nodes
+  * @require_keys: Mark all keys as 'required'
+  * @engine_id:	Engine to use for signing
++ * @propquery:	Property query to use for signing
+  * @cmdname:	Command name used when reporting errors
+  * @algo_name:	Algorithm name, or NULL if to be read from FIT
+  * @summary:	Returns information about what data was written
+@@ -1324,7 +1325,8 @@ struct image_summary {
+ int fit_add_verification_data(const char *keydir, const char *keyfile,
+ 			      void *keydest, void *fit, const char *comment,
+ 			      int require_keys, const char *engine_id,
+-			      const char *cmdname, const char *algo_name,
++			      const char *propquery, const char *cmdname,
++			      const char *algo_name,
+ 			      struct image_summary *summary);
+ 
+ /**
+@@ -1511,6 +1513,7 @@ struct image_sign_info {
+ 	int required_keynode;		/* Node offset of key to use: -1=any */
+ 	const char *require_keys;	/* Value for 'required' property */
+ 	const char *engine_id;		/* Engine to use for signing */
++	const char *propquery;		/* Property query to use for signing */
+ 	/*
+ 	 * Note: the following two fields are always valid even w/o
+ 	 * RSA_VERIFY_WITH_PKEY in order to make sure this structure is
+diff --git a/lib/rsa/rsa-sign.c b/lib/rsa/rsa-sign.c
+index fa9e143..150b910 100644
+--- a/lib/rsa/rsa-sign.c
++++ b/lib/rsa/rsa-sign.c
+@@ -20,6 +20,7 @@
+ #include <openssl/ssl.h>
+ #include <openssl/evp.h>
+ #include <openssl/engine.h>
++#include <openssl/store.h>
+ 
+ static int rsa_err(const char *msg)
+ {
+@@ -300,15 +301,61 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
+  * @keydir:	Directory containing the key (PEM file) or key prefix (engine)
+  * @name	Name of key
+  * @engine	Engine to use for signing
++ * @propquery Property query to use for signing
+  * @evpp	Returns EVP_PKEY object, or NULL on failure
+  * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
+  */
++/* The provider must implement the OSSL_OP_STORE API */
++static int rsa_get_priv_key_property_query(const char *keyfile,
++					   const char *propquery,
++					   EVP_PKEY **evpp)
++{
++	OSSL_STORE_INFO *store_info = NULL;
++	OSSL_STORE_CTX *store_ctx = NULL;
++	int ret = -EINVAL;
++
++	store_ctx = OSSL_STORE_open_ex(keyfile, NULL, propquery, NULL, NULL,
++				       NULL, NULL, NULL);
++	if (!store_ctx) {
++		fprintf(stderr, "Could not open %s with propquery %s\n", keyfile,
++			propquery);
++		goto out;
++	}
++
++	if (OSSL_STORE_expect(store_ctx, OSSL_STORE_INFO_PKEY) != 1) {
++		fprintf(stderr, "Private key does not exist in %s\n", keyfile);
++		goto out;
++	}
++
++	store_info = OSSL_STORE_load(store_ctx);
++	if (!store_info) {
++		fprintf(stderr, "Could not load private key from %s\n", keyfile);
++		goto out;
++	}
++
++	*evpp = OSSL_STORE_INFO_get1_PKEY(store_info);
++	if (!*evpp)
++		fprintf(stderr, "Could not construct EVP_PKEY from %s!\n", keyfile);
++	else
++		ret = 0;
++
++out:
++	if (store_info)
++		OSSL_STORE_INFO_free(store_info);
++	if (store_ctx)
++		OSSL_STORE_close(store_ctx);
++	return ret;
++}
++
+ static int rsa_get_priv_key(const char *keydir, const char *name,
+-			    const char *keyfile, ENGINE *engine, EVP_PKEY **evpp)
++			    const char *keyfile, ENGINE *engine,
++			    const char *propquery, EVP_PKEY **evpp)
+ {
+ 	if (engine)
+ 		return rsa_engine_get_priv_key(keydir, name, keyfile, engine,
+ 					       evpp);
++	else if (propquery)
++		return rsa_get_priv_key_property_query(keyfile, propquery, evpp);
+ 	return rsa_pem_get_priv_key(keydir, name, keyfile, evpp);
+ }
+ 
+@@ -487,7 +534,7 @@ int rsa_sign(struct image_sign_info *info,
+ 	}
+ 
+ 	ret = rsa_get_priv_key(info->keydir, info->keyname, info->keyfile,
+-			       e, &pkey);
++			       e, info->propquery, &pkey);
+ 	if (ret)
+ 		goto err_priv;
+ 	ret = rsa_sign_with_key(pkey, info->padding, info->checksum, region,
+diff --git a/tools/binman/cmdline.py b/tools/binman/cmdline.py
+index 9632ec1..8aec02d 100644
+--- a/tools/binman/cmdline.py
++++ b/tools/binman/cmdline.py
+@@ -186,6 +186,8 @@ controlled by a description in the board device tree.'''
+                                 help='Image filename to update')
+     sign_parser.add_argument('-k', '--key', type=str, required=True,
+                                 help='Private key file for signing')
++    sign_parser.add_argument('-p', '--propquery', type=str, required=False,
++                                help='Openssl property query for signing, see property(7)')
+     sign_parser.add_argument('paths', type=str, nargs='*',
+                                 help='Paths within file to sign (wildcard)')
+ 
+diff --git a/tools/binman/control.py b/tools/binman/control.py
+index e73c598..0ad11c0 100644
+--- a/tools/binman/control.py
++++ b/tools/binman/control.py
+@@ -463,7 +463,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
+     return image
+ 
+ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
+-                write_map=False):
++                write_map=False, propq=None):
+     """Sign and replace the data from one or more entries from input files
+ 
+     Args:
+@@ -474,6 +474,7 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
+         entry_paths: List of entry paths to sign
+         privatekey_fname: Private key filename
+         write_map (bool): True to write the map file
++        propq: Openssl property query string
+     """
+     image_fname = os.path.abspath(image_fname)
+     image = Image.FromFile(image_fname)
+@@ -484,7 +485,7 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
+ 
+     for entry_path in entry_paths:
+         entry = image.FindEntryPath(entry_path)
+-        entry.UpdateSignatures(privatekey_fname, algo, input_fname)
++        entry.UpdateSignatures(privatekey_fname, algo, input_fname, propq)
+ 
+     AfterReplace(image, allow_resize=True, write_map=write_map)
+ 
+@@ -791,7 +792,8 @@ def Binman(args):
+                                allow_resize=not args.fix_size, write_map=args.map)
+ 
+             if args.cmd == 'sign':
+-                SignEntries(args.image, args.file, args.key, args.algo, args.paths)
++                SignEntries(args.image, args.file, args.key, args.algo,
++                            args.paths, propq=args.propquery)
+ 
+             if args.cmd == 'tool':
+                 if args.list:
+diff --git a/tools/binman/entry.py b/tools/binman/entry.py
+index bdc60e4..3508664 100644
+--- a/tools/binman/entry.py
++++ b/tools/binman/entry.py
+@@ -1404,7 +1404,7 @@ features to produce new behaviours.
+             for entry in entries.values():
+                 entry.mark_build_done()
+ 
+-    def UpdateSignatures(self, privatekey_fname, algo, input_fname):
++    def UpdateSignatures(self, privatekey_fname, algo, input_fname, propq=None):
+         self.Raise('Updating signatures is not supported with this entry type')
+ 
+     def FdtContents(self, fdt_etype):
+diff --git a/tools/binman/etype/fit.py b/tools/binman/etype/fit.py
+index 803fb66..36472d1 100644
+--- a/tools/binman/etype/fit.py
++++ b/tools/binman/etype/fit.py
+@@ -1053,9 +1053,13 @@ class Entry_fit(Entry_section):
+     def CheckEntries(self):
+         pass
+ 
+-    def UpdateSignatures(self, privatekey_fname, algo, input_fname):
++    def UpdateSignatures(self, privatekey_fname, algo, input_fname, propq=None):
++        args = []
++        if propq is not None:
++            args.extend(['-P', propq])
++
+         uniq = self.GetUniqueName()
+-        args = [ '-G', privatekey_fname, '-r', '-o', algo, '-F' ]
++        args.extend([ '-G', privatekey_fname, '-r', '-o', algo, '-F' ])
+         if input_fname:
+             fname = input_fname
+         else:
+diff --git a/tools/fit_image.c b/tools/fit_image.c
+index caed8d5..21f659b 100644
+--- a/tools/fit_image.c
++++ b/tools/fit_image.c
+@@ -78,6 +78,7 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
+ 						params->comment,
+ 						params->require_keys,
+ 						params->engine_id,
++						params->propquery,
+ 						params->cmdname,
+ 						params->algo_name,
+ 						&params->summary);
+diff --git a/tools/image-host.c b/tools/image-host.c
+index e6de34f..a4d8485 100644
+--- a/tools/image-host.c
++++ b/tools/image-host.c
+@@ -166,7 +166,8 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
+ static int fit_image_setup_sig(struct image_sign_info *info,
+ 		const char *keydir, const char *keyfile, void *fit,
+ 		const char *image_name, int noffset, const char *require_keys,
+-		const char *engine_id, const char *algo_name)
++		const char *engine_id, const char *propquery,
++		const char *algo_name)
+ {
+ 	const char *node_name;
+ 	const char *padding_name;
+@@ -195,6 +196,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
+ 	info->padding = image_get_padding_algo(padding_name);
+ 	info->require_keys = require_keys;
+ 	info->engine_id = engine_id;
++	info->propquery = propquery;
+ 	if (!info->checksum || !info->crypto) {
+ 		fprintf(stderr,
+ 			"Unsupported signature algorithm (%s) for '%s' signature node in '%s' image node\n",
+@@ -239,7 +241,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
+ 
+ 	if (fit_image_setup_sig(&info, keydir, keyfile, fit, image_name,
+ 				noffset, require_keys ? "image" : NULL,
+-				engine_id, algo_name))
++				engine_id, NULL, algo_name))
+ 		return -1;
+ 
+ 	node_name = fit_get_name(fit, noffset, NULL);
+@@ -1050,6 +1052,7 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
+  * @comment:	Comment to add to signature nodes
+  * @require_keys: Mark all keys as 'required'
+  * @engine_id:	Engine to use for signing
++ * @propquery:	Property query to use for signing
+  * @cmdname:	Command name used when reporting errors
+  * @return keydest node if @keydest is non-NULL, else 0 if none; -ve error code
+  *	on failure
+@@ -1057,8 +1060,8 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
+ static int fit_config_process_sig(const char *keydir, const char *keyfile,
+ 		void *keydest, void *fit, const char *conf_name,
+ 		int conf_noffset, int noffset, const char *comment,
+-		int require_keys, const char *engine_id, const char *cmdname,
+-		const char *algo_name)
++		int require_keys, const char *engine_id, const char *propquery,
++		const char *cmdname, const char *algo_name)
+ {
+ 	struct image_sign_info info;
+ 	const char *node_name;
+@@ -1078,7 +1081,7 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
+ 
+ 	if (fit_image_setup_sig(&info, keydir, keyfile, fit, conf_name, noffset,
+ 				require_keys ? "conf" : NULL, engine_id,
+-				algo_name))
++				propquery, algo_name))
+ 		return -1;
+ 
+ 	ret = info.crypto->sign(&info, region, region_count, &value,
+@@ -1128,8 +1131,8 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
+ static int fit_config_add_verification_data(const char *keydir,
+ 		const char *keyfile, void *keydest, void *fit, int conf_noffset,
+ 		const char *comment, int require_keys, const char *engine_id,
+-		const char *cmdname, const char *algo_name,
+-		struct image_summary *summary)
++		const char *propquery, const char *cmdname,
++		const char *algo_name, struct image_summary *summary)
+ {
+ 	const char *conf_name;
+ 	int noffset;
+@@ -1148,7 +1151,8 @@ static int fit_config_add_verification_data(const char *keydir,
+ 			     strlen(FIT_SIG_NODENAME))) {
+ 			ret = fit_config_process_sig(keydir, keyfile, keydest,
+ 				fit, conf_name, conf_noffset, noffset, comment,
+-				require_keys, engine_id, cmdname, algo_name);
++				require_keys, engine_id, propquery, cmdname,
++				algo_name);
+ 			if (ret < 0)
+ 				return ret;
+ 
+@@ -1317,7 +1321,8 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
+ int fit_add_verification_data(const char *keydir, const char *keyfile,
+ 			      void *keydest, void *fit, const char *comment,
+ 			      int require_keys, const char *engine_id,
+-			      const char *cmdname, const char *algo_name,
++			      const char *propquery, const char *cmdname,
++			      const char *algo_name,
+ 			      struct image_summary *summary)
+ {
+ 	int images_noffset, confs_noffset;
+@@ -1370,8 +1375,9 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
+ 		ret = fit_config_add_verification_data(keydir, keyfile, keydest,
+ 						       fit, noffset, comment,
+ 						       require_keys,
+-						       engine_id, cmdname,
+-						       algo_name, summary);
++						       engine_id, propquery,
++						       cmdname, algo_name,
++						       summary);
+ 		if (ret)
+ 			return ret;
+ 	}
+diff --git a/tools/imagetool.h b/tools/imagetool.h
+index 57be608..6be19eb 100644
+--- a/tools/imagetool.h
++++ b/tools/imagetool.h
+@@ -97,6 +97,7 @@ struct image_tool_params {
+ 	unsigned int external_offset;	/* Add padding to external data */
+ 	int bl_len;		/* Block length in byte for external data */
+ 	const char *engine_id;	/* Engine to use for signing */
++	const char *propquery;	/* Property query to use for signing */
+ 	bool reset_timestamp;	/* Reset the timestamp on an existing image */
+ 	struct image_summary summary;	/* results of signing process */
+ };
+diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
+index 75ffd56..82b4bbc 100755
+--- a/tools/iot2050-sign-fw.sh
++++ b/tools/iot2050-sign-fw.sh
+@@ -1,15 +1,51 @@
+ #!/bin/sh
+ 
+-if [ -z "$1" ]; then
+-	echo "Usage: $0 KEY"
++set -e
++
++PROVIDER_NAME=""
++PROPQUERY=""
++KEY=""
++REVISION=""
++
++usage() {
++	echo "Usage: $0 [--provider PROVIDER_NAME] [--propquery Q] KEY [REVISION]"
+ 	exit 1
++}
++
++while [ "$#" -gt 0 ]; do
++case "$1" in
++	--provider)
++		PROVIDER_NAME="$2"
++		shift 2
++		;;
++	--propquery)
++		PROPQUERY="$2"
++		shift 2
++		;;
++	-*)
++		echo "Unknown option: $1"
++		usage
++		;;
++	*)
++		if [ -z "$KEY" ]; then
++			KEY="$1"
++		else
++			REVISION="$1"
++		fi
++		shift
++		;;
++esac
++done
++
++if [ -z "$KEY" ]; then
++	usage
+ fi
+ 
+ TOOLS_DIR=$(dirname $0)
+ 
+ TEMP_X509=$(mktemp XXXXXXXX.temp)
+ 
+-REVISION=${2:-0}
++REVISION=${REVISION:-0}
+ SHA_VAL=$(openssl dgst -sha512 -hex tispl.bin | sed -e "s/^.*= //g")
+ BIN_SIZE=$(stat -c %s tispl.bin)
+ 
+@@ -39,12 +75,23 @@ EOF
+ 
+ CERT_X509=$(mktemp XXXXXXXX.crt)
+ 
+-openssl req -new -x509 -key $1 -nodes -outform DER -out $CERT_X509 -config $TEMP_X509 -sha512
+-cat $CERT_X509 tispl.bin > tispl.bin_signed
+-$TOOLS_DIR/binman/binman replace -i flash-pg1.bin -f tispl.bin_signed fit@180000
+-$TOOLS_DIR/binman/binman replace -i flash-pg2.bin -f tispl.bin_signed fit@180000
++if [ -n "$PROVIDER_NAME" ]; then
++	PROVIDER_PARA="-provider $PROVIDER_NAME"
++fi
++
++openssl req -new -x509 $PROVIDER_PARA -key "$KEY" -noenc -outform DER \
++	-out "$CERT_X509" -config "$TEMP_X509" -sha512
++cat "$CERT_X509" tispl.bin > tispl.bin_signed
++"$TOOLS_DIR"/binman/binman replace -i flash-pg1.bin -f tispl.bin_signed fit@180000
++"$TOOLS_DIR"/binman/binman replace -i flash-pg2.bin -f tispl.bin_signed fit@180000
+ 
+-rm $TEMP_X509 $CERT_X509
++rm "$TEMP_X509" "$CERT_X509"
++
++if [ -n "$PROPQUERY" ]; then
++	PROPQUERY_PARA="-p $PROPQUERY"
++fi
+ 
+-$TOOLS_DIR/binman/binman sign -i flash-pg1.bin -k $1 -a sha256,rsa4096 fit@380000
+-$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k $1 -a sha256,rsa4096 fit@380000
++$TOOLS_DIR/binman/binman sign -i flash-pg1.bin -k "$KEY" -a sha256,rsa4096 \
++	$PROPQUERY_PARA fit@380000
++$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k "$KEY" -a sha256,rsa4096 \
++	$PROPQUERY_PARA fit@380000
+diff --git a/tools/mkimage.c b/tools/mkimage.c
+index ac62ebb..97711c3 100644
+--- a/tools/mkimage.c
++++ b/tools/mkimage.c
+@@ -117,7 +117,7 @@ static void usage(const char *msg)
+ 		"          -t => update the timestamp in the FIT\n");
+ #if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+ 	fprintf(stderr,
+-		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
++		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine|-P propquery]\n"
+ 		"          -k => set directory containing private keys\n"
+ 		"          -K => write public keys to this .dtb file\n"
+ 		"          -g => set key name hint\n"
+@@ -127,6 +127,7 @@ static void usage(const char *msg)
+ 		"          -p => place external data at a static position\n"
+ 		"          -r => mark keys used as 'required' in dtb\n"
+ 		"          -N => openssl engine to use for signing\n"
++		"          -P => openssl property query to use for signing, see property(7)\n"
+ 		"          -o => algorithm to use for signing\n");
+ #else
+ 	fprintf(stderr,
+@@ -160,7 +161,7 @@ static int add_content(int type, const char *fname)
+ }
+ 
+ static const char optstring[] =
+-	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVx";
++	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:P:qrR:stT:vVx";
+ 
+ static const struct option longopts[] = {
+ 	{ "load-address", required_argument, NULL, 'a' },
+@@ -187,6 +188,7 @@ static const struct option longopts[] = {
+ 	{ "algo", required_argument, NULL, 'o' },
+ 	{ "os", required_argument, NULL, 'O' },
+ 	{ "position", required_argument, NULL, 'p' },
++	{ "propquery", required_argument, NULL, 'P' },
+ 	{ "quiet", no_argument, NULL, 'q' },
+ 	{ "key-required", no_argument, NULL, 'r' },
+ 	{ "secondary-config", required_argument, NULL, 'R' },
+@@ -327,6 +329,9 @@ static void process_args(int argc, char **argv)
+ 				exit(EXIT_FAILURE);
+ 			}
+ 			break;
++		case 'P':
++			params.propquery = optarg;
++			break;
+ 		case 'q':
+ 			params.quiet = 1;
+ 			break;
+-- 
+2.34.1
+
