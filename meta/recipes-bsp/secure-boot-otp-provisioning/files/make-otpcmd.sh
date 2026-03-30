@@ -1,9 +1,10 @@
 #!/bin/sh
 #
-# Copyright (c) Siemens AG, 2022
+# Copyright (c) Siemens AG, 2022-2026
 #
 # Authors:
 #  Baocheng Su <baocheng.su@siemens.com>
+#  Huaqian Lee <huaqian.li@siemens.com>
 #
 # SPDX-License-Identifier: MIT
 
@@ -19,10 +20,10 @@ usage()
 	printf "%b" "switch\t\t\tMake the otpcmd data for switching the "\
 				"current effective key.\n"
 	printf "%b" "ITSFILE\t\tThe its file.\n"
-	printf "%b" "KEYFILE1\t\tThe first private key in pem format.\n"
-	printf "%b" "KEYFILE2\t\tThe second private key in pem format.\n"
+	printf "%b" "KEYFILE1\t\tThe first key in pem format.\n"
+	printf "%b" "KEYFILE2\t\tThe second key in pem format.\n"
 	printf "%b" "\nOptional arguments:\n"
-	printf "%b" "KEYFILE3\t\tThe third private key in pem format. "\
+	printf "%b" "KEYFILE3\t\tThe third key in pem format. "\
 				"No need to provide it for key switching\n"
 
 	exit 1
@@ -33,7 +34,7 @@ X509_TEMPLATE=x509-template.txt
 gen_template()
 {
 [ -f "$X509_TEMPLATE" ] && rm $X509_TEMPLATE
-cat << 'EOF' > $X509_TEMPLATE
+cat << EOF > $X509_TEMPLATE
 [ req ]
 distinguished_name     = req_distinguished_name
 x509_extensions        = v3_ca
@@ -103,28 +104,63 @@ esac
 [ -f "$KEY2" ] || { echo "KEY2 [$KEY2] does not exist!"; exit 1; }
 [ -z "$KEY3" ] || [ -f "$KEY3" ] || { echo "KEY3 [$KEY3] does not exist!"; exit 1; }
 
+get_key_type()
+{
+	file_path=$1
+	first_line=$(head -n 1 "$file_path")
+
+	if echo "$first_line" | grep -q "BEGIN RSA PRIVATE KEY" || \
+	   echo "$first_line" | grep -q "BEGIN PRIVATE KEY"; then
+		echo "key"
+	elif echo "$first_line" | grep -q "BEGIN CERTIFICATE"; then
+		echo "certificate"
+	else
+		echo "invalid"
+	fi
+}
+KEY_TYPE=$(get_key_type "$KEY1")
+
+generate_keyhash()
+{
+	openssl dgst -sha256 -binary -out $1
+}
+
 gen_pubkey_hash()
 {
-	PRIKEY=$1
+	KEY_PATH=$1
 	KEYHASH=$2
 	DUMMY_KEY_HASHES=" \
 	fb337ffb16be62fc4a97e62bf80faab1506b5f6e4231d6fec1dd01429ba016e3 \
 	1e436ba092a4a134102ac68489cf64d5978fb28813d348b94331c98194dd7a09 \
 	fcdf0f123e9a4eba4c8fd4f7b375e110c10fe4c4b916bb800c7a27466c5d791a"
 
-	openssl rsa -in $PRIKEY -pubout -outform der 2>/dev/null | \
-		openssl dgst -sha256 -binary -out $KEYHASH
+	case $KEY_TYPE in
+		key)
+			openssl rsa -in "$KEY_PATH" -pubout -outform der 2>/dev/null | \
+				generate_keyhash "$KEYHASH"
+			;;
+		certificate)
+			openssl x509 -in "$KEY_PATH" -pubkey -noout | \
+				openssl pkey -pubin -outform der 2>/dev/null | \
+				generate_keyhash "$KEYHASH"
+			;;
+		*)
+			echo "$KEY_PATH does not appear to be a valid key or certificate."
+			return 1
+			;;
+	esac
 
 	HASHSTR=`hexdump -ve '1/1 "%.2x"' $KEYHASH`
 
 	for dummy in $DUMMY_KEY_HASHES; do
 		if [ "$dummy" = "$HASHSTR" ]; then
-			echo "Warning: Dummy key $PRIKEY is used for OTP provisioning!" 1>&2;
+			echo "Warning: Dummy key $KEY_PATH is used for OTP provisioning!" 1>&2;
 		fi
 	done
 }
 
 if [ -z "$KEY_SWITCH" ]; then
+	# key[1-3]\.sha256 are used in its file ($ITS)
 	KEY1_HASH=key1.sha256
 	KEY2_HASH=key2.sha256
 	KEY3_HASH=key3.sha256
@@ -156,8 +192,13 @@ sign_image()
 
 	sed -e "s/TEST_IMAGE_LENGTH/$BIN_SIZE/"	\
 		-e "s/TEST_IMAGE_SHA_VAL/$SHA_VAL/" $X509_TEMPLATE > $TEMP_X509
-	
-	openssl req -new -x509 -key $KEY -nodes -outform DER -out $IMAGE.cert -config $TEMP_X509 -sha512
+
+	if [ "$KEY_TYPE" = "certificate" ]; then
+		KEY=$SB_SIGN_KEY
+	fi
+
+	openssl req -new -x509 ${SB_SIGN_OPT:+$SB_SIGN_OPT} -key $KEY -noenc \
+		-outform DER -out "$IMAGE".cert -config $TEMP_X509 -sha512
 	
 	cat $IMAGE.cert $IMAGE > $IMAGE_SIGNED
 	
@@ -167,7 +208,9 @@ sign_image()
 OTPCMD=otpcmd.bin
 sign_image $KEY1 $FIT_IMAGE $OTPCMD
 
-if [ -n "$KEY_SWITCH" ]; then
+if [ "$KEY_TYPE" = "certificate" ]; then
+	echo "Info: Key switching is not supported for certificate key yet."
+elif [ -n "$KEY_SWITCH" ]; then
 	mv $OTPCMD $OTPCMD.1st
 	sign_image $KEY2 $OTPCMD.1st $OTPCMD
 fi

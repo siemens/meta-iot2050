@@ -1,4 +1,4 @@
-# Copyright (c) Siemens AG, 2022-2023
+# Copyright (c) Siemens AG, 2022-2026
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -9,6 +9,8 @@
 inherit dpkg
 
 DESCRIPTION = "Secure Boot OTP key provisioning tool"
+
+PR = "1"
 
 DEBIAN_BUILD_DEPENDS = "openssl, u-boot-tools, device-tree-compiler"
 
@@ -23,15 +25,29 @@ SRC_URI = " \
     file://make-otpcmd.sh \
     file://rules.tmpl"
 
+
+DEPENDS:append:trust-center = " trust-center-remote-signer"
+DEBIAN_BUILD_DEPENDS:append:trust-center = ", trust-center-remote-signer"
+
 OTPCMD_MODE ?= "provision"
 OTPCMD_ITS ?= "its/key-${OTPCMD_MODE}.its"
 OTP_MPK ?= "./keys/custMpk.pem"
 OTP_SMPK ?= "./keys/custSmpk.pem"
 OTP_BMPK ?= ""
+
+OTP_MPK:trust-center ?= "/usr/share/trust-center-credential/trust-center-mpk.crt"
+OTP_SMPK:trust-center ?= "/usr/share/trust-center-credential/trust-center-smpk.crt"
+
+SB_SIGN_KEY:trust-center = "extsign:dummy"
+SB_SIGN_OPT:trust-center = "-provider extsign_provider"
+OPENSSL_ENVS:trust-center = "OPENSSL_CONF=/usr/share/trust-center-remote-signer/openssl.conf \
+    OPENSSL_MODULES=/usr/lib/extsign-provider"
+
 OTPCMD_KEYS ?= "${OTP_MPK} ${OTP_SMPK} ${OTP_BMPK}"
 
 TEMPLATE_FILES = "rules.tmpl"
-TEMPLATE_VARS += "OTPCMD_MODE OTPCMD_ITS OTPCMD_KEYS"
+TEMPLATE_VARS += "OTPCMD_MODE OTPCMD_ITS OTPCMD_KEYS SB_SIGN_KEY \
+    SB_SIGN_OPT OPENSSL_ENVS FIRMWARE_SECURE_VER"
 
 check_dummy_hash() {
     DUMMY_KEY_HASHES=" \

@@ -2,7 +2,8 @@
 #export DH_VERBOSE = 1
 
 override_dh_auto_build:
-	./make-otpcmd.sh ${OTPCMD_MODE} ${OTPCMD_ITS} ${OTPCMD_KEYS}
+	SB_SIGN_OPT="${SB_SIGN_OPT}" SB_SIGN_KEY="${SB_SIGN_KEY}" ${OPENSSL_ENVS} \
+		./make-otpcmd.sh ${OTPCMD_MODE} ${OTPCMD_ITS} ${OTPCMD_KEYS}
 
 %:
 	dh $@
