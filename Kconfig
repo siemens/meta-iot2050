@@ -190,7 +190,7 @@ config SECURE_BOOT
 
 config SECURE_BOOT
 	bool "Secure boot"
-	depends on IMAGE_BOOT
+	depends on IMAGE_BOOT || IMAGE_FWU_PKG
 	help
 	  Enable signing of all customizable firmware artifacts, enforce UEFI
 	  Secure Boot mode, protect sensitive U-Boot environment variables and
@@ -205,7 +205,7 @@ config SECURE_BOOT
 
 config OTP_PROVISIONING
 	bool "OTP Provisioning"
-	depends on IMAGE_BOOT
+	depends on IMAGE_BOOT || IMAGE_FWU_PKG
 	help
 	  Integrate OTP provisioning data into the firmware artifacts. Various
 	  options are avaiable. By default, this will integrate the OTP command
@@ -309,14 +309,14 @@ config KAS_INCLUDE_DEBIAN_MIRROR
 config FIRMWARE_SECURE_VER
 	string "Use specific firmware secure version"
 	default "0"
-	depends on SECURE_BOOT && IMAGE_BOOT
+	depends on SECURE_BOOT && (IMAGE_BOOT || IMAGE_FWU_PKG)
 	help
 	  Use specific anti-rollback secure version rather than the default 0.
 	  Range 0 - 127.
 
 config TRUST_CENTER_REMOTE_SIGNING
 	bool "Use trust center remote signing (no priviate key)"
-	depends on SECURE_BOOT && IMAGE_BOOT
+	depends on SECURE_BOOT && (IMAGE_BOOT || IMAGE_FWU_PKG)
 	help
 	  Use trust center key to sign the firmware artifacts.
 
