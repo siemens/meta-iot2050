@@ -24,6 +24,10 @@ SRC_URI:append:otpcmd = " \
     file://otpcmd.cfg"
 SRC_URI:append:rpmb-setup = " \
     file://rpmb-setup.cfg"
+SRC_URI:remove:trust-center = " \
+    file://keys/custMpk.crt \
+    file://keys/custMpk.key \
+    file://keys/custMpk.pem"
 
 U_BOOT_BIN = "flash.bin"
 U_BOOT_ENV = "u-boot-initial-env"
@@ -41,11 +45,29 @@ DEBIAN_BUILD_DEPENDS:append:secureboot = ", python3-pycryptodome:native, \
 DEPENDS:append:otpcmd = " secure-boot-otp-provisioning"
 DEBIAN_BUILD_DEPENDS:append:otpcmd = ", secure-boot-otp-provisioning"
 
+DEPENDS:append:trust-center = " trust-center-remote-signer"
+DEBIAN_BUILD_DEPENDS:append:trust-center = ", trust-center-remote-signer"
+
 SB_SIGN = "0"
 SB_SIGN:secureboot = "1"
 
+SB_USE_LOCAL_KEY = "1"
+SB_USE_LOCAL_KEY:trust-center = "0"
+
+SB_DTS_KEY = "keys/custMpk.pem"
+SB_SIGN_KEY = "keys/custMpk.pem"
+SB_SIGN_OPT = ""
+OPENSSL_ENVS = ""
+
+SB_DTS_KEY:trust-center = "/usr/share/trust-center-credential/trust-center-mpk.crt"
+SB_SIGN_KEY:trust-center = "extsign:dummy"
+SB_SIGN_OPT:trust-center = "--provider extsign_provider --propquery provider=extsign_provider"
+OPENSSL_ENVS:trust-center = "OPENSSL_CONF=/usr/share/trust-center-remote-signer/openssl.conf \
+    OPENSSL_MODULES=/usr/lib/extsign-provider"
+
 TEMPLATE_FILES += "rules.tmpl"
-TEMPLATE_VARS += "FIRMWARE_SECURE_VER SB_SIGN"
+TEMPLATE_VARS += "FIRMWARE_SECURE_VER \
+    SB_SIGN SB_DTS_KEY SB_SIGN_KEY SB_SIGN_OPT OPENSSL_ENVS"
 
 U_BOOT_CONFIG_PACKAGE = "1"
 
@@ -62,17 +84,21 @@ do_prepare_build:append() {
 }
 
 do_prepare_build:append:secureboot() {
-    mkdir -p ${S}/keys
-    ln -f ${WORKDIR}/keys/* ${S}/keys/
+    if [ "${SB_USE_LOCAL_KEY}" = "1" ]; then
+        mkdir -p ${S}/keys
+        ln -f ${WORKDIR}/keys/* ${S}/keys/
+    fi
     sed -ni '/### Secure boot config/q;p' ${S}/configs/${U_BOOT_CONFIG}
     cat ${WORKDIR}/secure-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
 }
 
 dpkg_runbuild:append:secureboot() {
-    # remove private keys from source archive
-    gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
-    tar --delete -f ${WORKDIR}/${PN}_${PV}.tar u-boot-${PV}/keys/custMpk.key u-boot-${PV}/keys/custMpk.pem
-    gzip ${WORKDIR}/${PN}_${PV}.tar
+    if [ "${SB_USE_LOCAL_KEY}" = "1" ]; then
+        # remove private keys from source archive
+        gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
+        tar --delete -f ${WORKDIR}/${PN}_${PV}.tar u-boot-${PV}/keys/custMpk.key u-boot-${PV}/keys/custMpk.pem
+        gzip ${WORKDIR}/${PN}_${PV}.tar
+    fi
 }
 
 do_prepare_build:append:otpcmd() {

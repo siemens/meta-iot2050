@@ -314,6 +314,17 @@ config FIRMWARE_SECURE_VER
 	  Use specific anti-rollback secure version rather than the default 0.
 	  Range 0 - 127.
 
+config TRUST_CENTER_REMOTE_SIGNING
+	bool "Use trust center remote signing (no priviate key)"
+	depends on SECURE_BOOT && IMAGE_BOOT
+	help
+	  Use trust center key to sign the firmware artifacts.
+
+config KAS_INCLUDE_TRUST_CENTER
+	string
+	default "kas/opt/trust-center.yml"
+	depends on TRUST_CENTER_REMOTE_SIGNING
+
 choice
 	prompt "*** OTP provisioning command type ***"
 	depends on OTP_PROVISIONING
