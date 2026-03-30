@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+-include vars.mk
+
+export DH_VERBOSE=1
+
+%:
+	dh "$@"
+
+override_dh_auto_build:
+ifeq ($(SIGNING_METHOD),production)
+	sh ./iot2050-generate-fwu-tarball.sh \
+		"$(CURDIR)" \
+		"$(ISAR_RELEASE_VERSION)" \
+		"/usr/share/trust-center-credential/worker.env" \
+		"/usr/share/trust-center-credential/keystore" \
+		"/usr/share/trust-center-credential/truststore" \
+		"/usr/share/trust-center-remote-signer/sign-client/bin/signclient" \
+		""
+else
+	sh ./iot2050-generate-fwu-tarball.sh \
+		"$(CURDIR)" \
+		"$(ISAR_RELEASE_VERSION)" \
+		"" \
+		"" \
+		"" \
+		"dummy" \
+		"$(CURDIR)/custMpk.pem"
+endif
