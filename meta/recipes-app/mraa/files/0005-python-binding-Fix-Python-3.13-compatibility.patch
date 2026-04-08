@@ -15,7 +15,7 @@ Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
  2 files changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/src/python/mraapy.c b/src/python/mraapy.c
-index a3536f0..c1f8521 100644
+index a3536f02dca5..c1f8521ee7f2 100644
 --- a/src/python/mraapy.c
 +++ b/src/python/mraapy.c
 @@ -25,9 +25,13 @@ mraa_python_isr(void (*isr)(void*), void* isr_args)
@@ -34,7 +34,7 @@ index a3536f0..c1f8521 100644
              PyObject *pvalue_pystr, *ptype_pystr, *ptraceback_pystr;
              PyObject *pvalue_ustr, *ptype_ustr, *ptraceback_ustr;
 diff --git a/src/python/mraapython.i b/src/python/mraapython.i
-index 521ef53..3a85d26 100644
+index 521ef531854d..3a85d2689c7a 100644
 --- a/src/python/mraapython.i
 +++ b/src/python/mraapython.i
 @@ -151,7 +151,13 @@ class Spi;

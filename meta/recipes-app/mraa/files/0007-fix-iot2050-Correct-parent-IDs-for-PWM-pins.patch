@@ -15,7 +15,7 @@ Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index ace9a07..27d14cb 100644
+index ace9a0790090..27d14cb39b50 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -881,7 +881,7 @@ mraa_siemens_iot2050()
