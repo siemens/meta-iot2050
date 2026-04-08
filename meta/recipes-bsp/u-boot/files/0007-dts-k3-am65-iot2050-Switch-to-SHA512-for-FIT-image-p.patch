@@ -1,0 +1,79 @@
+From 7d8670aaedcd16a072fca81b502ad799ca6f8798 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Tue, 27 Jan 2026 13:02:29 +0800
+Subject: [PATCH] dts: k3-am65-iot2050: Switch to SHA512 for FIT image parts
+
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index ad495d9..97db5f2 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -119,7 +119,7 @@
+ 					u-boot-nodtb {
+ 					};
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ 
+@@ -129,7 +129,7 @@
+ 					arch = "arm64";
+ 					compression = "none";
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ 
+@@ -144,7 +144,7 @@
+ 						missing-msg = "k3-rti-wdt-firmware";
+ 					};
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ #endif
+@@ -218,7 +218,7 @@
+ 						filename = "ti/k3-am6548-iot2050-advanced-dma-isolation.dtbo";
+ 					};
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ 			};
+@@ -261,7 +261,7 @@
+ 						filename = "ti/k3-am6548-iot2050-advanced-m2-bkey-usb3.dtbo";
+ 					};
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ 
+@@ -275,7 +275,7 @@
+ 						filename = "ti/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie.dtbo";
+ 					};
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ 
+@@ -289,7 +289,7 @@
+ 						filename = "ti/k3-am6548-iot2050-advanced-dma-isolation.dtbo";
+ 					};
+ 					hash {
+-						algo = "sha256";
++						algo = "sha512";
+ 					};
+ 				};
+ 			};
+-- 
+2.34.1
+

@@ -1,0 +1,42 @@
+From 89d037e433f6d3ac30e0ea46356174871330a657 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Tue, 27 Jan 2026 13:02:48 +0800
+Subject: [PATCH] tools: iot2050: Switch to SHA512 for signing
+
+---
+ tools/iot2050-sign-fw.sh | 4 ++--
+ tools/key2dtsi.py        | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
+index 82b4bbc..529740e 100755
+--- a/tools/iot2050-sign-fw.sh
++++ b/tools/iot2050-sign-fw.sh
+@@ -91,7 +91,7 @@ if [ -n "$PROPQUERY" ]; then
+ 	PROPQUERY_PARA="-p $PROPQUERY"
+ fi
+ 
+-$TOOLS_DIR/binman/binman sign -i flash-pg1.bin -k "$KEY" -a sha256,rsa4096 \
++$TOOLS_DIR/binman/binman sign -i flash-pg1.bin -k "$KEY" -a sha512,rsa4096 \
+ 	$PROPQUERY_PARA fit@380000
+-$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k "$KEY" -a sha256,rsa4096 \
++$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k "$KEY" -a sha512,rsa4096 \
+ 	$PROPQUERY_PARA fit@380000
+diff --git a/tools/key2dtsi.py b/tools/key2dtsi.py
+index 1dbb2cc..1397941 100755
+--- a/tools/key2dtsi.py
++++ b/tools/key2dtsi.py
+@@ -19,8 +19,8 @@ def int_to_bytestr(n, length=None):
+ 
+ ap = ArgumentParser(description='Public key to dtsi converter')
+ 
+-ap.add_argument('--hash', '-H', default='sha256',
+-                help='hash to be used with key (default: sha256)')
++ap.add_argument('--hash', '-H', default='sha512',
++                help='hash to be used with key (default: sha512)')
+ ap.add_argument('--required-conf', '-c', action='store_true',
+                 help='mark key required for configuration')
+ ap.add_argument('--required-image', '-i', action='store_true',
+-- 
+2.34.1
+
