@@ -28,6 +28,7 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0011-gpio-chardev-fix-ressource-handling.patch \
             file://0012-iot2050-add-helper-function-to-convert-gpio-number-t.patch \
             file://0013-iot2050-add-support-for-gpio-chardev-interface.patch \
+            file://0014-iot2050-fix-pinmux-handling-of-user-pin.patch \
             file://20-mraa-permissions.rules \
             file://rules"
 
