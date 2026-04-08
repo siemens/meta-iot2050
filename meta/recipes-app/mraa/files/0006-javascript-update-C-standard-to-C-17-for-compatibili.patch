@@ -27,7 +27,7 @@ Signed-off-by: Chun Jiao Zhao <chunjiao.zhao@siemens.com>
  2 files changed, 29 insertions(+), 6 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 370b891..7a13eeb 100644
+index 2b21045c34d4..db1345c7462a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -90,6 +90,17 @@ if (BUILDCPP)
@@ -49,7 +49,7 @@ index 370b891..7a13eeb 100644
  
  # Set CMAKE_INSTALL_LIBDIR if not defined
 diff --git a/src/javascript/CMakeLists.txt b/src/javascript/CMakeLists.txt
-index 5dbe2af..7b7ba35 100644
+index 5dbe2af38675..7b7ba3537e2a 100644
 --- a/src/javascript/CMakeLists.txt
 +++ b/src/javascript/CMakeLists.txt
 @@ -44,8 +44,9 @@ if (BUILDCPP)

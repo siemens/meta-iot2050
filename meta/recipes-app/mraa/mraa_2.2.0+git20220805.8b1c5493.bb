@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "3"
+PR = "4"
 
 inherit dpkg
 
@@ -22,7 +22,13 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0005-python-binding-Fix-Python-3.13-compatibility.patch \
             file://0006-javascript-update-C-standard-to-C-17-for-compatibili.patch \
             file://0007-fix-iot2050-Correct-parent-IDs-for-PWM-pins.patch \
-            file://0008-fix-GPIOs-that-number-is-larger-than-512-cannot-trig.patch  \
+            file://0008-fix-GPIOs-that-number-is-larger-than-512-cannot-trig.patch \
+            file://0009-gpio-chardev-init-compatibility.patch \
+            file://0010-gpio-chardev-add-support-for-more-direction-flags.patch \
+            file://0011-gpio-chardev-fix-ressource-handling.patch \
+            file://0012-iot2050-add-helper-function-to-convert-gpio-number-t.patch \
+            file://0013-iot2050-add-support-for-gpio-chardev-interface.patch \
+            file://20-mraa-permissions.rules \
             file://rules"
 
 CHANGELOG_V = "${PV}-${PR}"
@@ -45,6 +51,8 @@ do_prepare_build[cleandirs] += "${S}/debian"
 
 do_prepare_build() {
     deb_debianize
-
+    
+    cp ${WORKDIR}/20-mraa-permissions.rules ${S}/debian/20-mraa-permissions.rules
+    echo "debian/20-mraa-permissions.rules etc/udev/rules.d" > ${S}/debian/install
     echo "usr/share/java/mraa.jar usr/share/java/mraa-${PV}.jar" > ${S}/debian/mraa.links
 }
