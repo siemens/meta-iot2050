@@ -11,7 +11,7 @@
 header:
   version: 14
   includes:
-    - otp.yml
+    - kas/opt/otpcmd/otp.yml
 
 local_conf_header:
   key-provision-keys-only: |
