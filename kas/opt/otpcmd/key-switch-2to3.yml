@@ -11,7 +11,7 @@
 header:
   version: 14
   includes:
-    - key-switch.yml
+    - kas/opt/otpcmd/key-switch.yml
 
 local_conf_header:
   key-switch-2to3: |
