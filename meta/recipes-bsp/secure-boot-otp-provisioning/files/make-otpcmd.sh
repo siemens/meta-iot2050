@@ -122,7 +122,7 @@ KEY_TYPE=$(get_key_type "$KEY1")
 
 generate_keyhash()
 {
-	openssl dgst -sha256 -binary -out $1
+	openssl dgst -sha256 -binary -out "$1"
 }
 
 gen_pubkey_hash()
@@ -150,7 +150,7 @@ gen_pubkey_hash()
 			;;
 	esac
 
-	HASHSTR=`hexdump -ve '1/1 "%.2x"' $KEYHASH`
+	HASHSTR=$(hexdump -ve '1/1 "%.2x"' "$KEYHASH")
 
 	for dummy in $DUMMY_KEY_HASHES; do
 		if [ "$dummy" = "$HASHSTR" ]; then
@@ -164,17 +164,17 @@ if [ -z "$KEY_SWITCH" ]; then
 	KEY1_HASH=key1.sha256
 	KEY2_HASH=key2.sha256
 	KEY3_HASH=key3.sha256
-	gen_pubkey_hash $KEY1 $KEY1_HASH
-	gen_pubkey_hash $KEY2 $KEY2_HASH
-	[ -f "$KEY3" ] && gen_pubkey_hash $KEY3 $KEY3_HASH
+	gen_pubkey_hash "$KEY1" "$KEY1_HASH"
+	gen_pubkey_hash "$KEY2" "$KEY2_HASH"
+	[ -f "$KEY3" ] && gen_pubkey_hash "$KEY3" "$KEY3_HASH"
 fi
 
 FIT_IMAGE=target.fit
-mkimage -f $ITS $FIT_IMAGE
+mkimage -f "$ITS" "$FIT_IMAGE"
 
 if [ -z "$KEY_SWITCH" ]; then
-	rm $KEY1_HASH $KEY2_HASH
-	[ -f "$KEY3_HASH" ] && rm $KEY3_HASH
+	rm "$KEY1_HASH" "$KEY2_HASH"
+	[ -f "$KEY3_HASH" ] && rm "$KEY3_HASH"
 fi
 
 sign_image()
@@ -185,32 +185,33 @@ sign_image()
 
 	TEMP_X509=x509-temp.cert
 
-	SHA_VAL=`openssl dgst -sha512 -hex $IMAGE | sed -e "s/^.*= //g"`
-	BIN_SIZE=`cat $IMAGE | wc -c`
+	SHA_VAL=$(openssl dgst -sha512 -hex "$IMAGE" | sed -e "s/^.*= //g")
+	BIN_SIZE=$(wc -c < "$IMAGE")
 
 	gen_template
 
 	sed -e "s/TEST_IMAGE_LENGTH/$BIN_SIZE/"	\
-		-e "s/TEST_IMAGE_SHA_VAL/$SHA_VAL/" $X509_TEMPLATE > $TEMP_X509
+		-e "s/TEST_IMAGE_SHA_VAL/$SHA_VAL/" "$X509_TEMPLATE" > "$TEMP_X509"
 
 	if [ "$KEY_TYPE" = "certificate" ]; then
 		KEY=$SB_SIGN_KEY
 	fi
 
+	# shellcheck disable=SC2086  # SB_SIGN_OPT intentionally expands to openssl options.
 	openssl req -new -x509 ${SB_SIGN_OPT:+$SB_SIGN_OPT} -key $KEY -noenc \
-		-outform DER -out "$IMAGE".cert -config $TEMP_X509 -sha512
+		-outform DER -out "$IMAGE".cert -config "$TEMP_X509" -sha512
 	
-	cat $IMAGE.cert $IMAGE > $IMAGE_SIGNED
+	cat "$IMAGE".cert "$IMAGE" > "$IMAGE_SIGNED"
 	
-	rm $TEMP_X509 $IMAGE.cert $IMAGE $X509_TEMPLATE
+	rm "$TEMP_X509" "$IMAGE".cert "$IMAGE" "$X509_TEMPLATE"
 }
 
 OTPCMD=otpcmd.bin
-sign_image $KEY1 $FIT_IMAGE $OTPCMD
+sign_image "$KEY1" "$FIT_IMAGE" "$OTPCMD"
 
 if [ "$KEY_TYPE" = "certificate" ]; then
 	echo "Info: Key switching is not supported for certificate key yet."
 elif [ -n "$KEY_SWITCH" ]; then
-	mv $OTPCMD $OTPCMD.1st
-	sign_image $KEY2 $OTPCMD.1st $OTPCMD
+	mv "$OTPCMD" "$OTPCMD.1st"
+	sign_image "$KEY2" "$OTPCMD.1st" "$OTPCMD"
 fi
