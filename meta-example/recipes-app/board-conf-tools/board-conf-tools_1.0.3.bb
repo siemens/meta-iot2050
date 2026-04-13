@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "2"
+PR = "1"
 
 inherit dpkg-raw
 

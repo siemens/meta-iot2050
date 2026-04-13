@@ -322,6 +322,15 @@ class ArduinoIoMode(BoardConfigurationUtility):
         self.topmenu = topmenu
         super().__init__()
 
+    def __saveConfig(self):
+        try:
+            self.saveConfig()
+        except Exception as e:
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                               title='Warning',
+                               text=f'Failed to save Arduino I/O configuration.\nChanges will be lost after reboot or power cycle.\n\nDetails: {e}',
+                               buttons=['Ok'])
+
     def show(self):
         while True:
             ioInfor = ' Pin  | Current    | Pinmux\n -----+------------+-------------------------------------------\n'
@@ -419,6 +428,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
                 dirIndex = lbDir.current()
                 pullmodeIndex = lbPullMode.current()
                 self.gpioButtonOkProcess(gpioIndex, dirIndex, pullmodeIndex)
+                self.__saveConfig()
 
     @threadDecorator
     def gpioButtonOkProcess(self, gpioIndex, dirIndex, pullmodeIndex):
@@ -438,7 +448,6 @@ class ArduinoIoMode(BoardConfigurationUtility):
             self.setArduinoPinmuxCfg('GPIO_Output', gpioIndex)
             self.setArduinoPullModeCfg(gpioIndex, selectedPullMode(pullmodeIndex))
             self.configureGpio('GPIO_Output', gpioIndex)
-        self.saveConfig()
 
     def configureArduinoI2c(self):
         btnchoicewind = ButtonChoiceWindow(screen=self.topmenu.gscreen,
@@ -449,6 +458,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
         if btnchoicewind == 'cancel':
             return
         self.arduinoI2cChoice(btnchoicewind)
+        self.__saveConfig()
 
     @threadDecorator
     def arduinoI2cChoice(self, select):
@@ -457,7 +467,6 @@ class ArduinoIoMode(BoardConfigurationUtility):
             self.setArduinoPinmuxCfg('I2C')
         elif (select == 'disable') and self.checkPinmuxConfig(('I2C_SDA', 'I2C_SCL'), (18, 19)):
             self.resetPinDefault('I2C')
-        self.saveConfig()
 
     def configureArduinoSpi(self):
         btnchoicewind = ButtonChoiceWindow(screen=self.topmenu.gscreen,
@@ -468,6 +477,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
         if btnchoicewind == 'cancel':
             return
         self.arduinoSpiChoice(btnchoicewind)
+        self.__saveConfig()
 
     @threadDecorator
     def arduinoSpiChoice(self, select):
@@ -476,7 +486,6 @@ class ArduinoIoMode(BoardConfigurationUtility):
             self.setArduinoPinmuxCfg('SPI')
         elif select == 'disable' and self.checkPinmuxConfig(('SPI_SS', 'SPI_MOSI', 'SPI_MISO', 'SPI_SCK'), (10, 11, 12, 13)):
             self.resetPinDefault('SPI')
-        self.saveConfig()
 
     def configureArduinoUart(self):
         self.uartChkBoxTree = CheckboxTree(height=2, scroll=0)
@@ -493,6 +502,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
             return
         else:
             self.uartButtonOkProcess()
+            self.__saveConfig()
 
     @threadDecorator
     def uartButtonOkProcess(self):
@@ -510,7 +520,6 @@ class ArduinoIoMode(BoardConfigurationUtility):
                 self.resetPinDefault('UART_RTS')
         else:
             self.resetPinDefault('UART')
-        self.saveConfig()
 
     def configureArduinoPwm(self):
         self.pwmCkBoxTree = CheckboxTree(height=6, scroll=0)
@@ -531,6 +540,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
             return
         else:
             self.pwmButtonOkProcess()
+            self.__saveConfig()
 
     @threadDecorator
     def pwmButtonOkProcess(self):
@@ -541,7 +551,6 @@ class ArduinoIoMode(BoardConfigurationUtility):
                 self.setArduinoPinmuxCfg('PWM_' + str(n))
             else:
                 self.resetPinDefault('PWM_' + str(n))
-        self.saveConfig()
 
     def configureArduinoAdc(self):
         self.adcChkBoxTree = CheckboxTree(height=6, scroll=0)
@@ -562,6 +571,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
             return
         else:
             self.adcButtonOkProcess()
+            self.__saveConfig()
 
     @threadDecorator
     def adcButtonOkProcess(self):
@@ -572,7 +582,6 @@ class ArduinoIoMode(BoardConfigurationUtility):
                 self.setArduinoPinmuxCfg('ADC_' + str(n))
             else:
                 self.resetPinDefault('ADC_' + str(n))
-        self.saveConfig()
 
     def show_arduino_pinout(self):
         self.arduino_pinout = '''
