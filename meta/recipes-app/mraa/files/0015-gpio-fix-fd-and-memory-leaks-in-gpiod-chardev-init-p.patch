@@ -1,0 +1,113 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Su Baocheng <baocheng.su@siemens.com>
+Date: Fri, 10 Apr 2026 14:33:13 +0800
+Subject: [PATCH] gpio: fix fd and memory leaks in gpiod chardev init path
+
+In mraa_gpio_init_by_name(), chip fds opened via mraa_get_chip_infos()
+were never closed on neither the success nor error paths. Additionally,
+linfo was leaking on each loop iteration. On the gpio_group allocation
+failure path, mraa_gpio_close() was called without first releasing the
+chip fds and cinfos array.
+
+In mraa_find_gpio_line_by_name(), chip fds opened via mraa_get_chip_infos()
+were never closed on both the success and failure return paths. Fix this
+by consolidating cleanup into a shared exit point using goto.
+
+Signed-off-by: Su Baocheng <baocheng.su@siemens.com>
+---
+ src/gpio/gpio.c         | 19 +++++++++++++++++--
+ src/gpio/gpio_chardev.c | 11 ++++++++---
+ 2 files changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/src/gpio/gpio.c b/src/gpio/gpio.c
+index ae84d324ff2c..5ea1c4b53a91 100644
+--- a/src/gpio/gpio.c
++++ b/src/gpio/gpio.c
+@@ -154,8 +154,8 @@ mraa_gpio_init_by_name(char* name)
+     mraa_gpiod_group_t gpio_group;
+     mraa_gpiod_line_info* linfo = NULL;
+     mraa_gpiod_chip_info* cinfo;
+-    mraa_gpiod_chip_info** cinfos;
+-    int i, line_found, line_offset;
++    mraa_gpiod_chip_info** cinfos = NULL;
++    int i, line_found, line_offset, chip_fd;
+ 
+     if (name == NULL) {
+         syslog(LOG_ERR, "[GPIOD_INTERFACE]: Gpio name not valid");
+@@ -192,6 +192,10 @@ mraa_gpio_init_by_name(char* name)
+     gpio_group = calloc(dev->num_chips, sizeof(struct _gpio_group));
+     if (gpio_group == NULL) {
+         syslog(LOG_CRIT, "[GPIOD_INTERFACE]: Failed to allocate memory for internal member");
++        for_each_gpio_chip(cinfo, cinfos, dev->num_chips) {
++            if (cinfo) close(cinfo->chip_fd);
++        }
++        free(cinfos);
+         mraa_gpio_close(dev);
+         return NULL;
+     }
+@@ -214,6 +218,7 @@ mraa_gpio_init_by_name(char* name)
+                     gpio_group[idx].dev_fd = cinfo->chip_fd;
+                     gpio_group[idx].is_required = 1;
+                     gpio_group[idx].gpiod_handle = -1;
++                    chip_fd = gpio_group[idx].dev_fd;
+                 }
+ 
+                 /* Map pin to _gpio_group structure. */
+@@ -225,13 +230,23 @@ mraa_gpio_init_by_name(char* name)
+                 line_found = 1;
+                 line_offset = i;
+ 
++                free(linfo);
+                 break;
+             }
++            free(linfo);
++        }
++    }
++
++    for_each_gpio_chip(cinfo, cinfos, dev->num_chips) {
++        if (!line_found || cinfo->chip_fd != chip_fd) {
++            close(cinfo->chip_fd);
+         }
+     }
++    free(cinfos);
+ 
+     if (!line_found) {
+         syslog(LOG_ERR, "[GPIOD_INTERFACE]: Gpio not found!");
++        mraa_gpio_close(dev);
+         return NULL;
+     }
+ 
+diff --git a/src/gpio/gpio_chardev.c b/src/gpio/gpio_chardev.c
+index e8ff4f3046d4..0c4636ea0701 100644
+--- a/src/gpio/gpio_chardev.c
++++ b/src/gpio/gpio_chardev.c
+@@ -495,6 +495,7 @@ mraa_find_gpio_line_by_name(const char *name, unsigned *chip_number, unsigned *l
+     mraa_gpiod_chip_info *cinfo;
+     mraa_gpiod_line_info *linfo;
+     int num_chips, i;
++    int ret = -1;
+ 
+     num_chips = mraa_get_chip_infos(&cinfos);
+     if (num_chips < 0) {
+@@ -516,14 +517,18 @@ mraa_find_gpio_line_by_name(const char *name, unsigned *chip_number, unsigned *l
+                 }
+ 
+                 free(linfo);
+-                free(cinfos);
+-                return 0;
++                ret = 0;
++                goto out;
+             }
+ 
+             free(linfo);
+         }
+     }
+ 
++out:
++    for_each_gpio_chip(cinfo, cinfos, num_chips) {
++        if (cinfo) close(cinfo->chip_fd);
++    }
+     free(cinfos);
+-    return -1;
++    return ret;
+ }
