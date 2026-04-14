@@ -15,6 +15,7 @@ exclude = [
   "<Version>",
   # Inaccessible from the pipeline
   "support.industry.siemens.com",
+  "sieportal.siemens.com",
 ]
 
 exclude_all_private = true
