@@ -33,9 +33,13 @@ you will be prompted to change the password on first login. This should be
 done immediately for any network-connected deployment.
 
 ## eMMC Installation
-On the very first boot from an SD card, you can trigger an installation to the
-internal eMMC. Hold the **USER button** while the status LED blinks orange
-(this is the first-boot window) for at least 5 seconds to begin.
+This installation flow is provided by the example image. It is not available
+in the base/minimal image or the SWUpdate image variants.
+
+On the very first boot from an SD card or USB stick, you can trigger an
+installation to the internal eMMC. Hold the **USER button** while the status
+LED blinks orange (this is the first-boot window) for at least 5 seconds to
+begin.
 
 **LED states** (during installation phase):
 - Slow orange blink: First-boot window (you can trigger the install now).
@@ -46,8 +50,12 @@ internal eMMC. Hold the **USER button** while the status LED blinks orange
 
 To trigger this automatically, create a flag file before booting:
 ```sh
-touch /etc/install-on-emmc
+touch <mountpoint>/etc/install-on-emmc
 ```
+
+For the example image, `<mountpoint>` must be the Linux rootfs partition
+(label `rootfs`). Do not place the file on the EFI partition or on the `BOOT`
+partition.
 
 ## Firmware Update Tool
 To apply a firmware update package from the running system:
@@ -59,7 +67,7 @@ iot2050-firmware-update /usr/share/iot2050/fwu/IOT2050-FW-Update-PKG-<Version>.t
 In the U-Boot serial console, you can temporarily change the boot device:
 ```
 => setenv boot_targets mmc0
-=> run distro_bootcmd
+=> run bootcmd
 ```
 
 ## Restoring U-Boot Environment

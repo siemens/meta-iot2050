@@ -108,6 +108,9 @@ default password upon first login.
 
 ### Installing the image on the eMMC (IOT2050 Advanced only)
 
+This installation flow is provided by the example image. It is not available
+in the base/minimal image or the SWUpdate image variants.
+
 During the very first boot of the image from an SD card or USB stick, you can
 request installation to the eMMC. To do this, press the **USER button** while
 the status LED is blinking orange during that first boot. Hold the button for
@@ -120,15 +123,22 @@ several minutes until the LED stops blinking and the device reboots to the eMMC.
 You can safely remove the SD card or USB stick at that point.
 
 The installation can also be triggered automatically by creating the file
-NOTE: All content of the eMMC will be overwritten by this procedure!
-
-The ongoing installation is signaled by a fast blinking status LED. Wait for
-several minutes until the LED stops blinking and the device reboots to the eMMC.
-You can safely remove the SD card or USB stick at that point.
-
-The installation can also be triggered automatically by creating the file
 `/etc/install-on-emmc` on the vanilla image by mounting it under Linux and
 executing, e.g., `touch <mountpoint>/etc/install-on-emmc`.
+
+For the example image, make sure `<mountpoint>` is the Linux rootfs partition
+(label `rootfs`). Do not place the file on the EFI partition or on the `BOOT`
+partition, because those partitions do not contain `/etc` and will not trigger
+the installation.
+
+In other words, for the example image the removable medium contains three
+partitions:
+- EFI system partition
+- `BOOT` partition for EFI Boot Guard
+- Linux rootfs partition (`rootfs`)
+
+The trigger file must be created on the `rootfs` partition before the first
+boot from that SD card or USB stick.
 
 ### Updating the U-Boot firmware
 
@@ -150,7 +160,7 @@ counts down ("Hit any key to stop autoboot"). Then type
 
 ```shell
 => setenv boot_targets mmc0
-=> run distro_bootcmd
+=> run bootcmd
 ```
 
 to boot from the microSD card. Use `usb0` for the first USB mass storage device.
@@ -164,7 +174,7 @@ Legend: ✅ = implicit / already included in example image & SWUpdate images, �
 |----------------|-----------------------------|-----------------------|--------------|
 | 🧩 Example image | Demos, Node-RED, SM variant bundled | `kas-iot2050-example.yml` | Hailo, LXDE, Docker, SDK, secure boot, QEMU |
 | 🧩 Example image (SWUpdate A/B) | Example image + dual rootfs (A/B) | `kas-iot2050-swupdate.yml` | Same as example (larger footprint) |
-| 🧩 Example image (minimal HW enablement) | Core BSP only; lean baseline | `kas/iot2050.yml` | `example.yml`, `node-red.yml`, `sm.yml`, others |
+| 🧩 Example image (minimal HW enablement) | Core BSP only; lean EFI baseline | `kas/iot2050.yml` | `example.yml`, `node-red.yml`, `sm.yml`, others |
 | 🧩 Boot firmware descriptor | TF-A, OP-TEE, U-Boot, SPL artifacts (no rootfs) | `kas-iot2050-boot.yml` | Secure boot (signing), provisioning |
 | 🧩 Firmware update package | Boot chain update bundle (.tar.xz) for field updates | `kas-iot2050-fwu-package.yml` | N/A |
 | QEMU descriptor | Emulated target config | Chain `:kas-iot2050-qemu.yml` after image | Adds on top of minimal or example |
