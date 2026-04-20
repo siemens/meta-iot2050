@@ -33,7 +33,7 @@ if prompt wording evolves.
 |------------|-------------------------|----------------|-------|
 | Example image | `kas-iot2050-example.yml` | Full showcase: demos + Node-RED + SM included | Fastest path to feature parity |
 | Example image (SWUpdate A/B) | `kas-iot2050-swupdate.yml` | Example image + dual-copy SWUpdate layout (.swu) | Produces `.wic` + `.swu` |
-| Example image (minimal HW enablement) | `kas/iot2050.yml` | Bare BSP; add fragments to reach showcase | Use for custom lean variants |
+| Example image (minimal HW enablement) | `kas/iot2050.yml` | Bare BSP with EFI Boot Guard; add fragments to reach showcase | Use for custom lean variants |
 | Firmware boot images | `kas-iot2050-boot.yml` | Boot firmware artifacts only | No rootfs image produced |
 | Firmware update package | `kas-iot2050-fwu-package.yml` | Boot chain update bundle (no rootfs) | Field firmware update payload |
 | QEMU image (emulated target) | `:<kas-iot2050-qemu.yml>` (chained) | Emulation add-on | Append to minimal or example |
@@ -79,7 +79,7 @@ The syntax follows this pattern:
 |---------|-------|---------|-------|
 | Full example | `kas-iot2050-example.yml` | .wic | demos + Node-RED + SM bundled |
 | SWUpdate A/B | `kas-iot2050-swupdate.yml` | .wic + .swu | dual rootfs update |
-| Minimal BSP | `kas/iot2050.yml` | .wic | lean base |
+| Minimal BSP | `kas/iot2050.yml` | .wic | lean EFI base |
 | Minimal parity (example) | `kas/iot2050.yml:kas/opt/example.yml:kas/opt/node-red.yml:kas/opt/sm.yml` | .wic | matches example image |
 | Example + Hailo | `kas-iot2050-example.yml:kas/opt/hailo.yml` | .wic | Hailo runtime |
 | Example + LXDE + Docker | `kas-iot2050-example.yml:kas/opt/lxde.yml:kas/opt/docker.yml` | .wic | GUI + containers |

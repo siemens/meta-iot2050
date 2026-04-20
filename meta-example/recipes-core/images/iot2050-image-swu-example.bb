@@ -9,7 +9,6 @@
 #
 
 require recipes-core/images/iot2050-image-example.bb
-require recipes-core/images/efibootguard.inc
 require recipes-core/images/swupdate.inc
 
 inherit image_uuid
@@ -25,21 +24,14 @@ SWU_ROOTFS_TYPE:secureboot = "verity"
 
 SWU_HW_COMPAT = "IOT2050"
 
-# watchdog is managed by U-Boot - disable
-WDOG_TIMEOUT = "0"
-
 IMAGE_INITRD = "${INITRAMFS_RECIPE}"
 do_image_wic[depends] += "${INITRAMFS_RECIPE}:do_build"
 
 # not compatible with SWUpdate images
-IMAGE_INSTALL:remove = "regen-rootfs-uuid"
 IMAGE_INSTALL:remove = "install-on-emmc"
 
 # not compatible with disk encryption
 IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"
-
-# EFI Boot Guard is used instead
-IMAGE_INSTALL:remove = "u-boot-script"
 
 IMAGE_INSTALL += "swupdate-config-${MACHINE}"
 IMAGE_INSTALL += "swupdate-handler-roundrobin"
