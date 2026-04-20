@@ -8,10 +8,14 @@
 # COPYING.MIT file in the top-level directory.
 #
 require recipes-core/images/meta-packages.inc
+require recipes-core/images/efibootguard.inc
 
 inherit image
 
 DESCRIPTION = "IOT2050 Debian Base Image"
+
+# watchdog is managed by U-Boot - disable
+WDOG_TIMEOUT = "0"
 
 IMAGE_INSTALL += "${IOT2050_META_PACKAGES}"
 
