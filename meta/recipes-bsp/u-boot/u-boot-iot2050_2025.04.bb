@@ -11,7 +11,7 @@
 
 require u-boot-iot2050.inc
 
-PR = "2"
+PR = "3"
 
 SRC_URI += " \
     https://ftp.denx.de/pub/u-boot/u-boot-${PV}.tar.bz2 \
@@ -23,6 +23,7 @@ SRC_URI += " \
     file://0006-mkimage-Add-openssl-provider-support.patch \
     file://0007-dts-k3-am65-iot2050-Switch-to-SHA512-for-FIT-image-p.patch \
     file://0008-tools-iot2050-Switch-to-SHA512-for-signing.patch \
+    file://0009-lib-efi_loader-Silence-missing-EFI-var-file-on-first.patch \
     "
 
 SRC_URI[sha256sum] = "439d3bef296effd54130be6a731c5b118be7fddd7fcc663ccbc5fb18294d8718"

@@ -1,0 +1,48 @@
+From 3de6b2f8ef5b8dbe206dcf4594908c39571db83f Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 16 Apr 2026 10:30:00 +0000
+Subject: [PATCH] lib: efi_loader: silence missing EFI var file on first boot
+
+When EFI variables are stored in `ubootefi.var`, the first boot after
+flashing may legitimately not have that file yet. The existing
+`efi_var_from_file()` comment already documents that this case should be
+treated as success, but the current implementation still prints
+"Failed to load EFI variables" before continuing.
+
+Treat a missing variable file as an expected first-boot case and keep the
+message for real read or format errors only.
+
+This does not affect the secureboot flow because that uses the TEE-backed
+EFI variable service instead of the file-store backend.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ lib/efi_loader/efi_var_file.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
+index bbfd3ffd35..82c23c05aa 100644
+--- a/lib/efi_loader/efi_var_file.c
++++ b/lib/efi_loader/efi_var_file.c
+@@
+ #include <charset.h>
++#include <errno.h>
+ #include <fs.h>
+ #include <log.h>
+ #include <malloc.h>
+@@
+ 	ret = efi_set_blk_dev_to_system_partition();
+ 	if (ret != EFI_SUCCESS)
+ 		goto error;
++	len = 0;
+ 	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE,
+ 		    &len);
+-	if (r || len < sizeof(struct efi_var_file)) {
++	if (r == -ENOENT || (!r && !len))
++		goto error;
++	if (r || len < sizeof(struct efi_var_file)) {
+ 		log_err("Failed to load EFI variables\n");
+ 		goto error;
+ 	}
+-- 
+2.43.0
