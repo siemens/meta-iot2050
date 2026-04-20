@@ -1,18 +1,19 @@
 #
-# Copyright (c) Siemens AG, 2021
+# Copyright (c) Siemens AG, 2021-2026
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # SPDX-License-Identifier: MIT
 
-PR="1"
 inherit dpkg-raw
+
+PR="1"
 
 DESCRIPTION = "This service provides the option to install on eMMC during first boot"
 
-RDEPENDS = "regen-rootfs-uuid"
-DEBIAN_DEPENDS = "systemd, fdisk, util-linux, regen-rootfs-uuid, parted"
+DEBIAN_DEPENDS = "systemd, init-system-helpers, fdisk, util-linux, parted"
 
 SRC_URI = " \
     file://install-on-emmc-on-first-boot.service \

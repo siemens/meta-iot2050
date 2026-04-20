@@ -1,3 +1,13 @@
 #!/bin/sh
+set -e
 
-systemctl enable install-on-emmc-on-first-boot.service
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || \
+   [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ]; then
+	deb-systemd-helper unmask 'install-on-emmc-on-first-boot.service' >/dev/null || true
+
+	if deb-systemd-helper --quiet was-enabled 'install-on-emmc-on-first-boot.service'; then
+		deb-systemd-helper enable 'install-on-emmc-on-first-boot.service' >/dev/null || true
+	else
+		deb-systemd-helper update-state 'install-on-emmc-on-first-boot.service' >/dev/null || true
+	fi
+fi
