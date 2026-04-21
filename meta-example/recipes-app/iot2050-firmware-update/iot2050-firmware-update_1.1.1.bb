@@ -18,6 +18,8 @@ SRC_URI = " \
     file://update.conf.json.tmpl \
     file://iot2050-firmware-update.tmpl \
     file://custMpk.crt"
+SRC_URI:append:trust-center = " file://tc-pub.pem"
+SRC_URI:remove:trust-center = " file://custMpk.crt"
 
 OS_VERSION_KEY ?= "BUILD_ID"
 MIN_OS_VERSION ?= "V01.01.01"
@@ -38,8 +40,13 @@ do_install() {
 
     install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 644 ${WORKDIR}/update.conf.json ${D}/usr/share/iot2050/fwu/
-   
-    openssl x509 -in ${WORKDIR}/custMpk.crt -pubkey -noout > ${WORKDIR}/public.key
+
+    if [ -f ${WORKDIR}/tc-pub.pem ]; then
+        cp ${WORKDIR}/tc-pub.pem ${WORKDIR}/public.key
+    else
+        openssl x509 -in ${WORKDIR}/custMpk.crt -pubkey -noout > ${WORKDIR}/public.key
+    fi
+
     install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 644 ${WORKDIR}/public.key ${D}/usr/share/iot2050/fwu/
 }
