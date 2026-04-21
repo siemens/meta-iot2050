@@ -12,6 +12,7 @@ header:
   version: 10
   includes:
     - kas/iot2050.yml
+    - kas/opt/example.yml
 
 build_system: isar
 
