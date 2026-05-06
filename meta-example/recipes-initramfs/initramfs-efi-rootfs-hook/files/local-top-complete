@@ -1,0 +1,171 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# SPDX-License-Identifier: MIT
+
+prereqs()
+{
+	# Run after the generic root-selection hooks so we can override an ambiguous
+	# PARTLABEL=rootfs choice with the rootfs on the same disk as the booted
+	# medium. U-Boot exports the selected EFI boot device via the
+	# IOT2050BootDevice EFI variable before launching the EFI payload.
+	for req in "${0%/*}"/*; do
+		script="${req##*/}"
+		if [ "$script" != "${0##*/}" ] && \
+		   [ "$script" != "cryptroot" ]; then
+			printf '%s\n' "$script"
+		fi
+	done
+}
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /scripts/functions
+
+log_efi_rootfs()
+{
+	message="efi-rootfs: $*"
+	echo "${message}" >&2
+}
+
+boot_device_from_efivar()
+{
+	mkdir -p /sys/firmware/efi/efivars
+	if ! /sbin/modprobe efivarfs 2>/dev/null; then
+		log_efi_rootfs "modprobe efivarfs failed"
+	fi
+	if ! mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2>/dev/null; then
+		log_efi_rootfs "mount efivarfs failed"
+	fi
+
+	set -- /sys/firmware/efi/efivars/IOT2050BootDevice-*
+	if [ "$1" = "/sys/firmware/efi/efivars/IOT2050BootDevice-*" ]; then
+		log_efi_rootfs "IOT2050BootDevice efivar not visible"
+		return 1
+	fi
+
+	efivar="$1"
+	log_efi_rootfs "IOT2050BootDevice efivar=${efivar}"
+	dd if="${efivar}" bs=1 skip=4 2>/dev/null | tr -d '\000\r\n'
+}
+
+boot_disk_device()
+{
+	case "$1" in
+	mmc[0-9]*)
+		printf '/dev/mmcblk%s\n' "${1#mmc}"
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+default_rootfs_device()
+{
+	blkid --list-one --output device --match-token PARTLABEL=rootfs 2>/dev/null
+}
+
+rootfs_partition_on_boot_device()
+{
+	boot_disk="$(boot_disk_device "$1")"
+	if [ -z "${boot_disk}" ] || [ ! -b "${boot_disk}" ]; then
+		return 1
+	fi
+
+	ext4_candidate=""
+	for candidate in "${boot_disk}"p*; do
+		[ -b "${candidate}" ] || continue
+		partlabel="$(blkid -s PARTLABEL -o value "${candidate}" 2>/dev/null)"
+		label="$(blkid -s LABEL -o value "${candidate}" 2>/dev/null)"
+		fstype="$(blkid -s TYPE -o value "${candidate}" 2>/dev/null)"
+
+		if [ "${partlabel}" = "rootfs" ] || [ "${label}" = "rootfs" ]; then
+			printf '%s\n' "${candidate}"
+			return 0
+		fi
+
+		if [ "${fstype}" = "ext4" ] && [ -z "${ext4_candidate}" ]; then
+			ext4_candidate="${candidate}"
+		fi
+	done
+
+	if [ -n "${ext4_candidate}" ]; then
+		printf '%s\n' "${ext4_candidate}"
+		return 0
+	fi
+
+	return 1
+}
+
+wait_for_boot_device_rootfs()
+{
+	boot_device="$1"
+	timeout="${2:-10}"
+	count=0
+
+	while [ "${count}" -lt "${timeout}" ]; do
+		found_root="$(rootfs_partition_on_boot_device "${boot_device}")"
+		if [ -n "${found_root}" ]; then
+			printf '%s\n' "${found_root}"
+			return 0
+		fi
+		count=$((count + 1))
+		sleep 1
+	done
+
+	return 1
+}
+
+set_root()
+{
+	ROOT="$1"
+	export ROOT
+	echo "ROOT=${ROOT}" >/conf/param.conf
+	log_efi_rootfs "selected ROOT=${ROOT}"
+}
+
+fallback_root()
+{
+	found_root="$(default_rootfs_device)"
+	if [ -z "${found_root}" ]; then
+		return 1
+	fi
+
+	set_root "${found_root}"
+	return 0
+}
+
+wait_for_udev 10
+
+boot_device="$(boot_device_from_efivar || true)"
+log_efi_rootfs "IOT2050BootDevice=${boot_device:-<empty>}"
+
+if [ -z "${boot_device}" ]; then
+	log_efi_rootfs "no boot device, using fallback root"
+	fallback_root || exit 0
+	exit 0
+fi
+
+boot_disk="$(boot_disk_device "${boot_device}" || true)"
+log_efi_rootfs "boot disk=${boot_disk:-<empty>}"
+if [ -z "${boot_disk}" ]; then
+	log_efi_rootfs "boot disk unsupported, using fallback root"
+	fallback_root || exit 0
+	exit 0
+fi
+
+found_root="$(wait_for_boot_device_rootfs "${boot_device}" 10)"
+log_efi_rootfs "boot-device root candidate=${found_root:-<empty>}"
+if [ -z "${found_root}" ]; then
+	log_efi_rootfs "boot-device root not found, using fallback root"
+	fallback_root || exit 0
+	exit 0
+fi
+
+set_root "${found_root}"
