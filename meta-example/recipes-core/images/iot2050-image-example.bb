@@ -14,6 +14,13 @@ require recipes-core/images/iot2050-package-selections.inc
 
 DESCRIPTION = "IOT2050 Debian Example Image"
 
+WKS_FILE = "iot2050-example.wks.in"
+
+INITRAMFS_RECIPE = "iot2050-initramfs-example"
+
+IMAGE_INITRD = "${INITRAMFS_RECIPE}"
+do_image_wic[depends] += "${INITRAMFS_RECIPE}:do_build"
+
 IMAGE_PREINSTALL += " \
     ${IOT2050_DEBIAN_DEBUG_PACKAGES} \
     ${IOT2050_DEBIAN_WIFI_PACKAGES} \

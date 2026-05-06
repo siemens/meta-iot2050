@@ -1,0 +1,15 @@
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# This file is subject to the terms and conditions of the MIT License.  See
+# COPYING.MIT file in the top-level directory.
+#
+
+part --source efibootguard-efi --fixed-size 16M --label efi --align 1024 --part-type=EF00 --active
+part --source efibootguard-boot --fixed-size 128M --label BOOT --align 1024 --part-type=0700 --sourceparams "revision=1"
+part / --source rootfs --fstype ext4 --label rootfs --align 1024 --use-uuid
+
+bootloader --ptable gpt --timeout=0 --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 root=PARTLABEL=rootfs rw rootwait ${EXTRA_KERNEL_PARAMS}"
