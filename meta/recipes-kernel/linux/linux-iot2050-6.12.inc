@@ -38,7 +38,7 @@ SRC_URI:append:secureboot = " \
     file://iot2050_defconfig_secure.cfg \
     ${@get_extra_cfg(d)}"
 
-SRC_URI[sha256sum] = "8789118bef502c6ed32cab8dcf2de605b08152569a71ebe19ba8d0d4476c5cdb"
+SRC_URI[sha256sum] = "acf2bc2fa5d793849b97bd32cd6274ba45391464492be52a2036ba8bbdc64247"
 
 S = "${WORKDIR}/linux-cip-${PV}"
 
