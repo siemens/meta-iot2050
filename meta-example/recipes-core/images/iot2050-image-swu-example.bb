@@ -24,6 +24,12 @@ SWU_ROOTFS_TYPE:secureboot = "verity"
 
 SWU_HW_COMPAT = "IOT2050"
 
+ABROOTFS_IMAGE_RECIPE ?= "iot2050-image-swu-example"
+VERITY_IMAGE_RECIPE ?= "iot2050-image-swu-example"
+INITRAMFS_RECIPE ?= "iot2050-initramfs"
+ABROOTFS_PART_UUID_A ?= "fedcba98-7654-3210-cafe-5e0710000001"
+ABROOTFS_PART_UUID_B ?= "fedcba98-7654-3210-cafe-5e0710000002"
+
 IMAGE_INITRD = "${INITRAMFS_RECIPE}"
 do_image_wic[depends] += "${INITRAMFS_RECIPE}:do_build"
 
