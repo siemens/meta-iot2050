@@ -64,7 +64,7 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
-        run: ./kas-container build kas-iot2050-example.yml
+        run: ./kas-container build kas-iot2050-example.yml:kas/opt/package-lock.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
@@ -83,7 +83,7 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build image
-        run: ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
+        run: ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml:kas/opt/package-lock.yml
 
   debian-swupdate-image:
     name: Debian secure boot SWUpdate image
@@ -100,7 +100,7 @@ jobs:
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
-        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas/opt/secure-boot.yml:kas/opt/preempt-rt.yml:kas/opt/package-lock.yml
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
@@ -124,7 +124,7 @@ jobs:
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/map3-fw.bin
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/firmware-version
       - name: Build image
-        run: ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml
+        run: ./kas-container build kas-iot2050-swupdate.yml:kas-iot2050-qemu.yml:kas/opt/package-lock.yml
 
   bootloaders:
     name: Bootloaders
@@ -136,7 +136,7 @@ jobs:
       - name: Free Disk Space
         uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image
-        run: ./kas-container build kas-iot2050-boot.yml
+        run: ./kas-container build kas-iot2050-boot.yml:kas/opt/package-lock.yml
       - name: Archive bootloaders
         uses: actions/upload-artifact@v4
         with:
