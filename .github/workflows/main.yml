@@ -31,6 +31,7 @@ on:
   push:
     branches:
       - master
+      - stable/V*
     tags:
       - '*'
     paths-ignore:
@@ -40,6 +41,7 @@ on:
   pull_request:
     branches:
       - master
+      - stable/V*
     types:
       - opened
       - synchronize
