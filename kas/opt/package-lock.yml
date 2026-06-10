@@ -13,6 +13,6 @@ header:
 
 local_conf_header:
   package-lock: |
-    # 2026-03-17 23:33:45 UTC
-    ISAR_APT_SNAPSHOT_TIMESTAMP = "1773761625"
+    # 2026-06-09 08:23:08 UTC
+    ISAR_APT_SNAPSHOT_TIMESTAMP = "1780964588"
     ISAR_USE_APT_SNAPSHOT = "1"
