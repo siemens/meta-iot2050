@@ -8,7 +8,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "4"
+PR = "5"
 
 inherit dpkg
 
@@ -42,8 +42,8 @@ DEBIAN_BUILD_DEPENDS = " \
     cmake, \
     swig, \
     libpython3-dev, \
-    nodejs, \
-    libnode-dev, \
+    nodejs:native, \
+    libnode-dev:native, \
     libjson-c-dev, \
     default-jdk:native"
 
