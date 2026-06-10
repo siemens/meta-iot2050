@@ -31,17 +31,18 @@ repos:
 
   isar:
     url: https://github.com/ilbers/isar
-    commit: 33ca03c711e34d38d303ca38c1259cb6c5fe55ef
+    commit: cc5a5d98a89ca19049575b94b71a0beeafa61c71
     layers:
       meta:
 
   cip-core:
     url: https://gitlab.com/cip-project/cip-core/isar-cip-core.git
-    commit: 3cfd7f0c89155419551f6bf430033c5d1ddd80a7
+    commit: 185b390af944e095d803c82d434bd51e74c999fd
 
 local_conf_header:
   standard: |
     CONF_VERSION = "1"
+    MAINTAINER = "Li Hua Qian <huaqian.li@siemens.com>"
   crossbuild: |
     ISAR_CROSS_COMPILE = "1"
   ccache: |
