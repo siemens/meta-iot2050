@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+set -eu
+
+action="${2:-}"
+
+case "${action}" in
+	up|connectivity-change)
+		;;
+	*)
+		exit 0
+		;;
+esac
+
+update_script=/usr/lib/iot2050/cockpit/update-issue
+issue_file=/run/cockpit/active.issue
+
+[ -x "${update_script}" ] || exit 0
+"${update_script}" || true
+[ -s "${issue_file}" ] || exit 0
+
+# Only update the issue file. getty will display it before each login prompt.
+# Do NOT write to /dev/console here; that caused repeated banners on every
+# network event (up, down, dhcp4-change, etc.).

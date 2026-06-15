@@ -1,0 +1,49 @@
+#!/bin/sh -e
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+# syntax: update-issue [port [hostname [ipaddr [protocol]]]]
+# keep the argument layout for compatibility with cockpit.socket ExecStartPost.
+#
+# Title depends on onboarding state:
+# - before onboarding: "IOT2050 Device Setup"
+# - after onboarding:  "IOT2050 Web Console"
+#
+# This script writes two issue files:
+# - /run/cockpit/active.issue: displayed by getty before serial console login.
+# - /etc/issue.net:            displayed by PAM before SSH login.
+
+hostname=${2:-$(hostname -f || hostname)}
+issue_file=/run/cockpit/active.issue
+issue_net_file=/etc/issue.net
+
+mkdir -p /run/cockpit
+ln -snf active.issue /run/cockpit/issue
+
+# Choose title based on onboarding completion marker.
+if [ -f /var/lib/iot2050-firstboot-onboarding/complete ]; then
+	title="IOT2050 Web Console"
+else
+	title="IOT2050 Device Setup"
+fi
+
+# Render the banner once and write to both issue files.
+render_banner() {
+	printf '%s\n' '----------------------------------------'
+	printf '\n'
+	printf '%s\n' "${title}"
+	printf 'Visit: https://my-ip/\n'
+	if [ -n "${hostname}" ] && [ "${hostname}" != "localhost" ]; then
+		printf '\nHost: %s\n' "${hostname}"
+	fi
+	printf '\n'
+	printf '%s\n' '----------------------------------------'
+}
+
+render_banner > "${issue_file}"
+render_banner > "${issue_net_file}"

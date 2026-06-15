@@ -1,0 +1,13 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/*
+ * IOT2050 Cockpit branding overrides.
+ *
+ * Hide "Other options" (SSH to remote host) on the login page.
+ * This feature is not applicable on an embedded device where
+ * users always connect locally.
+ */
+#option-group,
+#show-other-login-options,
+#show-other-login-options-text {
+    display: none !important;
+}
