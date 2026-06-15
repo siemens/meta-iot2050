@@ -61,7 +61,6 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     dmidecode \
     mokutil \
     util-linux-extra \
-    firewalld \
     "
 
 # wifi support
