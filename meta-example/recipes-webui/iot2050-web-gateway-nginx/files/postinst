@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Zhao Chun Jiao <chunjiao.zhao@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+MODE_SELECTOR="/usr/lib/iot2050/web-gateway/iot2050-web-gateway-select-mode"
+
+run_optional() {
+	"$@" >/dev/null 2>&1 || echo "Warning: failed to run: $*" >&2
+}
+
+rm -f /etc/nginx/sites-enabled/default >/dev/null 2>&1 || true
+rm -f /etc/nginx/conf.d/default.conf >/dev/null 2>&1 || true
+
+mkdir -p /etc/nginx/conf.d/iot2050-web-gateway-mode >/dev/null 2>&1 || true
+
+if [ -x "$MODE_SELECTOR" ]; then
+	run_optional "$MODE_SELECTOR" auto --no-reload
+fi
+
+run_optional systemctl daemon-reload
+run_optional systemctl enable nginx.service
+run_optional systemctl restart nginx.service
