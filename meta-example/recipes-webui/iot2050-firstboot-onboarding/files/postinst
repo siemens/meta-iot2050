@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+run_optional() {
+	"$@" >/dev/null 2>&1 || echo "Warning: failed to run: $*" >&2
+}
+
+run_optional systemctl daemon-reload
+run_optional systemctl disable cockpit.socket
+run_optional systemctl stop cockpit.socket
+run_optional systemctl enable iot2050-firstboot-onboarding.service
+run_optional systemctl start iot2050-firstboot-onboarding.service

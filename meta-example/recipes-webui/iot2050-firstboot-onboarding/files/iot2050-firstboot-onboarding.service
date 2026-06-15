@@ -1,0 +1,24 @@
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 first-boot onboarding web service
+After=network.target NetworkManager.service nginx.service
+Wants=NetworkManager.service
+ConditionPathExists=!/var/lib/iot2050-firstboot-onboarding/complete
+
+[Service]
+Type=simple
+ExecStartPre=/bin/mkdir -p /var/lib/iot2050-firstboot-onboarding
+ExecStart=/usr/bin/iot2050-firstboot-onboarding
+ExecStopPost=/usr/lib/iot2050/onboarding/iot2050-firstboot-finalize.sh
+Restart=on-failure
+RestartSec=2s
+WorkingDirectory=/usr/lib/iot2050/onboarding
+
+[Install]
+WantedBy=multi-user.target

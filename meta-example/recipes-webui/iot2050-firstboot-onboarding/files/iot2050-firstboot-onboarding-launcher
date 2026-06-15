@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec /usr/bin/node /usr/lib/iot2050/onboarding/iot2050-firstboot-onboarding.js "$@"
