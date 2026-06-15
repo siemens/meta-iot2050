@@ -1,12 +1,11 @@
 #
-# Copyright (c) Siemens AG, 2019-2025
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Su Baocheng <baocheng.su@siemens.com>
 #  Li Hua Qian <huaqian.li@siemens.com>
 #
-# This file is subject to the terms and conditions of the MIT License.  See
-# COPYING.MIT file in the top-level directory.
+# SPDX-License-Identifier: MIT
 #
 
 require recipes-core/images/iot2050-image-base.bb
@@ -27,6 +26,7 @@ IMAGE_PREINSTALL += " \
     ${IOT2050_DEBIAN_BT_PACKAGES} \
     ${IOT2050_DEBIAN_ALSA_PACKAGES} \
     ${IOT2050_DEBIAN_MULTIARCH_PACKAGES} \
+    ${IOT2050_DEBIAN_COCKPIT_PACKAGES} \
     "
 
 IMAGE_PREINSTALL += "${@ ' \
@@ -38,7 +38,10 @@ IMAGE_INSTALL += " \
     ssh-root-login \
     sshd-regen-keys \
     install-on-emmc \
+    iot2050-web-gateway-nginx \
     iot2050-firewall-default \
+    iot2050-firstboot-onboarding \
+    iot2050-cockpit-customization \
     iot2050-nm-settings \
     change-root-homedir \
     iot2050-firmware-update \

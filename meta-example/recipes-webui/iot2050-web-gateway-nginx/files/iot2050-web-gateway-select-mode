@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Zhao Chun Jiao <chunjiao.zhao@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+set -eu
+
+STATE_DIR=/var/lib/iot2050-firstboot-onboarding
+COMPLETE_MARKER="$STATE_DIR/complete"
+MODE_DIR=/usr/lib/iot2050/web-gateway/nginx
+LINK_DIR=/etc/nginx/conf.d/iot2050-web-gateway-mode
+LINK_PATH="$LINK_DIR/current.conf"
+MODE="${1:-auto}"
+RELOAD_NGINX=1
+
+if [ "${2:-}" = "--no-reload" ] || [ "$MODE" = "--no-reload" ]; then
+	RELOAD_NGINX=0
+	[ "$MODE" = "--no-reload" ] && MODE="auto"
+fi
+
+case "$MODE" in
+	auto)
+		if [ -f "$COMPLETE_MARKER" ]; then
+			MODE=runtime
+		else
+			MODE=onboarding
+		fi
+		;;
+	onboarding|runtime)
+		;;
+	*)
+		echo "Unsupported gateway mode: $MODE" >&2
+		exit 1
+		;;
+esac
+
+TARGET="$MODE_DIR/$MODE.conf"
+[ -f "$TARGET" ]
+
+mkdir -p "$LINK_DIR"
+ln -sfn "$TARGET" "$LINK_PATH"
+
+if [ "$RELOAD_NGINX" -eq 1 ]; then
+	systemctl reload-or-restart nginx.service >/dev/null 2>&1
+fi
