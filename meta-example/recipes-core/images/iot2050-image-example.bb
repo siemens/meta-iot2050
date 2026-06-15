@@ -38,6 +38,7 @@ IMAGE_INSTALL += " \
     ssh-root-login \
     sshd-regen-keys \
     install-on-emmc \
+    iot2050-firewall-default \
     iot2050-nm-settings \
     change-root-homedir \
     iot2050-firmware-update \
