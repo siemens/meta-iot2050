@@ -1,30 +1,4 @@
-import localFont from 'next/font/local';
 import { createTheme } from '@mui/material/styles';
-
-const siemensSans = localFont({
-  src: [
-    {
-      path: './fonts/SiemensSans_Prof_Roman.woff2',
-      weight: '400',
-      style: 'normal'
-    },
-    {
-      path: './fonts/SiemensSans_Prof_Italic.woff2',
-      weight: '400',
-      style: 'italic'
-    },
-    {
-      path: './fonts/SiemensSans_Prof_Bold.woff2',
-      weight: '700',
-      style: 'normal'
-    },
-    {
-      path: './fonts/SiemensSans_Prof_BoldItalic.woff2',
-      weight: '700',
-      style: 'italic'
-    }
-  ]
-});
 
 const theme = createTheme({
   palette: {
@@ -43,7 +17,7 @@ const theme = createTheme({
     }
   },
   typography: {
-    fontFamily: siemensSans.style.fontFamily
+    fontFamily: 'Siemens Sans, Arial, sans-serif'
   },
   components: {
     MuiAlert: {

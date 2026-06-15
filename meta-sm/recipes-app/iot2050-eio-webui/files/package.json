@@ -1,6 +1,7 @@
 {
-  "name": "iot2050-conf-webui",
+  "name": "iot2050-eio-webui",
   "version": "1.0.1",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,8 +13,6 @@
     "@emotion/cache": "~11.14.0",
     "@emotion/react": "~11.14.0",
     "@emotion/styled": "~11.14.1",
-    "@grpc/grpc-js": "~1.14.0",
-    "@grpc/proto-loader": "~0.8.0",
     "@mui/icons-material": "~7.3.2",
     "@mui/material": "~7.3.2",
     "copy-webpack-plugin": "~13.0.1",

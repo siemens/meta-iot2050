@@ -1,5 +1,5 @@
 ##
-# Copyright (c) Siemens AG, 2025
+# Copyright (c) Siemens AG, 2025-2026
 #
 # Authors:
 #  Li Hua Qian <huaqian.li@siemens.com>
@@ -14,6 +14,6 @@ IOT2050_META_SM_PACKAGES ?= " \
     iot2050-eiofsd \
     iot2050-eio-manager \
     iot2050-event-record \
-    iot2050-conf-webui \
+    iot2050-eio-webui \
     iot2050-module-firmware-update \
     "

@@ -1,0 +1,21 @@
+{
+  "name": "eio-config",
+  "content-security-policy": "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' ws: wss:;",
+  "requires": {
+    "cockpit": "239"
+  },
+  "conditions": [
+    {"path-exists": "/run/iot2050/sm-board"}
+  ],
+  "menu": {
+    "index": {
+      "label": "EIO Config",
+      "order": 75,
+      "keywords": [
+        {
+          "matches": ["eio", "extended io", "signal module", "sm", "slot", "module", "yaml"]
+        }
+      ]
+    }
+  }
+}

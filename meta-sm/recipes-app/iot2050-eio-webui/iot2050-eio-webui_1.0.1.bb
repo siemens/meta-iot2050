@@ -1,14 +1,16 @@
-# Copyright (c) Siemens AG, 2018-2025
+# Copyright (c) Siemens AG, 2018-2026
 #
 # SPDX-License-Identifier: MIT
 
-PR="1"
+PR = "1"
 
 inherit dpkg-raw
 
+DESCRIPTION = "IOT2050 EIO WebUI Cockpit plugin"
+
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json.nodev"
-PKG_INSTALL_DIR ?= "/srv"
+PKG_INSTALL_DIR ?= "/usr/share/cockpit"
 NPM_INSTALL_FLAGS ?= ""
 
 NPM_REBUILD ?= "1"
@@ -34,22 +36,24 @@ SRC_URI_PKG = " \
     file://package.json \
     ${NPM_SHRINKWRAP} \
     "
+
 SRC_URI = " \
     ${SRC_URI_PKG} \
+    file://manifest.json \
     file://src \
-    file://iot2050-conf-webui.service \
     "
+
 NPM_MAPPED_NAME = "${PN}"
 NPM_REGISTRY = "https://registry.npmjs.org"
 
-PR = "3"
-
-# function maps arch names to npm arch names
 def npm_arch_map(target_arch, d):
     import re
-    if   re.match('p(pc|owerpc)(|64)', target_arch): return 'ppc'
-    elif re.match('i386$', target_arch): return 'ia32'
-    elif re.match('amd64$', target_arch): return 'x64'
+    if re.match('p(pc|owerpc)(|64)', target_arch):
+        return 'ppc'
+    elif re.match('i386$', target_arch):
+        return 'ia32'
+    elif re.match('amd64$', target_arch):
+        return 'x64'
     return target_arch
 
 NPM_ARCH ?= "${@npm_arch_map(d.getVar('DISTRO_ARCH'), d)}"
@@ -59,7 +63,7 @@ OWN_NPM_CLASS_PACKAGE ?= "0"
 
 DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode115,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
-DEBIAN_DEPENDS =. "\${shlibs:Depends}, \${misc:Depends},"
+DEBIAN_DEPENDS = "cockpit, iot2050-eio-manager, iot2050-cockpit-customization, \${shlibs:Depends}, \${misc:Depends}"
 
 SCHROOT_MOUNTS = "${WORKDIR}"
 
@@ -140,11 +144,8 @@ python fetch_npm() {
 
     shutil.copyfile(shrinkwarp_path, "npm-shrinkwrap.json")
 
-    # changing the home directory to the tmpdir directory, the .npmrc will
-    # be created in this directory
     os.environ['HOME'] = d.getVar('PP') + "/fetch-tmp/package"
 
-    # apply simplified PREMIRRORS logic to NPM_REGISTRY and shrinkwrap
     npm_registry = d.getVar('NPM_REGISTRY', True)
     mirrors = bb.fetch2.mirror_from_string(d.getVar('PREMIRRORS'))
     npm_mirrors = filter(lambda m: m[0].startswith('npm://'), mirrors)
@@ -155,7 +156,6 @@ python fetch_npm() {
         apply_mirrors_in_shrinkwrap('npm-shrinkwrap.json', pattern, subst)
     os.environ.update({'npm_config_registry': npm_registry})
 
-    # copy files into fetch-tmp/package
     src_uri = (d.getVar('SRC_URI_PKG', True) or "").split()
     for u in src_uri:
         if u.startswith("file://"):
@@ -169,7 +169,6 @@ python fetch_npm() {
     with open(package_filename) as infile:
         json_objs = json.load(infile)
 
-    # Must remove devDependencies, maybe npm issue?
     devDependencies = json_objs.get('devDependencies')
     if devDependencies:
         json_objs.pop('devDependencies')
@@ -184,9 +183,8 @@ python fetch_npm() {
 
     dependencies = json_objs.get('dependencies')
     if dependencies:
-        json_objs.update({'bundledDependencies': [d for d in dependencies]})
+        json_objs.update({'bundledDependencies': [dep for dep in dependencies]})
 
-    # update package.json so that all dependencies are bundled
     with open(package_filename, 'w') as outfile:
         json.dump(json_objs, outfile, indent=2)
 
@@ -217,21 +215,18 @@ python clean_npm() {
 do_cleanall[postfuncs] += "clean_npm"
 
 do_install() {
-    # create directories to be installed
-    mkdir -p ${D}/${PKG_INSTALL_DIR}
-
-    # install service
-    install -v -d ${D}/usr/lib/systemd/system/
-    install -v -m 644 ${WORKDIR}/iot2050-conf-webui.service ${D}/usr/lib/systemd/system/
+    mkdir -p ${D}${PKG_INSTALL_DIR}
 }
 
 do_prepare_build:append() {
+    install -m 644 ${WORKDIR}/manifest.json ${S}/manifest.json
+    install -m 644 ${WORKDIR}/src/app/icon-siemens.svg ${S}/icon-siemens.svg
+
     INSTALL_FLAGS="--offline --omit=dev --no-package-lock --verbose \
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} \
                    --no-audit"
 
     CHDIR=image${PKG_INSTALL_DIR}
-    # Must be installed as global style, maybe a npm issue?
     INSTALL_FLAGS="$INSTALL_FLAGS --prefix . -g"
 
     if [ -n "${NPM_REBUILD}" ]; then
@@ -246,7 +241,10 @@ export npm_config_cache=${PP}/npm_cache
 override_dh_clean:
 	rm -rf ${CHDIR}/lib
 	rm -rf ${CHDIR}/${NPMPN}
-	rm -rf $(npm_config_cache)
+	rm -rf ${CHDIR}/${NPMPN}.static
+	rm -rf \
+		${S}/node_modules ${S}/out ${S}/.next \
+			${PP}/npm_cache
 
 override_dh_auto_build:
 	cd ${CHDIR} && npm install ${INSTALL_FLAGS} ${NPM_INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
@@ -254,7 +252,14 @@ override_dh_auto_build:
 	rm -rf ${CHDIR}/lib
 	npm run build --prefix ${CHDIR}/${NPMPN}
 
-# disable slow stripping - not enough value for our ad-hoc npm packaging
+override_dh_auto_install:
+	install -d ${CHDIR}/${NPMPN}.static
+	cp -a ${CHDIR}/${NPMPN}/out/. ${CHDIR}/${NPMPN}.static/
+	install -m 644 manifest.json ${CHDIR}/${NPMPN}.static/
+	install -m 644 icon-siemens.svg ${CHDIR}/${NPMPN}.static/icon-siemens.svg
+	rm -rf ${CHDIR}/${NPMPN}
+	mv ${CHDIR}/${NPMPN}.static ${CHDIR}/${NPMPN}
+
 override_dh_strip_nondeterminism:
 EOF
 }
