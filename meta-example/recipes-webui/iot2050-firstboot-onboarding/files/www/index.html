@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IOT2050 onboarding</title>
+  <script>
+    (function () {
+      document.documentElement.dataset.view = 'setup';
+    }());
+  </script>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="setup-card" id="setup-view">
+      <div class="surface-main">
+        <div class="setup-header">
+          <h1 id="setup-title">Create your account</h1>
+        </div>
+
+        <div class="status-banner" id="status-banner" hidden></div>
+
+        <form id="onboarding-form" class="setup-form" novalidate>
+          <label class="field">
+            <span id="device-name-label">Host name</span>
+            <input id="device-name" name="deviceName" type="text" autocapitalize="none" maxlength="63" placeholder="iot2050-edge-01">
+            <p class="setup-subtitle field-hint" id="hostname-hint" hidden></p>
+            <small data-error-for="deviceName"></small>
+          </label>
+
+          <label class="field">
+            <span id="full-name-label">Full name</span>
+            <input id="full-name" name="fullName" type="text" autocomplete="name" maxlength="64" placeholder="Full name">
+            <small data-error-for="fullName"></small>
+          </label>
+
+          <label class="field">
+            <span id="user-name-label">User name</span>
+            <input id="user-name" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="username">
+            <small data-error-for="username"></small>
+          </label>
+
+          <label class="field">
+            <span id="password-label">Password</span>
+            <input id="password" name="password" type="password" autocomplete="new-password" required placeholder="At least 8 characters">
+            <small data-error-for="password"></small>
+          </label>
+
+          <label class="field">
+            <span id="confirm-password-label">Confirm password</span>
+            <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required placeholder="Repeat the password">
+            <small data-error-for="confirmPassword"></small>
+          </label>
+
+          <label class="checkbox-field" for="grant-admin">
+            <input id="grant-admin" name="grantAdmin" type="checkbox" checked>
+            <span id="grant-admin-label">Grant administrator privileges</span>
+          </label>
+
+          <div class="actions">
+            <button id="submit-button" type="submit">Save and continue</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="surface-details">
+        <p class="footer-copy">Copyright (c) Siemens AG, @BUILD_YEAR@</p>
+      </div>
+    </section>
+
+    <section class="wait-card" id="wait-view" hidden>
+      <div class="surface-main wait-main">
+        <div class="spinner-shell" aria-hidden="true">
+          <div class="spinner-ring"></div>
+        </div>
+        <div class="product-brand product-brand-wait">IOT2050</div>
+        <p class="eyebrow wait-eyebrow" id="wait-eyebrow" hidden></p>
+        <h2 id="wait-title">Applying your configuration</h2>
+        <p class="wait-copy" id="wait-copy" hidden></p>
+      </div>
+
+      <div class="surface-details surface-details-wait">
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar"></div>
+        </div>
+        <p class="wait-footnote" id="wait-footnote">
+          Please keep this page open to ensure your configuration is applied safely.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/locale.js"></script>
+  <script src="/po.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>
