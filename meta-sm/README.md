@@ -17,13 +17,13 @@ the `sm.yml` fragment, which sets `IOT2050_SM_SUPPORT=1`.
 | Category | Scope |
 |----------|-------|
 | Sensors & IO mgmt | EIO manager, proximity / event utilities |
-| Variant services | Event recording, configuration web UI integration |
+| Variant services | Event recording, Cockpit-based Extended IO management |
 | Firmware helper  | Module firmware update helper (for the signal module) |
 | Device tree      | SM-specific DTB addition(s) |
 
 ## Build
 
-SM support is enabled by default in the main example images.
+SM support is enabled by default in the main example and SWUpdate images.
 
 **Build the full example image** (includes SM):
 ```sh
@@ -46,12 +46,22 @@ IOT2050_META_SM_PACKAGES ?= " \
 		iot2050-proximity-driver \
 		iot2050-eio-manager \
 		iot2050-event-record \
-		iot2050-conf-webui \
+		iot2050-eio-webui \
 		iot2050-module-firmware-update \
 		"
 ```
 Image recipes will append this list to `IMAGE_INSTALL` only when
 `IOT2050_SM_SUPPORT = "1"`.
+
+`iot2050-eio-webui` is a Cockpit plugin. In the standard example and SWUpdate
+image flows, Cockpit is already provided by the example layer and exposed
+through the HTTPS gateway at `/`.
+
+## Runtime Notes
+
+- Extended IO is no longer exposed as a standalone web service.
+- Browser access goes through the existing HTTPS gateway and Cockpit session.
+- Privileged deploy/retrieve operations are executed via Cockpit escalation.
 
 ## Device Tree Integration
 
@@ -65,9 +75,9 @@ higher-priority layer.
 
 ## Related Documentation
 
-- Composition & fragments: `doc/build-config.md`
-- Architecture rationale: `doc/layer-architecture.md`
-- Example layer (demos): `meta-example/README.md`
+- Composition and fragments: [doc/build-config.md](../doc/build-config.md)
+- Architecture rationale: [doc/layer-architecture.md](../doc/layer-architecture.md)
+- Example layer overview: [meta-example/README.md](../meta-example/README.md)
 
 ## Maintainers
 

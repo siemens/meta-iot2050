@@ -1,4 +1,4 @@
-# Copyright (c) Siemens AG, 2023-2024
+# Copyright (c) Siemens AG, 2023-2026
 #
 # Authors:
 #  Su Bao Cheng <baocheng.su@siemens.com>
@@ -13,6 +13,10 @@ default_conf = {
 
     # IOT2050 Extended IO API server port
     'EIO_API_SERVER_PORT': '5020',
+
+    # Loopback-only HTTP bridge used by the static Cockpit WebUI.
+    'EIO_WEBUI_API_SERVER_HOSTNAME': '127.0.0.1',
+    'EIO_WEBUI_API_SERVER_PORT': '5021',
 
     # Periodically syncing timestamp to Extended IO controller
     'EIO_TIME_SYNC_INTERVAL': 30,
@@ -52,6 +56,8 @@ effective_conf = {
 
 EIO_API_SERVER_HOSTNAME = effective_conf['EIO_API_SERVER_HOSTNAME']
 EIO_API_SERVER_PORT = effective_conf['EIO_API_SERVER_PORT']
+EIO_WEBUI_API_SERVER_HOSTNAME = effective_conf['EIO_WEBUI_API_SERVER_HOSTNAME']
+EIO_WEBUI_API_SERVER_PORT = effective_conf['EIO_WEBUI_API_SERVER_PORT']
 EIO_TIME_SYNC_INTERVAL =  effective_conf['EIO_TIME_SYNC_INTERVAL']
 EIO_FS_TIMESTAMP = effective_conf['EIO_FS_TIMESTAMP']
 EIO_FS_CONTROL = effective_conf['EIO_FS_CONTROL']
@@ -88,3 +94,6 @@ eio_conf_templates = [
 ]
 
 iot2050_eio_api_server = f"{EIO_API_SERVER_HOSTNAME}:{EIO_API_SERVER_PORT}"
+iot2050_eio_webui_api_server = (
+    f"{EIO_WEBUI_API_SERVER_HOSTNAME}:{EIO_WEBUI_API_SERVER_PORT}"
+)
