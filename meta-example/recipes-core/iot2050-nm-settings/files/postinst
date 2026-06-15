@@ -1,15 +1,23 @@
 #
-# Copyright (c) Siemens AG, 2019-2025
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
 #
-# This file is subject to the terms and conditions of the MIT License.  See
-# COPYING.MIT file in the top-level directory.
+# SPDX-License-Identifier: MIT
 #
 
 # Networkmanager service
-systemctl disable systemd-networkd.service
+# Disable and mask systemd-networkd units to prevent conflicts with NetworkManager.
+# Disabling alone is insufficient: systemd-networkd.socket can still trigger
+# socket activation, which re-launches the daemon and races with NM.
+# Masking creates symlinks to /dev/null, making the units unstartable.
+systemctl disable systemd-networkd.service >/dev/null 2>&1 || true
+systemctl disable systemd-networkd.socket >/dev/null 2>&1 || true
+systemctl disable systemd-networkd-wait-online.service >/dev/null 2>&1 || true
+systemctl mask systemd-networkd.service >/dev/null 2>&1 || true
+systemctl mask systemd-networkd.socket >/dev/null 2>&1 || true
+systemctl mask systemd-networkd-wait-online.service >/dev/null 2>&1 || true
 systemctl enable NetworkManager.service
 chmod 600 /etc/NetworkManager/system-connections/cellular-4g
 chmod 600 /etc/NetworkManager/system-connections/eno1-default
