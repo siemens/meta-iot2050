@@ -61,6 +61,8 @@ IOT2050_DEBIAN_DEBUG_PACKAGES = " \
     dmidecode \
     mokutil \
     util-linux-extra \
+    auditd \
+    audispd-plugins \
     "
 
 # wifi support
