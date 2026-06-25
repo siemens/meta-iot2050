@@ -20,7 +20,7 @@ SRC_URI += " \
     file://0003-board-siemens-iot2050-Allow-to-enable-and-adjust-res.patch \
     file://0004-arm-dts-iot2050-Enforce-DMA-isolation-for-devices-be.patch \
     file://0005-remoteproc-k3-add-config-to-gate-R5F-firmware-authen.patch \
-    file://0006-mkimage-Add-openssl-provider-support.patch \
+    file://0006-u-boot-iot2050-Add-openssl-provider-support.patch \
     file://0007-dts-k3-am65-iot2050-Switch-to-SHA512-for-FIT-image-p.patch \
     file://0008-tools-iot2050-Switch-to-SHA512-for-signing.patch \
     file://0009-lib-efi_loader-Silence-missing-EFI-var-file-on-first.patch \

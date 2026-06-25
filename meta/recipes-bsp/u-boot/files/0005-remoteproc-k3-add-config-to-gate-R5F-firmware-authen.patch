@@ -55,12 +55,12 @@ index 2790b168b198..32f971fa92cd 100644
  	depends on TI_SCI_PROTOCOL
  	help
 diff --git a/drivers/remoteproc/ti_k3_r5f_rproc.c b/drivers/remoteproc/ti_k3_r5f_rproc.c
-index c822bbba745e..5369f4a63678 100644
+index d78b3fa1bbd1..086d3c738fd0 100644
 --- a/drivers/remoteproc/ti_k3_r5f_rproc.c
 +++ b/drivers/remoteproc/ti_k3_r5f_rproc.c
-@@ -344,7 +344,11 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
- 			b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
- 	}
+@@ -334,7 +334,11 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
+ 
+ 	k3_r5f_init_tcm_memories(core, mem_auto_init);
  
 +#if IS_ENABLED(CONFIG_K3_RPROC_FIRMWARE_AUTH)
  	ti_secure_image_post_process(&image_addr, &size);
@@ -68,5 +68,5 @@ index c822bbba745e..5369f4a63678 100644
 +	dev_dbg(dev, "Skipping remoteproc firmware authentication\n");
 +#endif
  
- 	if (IS_ENABLED(CONFIG_LOG)) {
- 		u8 *b = (u8 *)image_addr;
+ 	ret = rproc_elf_load_image(dev, addr, size);
+ 	if (ret < 0) {

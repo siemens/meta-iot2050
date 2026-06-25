@@ -1,4 +1,4 @@
-From 3c73163be869e5f6157c240bc3f0f96f3852135c Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Baocheng Su <baocheng.su@siemens.com>
 Date: Tue, 18 Jun 2024 15:44:41 +0800
 Subject: [PATCH] u-boot-iot2050: Add openssl provider support
@@ -19,7 +19,7 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  11 files changed, 150 insertions(+), 32 deletions(-)
 
 diff --git a/include/image.h b/include/image.h
-index 0791260..f13d600 100644
+index 07912606f338..f13d6007778e 100644
 --- a/include/image.h
 +++ b/include/image.h
 @@ -1307,6 +1307,7 @@ struct image_summary {
@@ -49,7 +49,7 @@ index 0791260..f13d600 100644
  	 * Note: the following two fields are always valid even w/o
  	 * RSA_VERIFY_WITH_PKEY in order to make sure this structure is
 diff --git a/lib/rsa/rsa-sign.c b/lib/rsa/rsa-sign.c
-index fa9e143..150b910 100644
+index fa9e143b4ca8..150b910f8339 100644
 --- a/lib/rsa/rsa-sign.c
 +++ b/lib/rsa/rsa-sign.c
 @@ -20,6 +20,7 @@
@@ -133,7 +133,7 @@ index fa9e143..150b910 100644
  		goto err_priv;
  	ret = rsa_sign_with_key(pkey, info->padding, info->checksum, region,
 diff --git a/tools/binman/cmdline.py b/tools/binman/cmdline.py
-index 9632ec1..8aec02d 100644
+index 9632ec115e5d..8aec02d6fbf4 100644
 --- a/tools/binman/cmdline.py
 +++ b/tools/binman/cmdline.py
 @@ -186,6 +186,8 @@ controlled by a description in the board device tree.'''
@@ -146,7 +146,7 @@ index 9632ec1..8aec02d 100644
                                  help='Paths within file to sign (wildcard)')
  
 diff --git a/tools/binman/control.py b/tools/binman/control.py
-index e73c598..0ad11c0 100644
+index e73c598298ce..0ad11c0de508 100644
 --- a/tools/binman/control.py
 +++ b/tools/binman/control.py
 @@ -463,7 +463,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
@@ -186,7 +186,7 @@ index e73c598..0ad11c0 100644
              if args.cmd == 'tool':
                  if args.list:
 diff --git a/tools/binman/entry.py b/tools/binman/entry.py
-index bdc60e4..3508664 100644
+index bdc60e47fcab..3508664dda6b 100644
 --- a/tools/binman/entry.py
 +++ b/tools/binman/entry.py
 @@ -1404,7 +1404,7 @@ features to produce new behaviours.
@@ -199,7 +199,7 @@ index bdc60e4..3508664 100644
  
      def FdtContents(self, fdt_etype):
 diff --git a/tools/binman/etype/fit.py b/tools/binman/etype/fit.py
-index 803fb66..36472d1 100644
+index 803fb66ea838..36472d1f666d 100644
 --- a/tools/binman/etype/fit.py
 +++ b/tools/binman/etype/fit.py
 @@ -1053,9 +1053,13 @@ class Entry_fit(Entry_section):
@@ -219,7 +219,7 @@ index 803fb66..36472d1 100644
              fname = input_fname
          else:
 diff --git a/tools/fit_image.c b/tools/fit_image.c
-index caed8d5..21f659b 100644
+index caed8d5f9019..21f659bb531a 100644
 --- a/tools/fit_image.c
 +++ b/tools/fit_image.c
 @@ -78,6 +78,7 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
@@ -231,7 +231,7 @@ index caed8d5..21f659b 100644
  						params->algo_name,
  						&params->summary);
 diff --git a/tools/image-host.c b/tools/image-host.c
-index e6de34f..a4d8485 100644
+index e6de34fa059b..a4d84850609f 100644
 --- a/tools/image-host.c
 +++ b/tools/image-host.c
 @@ -166,7 +166,8 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
@@ -333,7 +333,7 @@ index e6de34f..a4d8485 100644
  			return ret;
  	}
 diff --git a/tools/imagetool.h b/tools/imagetool.h
-index 57be608..6be19eb 100644
+index 57be608210aa..6be19eb4aa9e 100644
 --- a/tools/imagetool.h
 +++ b/tools/imagetool.h
 @@ -97,6 +97,7 @@ struct image_tool_params {
@@ -345,7 +345,7 @@ index 57be608..6be19eb 100644
  	struct image_summary summary;	/* results of signing process */
  };
 diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
-index 75ffd56..82b4bbc 100755
+index 75ffd560823c..82b4bbc65e90 100755
 --- a/tools/iot2050-sign-fw.sh
 +++ b/tools/iot2050-sign-fw.sh
 @@ -1,15 +1,51 @@
@@ -435,7 +435,7 @@ index 75ffd56..82b4bbc 100755
 +$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k "$KEY" -a sha256,rsa4096 \
 +	$PROPQUERY_PARA fit@380000
 diff --git a/tools/mkimage.c b/tools/mkimage.c
-index ac62ebb..97711c3 100644
+index ac62ebbde9bc..97711c3daefd 100644
 --- a/tools/mkimage.c
 +++ b/tools/mkimage.c
 @@ -117,7 +117,7 @@ static void usage(const char *msg)
@@ -482,6 +482,3 @@ index ac62ebb..97711c3 100644
  		case 'q':
  			params.quiet = 1;
  			break;
--- 
-2.34.1
-
