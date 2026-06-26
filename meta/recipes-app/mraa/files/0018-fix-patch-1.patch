@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 16 Jul 2026 10:40:02 +0800
+Subject: [PATCH] fix patch 1
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ src/gpio/gpio_chardev_v2.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/gpio/gpio_chardev_v2.c b/src/gpio/gpio_chardev_v2.c
+index 31c6f598e815..29e561695061 100644
+--- a/src/gpio/gpio_chardev_v2.c
++++ b/src/gpio/gpio_chardev_v2.c
+@@ -78,9 +78,9 @@ mraa_gpiod_get_line_flags(int chip_fd, unsigned line_offset, unsigned long* flag
+         syslog(LOG_ERR, "[GPIOD_INTERFACE]: ioctl() GPIO_V2_GET_LINEINFO_IOCTL fail");
+     }
+ 
+-    syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, flags 0x%llx", line_offset, info.flags);
+-    syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, consumer %s", line_offset, info.consumer);
+-    syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, name %s", line_offset, info.name);
++    // syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, flags 0x%llx", line_offset, info.flags);
++    // syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, consumer %s", line_offset, info.consumer);
++    // syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, name %s", line_offset, info.name);
+ 
+     *flag = info.flags;
+ 
