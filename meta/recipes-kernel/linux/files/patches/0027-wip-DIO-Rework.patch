@@ -13,7 +13,7 @@ Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-pg2-rework.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-pg2-rework.dtsi
 new file mode 100644
-index 000000000000..860001bbcded
+index 000000000000..47a9b63d4722
 --- /dev/null
 +++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-pg2-rework.dtsi
 @@ -0,0 +1,84 @@
@@ -41,11 +41,11 @@ index 000000000000..860001bbcded
 +	arduino_io_oe_pins_default: arduino-io-oe-default-pins {
 +		pinctrl-single,pins = <
 +			/* (M2) WKUP_GPIO0_36 → D4200 INT */
-+			AM65X_WKUP_IOPAD(0x0060, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x0060, PIN_INPUT_PULLUP, 7)
 +			/* (M3) WKUP_GPIO0_37 → D4201 INT */
-+			AM65X_WKUP_IOPAD(0x0064, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x0064, PIN_INPUT_PULLUP, 7)
 +			/* (M4) WKUP_GPIO0_38 → D4202 INT */
-+			AM65X_WKUP_IOPAD(0x0068, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x0068, PIN_INPUT_PULLUP, 7)
 +		>;
 +	};
 +};

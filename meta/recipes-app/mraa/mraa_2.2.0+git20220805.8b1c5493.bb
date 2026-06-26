@@ -30,6 +30,8 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0013-iot2050-add-support-for-gpio-chardev-interface.patch \
             file://0014-iot2050-fix-pinmux-handling-of-user-pin.patch \
             file://0015-gpio-fix-fd-and-memory-leaks-in-gpiod-chardev-init-p.patch \
+            file://0016-wip.patch \
+            file://0017-iot2050-wip.patch \
             file://20-mraa-permissions.rules \
             file://rules"
 
@@ -53,7 +55,7 @@ do_prepare_build[cleandirs] += "${S}/debian"
 
 do_prepare_build() {
     deb_debianize
-    
+
     cp ${WORKDIR}/20-mraa-permissions.rules ${S}/debian/20-mraa-permissions.rules
     echo "debian/20-mraa-permissions.rules etc/udev/rules.d" > ${S}/debian/install
     echo "usr/share/java/mraa.jar usr/share/java/mraa-${PV}.jar" > ${S}/debian/mraa.links
