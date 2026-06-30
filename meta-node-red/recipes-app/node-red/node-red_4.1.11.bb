@@ -1,18 +1,18 @@
 #
-# Copyright (c) Siemens AG, 2019-2025
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Nian Gao <nian.gao@siemens.com>
 #  Jan Kiszka <jan.kiszka@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
 # To update the npm-shrinkwrap.json file, ensure you follow the guidelines
 # provided in meta-node-red/classes/npm.bbclass.
-#
 
-PR = "2"
+PR = "1"
 
 inherit npm
 require recipes-app/node-red/node-red-home.inc
