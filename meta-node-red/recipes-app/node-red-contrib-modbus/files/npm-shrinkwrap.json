@@ -5,13 +5,13 @@
   "packages": {
     "": {
       "dependencies": {
-        "node-red-contrib-modbus": "^5.44.1"
+        "node-red-contrib-modbus": "^5.45.2"
       }
     },
     "node_modules/node-red-contrib-modbus": {
-      "version": "5.44.1",
-      "resolved": "https://registry.npmjs.org/node-red-contrib-modbus/-/node-red-contrib-modbus-5.44.1.tgz",
-      "integrity": "sha512-I3zB+zBOl/xjO5GTwRheKiK71cLlAnBe8eTCkQ5/VpDwHtfK8Mo38TaW5u5MiBeRGeqzw209JszBrzVt8ReHNg==",
+      "version": "5.45.2",
+      "resolved": "https://registry.npmjs.org/node-red-contrib-modbus/-/node-red-contrib-modbus-5.45.2.tgz",
+      "integrity": "sha512-eiCP7rXh++oTPppJxF25hMvb5x/Uw7w870+37L8Heu0OnHNzE+DgzzgTv87cfqpg/eAt4oYOgckb5lKJBEP+yA==",
       "dependencies": {
         "@openp4nr/modbus-serial": "https://dl.cloudsmith.io/public/iniationware-gmbh/plus4nodered/npm/openp4nr/modbus-serial/8.4.0/openp4nr-modbus-serial-8.4.0.tgz",
         "@xstate/fsm": "~2.1.0",
@@ -657,9 +657,9 @@
       }
     },
     "node_modules/node-red-contrib-modbus/node_modules/underscore": {
-      "version": "1.13.7",
-      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.13.7.tgz",
-      "integrity": "sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g=="
+      "version": "1.13.8",
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.13.8.tgz",
+      "integrity": "sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ=="
     }
   }
 }
