@@ -10,7 +10,6 @@ runtime rather than a standalone web service.
 - Cockpit navigation label: `EIO Config`
 - Public entrypoint: the existing HTTPS gateway in front of Cockpit
 - Backend integration: loopback HTTP bridge inside `iot2050-eio-service`
-- CLI relation: independent; the Cockpit page no longer shells out to CLI
 
 ## Request Flow
 
@@ -41,7 +40,8 @@ Bridge endpoints:
 Response contract:
 
 - `ok`: boolean success flag
-- `code`: stable machine-readable result code such as `OK`, `CONFIG_ERROR`, `INVALID_JSON`, `MISSING_YAML_DATA`, `INVALID_YAML_DATA`, `NOT_FOUND`, `METHOD_NOT_ALLOWED`
+- `code`: stable machine-readable result code such as `OK`, `CONFIG_ERROR`,
+  `INVALID_JSON`, `MISSING_YAML_DATA`, `INVALID_YAML_DATA`, `NOT_FOUND`, `METHOD_NOT_ALLOWED`
 - `message`: human-readable summary
 - `data`: optional payload object; retrieve returns `data.yaml_data`
 
@@ -58,7 +58,34 @@ There are two `npm-shrinkwrap.json` files:
 The `.nodev` variant is used for packaging workflows that must omit
 `devDependencies`.
 
+In the ISAR build process (`npm.bbclass`), `npm-shrinkwrap.json.nodev` is used
+for fetch-time packaging so only production dependencies are bundled. The full
+`npm-shrinkwrap.json` remains useful for local development workflows that still
+need devDependencies for linting, type checking, and static export.
+
 If any new dependency package is added, regenerate both shrinkwrap files.
+
+### Regenerating npm shrinkwrap files
+
+Run the following workflow inside the corresponding Debian `<version>-<snapshot>` environment so
+dependency resolution matches the ISAR build environment.
+
+```sh
+cd meta-sm/recipes-app/iot2050-eio-webui/files
+
+cp package.json package.json.bak
+jq 'del(.devDependencies)' package.json > package.json.tmp && mv package.json.tmp package.json
+rm -rf node_modules package-lock.json npm-shrinkwrap.json
+npm install --omit=dev --install-strategy=shallow
+npm shrinkwrap
+mv npm-shrinkwrap.json npm-shrinkwrap.json.nodev
+mv package.json.bak package.json
+
+rm -rf node_modules package-lock.json npm-shrinkwrap.json
+npm install --install-strategy=shallow
+npm shrinkwrap
+rm -rf node_modules
+```
 
 Typical local workflow inside `files/`:
 
