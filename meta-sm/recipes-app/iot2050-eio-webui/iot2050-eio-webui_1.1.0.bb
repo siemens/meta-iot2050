@@ -1,5 +1,8 @@
 # Copyright (c) Siemens AG, 2018-2026
 #
+# Authors:
+#  Li Hua QIan <huaqian.li@siemens.com>
+#
 # SPDX-License-Identifier: MIT
 
 PR = "1"
