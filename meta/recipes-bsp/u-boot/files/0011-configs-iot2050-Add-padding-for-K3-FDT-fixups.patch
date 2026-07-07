@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Wed, 22 Jul 2026 11:16:56 +0800
+Subject: [PATCH] configs: iot2050: Add SPL FDT padding
+
+The K3 SPL performs reserved-memory fixups on the control DTB before
+Driver Model scans it. Those fixups may add or replace reserved-memory
+nodes and therefore need writable space beyond the packed DTB.
+
+Configure 8192 bytes of DTC padding for IOT2050 so the SPL control DTB
+keeps writable space for reserved-memory fixups after fdtgrep
+processing.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ configs/iot2050_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index ee0939c09864..02ef5e5e8b77 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -3,6 +3,7 @@ CONFIG_SKIP_LOWLEVEL_INIT=y
+ CONFIG_ARCH_K3=y
+ # CONFIG_TI_SECURE_DEVICE is not set
+ CONFIG_SYS_MALLOC_F_LEN=0x8000
++CONFIG_SYS_DTC_PAD_BYTES=8192
+ CONFIG_SPL_GPIO=y
+ CONFIG_SPL_LIBCOMMON_SUPPORT=y
+ CONFIG_SOC_K3_AM654=y

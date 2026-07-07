@@ -3,12 +3,14 @@ From: Li Hua Qian <huaqian.li@siemens.com>
 Date: Tue, 27 Jan 2026 13:02:29 +0800
 Subject: [PATCH] dts: k3-am65-iot2050: Switch to SHA512 for FIT image parts
 
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+
 ---
  arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 14 +++++++-------
  1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index ad495d9a283a..97db5f2e06e2 100644
+index fa7cd550bd12..05257a33d994 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -119,7 +119,7 @@

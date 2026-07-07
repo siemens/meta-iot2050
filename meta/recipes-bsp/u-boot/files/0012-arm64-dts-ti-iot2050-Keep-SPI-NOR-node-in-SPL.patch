@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Wed, 22 Jul 2026 11:16:56 +0800
+Subject: [PATCH] arm64: dts: ti: iot2050: Keep SPI NOR in SPL
+
+SPL device-tree pruning can remove the SPI NOR child while retaining the
+Cadence QSPI controller. The controller then lacks the flash properties
+needed to probe the boot device, causing SPI boot to fail on bus 0.
+
+Mark the SPI NOR node bootph-pre-ram so SPL retains its compatible,
+chip-select, and timing properties without retaining it in later boot
+phases unnecessarily.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi b/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
+index 9f3824555ab0..bd870bea4ce3 100644
+--- a/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
++++ b/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
+@@ -500,6 +500,7 @@
+ 		cdns,tchsh-ns = <60>;
+ 		cdns,tslch-ns = <60>;
+ 		cdns,read-delay = <2>;
++		bootph-pre-ram;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";

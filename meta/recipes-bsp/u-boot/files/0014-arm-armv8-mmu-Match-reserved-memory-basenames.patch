@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 23 Jul 2026 11:36:11 +0800
+Subject: [PATCH] arm: armv8: mmu: Match reserved-memory basenames
+
+K3 reserved-memory fixups recreate carveout nodes through
+fdtdec_add_reserved_memory(). That produces standard devicetree names
+with a unit-address suffix such as optee@9e800000.
+
+mmu_unmap_reserved_mem() currently looks up /reserved-memory/<name>
+verbatim. After the K3 fixups run, callers such as "tfa" and "optee"
+can no longer find the updated node and the unmap step reports a false
+failure.
+
+Preserve the existing exact-name lookup and fall back to matching a
+reserved-memory child with the requested basename followed by a
+unit-address suffix.
+
+If an exact-name node exists but cannot be used (for example because it
+lacks a usable reg entry or does not satisfy no-map), continue to try a
+name@... node before returning the original exact-node error. This keeps
+legacy exact-name behavior while handling mixed trees more robustly.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm/cpu/armv8/cache_v8.c    | 54 ++++++++++++++++++++++++++++----
+ arch/arm/include/asm/armv8/mmu.h |  2 +-
+ 2 files changed, 49 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/cpu/armv8/cache_v8.c b/arch/arm/cpu/armv8/cache_v8.c
+index 7c0e3f6d055e..89991231f9d1 100644
+--- a/arch/arm/cpu/armv8/cache_v8.c
++++ b/arch/arm/cpu/armv8/cache_v8.c
+@@ -85,21 +85,63 @@ int mmu_unmap_reserved_mem(const char *name, bool check_nomap)
+ {
+ 	void *fdt = (void *)gd->fdt_blob;
+ 	char node_path[128];
++	int reserved;
++	int subnode;
+ 	fdt_addr_t addr;
+ 	fdt_size_t size;
+ 	int ret;
++	int exact_node_err = -FDT_ERR_NOTFOUND;
++	int name_len;
++	const char *node_name;
+ 
+ 	snprintf(node_path, sizeof(node_path), "/reserved-memory/%s", name);
+ 	ret = fdt_path_offset(fdt, node_path);
++	if (ret >= 0) {
++		if (check_nomap && !fdtdec_get_bool(fdt, ret, "no-map"))
++			exact_node_err = -EINVAL;
++		else {
++			addr = fdtdec_get_addr_size(fdt, ret, "reg", &size);
++			if (addr != FDT_ADDR_T_NONE)
++				goto unmap;
++
++			exact_node_err = -1;
++		}
++	}
++
++	reserved = fdt_path_offset(fdt, "/reserved-memory");
++	if (reserved < 0)
++		return reserved;
++
++	name_len = strlen(name);
++	ret = -FDT_ERR_NOTFOUND;
++	fdt_for_each_subnode(subnode, fdt, reserved) {
++		node_name = fdt_get_name(fdt, subnode, NULL);
++		if (!node_name || strncmp(node_name, name, name_len))
++			continue;
++		if (node_name[name_len] != '@')
++			continue;
++
++		if (check_nomap && !fdtdec_get_bool(fdt, subnode, "no-map"))
++			continue;
++
++		addr = fdtdec_get_addr_size(fdt, subnode, "reg", &size);
++		if (addr == FDT_ADDR_T_NONE)
++			continue;
++
++		ret = subnode;
++		break;
++	}
++
++	/*
++	 * If an exact-name node exists but is unusable, prefer returning its
++	 * original error after name@... fallback also fails.
++	 */
++	if (ret < 0 && exact_node_err != -FDT_ERR_NOTFOUND)
++		return exact_node_err;
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (check_nomap && !fdtdec_get_bool(fdt, ret, "no-map"))
+-		return -EINVAL;
+-
+-	addr = fdtdec_get_addr_size(fdt, ret, "reg", &size);
+-	if (addr == FDT_ADDR_T_NONE)
+-		return -1;
++unmap:
+ 
+ 	mmu_change_region_attr_nobreak(addr, size, PTE_TYPE_FAULT);
+ 
+diff --git a/arch/arm/include/asm/armv8/mmu.h b/arch/arm/include/asm/armv8/mmu.h
+index 5359b2ad87bb..e009f2f150dc 100644
+--- a/arch/arm/include/asm/armv8/mmu.h
++++ b/arch/arm/include/asm/armv8/mmu.h
+@@ -211,7 +211,7 @@ int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs);
+  * mmu_unmap_reserved_mem() - Unmaps a reserved-memory node as PTE_TYPE_FAULT
+  * once MMU is configured by mmu_setup.
+  *
+- * @name: The name of the node under "/reserved-memory/" path
++ * @name: The basename of the node under "/reserved-memory/"
+  * @check_nomap: Check if the node is marked "no-map" before unmapping it
+  */
+ int mmu_unmap_reserved_mem(const char *name, bool check_nomap);
