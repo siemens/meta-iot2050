@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Sun, 12 Jul 2026 01:03:19 +0800
+Subject: [PATCH] plat-k3: main: Provide plat_rng_init stub
+
+tee_cryp_init() calls plat_rng_init() unconditionally, but the weak
+default implementation aliasing __plat_rng_init() is only compiled with
+CFG_INSECURE=y. Product builds with CFG_INSECURE=n therefore fail to
+link on K3 with an undefined reference to plat_rng_init.
+
+K3 uses the SA2UL/EIP76 hardware TRNG (CFG_WITH_SOFTWARE_PRNG=n), which
+is initialized via service_init_crypto(sa2ul_init), so no software PRNG
+seeding is needed here. Provide an empty plat_rng_init() to satisfy the
+linker.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ core/arch/arm/plat-k3/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/core/arch/arm/plat-k3/main.c b/core/arch/arm/plat-k3/main.c
+index 0fdb12ce12d6..daa26c710596 100644
+--- a/core/arch/arm/plat-k3/main.c
++++ b/core/arch/arm/plat-k3/main.c
+@@ -83,6 +83,10 @@ static TEE_Result init_ti_sci(void)
+  */
+ early_init_late(init_ti_sci);
+ 
++void plat_rng_init(void)
++{
++}
++
+ static TEE_Result secure_boot_information(void)
+ {
+ 	uint32_t keycnt = 0;
