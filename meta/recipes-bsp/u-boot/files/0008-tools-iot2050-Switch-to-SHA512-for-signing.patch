@@ -3,6 +3,8 @@ From: Li Hua Qian <huaqian.li@siemens.com>
 Date: Tue, 27 Jan 2026 13:02:48 +0800
 Subject: [PATCH] tools: iot2050: Switch to SHA512 for signing
 
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+
 ---
  tools/iot2050-sign-fw.sh | 4 ++--
  tools/key2dtsi.py        | 4 ++--
@@ -23,10 +25,10 @@ index 82b4bbc65e90..529740ecf140 100755
 +$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k "$KEY" -a sha512,rsa4096 \
  	$PROPQUERY_PARA fit@380000
 diff --git a/tools/key2dtsi.py b/tools/key2dtsi.py
-index 1dbb2cc94bf1..1397941e6114 100755
+index 66facc02d87a..a3dae07e770d 100755
 --- a/tools/key2dtsi.py
 +++ b/tools/key2dtsi.py
-@@ -19,8 +19,8 @@ def int_to_bytestr(n, length=None):
+@@ -17,8 +17,8 @@ def int_to_bytestr(n, bits):
  
  ap = ArgumentParser(description='Public key to dtsi converter')
  

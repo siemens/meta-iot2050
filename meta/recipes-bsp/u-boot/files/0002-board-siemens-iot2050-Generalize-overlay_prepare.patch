@@ -11,10 +11,10 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
  1 file changed, 15 insertions(+), 10 deletions(-)
 
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index e6bedc389173..615a1d7facf1 100644
+index 79cf34b40eb5..29f16d35729d 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
-@@ -258,12 +258,13 @@ void set_board_info_env(void)
+@@ -270,12 +270,13 @@ void set_board_info_env(void)
  	env_save();
  }
  
@@ -30,12 +30,12 @@ index e6bedc389173..615a1d7facf1 100644
  	int ret;
  
  	node = ofnode_path(overlay_path);
-@@ -274,21 +275,24 @@ static void do_overlay_prepare(const char *overlay_path)
+@@ -286,21 +287,24 @@ static void do_overlay_prepare(const char *overlay_path)
  	if (ret)
  		goto fit_error;
  
 -	ret = ofnode_read_u32(node, "size", &connector_overlay_size);
-+	ret = ret = ofnode_read_u32(node, "size", &size);
++	ret = ofnode_read_u32(node, "size", &size);
  	if (ret)
  		goto fit_error;
  
@@ -56,13 +56,13 @@ index e6bedc389173..615a1d7facf1 100644
 +	return result;
  
  fit_error:
--	pr_err("M.2 device tree overlay %s not available,\n", overlay_path);
+-	pr_err("M.2 device tree overlay %s not available.\n", overlay_path);
 +	pr_err("Device tree overlay %s not available.\n", overlay_path);
 +	return NULL;
  #endif
  }
  
-@@ -304,7 +308,8 @@ static void m2_overlay_prepare(void)
+@@ -316,7 +320,8 @@ static void m2_overlay_prepare(void)
  	else
  		overlay_path = "/fit-images/bkey-usb3-overlay";
  

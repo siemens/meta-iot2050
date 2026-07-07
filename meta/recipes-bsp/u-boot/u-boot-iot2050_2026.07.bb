@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2022-2025
+# Copyright (c) Siemens AG, 2022-2026
 #
 # Authors:
 #  Su Baocheng <baocheng.su@siemens.com>
@@ -11,7 +11,7 @@
 
 require u-boot-iot2050.inc
 
-PR = "3"
+PR = "1"
 
 SRC_URI += " \
     https://ftp.denx.de/pub/u-boot/u-boot-${PV}.tar.bz2 \
@@ -24,8 +24,13 @@ SRC_URI += " \
     file://0007-dts-k3-am65-iot2050-Switch-to-SHA512-for-FIT-image-p.patch \
     file://0008-tools-iot2050-Switch-to-SHA512-for-signing.patch \
     file://0009-lib-efi_loader-Silence-missing-EFI-var-file-on-first.patch \
+    file://0010-tools-fdtgrep-Preserve-padding-in-SPL-control-DTB.patch \
+    file://0011-configs-iot2050-Add-padding-for-K3-FDT-fixups.patch \
+    file://0012-arm64-dts-ti-iot2050-Keep-SPI-NOR-node-in-SPL.patch \
+    file://0013-arm-k3-Fix-SPL-reserved-memory-fixup-order.patch \
+    file://0014-arm-armv8-mmu-Match-reserved-memory-basenames.patch \
     "
 
-SRC_URI[sha256sum] = "439d3bef296effd54130be6a731c5b118be7fddd7fcc663ccbc5fb18294d8718"
+SRC_URI[sha256sum] = "78e8bfc382fe388f9b55aa1daf8c563522a037779b5d4c349d1415e381f1243e"
 
 S = "${WORKDIR}/u-boot-${PV}"
