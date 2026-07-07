@@ -1,9 +1,10 @@
 #
-# Copyright (c) Siemens AG, 2020-2023
+# Copyright (c) Siemens AG, 2020-2026
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
 #  Su Bao Cheng <baocheng.su@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
