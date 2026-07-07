@@ -1,0 +1,168 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 23 Jul 2026 11:36:11 +0800
+Subject: [PATCH] arm: k3: Fix SPL reserved-memory fixup order
+
+AM65x SPL runs fdtdec_setup() and dm_init_and_scan() from
+spl_early_init() before enable_caches() is reached.
+
+When reserved-memory fixups are deferred until enable_caches(), they
+rewrite the live control FDT after driver model has already bound
+devices against it. On IOT2050 this leaves Cadence QSPI with stale DT
+references, so SPI boot loses the flash child node and fails on bus 0.
+
+Run the SPL reserved-memory fixups from fdtdec_board_setup() instead.
+That hook executes after the control DTB is prepared but before driver
+model scans it, so DM sees the updated tree from the start.
+
+Build fdtdec_board_setup() regardless of DFU/USB_STORAGE so SPL fixups
+always run. Keep the USB-specific fixup itself conditional.
+
+Also match existing reserved-memory carveouts by configured load
+address when applying TFA/OP-TEE fixups. Boards like IOT2050 may use a
+board-specific node name (for example secure-ddr@...) instead of
+optee@..., so address-based matching avoids leaving stale names that
+later lookups miss.
+
+Only apply reserved-memory fixups when the configured TFA/OP-TEE load
+address is in DDR. On AM65x, TFA can reside in MSMC SRAM at 0x70000000.
+Creating a no-map reserved-memory node for that non-DRAM address causes
+Linux mmio-sram to fail probing and breaks icssg-prueth SRAM pool
+allocation.
+
+Keep the previous fail-open behavior in SPL by logging fixup errors
+instead of aborting early. This avoids turning existing non-fatal DT
+issues into a boot regression while still fixing the ordering bug.
+
+enable_caches() still performs the fixups for non-SPL builds.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm/mach-k3/am65x/am654_init.c | 20 +++++++++++++++++++-
+ arch/arm/mach-k3/common.c           | 10 ++++++----
+ arch/arm/mach-k3/common_fdt.c       | 30 ++++++++++++++++++++----------
+ 3 files changed, 46 insertions(+), 14 deletions(-)
+
+diff --git a/arch/arm/mach-k3/am65x/am654_init.c b/arch/arm/mach-k3/am65x/am654_init.c
+index a4f038029d7c..7590b1f96139 100644
+--- a/arch/arm/mach-k3/am65x/am654_init.c
++++ b/arch/arm/mach-k3/am65x/am654_init.c
+@@ -17,6 +17,7 @@
+ #include <dm/pinctrl.h>
+ #include <linux/soc/ti/ti_sci_protocol.h>
+ #include <log.h>
++#include <mach/k3-common-fdt.h>
+ #include <mmc.h>
+ #include <stdlib.h>
+ 
+@@ -142,11 +143,28 @@ static int fixup_usb_boot(void)
+ 	return 0;
+ }
+ 
++#else
++
++static int fixup_usb_boot(void)
++{
++	return 0;
++}
++
++#endif
++
+ int fdtdec_board_setup(const void *fdt_blob)
+ {
++	int ret;
++
++	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
++		ret = fdt_fixup_reserved((void *)fdt_blob);
++		if (ret)
++			printf("%s: Failed to perform reserved-memory fixups (%s)\n",
++			       __func__, fdt_strerror(ret));
++	}
++
+ 	return fixup_usb_boot();
+ }
+-#endif
+ 
+ static void setup_am654_navss_northbridge(void)
+ {
+diff --git a/arch/arm/mach-k3/common.c b/arch/arm/mach-k3/common.c
+index 19a6e24f38b2..56df43fe90a7 100644
+--- a/arch/arm/mach-k3/common.c
++++ b/arch/arm/mach-k3/common.c
+@@ -273,10 +273,12 @@ void enable_caches(void)
+ 	if (ret)
+ 		debug("%s: Failed to setup dram banks\n", __func__);
+ 
+-	ret = fdt_fixup_reserved(fdt);
+-	if (ret)
+-		printf("%s: Failed to perform reserved-memory fixups (%s)\n",
+-		       __func__, fdt_strerror(ret));
++	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
++		ret = fdt_fixup_reserved(fdt);
++		if (ret)
++			printf("%s: Failed to perform reserved-memory fixups (%s)\n",
++			       __func__, fdt_strerror(ret));
++	}
+ 
+ 	mmu_setup();
+ 
+diff --git a/arch/arm/mach-k3/common_fdt.c b/arch/arm/mach-k3/common_fdt.c
+index 39cb00c3f439..9f5849525aed 100644
+--- a/arch/arm/mach-k3/common_fdt.c
++++ b/arch/arm/mach-k3/common_fdt.c
+@@ -134,18 +134,23 @@ static int fdt_fixup_reserved_memory(void *blob, const char *name,
+ 		const char *node_name;
+ 		fdt_addr_t addr;
+ 		fdt_size_t size;
++		bool name_match;
+ 
+ 		/* Name matching */
+ 		node_name = fdt_get_name(blob, subnode, NULL);
+ 		if (!name)
+ 			return -EINVAL;
+-		if (!strncmp(node_name, name, strlen(name))) {
+-			/* Read out old size first */
+-			addr = fdtdec_get_addr_size_auto_parent(
+-				blob, nodeoffset, subnode, "reg", 0, &size,
+-				false);
+-			if (addr == FDT_ADDR_T_NONE)
+-				return -EINVAL;
++		name_match = !strncmp(node_name, name, strlen(name));
++
++		/* Read carveout address/size once for both name and address matching */
++		addr = fdtdec_get_addr_size_auto_parent(blob, nodeoffset, subnode,
++						      "reg", 0, &size, false);
++		if (name_match && addr == FDT_ADDR_T_NONE)
++			return -EINVAL;
++		if (addr == FDT_ADDR_T_NONE)
++			continue;
++
++		if (name_match || addr == new_address) {
+ 			new_size = size;
+ 
+ 			/* Delete node */
+@@ -168,12 +173,17 @@ int fdt_fixup_reserved(void *blob)
+ {
+ 	int ret;
+ 
+-	ret = fdt_fixup_reserved_memory(blob, "tfa", CONFIG_K3_ATF_LOAD_ADDR,
+-					CONFIG_K3_ATF_RESERVED_SIZE);
+-	if (ret)
+-		return ret;
++	if (CONFIG_K3_ATF_LOAD_ADDR >= CFG_SYS_SDRAM_BASE) {
++		ret = fdt_fixup_reserved_memory(blob, "tfa", CONFIG_K3_ATF_LOAD_ADDR,
++						CONFIG_K3_ATF_RESERVED_SIZE);
++		if (ret)
++			return ret;
++	}
++
++	if (CONFIG_K3_OPTEE_LOAD_ADDR >= CFG_SYS_SDRAM_BASE)
++		return fdt_fixup_reserved_memory(blob, "optee",
++						 CONFIG_K3_OPTEE_LOAD_ADDR,
++						 CONFIG_K3_OPTEE_RESERVED_SIZE);
+ 
+-	return fdt_fixup_reserved_memory(blob, "optee",
+-					 CONFIG_K3_OPTEE_LOAD_ADDR,
+-					 CONFIG_K3_OPTEE_RESERVED_SIZE);
++	return 0;
+ }

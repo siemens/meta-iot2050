@@ -19,10 +19,10 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  11 files changed, 150 insertions(+), 32 deletions(-)
 
 diff --git a/include/image.h b/include/image.h
-index 07912606f338..f13d6007778e 100644
+index 34efac6056dd..54ce8db40008 100644
 --- a/include/image.h
 +++ b/include/image.h
-@@ -1307,6 +1307,7 @@ struct image_summary {
+@@ -1312,6 +1312,7 @@ struct image_summary {
   * @comment:	Comment to add to signature nodes
   * @require_keys: Mark all keys as 'required'
   * @engine_id:	Engine to use for signing
@@ -30,7 +30,7 @@ index 07912606f338..f13d6007778e 100644
   * @cmdname:	Command name used when reporting errors
   * @algo_name:	Algorithm name, or NULL if to be read from FIT
   * @summary:	Returns information about what data was written
-@@ -1324,7 +1325,8 @@ struct image_summary {
+@@ -1329,7 +1330,8 @@ struct image_summary {
  int fit_add_verification_data(const char *keydir, const char *keyfile,
  			      void *keydest, void *fit, const char *comment,
  			      int require_keys, const char *engine_id,
@@ -40,7 +40,7 @@ index 07912606f338..f13d6007778e 100644
  			      struct image_summary *summary);
  
  /**
-@@ -1511,6 +1513,7 @@ struct image_sign_info {
+@@ -1516,6 +1518,7 @@ struct image_sign_info {
  	int required_keynode;		/* Node offset of key to use: -1=any */
  	const char *require_keys;	/* Value for 'required' property */
  	const char *engine_id;		/* Engine to use for signing */
@@ -49,7 +49,7 @@ index 07912606f338..f13d6007778e 100644
  	 * Note: the following two fields are always valid even w/o
  	 * RSA_VERIFY_WITH_PKEY in order to make sure this structure is
 diff --git a/lib/rsa/rsa-sign.c b/lib/rsa/rsa-sign.c
-index fa9e143b4ca8..150b910f8339 100644
+index 0e38c9e802fd..72a5c77f7304 100644
 --- a/lib/rsa/rsa-sign.c
 +++ b/lib/rsa/rsa-sign.c
 @@ -20,6 +20,7 @@
@@ -146,10 +146,10 @@ index 9632ec115e5d..8aec02d6fbf4 100644
                                  help='Paths within file to sign (wildcard)')
  
 diff --git a/tools/binman/control.py b/tools/binman/control.py
-index e73c598298ce..0ad11c0de508 100644
+index 816f7c1eba26..014e796eb00c 100644
 --- a/tools/binman/control.py
 +++ b/tools/binman/control.py
-@@ -463,7 +463,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
+@@ -464,7 +464,7 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
      return image
  
  def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
@@ -158,7 +158,7 @@ index e73c598298ce..0ad11c0de508 100644
      """Sign and replace the data from one or more entries from input files
  
      Args:
-@@ -474,6 +474,7 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
+@@ -475,6 +475,7 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
          entry_paths: List of entry paths to sign
          privatekey_fname: Private key filename
          write_map (bool): True to write the map file
@@ -166,7 +166,7 @@ index e73c598298ce..0ad11c0de508 100644
      """
      image_fname = os.path.abspath(image_fname)
      image = Image.FromFile(image_fname)
-@@ -484,7 +485,7 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
+@@ -485,7 +486,7 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
  
      for entry_path in entry_paths:
          entry = image.FindEntryPath(entry_path)
@@ -175,7 +175,7 @@ index e73c598298ce..0ad11c0de508 100644
  
      AfterReplace(image, allow_resize=True, write_map=write_map)
  
-@@ -791,7 +792,8 @@ def Binman(args):
+@@ -868,7 +869,8 @@ def Binman(args):
                                 allow_resize=not args.fix_size, write_map=args.map)
  
              if args.cmd == 'sign':
@@ -186,10 +186,10 @@ index e73c598298ce..0ad11c0de508 100644
              if args.cmd == 'tool':
                  if args.list:
 diff --git a/tools/binman/entry.py b/tools/binman/entry.py
-index bdc60e47fcab..3508664dda6b 100644
+index ce7ef28e94b1..2da4e64c31a0 100644
 --- a/tools/binman/entry.py
 +++ b/tools/binman/entry.py
-@@ -1404,7 +1404,7 @@ features to produce new behaviours.
+@@ -1407,7 +1407,7 @@ features to produce new behaviours.
              for entry in entries.values():
                  entry.mark_build_done()
  
@@ -199,10 +199,10 @@ index bdc60e47fcab..3508664dda6b 100644
  
      def FdtContents(self, fdt_etype):
 diff --git a/tools/binman/etype/fit.py b/tools/binman/etype/fit.py
-index 803fb66ea838..36472d1f666d 100644
+index f28b1e6b4cb3..fd5f587beee0 100644
 --- a/tools/binman/etype/fit.py
 +++ b/tools/binman/etype/fit.py
-@@ -1053,9 +1053,13 @@ class Entry_fit(Entry_section):
+@@ -1139,9 +1139,13 @@ class Entry_fit(Entry_section):
      def CheckEntries(self):
          pass
  
@@ -219,10 +219,10 @@ index 803fb66ea838..36472d1f666d 100644
              fname = input_fname
          else:
 diff --git a/tools/fit_image.c b/tools/fit_image.c
-index caed8d5f9019..21f659bb531a 100644
+index 1dbc14c63e48..5cd576ae9f2e 100644
 --- a/tools/fit_image.c
 +++ b/tools/fit_image.c
-@@ -78,6 +78,7 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
+@@ -138,6 +138,7 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
  						params->comment,
  						params->require_keys,
  						params->engine_id,
@@ -231,10 +231,10 @@ index caed8d5f9019..21f659bb531a 100644
  						params->algo_name,
  						&params->summary);
 diff --git a/tools/image-host.c b/tools/image-host.c
-index e6de34fa059b..a4d84850609f 100644
+index 8b550af0dc17..967a6e4716f4 100644
 --- a/tools/image-host.c
 +++ b/tools/image-host.c
-@@ -166,7 +166,8 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
+@@ -171,7 +171,8 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
  static int fit_image_setup_sig(struct image_sign_info *info,
  		const char *keydir, const char *keyfile, void *fit,
  		const char *image_name, int noffset, const char *require_keys,
@@ -244,7 +244,7 @@ index e6de34fa059b..a4d84850609f 100644
  {
  	const char *node_name;
  	const char *padding_name;
-@@ -195,6 +196,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
+@@ -200,6 +201,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
  	info->padding = image_get_padding_algo(padding_name);
  	info->require_keys = require_keys;
  	info->engine_id = engine_id;
@@ -252,7 +252,7 @@ index e6de34fa059b..a4d84850609f 100644
  	if (!info->checksum || !info->crypto) {
  		fprintf(stderr,
  			"Unsupported signature algorithm (%s) for '%s' signature node in '%s' image node\n",
-@@ -239,7 +241,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
+@@ -244,7 +246,7 @@ static int fit_image_process_sig(const char *keydir, const char *keyfile,
  
  	if (fit_image_setup_sig(&info, keydir, keyfile, fit, image_name,
  				noffset, require_keys ? "image" : NULL,
@@ -261,7 +261,7 @@ index e6de34fa059b..a4d84850609f 100644
  		return -1;
  
  	node_name = fit_get_name(fit, noffset, NULL);
-@@ -1050,6 +1052,7 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
+@@ -1065,6 +1067,7 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
   * @comment:	Comment to add to signature nodes
   * @require_keys: Mark all keys as 'required'
   * @engine_id:	Engine to use for signing
@@ -269,7 +269,7 @@ index e6de34fa059b..a4d84850609f 100644
   * @cmdname:	Command name used when reporting errors
   * @return keydest node if @keydest is non-NULL, else 0 if none; -ve error code
   *	on failure
-@@ -1057,8 +1060,8 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
+@@ -1072,8 +1075,8 @@ static int fit_config_get_regions(const void *fit, int conf_noffset,
  static int fit_config_process_sig(const char *keydir, const char *keyfile,
  		void *keydest, void *fit, const char *conf_name,
  		int conf_noffset, int noffset, const char *comment,
@@ -280,7 +280,7 @@ index e6de34fa059b..a4d84850609f 100644
  {
  	struct image_sign_info info;
  	const char *node_name;
-@@ -1078,7 +1081,7 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
+@@ -1093,7 +1096,7 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
  
  	if (fit_image_setup_sig(&info, keydir, keyfile, fit, conf_name, noffset,
  				require_keys ? "conf" : NULL, engine_id,
@@ -289,7 +289,7 @@ index e6de34fa059b..a4d84850609f 100644
  		return -1;
  
  	ret = info.crypto->sign(&info, region, region_count, &value,
-@@ -1128,8 +1131,8 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
+@@ -1143,8 +1146,8 @@ static int fit_config_process_sig(const char *keydir, const char *keyfile,
  static int fit_config_add_verification_data(const char *keydir,
  		const char *keyfile, void *keydest, void *fit, int conf_noffset,
  		const char *comment, int require_keys, const char *engine_id,
@@ -300,7 +300,7 @@ index e6de34fa059b..a4d84850609f 100644
  {
  	const char *conf_name;
  	int noffset;
-@@ -1148,7 +1151,8 @@ static int fit_config_add_verification_data(const char *keydir,
+@@ -1163,7 +1166,8 @@ static int fit_config_add_verification_data(const char *keydir,
  			     strlen(FIT_SIG_NODENAME))) {
  			ret = fit_config_process_sig(keydir, keyfile, keydest,
  				fit, conf_name, conf_noffset, noffset, comment,
@@ -310,7 +310,7 @@ index e6de34fa059b..a4d84850609f 100644
  			if (ret < 0)
  				return ret;
  
-@@ -1317,7 +1321,8 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
+@@ -1332,7 +1336,8 @@ int fit_cipher_data(const char *keydir, void *keydest, void *fit,
  int fit_add_verification_data(const char *keydir, const char *keyfile,
  			      void *keydest, void *fit, const char *comment,
  			      int require_keys, const char *engine_id,
@@ -320,7 +320,7 @@ index e6de34fa059b..a4d84850609f 100644
  			      struct image_summary *summary)
  {
  	int images_noffset, confs_noffset;
-@@ -1370,8 +1375,9 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
+@@ -1385,8 +1390,9 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
  		ret = fit_config_add_verification_data(keydir, keyfile, keydest,
  						       fit, noffset, comment,
  						       require_keys,
@@ -333,7 +333,7 @@ index e6de34fa059b..a4d84850609f 100644
  			return ret;
  	}
 diff --git a/tools/imagetool.h b/tools/imagetool.h
-index 57be608210aa..6be19eb4aa9e 100644
+index d0e7d6d56e38..c14be71e5795 100644
 --- a/tools/imagetool.h
 +++ b/tools/imagetool.h
 @@ -97,6 +97,7 @@ struct image_tool_params {
@@ -343,7 +343,7 @@ index 57be608210aa..6be19eb4aa9e 100644
 +	const char *propquery;	/* Property query to use for signing */
  	bool reset_timestamp;	/* Reset the timestamp on an existing image */
  	struct image_summary summary;	/* results of signing process */
- };
+ 	char *fit_tfa_bl31;	/* TFA BL31 file to include */
 diff --git a/tools/iot2050-sign-fw.sh b/tools/iot2050-sign-fw.sh
 index 75ffd560823c..82b4bbc65e90 100755
 --- a/tools/iot2050-sign-fw.sh
@@ -435,10 +435,10 @@ index 75ffd560823c..82b4bbc65e90 100755
 +$TOOLS_DIR/binman/binman sign -i flash-pg2.bin -k "$KEY" -a sha256,rsa4096 \
 +	$PROPQUERY_PARA fit@380000
 diff --git a/tools/mkimage.c b/tools/mkimage.c
-index ac62ebbde9bc..97711c3daefd 100644
+index 3c43962807d9..d086cb7ab04a 100644
 --- a/tools/mkimage.c
 +++ b/tools/mkimage.c
-@@ -117,7 +117,7 @@ static void usage(const char *msg)
+@@ -121,7 +121,7 @@ static void usage(const char *msg)
  		"          -t => update the timestamp in the FIT\n");
  #if CONFIG_IS_ENABLED(FIT_SIGNATURE)
  	fprintf(stderr,
@@ -447,7 +447,7 @@ index ac62ebbde9bc..97711c3daefd 100644
  		"          -k => set directory containing private keys\n"
  		"          -K => write public keys to this .dtb file\n"
  		"          -g => set key name hint\n"
-@@ -127,6 +127,7 @@ static void usage(const char *msg)
+@@ -131,6 +131,7 @@ static void usage(const char *msg)
  		"          -p => place external data at a static position\n"
  		"          -r => mark keys used as 'required' in dtb\n"
  		"          -N => openssl engine to use for signing\n"
@@ -455,16 +455,16 @@ index ac62ebbde9bc..97711c3daefd 100644
  		"          -o => algorithm to use for signing\n");
  #else
  	fprintf(stderr,
-@@ -160,7 +161,7 @@ static int add_content(int type, const char *fname)
+@@ -164,7 +165,7 @@ static int add_content(int type, const char *fname)
  }
  
  static const char optstring[] =
--	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVx";
-+	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:P:qrR:stT:vVx";
+-	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVxy:Y:z:Z:";
++	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:P:qrR:stT:vVxy:Y:z:Z:";
  
  static const struct option longopts[] = {
  	{ "load-address", required_argument, NULL, 'a' },
-@@ -187,6 +188,7 @@ static const struct option longopts[] = {
+@@ -191,6 +192,7 @@ static const struct option longopts[] = {
  	{ "algo", required_argument, NULL, 'o' },
  	{ "os", required_argument, NULL, 'O' },
  	{ "position", required_argument, NULL, 'p' },
@@ -472,7 +472,7 @@ index ac62ebbde9bc..97711c3daefd 100644
  	{ "quiet", no_argument, NULL, 'q' },
  	{ "key-required", no_argument, NULL, 'r' },
  	{ "secondary-config", required_argument, NULL, 'R' },
-@@ -327,6 +329,9 @@ static void process_args(int argc, char **argv)
+@@ -336,6 +338,9 @@ static void process_args(int argc, char **argv)
  				exit(EXIT_FAILURE);
  			}
  			break;

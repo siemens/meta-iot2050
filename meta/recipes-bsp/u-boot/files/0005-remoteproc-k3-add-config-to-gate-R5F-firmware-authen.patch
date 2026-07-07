@@ -20,20 +20,20 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  3 files changed, 16 insertions(+)
 
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
-index ad200bd563b0..f94afa8cb55a 100644
+index 23f5c576f5b0..ee0939c09864 100644
 --- a/configs/iot2050_defconfig
 +++ b/configs/iot2050_defconfig
-@@ -153,4 +153,5 @@ CONFIG_USB_KEYBOARD=y
+@@ -146,4 +146,5 @@ CONFIG_USB_KEYBOARD=y
  # CONFIG_WATCHDOG_AUTOSTART is not set
  CONFIG_WDT=y
  CONFIG_WDT_K3_RTI=y
 +# CONFIG_K3_RPROC_FIRMWARE_AUTH is not set
  CONFIG_WDT_K3_RTI_LOAD_FW=y
 diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
-index 2790b168b198..32f971fa92cd 100644
+index 7f9e35283f9a..7526824e7714 100644
 --- a/drivers/remoteproc/Kconfig
 +++ b/drivers/remoteproc/Kconfig
-@@ -70,9 +70,20 @@ config REMOTEPROC_TI_K3_DSP
+@@ -108,9 +108,20 @@ config REMOTEPROC_TI_K3_M4F
  	  on various TI K3 family of SoCs through the remote processor
  	  framework.
  
@@ -55,18 +55,18 @@ index 2790b168b198..32f971fa92cd 100644
  	depends on TI_SCI_PROTOCOL
  	help
 diff --git a/drivers/remoteproc/ti_k3_r5f_rproc.c b/drivers/remoteproc/ti_k3_r5f_rproc.c
-index d78b3fa1bbd1..086d3c738fd0 100644
+index 7326f5a4b30b..2000b9df9838 100644
 --- a/drivers/remoteproc/ti_k3_r5f_rproc.c
 +++ b/drivers/remoteproc/ti_k3_r5f_rproc.c
-@@ -334,7 +334,11 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
- 
+@@ -343,7 +343,11 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
  	k3_r5f_init_tcm_memories(core, mem_auto_init);
  
+ 	size_img = size;
 +#if IS_ENABLED(CONFIG_K3_RPROC_FIRMWARE_AUTH)
- 	ti_secure_image_post_process(&image_addr, &size);
+ 	ti_secure_image_post_process(&image_addr, &size_img);
 +#else
 +	dev_dbg(dev, "Skipping remoteproc firmware authentication\n");
 +#endif
+ 	size = size_img;
  
- 	ret = rproc_elf_load_image(dev, addr, size);
- 	if (ret < 0) {
+ 	ret = rproc_elf_load_image(dev, (ulong)image_addr, size);
