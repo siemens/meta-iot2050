@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Thu, 9 Jul 2026 10:37:18 +0800
+Subject: [PATCH] arm64: dts: ti: iot2050: Disable UHS modes on sdhci1
+
+Systems equipped with the EC20 modem may fail to boot from SD card due
+to instability on the shared 1.8V signaling rail used for MMC UHS
+operation.
+
+Disable 1.8V signaling on sdhci1 to prevent the controller from
+switching to UHS modes.
+
+While this limits the maximum SD card transfer rate, the impact on
+IOT2050 workloads is negligible compared with the benefit of improved
+boot reliability.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
+index b3c4c0eec3dc..149bc29ef356 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
+@@ -1,10 +1,11 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) Siemens AG, 2021-2023
++ * Copyright (c) Siemens AG, 2021-2026
+  *
+  * Authors:
+  *   Chao Zeng <chao.zeng@siemens.com>
+  *   Jan Kiszka <jan.kiszka@siemens.com>
++ *   Li Hua Qian <huaqian.li@siemens.com>
+  *
+  * Common bits of the IOT2050 Basic and Advanced variants, PG2
+  */
+@@ -33,3 +34,7 @@ &dss {
+ 	/* Workaround needed to get DP clock of 154Mhz */
+ 	assigned-clocks = <&k3_clks 67 0>;
+ };
++
++&sdhci1 {
++	no-1-8-v;
++};
