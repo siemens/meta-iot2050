@@ -10,11 +10,11 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  include/mraa_internal_types.h  |  19 +-
  src/CMakeLists.txt             |   1 +
  src/arm/siemens/iot2050.c      |   6 +-
- src/gpio/gpio.c                | 658 ++++++++++++++++++++++++---------
+ src/gpio/gpio.c                | 684 ++++++++++++++++++++++++---------
  src/gpio/gpio_chardev.c        |  23 +-
  src/gpio/gpio_chardev_v2.c     | 204 ++++++++++
  src/mraa.c                     |   2 +-
- 9 files changed, 842 insertions(+), 200 deletions(-)
+ 9 files changed, 868 insertions(+), 200 deletions(-)
  create mode 100644 include/gpio/gpio_chardev_v2.h
  create mode 100644 src/gpio/gpio_chardev_v2.c
 
@@ -254,7 +254,7 @@ index df60ed0e51e0..8c76c244f6a8 100644
      b->adc_supported = 12;
      b->pwm_default_period = 1000; /*us*/
 diff --git a/src/gpio/gpio.c b/src/gpio/gpio.c
-index 5ea1c4b53a91..332c36f8028b 100644
+index 5ea1c4b53a91..1d88146e0486 100644
 --- a/src/gpio/gpio.c
 +++ b/src/gpio/gpio.c
 @@ -7,6 +7,7 @@
@@ -871,7 +871,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
  {
      int line_handle;
      unsigned flags = 0;
-@@ -1266,6 +1412,55 @@ mraa_gpio_chardev_dir(mraa_gpio_context dev, mraa_gpio_dir_t dir)
+@@ -1266,6 +1412,81 @@ mraa_gpio_chardev_dir(mraa_gpio_context dev, mraa_gpio_dir_t dir)
      return MRAA_SUCCESS;
  }
  
@@ -889,7 +889,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
 +            return MRAA_ERROR_INVALID_RESOURCE;
 +        }
 +
-+        flags &= ~GPIO_V2_LINE_FLAG_USED;
++        int need_reconfig = 1;
 +
 +        switch (dir) {
 +            case MRAA_GPIO_OUT_HIGH:
@@ -897,7 +897,8 @@ index 5ea1c4b53a91..332c36f8028b 100644
 +            case MRAA_GPIO_OUT:
 +                if (flags & GPIO_V2_LINE_FLAG_OUTPUT) {
 +                    syslog(LOG_DEBUG, "[GPIOD_INTERFACE]: line already configured as output");
-+                    return MRAA_SUCCESS;
++                    need_reconfig = 0;
++                    break;
 +                }
 +                flags |= GPIO_V2_LINE_FLAG_OUTPUT;
 +                flags &= ~GPIO_V2_LINE_FLAG_INPUT;
@@ -905,7 +906,8 @@ index 5ea1c4b53a91..332c36f8028b 100644
 +            case MRAA_GPIO_IN:
 +                if (flags & GPIO_V2_LINE_FLAG_INPUT) {
 +                    syslog(LOG_DEBUG, "[GPIOD_INTERFACE]: line already configured as input");
-+                    return MRAA_SUCCESS;
++                    need_reconfig = 0;
++                    break;
 +                }
 +                flags |= GPIO_V2_LINE_FLAG_INPUT;
 +                flags &= ~GPIO_V2_LINE_FLAG_OUTPUT;
@@ -914,10 +916,34 @@ index 5ea1c4b53a91..332c36f8028b 100644
 +                return MRAA_ERROR_FEATURE_NOT_IMPLEMENTED;
 +        }
 +
-+        ret = mraa_gpiod_reconfig_lines(gpio_iter->line_request_fd, flags);
-+        if (ret != 0) {
-+            syslog(LOG_ERR, "[GPIOD_INTERFACE]: error reconfiguring line flags: %d", ret);
-+            return MRAA_ERROR_INVALID_RESOURCE;
++        if (need_reconfig) {
++            flags &= ~GPIO_V2_LINE_FLAG_USED;
++            ret = mraa_gpiod_reconfig_lines(gpio_iter->line_request_fd, flags);
++            if (ret != 0) {
++                syslog(LOG_ERR, "[GPIOD_INTERFACE]: error reconfiguring line flags: %d", ret);
++                return MRAA_ERROR_INVALID_RESOURCE;
++            }
++        }
++
++        if ((dir == MRAA_GPIO_OUT_LOW) || (dir == MRAA_GPIO_OUT_HIGH)) {
++            unsigned char* values = (unsigned char*) calloc(gpio_iter->num_gpio_lines, sizeof(unsigned char));
++            if (!values) {
++                syslog(LOG_ERR, "[GPIOD_INTERFACE]: error allocating memory for values");
++                return MRAA_ERROR_NO_RESOURCES;
++            }
++
++            if (dir == MRAA_GPIO_OUT_LOW) {
++                memset(values, 0, gpio_iter->num_gpio_lines);
++            } else {
++                memset(values, 1, gpio_iter->num_gpio_lines);
++            }
++
++            ret = mraa_gpiod_set_values(gpio_iter->line_request_fd, gpio_iter->num_gpio_lines, values);
++            free(values);
++            if (ret != 0) {
++                syslog(LOG_ERR, "[GPIOD_INTERFACE]: error setting line values: %d", ret);
++                return MRAA_ERROR_INVALID_RESOURCE;
++            }
 +        }
 +    }
 +
@@ -927,7 +953,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
  static mraa_result_t
  gpio_sysfs_read_dir(mraa_gpio_context dev, int dir_fd, mraa_gpio_dir_t *dir)
  {
-@@ -1311,7 +1506,8 @@ mraa_gpio_dir(mraa_gpio_context dev, mraa_gpio_dir_t dir)
+@@ -1311,7 +1532,8 @@ mraa_gpio_dir(mraa_gpio_context dev, mraa_gpio_dir_t dir)
      }
  
      if (plat->chardev_capable)
@@ -937,7 +963,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
  
      mraa_gpio_context it = dev;
  
-@@ -1390,7 +1586,10 @@ mraa_gpio_read_dir(mraa_gpio_context dev, mraa_gpio_dir_t* dir)
+@@ -1390,7 +1612,10 @@ mraa_gpio_read_dir(mraa_gpio_context dev, mraa_gpio_dir_t* dir)
      mraa_result_t result = MRAA_SUCCESS;
  
      /* Initialize with 'unusable'. */
@@ -949,7 +975,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
  
      if (IS_FUNC_DEFINED(dev, gpio_read_dir_replace)) {
          return dev->advance_func->gpio_read_dir_replace(dev, dir);
-@@ -1401,25 +1600,37 @@ mraa_gpio_read_dir(mraa_gpio_context dev, mraa_gpio_dir_t* dir)
+@@ -1401,25 +1626,37 @@ mraa_gpio_read_dir(mraa_gpio_context dev, mraa_gpio_dir_t* dir)
  
          for_each_gpio_group(gpio_iter, dev)
          {
@@ -996,7 +1022,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
      } else {
          char filepath[MAX_SIZE];
          int fd;
-@@ -1509,22 +1720,32 @@ mraa_gpio_read_multi(mraa_gpio_context dev, int output_values[])
+@@ -1509,22 +1746,32 @@ mraa_gpio_read_multi(mraa_gpio_context dev, int output_values[])
          for_each_gpio_group(gpio_iter, dev)
          {
              int status;
@@ -1041,7 +1067,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
              }
  
              /* Write values back to the user provided array. */
-@@ -1634,22 +1855,31 @@ mraa_gpio_write_multi(mraa_gpio_context dev, int input_values[])
+@@ -1634,22 +1881,31 @@ mraa_gpio_write_multi(mraa_gpio_context dev, int input_values[])
          for_each_gpio_group(gpio_iter, dev)
          {
              int status;
@@ -1085,7 +1111,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
              }
          }
      } else {
-@@ -1832,6 +2062,60 @@ mraa_gpio_get_pin_raw(mraa_gpio_context dev)
+@@ -1832,6 +2088,60 @@ mraa_gpio_get_pin_raw(mraa_gpio_context dev)
      return dev->pin;
  }
  
@@ -1146,7 +1172,7 @@ index 5ea1c4b53a91..332c36f8028b 100644
  mraa_result_t
  mraa_gpio_input_mode(mraa_gpio_context dev, mraa_gpio_input_mode_t mode)
  {
-@@ -1840,6 +2124,10 @@ mraa_gpio_input_mode(mraa_gpio_context dev, mraa_gpio_input_mode_t mode)
+@@ -1840,6 +2150,10 @@ mraa_gpio_input_mode(mraa_gpio_context dev, mraa_gpio_input_mode_t mode)
          return MRAA_ERROR_INVALID_HANDLE;
      }
  
@@ -1222,7 +1248,7 @@ index 0c4636ea0701..dead3b380ac1 100644
      return ret;
 diff --git a/src/gpio/gpio_chardev_v2.c b/src/gpio/gpio_chardev_v2.c
 new file mode 100644
-index 000000000000..31c6f598e815
+index 000000000000..29e561695061
 --- /dev/null
 +++ b/src/gpio/gpio_chardev_v2.c
 @@ -0,0 +1,204 @@
@@ -1306,9 +1332,9 @@ index 000000000000..31c6f598e815
 +        syslog(LOG_ERR, "[GPIOD_INTERFACE]: ioctl() GPIO_V2_GET_LINEINFO_IOCTL fail");
 +    }
 +
-+    syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, flags 0x%llx", line_offset, info.flags);
-+    syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, consumer %s", line_offset, info.consumer);
-+    syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, name %s", line_offset, info.name);
++    // syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, flags 0x%llx", line_offset, info.flags);
++    // syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, consumer %s", line_offset, info.consumer);
++    // syslog(LOG_ERR, "[GPIOD_INTERFACE]: line_offset %u, name %s", line_offset, info.name);
 +
 +    *flag = info.flags;
 +

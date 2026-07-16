@@ -5,11 +5,11 @@ Subject: [PATCH] iot2050 wip
 
 Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
 ---
- src/arm/siemens/iot2050.c | 690 ++++++++++++++------------------------
- 1 file changed, 259 insertions(+), 431 deletions(-)
+ src/arm/siemens/iot2050.c | 685 ++++++++++++++------------------------
+ 1 file changed, 254 insertions(+), 431 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index 8c76c244f6a8..8f033b0ae88e 100644
+index 8c76c244f6a8..2538d21b8c31 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -21,19 +21,24 @@
@@ -99,7 +99,7 @@ index 8c76c244f6a8..8f033b0ae88e 100644
      return ret;
  }
  
-@@ -295,27 +301,90 @@ failed:
+@@ -295,27 +301,84 @@ failed:
  }
  
  static mraa_result_t
@@ -120,12 +120,6 @@ index 8c76c244f6a8..8f033b0ae88e 100644
 +            return MRAA_ERROR_INVALID_RESOURCE;
 +        }
  
-+        if (flags & GPIO_V2_LINE_FLAG_INPUT) {
-+            syslog(LOG_ERR,
-+                   "[IOT2050]: error setting line output mode. Line is configured as input.");
-+            return MRAA_ERROR_INVALID_RESOURCE;
-+        }
-+
 +        if (((mode == MRAA_GPIO_PULLUP) && (flags & GPIO_V2_LINE_FLAG_BIAS_PULL_UP)) ||
 +            ((mode == MRAA_GPIO_PULLDOWN) && (flags & GPIO_V2_LINE_FLAG_BIAS_PULL_DOWN)) ||
 +            ((mode == MRAA_GPIO_HIZ || mode == MRAA_GPIO_STRONG) && (flags & GPIO_V2_LINE_FLAG_BIAS_DISABLED))) {
@@ -203,7 +197,7 @@ index 8c76c244f6a8..8f033b0ae88e 100644
      }
      switch(mode) {
          case MRAA_GPIO_PULLUP:
-@@ -326,31 +395,32 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -326,31 +389,32 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
              if(info) {
                  ret = iot2050_mux_debugfs(dev->phy_pin, info->debugfs_path[0], info->pmx_group[0], info->pmx_function[0], mode);
                  if (ret != MRAA_SUCCESS)
@@ -246,7 +240,7 @@ index 8c76c244f6a8..8f033b0ae88e 100644
              }
              break;
          case MRAA_GPIOD_ACTIVE_LOW:
-@@ -364,7 +434,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -364,7 +428,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
      return ret;
  failed:
      syslog(LOG_ERR, "iot2050: Error setting gpio mode");
@@ -255,7 +249,16 @@ index 8c76c244f6a8..8f033b0ae88e 100644
          mraa_gpio_close(pull_en_pin);
      }
      return ret;
-@@ -399,7 +469,7 @@ iot2050_gpio_init_internal_replace(mraa_gpio_context dev, int pin)
+@@ -377,7 +441,7 @@ iot2050_gpio_init_internal_replace(mraa_gpio_context dev, int pin)
+     mraa_gpio_context cdev;
+     mraa_result_t status;
+ 
+-    syslog(LOG_ERR, "iot2050: iot2050_gpio_init_internal_replace (pin: %d)", pin);
++    syslog(LOG_DEBUG, "iot2050: iot2050_gpio_init_internal_replace (pin: %d)", pin);
+ 
+     status = iot2050_pin_to_name(dev->pin, pname);
+     if (status) {
+@@ -399,7 +463,7 @@ iot2050_gpio_init_internal_replace(mraa_gpio_context dev, int pin)
      return MRAA_SUCCESS;
  }
  static inline void
@@ -264,7 +267,7 @@ index 8c76c244f6a8..8f033b0ae88e 100644
  {
      strncpy(board->pins[pin_index].name, pin_name, MRAA_PIN_NAME_SIZE);
      board->pins[pin_index].capabilities = cap;
-@@ -407,8 +477,7 @@ iot2050_setup_pins(mraa_board_t *board, int pin_index, char *pin_name, mraa_pinc
+@@ -407,8 +471,7 @@ iot2050_setup_pins(mraa_board_t *board, int pin_index, char *pin_name, mraa_pinc
  }
  
  static inline void
@@ -274,7 +277,7 @@ index 8c76c244f6a8..8f033b0ae88e 100644
  {
      int i;
  
-@@ -1389,436 +1458,195 @@ mraa_siemens_iot2050()
+@@ -1389,435 +1452,195 @@ mraa_siemens_iot2050()
      pin_index++;
  
      iot2050_setup_pins(b, pin_index, "A0",
@@ -849,13 +852,12 @@ index 8c76c244f6a8..8f033b0ae88e 100644
 -    mux_info[4].pincmd = PINCMD_SET_DIRECTION;
 -    mux_info[4].value = MRAA_GPIO_IN;
 -    iot2050_pin_add_aio(b, pin_index, 5, mux_info, 5);
--    pin_index++;
 +    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
 +    /* AMUX_IN */
 +    mux_info[1].pin = wkup_gpio0_base + 21;
 +    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
 +    mux_info[1].value = MRAA_GPIO_OUT_LOW;
 +    iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 2);
+     pin_index++;
  
      iot2050_setup_pins(b, pin_index, "USER",
-                         (mraa_pincapabilities_t) {
