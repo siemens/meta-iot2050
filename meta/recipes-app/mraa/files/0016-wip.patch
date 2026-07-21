@@ -12,9 +12,9 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  src/arm/siemens/iot2050.c      |   6 +-
  src/gpio/gpio.c                | 684 ++++++++++++++++++++++++---------
  src/gpio/gpio_chardev.c        |  23 +-
- src/gpio/gpio_chardev_v2.c     | 204 ++++++++++
+ src/gpio/gpio_chardev_v2.c     | 202 ++++++++++
  src/mraa.c                     |   2 +-
- 9 files changed, 868 insertions(+), 200 deletions(-)
+ 9 files changed, 866 insertions(+), 200 deletions(-)
  create mode 100644 include/gpio/gpio_chardev_v2.h
  create mode 100644 src/gpio/gpio_chardev_v2.c
 
@@ -1248,10 +1248,10 @@ index 0c4636ea0701..dead3b380ac1 100644
      return ret;
 diff --git a/src/gpio/gpio_chardev_v2.c b/src/gpio/gpio_chardev_v2.c
 new file mode 100644
-index 000000000000..29e561695061
+index 000000000000..b1ce794da7d3
 --- /dev/null
 +++ b/src/gpio/gpio_chardev_v2.c
-@@ -0,0 +1,204 @@
+@@ -0,0 +1,202 @@
 +/*
 + * Author: Baocheng Su <baocheng.su@siemens.com>
 + * Copyright (c) 2026 Siemens AG
@@ -1444,8 +1444,6 @@ index 000000000000..29e561695061
 +
 +    memset(&config, 0, sizeof(config));
 +    config.flags = flag;
-+
-+    syslog(LOG_ERR, "[GPIOD_INTERFACE]: reconfiguring line flags: 0x%lx", flag);
 +
 +    int status = _mraa_gpiod_ioctl(line_req_fd, GPIO_V2_LINE_SET_CONFIG_IOCTL, &config);
 +    if (status < 0) {

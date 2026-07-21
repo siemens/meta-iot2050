@@ -1,0 +1,219 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Fri, 17 Jul 2026 10:33:27 +0800
+Subject: [PATCH] [wip] add adc tool
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ tools/CMakeLists.txt |   3 +
+ tools/mraa-adc.c     | 177 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 180 insertions(+)
+ create mode 100644 tools/mraa-adc.c
+
+diff --git a/tools/CMakeLists.txt b/tools/CMakeLists.txt
+index 1a5f11d7950e..8aac072de669 100644
+--- a/tools/CMakeLists.txt
++++ b/tools/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ add_executable (mraa-gpio mraa-gpio.c)
+ add_executable (mraa-i2c mraa-i2c.c)
+ add_executable (mraa-uart mraa-uart.c)
++add_executable (mraa-adc mraa-adc.c)
+ 
+ include_directories (${PROJECT_SOURCE_DIR}/api)
+ # FIXME Hack to access mraa internal types used by mraa-i2c
+@@ -10,9 +11,11 @@ include_directories (${PROJECT_SOURCE_DIR}/api/mraa)
+ target_link_libraries (mraa-gpio mraa)
+ target_link_libraries (mraa-i2c mraa)
+ target_link_libraries (mraa-uart mraa)
++target_link_libraries (mraa-adc mraa)
+ 
+ if (INSTALLTOOLS)
+   install (TARGETS mraa-gpio DESTINATION bin)
+   install (TARGETS mraa-i2c DESTINATION bin)
+   install (TARGETS mraa-uart DESTINATION bin)
++  install (TARGETS mraa-adc DESTINATION bin)
+ endif()
+diff --git a/tools/mraa-adc.c b/tools/mraa-adc.c
+new file mode 100644
+index 000000000000..4586676008e5
+--- /dev/null
++++ b/tools/mraa-adc.c
+@@ -0,0 +1,177 @@
++/*
++ * Author: Baocheng Su <baocheng.su@intel.com>
++ * Copyright (c) 2026 Siemens AG.
++ *
++ * SPDX-License-Identifier: MIT
++ */
++
++#define _POSIX_C_SOURCE 200809L
++
++#include <errno.h>
++#include <limits.h>
++#include <signal.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <time.h>
++#include <unistd.h>
++
++#include "mraa.h"
++#include "mraa/aio.h"
++
++static volatile sig_atomic_t stop_requested = 0;
++
++static void
++print_help(const char* program)
++{
++	fprintf(stdout, "Usage: %s <aio-interface> [duration-seconds]\n", program);
++	fprintf(stdout, "       %s --help\n", program);
++	fprintf(stdout, "       %s --version\n", program);
++	fprintf(stdout, "Read an AIO interface until Ctrl+C or for the specified duration.\n");
++}
++
++static void
++signal_handler(int signum)
++{
++	if (signum == SIGINT) {
++		stop_requested = 1;
++	}
++}
++
++static int
++parse_unsigned(const char* value, unsigned int* result)
++{
++	char* end = NULL;
++	unsigned long parsed;
++
++	errno = 0;
++	parsed = strtoul(value, &end, 10);
++	if (errno != 0 || end == value || *end != '\0' || parsed > UINT_MAX) {
++		return -1;
++	}
++
++	*result = (unsigned int) parsed;
++	return 0;
++}
++
++static int
++parse_duration(const char* value, double* result)
++{
++	char* end = NULL;
++	double parsed;
++
++	errno = 0;
++	parsed = strtod(value, &end);
++	if (errno != 0 || end == value || *end != '\0' || parsed <= 0.0) {
++		return -1;
++	}
++
++	*result = parsed;
++	return 0;
++}
++
++static double
++elapsed_seconds(const struct timespec* start, const struct timespec* current)
++{
++	return (double) (current->tv_sec - start->tv_sec) +
++		   (double) (current->tv_nsec - start->tv_nsec) / 1000000000.0;
++}
++
++int
++main(int argc, char** argv)
++{
++	struct sigaction action;
++	struct timespec start;
++	struct timespec current;
++	struct timespec timestamp;
++	struct tm local_time;
++	char timestamp_text[32];
++	const struct timespec sample_delay = { 0, 100000000L };
++	mraa_aio_context aio = NULL;
++	unsigned int aio_interface;
++	double duration = 0.0;
++	int status = EXIT_FAILURE;
++	int value;
++	float normalized_value;
++
++	if (argc == 2 && strcmp(argv[1], "--help") == 0) {
++		print_help(argv[0]);
++		return EXIT_SUCCESS;
++	}
++	if (argc == 2 && strcmp(argv[1], "--version") == 0) {
++		fprintf(stdout, "Version %s on %s\n", mraa_get_version(), mraa_get_platform_name());
++		return EXIT_SUCCESS;
++	}
++	if (argc < 2 || argc > 3 || parse_unsigned(argv[1], &aio_interface) != 0 ||
++		(argc == 3 && parse_duration(argv[2], &duration) != 0)) {
++		fprintf(stderr, "Invalid arguments.\n");
++		print_help(argv[0]);
++		return EXIT_FAILURE;
++	}
++
++	memset(&action, 0, sizeof(action));
++	action.sa_handler = signal_handler;
++	sigemptyset(&action.sa_mask);
++	if (sigaction(SIGINT, &action, NULL) != 0) {
++		perror("Could not install SIGINT handler");
++		return EXIT_FAILURE;
++	}
++
++	if (mraa_init() != MRAA_SUCCESS) {
++		fprintf(stderr, "Could not initialize mraa.\n");
++		return EXIT_FAILURE;
++	}
++
++	aio = mraa_aio_init(aio_interface);
++	if (aio == NULL) {
++		fprintf(stderr, "Could not initialize AIO interface %u.\n", aio_interface);
++		mraa_deinit();
++		return EXIT_FAILURE;
++	}
++
++	if (clock_gettime(CLOCK_MONOTONIC, &start) != 0) {
++		perror("Could not read monotonic clock");
++		goto cleanup;
++	}
++
++	while (!stop_requested) {
++		value = mraa_aio_read(aio);
++		normalized_value = mraa_aio_read_float(aio);
++		if (value < 0 || normalized_value < 0.0f) {
++			fprintf(stderr, "Could not read AIO interface %u.\n", aio_interface);
++			goto cleanup;
++		}
++
++		if (clock_gettime(CLOCK_REALTIME, &timestamp) != 0 ||
++			localtime_r(&timestamp.tv_sec, &local_time) == NULL ||
++			strftime(timestamp_text, sizeof(timestamp_text), "%Y-%m-%d %H:%M:%S", &local_time) == 0) {
++			perror("Could not format timestamp");
++			goto cleanup;
++		}
++		fprintf(stdout, "[%s.%03ld] AIO %u: value=%d normalized=%.5f\n", timestamp_text,
++				timestamp.tv_nsec / 1000000L, aio_interface, value, normalized_value);
++		fflush(stdout);
++
++		if (duration > 0.0) {
++			if (clock_gettime(CLOCK_MONOTONIC, &current) != 0) {
++				perror("Could not read monotonic clock");
++				goto cleanup;
++			}
++			if (elapsed_seconds(&start, &current) >= duration) {
++				break;
++			}
++		}
++
++		nanosleep(&sample_delay, NULL);
++	}
++
++	status = EXIT_SUCCESS;
++
++cleanup:
++	if (mraa_aio_close(aio) != MRAA_SUCCESS) {
++		fprintf(stderr, "Could not close AIO interface %u.\n", aio_interface);
++		status = EXIT_FAILURE;
++	}
++	mraa_deinit();
++	return status;
++}

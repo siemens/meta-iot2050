@@ -9,7 +9,7 @@ Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
  1 file changed, 254 insertions(+), 431 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index 8c76c244f6a8..2538d21b8c31 100644
+index 8c76c244f6a8..b22e347e3f94 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -21,19 +21,24 @@
@@ -831,7 +831,7 @@ index 8c76c244f6a8..2538d21b8c31 100644
 -    iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 3);
 -    // A/D/I switch
 -    mux_info[0].pin = d4200_gpio_base+13;
-+    iot2050_pin_add_aio(b, pin_index, 4, mux_info, 3);
++    iot2050_pin_add_aio(b, pin_index, 5, mux_info, 3);
 +    /* IO19_EN# PIN */
 +    mux_info[0].pin = d4200_gpio_base + 13;
      mux_info[0].pincmd = PINCMD_SET_DIRECTION;
