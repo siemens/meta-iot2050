@@ -13,3 +13,9 @@ header:
 build_system: isar
 
 target: iot2050-image-swu-example
+
+local_conf_header:
+  efibootguard: |
+    # SWUpdate images use BOOT0/BOOT1, so they must keep efibootguard's
+    # default dual-config-partition behavior.
+    EFIBOOTGUARD_NUM_CONFIG_PARTS = ""
