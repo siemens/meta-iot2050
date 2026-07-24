@@ -25,6 +25,10 @@ build_system: isar
 target: iot2050-image-example
 
 local_conf_header:
+  efibootguard: |
+    # Keep example aligned with its single BOOT partition layout.
+    EFIBOOTGUARD_NUM_CONFIG_PARTS = "1"
+
   root_password: |
     USERS += "root"
     USER_root[password] ??= "root"

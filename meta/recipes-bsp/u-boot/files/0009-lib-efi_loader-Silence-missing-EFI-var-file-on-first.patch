@@ -21,7 +21,7 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
-index ba0bf33ffbd1..f6b9b281d218 100644
+index 9cda38f319ee..4c57fee355bb 100644
 --- a/lib/efi_loader/efi_var_file.c
 +++ b/lib/efi_loader/efi_var_file.c
 @@ -8,6 +8,7 @@
@@ -32,7 +32,7 @@ index ba0bf33ffbd1..f6b9b281d218 100644
  #include <fs.h>
  #include <log.h>
  #include <malloc.h>
-@@ -170,8 +171,11 @@ efi_status_t efi_var_from_file(void)
+@@ -114,8 +115,11 @@ efi_status_t efi_var_from_storage(void)
  	ret = efi_set_blk_dev_to_system_partition();
  	if (ret != EFI_SUCCESS)
  		goto error;
@@ -42,5 +42,5 @@ index ba0bf33ffbd1..f6b9b281d218 100644
 +	if (r == -ENOENT || (!r && !len))
 +		goto error;
  	if (r || len < sizeof(struct efi_var_file)) {
- 		log_err("Failed to load EFI variables\n");
+ 		log_info("No EFI variables loaded\n");
  		goto error;

@@ -18,13 +18,13 @@ Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
  arch/arm/dts/k3-am65-iot2050-boot-image.dtsi | 35 +++++++-
  board/siemens/iot2050/Kconfig                |  9 ++
- board/siemens/iot2050/board.c                | 89 +++++++++++++++-----
+ board/siemens/iot2050/board.c                | 94 ++++++++++++++++----
  configs/iot2050_defconfig                    |  2 +-
  include/configs/iot2050.h                    |  2 +-
- 5 files changed, 114 insertions(+), 23 deletions(-)
+ 5 files changed, 119 insertions(+), 23 deletions(-)
 
 diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
-index f49d6f262f2e..ad495d9a283a 100644
+index b3d644852494..fa7cd550bd12 100644
 --- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 +++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
 @@ -207,6 +207,22 @@
@@ -48,7 +48,7 @@ index f49d6f262f2e..ad495d9a283a 100644
 +			};
 +
  			configurations {
- 				default = "ti/k3-am6528-iot2050-basic";
+ 				default = "config-1";
  				@config-SEQ {
 @@ -214,7 +230,7 @@
  #ifdef CONFIG_WDT_K3_RTI_FW_FILE
@@ -111,11 +111,11 @@ index 96dcfc41000f..2f51733e1c37 100644
  	bool "Embed OTP programming data"
  	help
 diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
-index 615a1d7facf1..15af7f714ffe 100644
+index 29f16d35729d..1fbb30af923b 100644
 --- a/board/siemens/iot2050/board.c
 +++ b/board/siemens/iot2050/board.c
-@@ -118,8 +118,8 @@ static const char *m2_connector_mode_name[] = {
- static enum m2_connector_mode connector_mode;
+@@ -100,8 +100,8 @@ static enum m2_connector_mode connector_mode;
+ static char iot2050_board_name[21];
  
  #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 -static void *connector_overlay;
@@ -125,7 +125,7 @@ index 615a1d7facf1..15af7f714ffe 100644
  #endif
  
  static int get_pinvalue(const char *gpio_name, const char *label)
-@@ -360,6 +360,47 @@ static void m2_connector_setup(void)
+@@ -372,6 +372,52 @@ static void m2_connector_setup(void)
  	m2_overlay_prepare();
  }
  
@@ -170,10 +170,15 @@ index 615a1d7facf1..15af7f714ffe 100644
 +	printf("Using restricted DMA pool, size %ld MB\n", pool_size);
 +}
 +
- int board_init(void)
++int board_init(void)
++{
++	return 0;
++}
++
+ int dram_init(void)
  {
- 	return 0;
-@@ -479,6 +520,9 @@ int board_late_init(void)
+ 	struct udevice *sysinfo;
+@@ -493,6 +539,9 @@ int board_late_init(void)
  	if (board_is_m2())
  		m2_connector_setup();
  
@@ -183,7 +188,7 @@ index 615a1d7facf1..15af7f714ffe 100644
  	set_board_info_env();
  
  	/* remove the eMMC if requested via button */
-@@ -490,15 +534,15 @@ int board_late_init(void)
+@@ -504,15 +553,15 @@ int board_late_init(void)
  }
  
  #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
@@ -202,7 +207,7 @@ index 615a1d7facf1..15af7f714ffe 100644
  
  	/*
  	 * We need to work with temporary copies here because fdt_overlay_apply
-@@ -512,35 +556,42 @@ static void variants_fdt_fixup(void *blob)
+@@ -526,35 +575,42 @@ static void variants_fdt_fixup(void *blob)
  
  	memcpy(fdt_copy, blob, fdt_size);
  
@@ -260,10 +265,10 @@ index 615a1d7facf1..15af7f714ffe 100644
  
  void spl_board_init(void)
 diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
-index 2d5f18e5bd40..ad200bd563b0 100644
+index 5111b51b7fe9..23f5c576f5b0 100644
 --- a/configs/iot2050_defconfig
 +++ b/configs/iot2050_defconfig
-@@ -80,7 +80,7 @@ CONFIG_OF_CONTROL=y
+@@ -75,7 +75,7 @@ CONFIG_OF_CONTROL=y
  CONFIG_SPL_OF_CONTROL=y
  CONFIG_OF_UPSTREAM=y
  CONFIG_OF_LIST="ti/k3-am6528-iot2050-basic ti/k3-am6528-iot2050-basic-pg2 ti/k3-am6548-iot2050-advanced ti/k3-am6548-iot2050-advanced-pg2 ti/k3-am6548-iot2050-advanced-m2 ti/k3-am6548-iot2050-advanced-sm"

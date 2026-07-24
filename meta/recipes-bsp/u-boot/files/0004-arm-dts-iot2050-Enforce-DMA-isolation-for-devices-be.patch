@@ -19,12 +19,12 @@ Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
  1 file changed, 21 insertions(+)
 
 diff --git a/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi b/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
-index e5136ed94765..b0a399923663 100644
+index f3ee73e64d69..9f3824555ab0 100644
 --- a/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
 +++ b/dts/upstream/src/arm64/ti/k3-am65-iot2050-common.dtsi
-@@ -686,3 +686,24 @@
- 	/* lock-step mode not supported on iot2050 boards */
- 	ti,cluster-mode = <0>;
+@@ -638,3 +638,24 @@
+ &rtos_ipc_memory_region {
+ 	reg = <0x00 0xa2000000 0x00 0x00200000>;
  };
 +
 +&main_navss {
