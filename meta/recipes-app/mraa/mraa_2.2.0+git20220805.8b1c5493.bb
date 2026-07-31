@@ -34,6 +34,8 @@ SRC_URI += "git://github.com/eclipse/mraa.git;protocol=https;branch=master \
             file://0017-iot2050-wip.patch \
             file://0018-wip-Add-mode-to-tools-mraa-gpio.patch \
             file://0019-wip-add-adc-tool.patch \
+            file://0020-wip-io0-io13.patch \
+            file://0021-wip-rework.patch \
             file://20-mraa-permissions.rules \
             file://rules"
 

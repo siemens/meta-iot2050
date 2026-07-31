@@ -64,6 +64,8 @@ def preAllocatePwm():
 
 def initAruinoPins():
     for i in range(0, 20):
+        if board_conf.getArduinoIoDoNotTouch(i):
+            continue
         pinmux = board_conf.getArduinoPinmuxCfg(i)
         if pinmux in board_conf.arduinoPinmuxMap(i):
             setPinmux(i, pinmux)

@@ -1,0 +1,1353 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Fri, 31 Jul 2026 10:08:10 +0800
+Subject: [PATCH] wip rework
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ src/arm/siemens/iot2050.c | 1097 +++++++++++++++++++------------------
+ 1 file changed, 574 insertions(+), 523 deletions(-)
+
+diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
+index f02c11b5bd25..1142ffe5f6e2 100644
+--- a/src/arm/siemens/iot2050.c
++++ b/src/arm/siemens/iot2050.c
+@@ -36,14 +36,12 @@
+ #include "gpio/gpio_chardev_v2.h"
+ // #include "mraa_internal_types.h"
+ 
+-#define PINMUX_GROUP_NONE (0) /* No need to do pinmux */
+-#define PINMUX_GROUP_MAIN (1)
+-#define PINMUX_GROUP_WAKUP (2)
++#define PINMUX_GROUP_MAIN (0)
++#define PINMUX_GROUP_WAKUP (1)
+ 
+ typedef struct {
+     uint8_t     group;
+-    uint16_t    index;
+-    uint16_t    pinmap;
++    uint16_t index;
+     int8_t      mode[MAX_MUX_REGISTER_MODE];
+     const char *debugfs_path[MAX_MUX_REGISTER_MODE];
+     const char *pmx_function[MAX_MUX_REGISTER_MODE];
+@@ -51,7 +49,134 @@ typedef struct {
+ }regmux_info_t;
+ 
+ static void *pinmux_instance = NULL;
+-static regmux_info_t pinmux_info[MRAA_IOT2050_PINCOUNT];
++static regmux_info_t* pinmux_info[MRAA_IOT2050_PINCOUNT] = {
++    [0] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                             17,
++                             { 7, 4, -1, -1, -1 },
++                             { "4301c000.pinctrl-pinctrl-single", "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d0-gpio", "d0-uart0-rxd", NULL, NULL, NULL },
++                             { "d0-gpio", "d0-uart0-rxd", NULL, NULL, NULL } },
++    [1] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                             18,
++                             { 7, 4, -1, -1, -1 },
++                             { "4301c000.pinctrl-pinctrl-single", "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d1-gpio", "d1-uart0-txd", NULL, NULL, NULL },
++                             { "d1-gpio", "d1-uart0-txd", NULL, NULL, NULL } },
++    [2] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                             19,
++                             { 7, 4, -1, -1, -1 },
++                             { "4301c000.pinctrl-pinctrl-single", "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d2-gpio", "d2-uart0-ctsn", NULL, NULL, NULL },
++                             { "d2-gpio", "d2-uart0-ctsn", NULL, NULL, NULL } },
++    [3] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                             21,
++                             { 7, 4, -1, -1, -1 },
++                             { "4301c000.pinctrl-pinctrl-single", "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d3-gpio", "d3-uart0-rtsn", NULL, NULL, NULL },
++                             { "d3-gpio", "d3-uart0-rtsn", NULL, NULL, NULL } },
++    [4] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
++                             33,
++                             { 7, 5, -1, -1, -1 },
++                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d4-gpio", "d4-ehrpwm0-a", NULL, NULL, NULL },
++                             { "d4-gpio", "d4-ehrpwm0-a", NULL, NULL, NULL } },
++    [5] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
++                             35,
++                             { 7, 5, -1, -1, -1 },
++                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d5-gpio", "d5-ehrpwm1-a", NULL, NULL, NULL },
++                             { "d5-gpio", "d5-ehrpwm1-a", NULL, NULL, NULL } },
++    [6] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
++                             38,
++                             { 7, 5, -1, -1, -1 },
++                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d6-gpio", "d6-ehrpwm2-a", NULL, NULL, NULL },
++                             { "d6-gpio", "d6-ehrpwm2-a", NULL, NULL, NULL } },
++    [7] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
++                             43,
++                             { 7, 5, -1, -1, -1 },
++                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d7-gpio", "d7-ehrpwm3-a", NULL, NULL, NULL },
++                             { "d7-gpio", "d7-ehrpwm3-a", NULL, NULL, NULL } },
++    [8] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
++                             48,
++                             { 7, 5, -1, -1, -1 },
++                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d8-gpio", "d8-ehrpwm4-a", NULL, NULL, NULL },
++                             { "d8-gpio", "d8-ehrpwm4-a", NULL, NULL, NULL } },
++    [9] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
++                             51,
++                             { 7, 5, -1, -1, -1 },
++                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                             { "d9-gpio", "d9-ehrpwm5-a", NULL, NULL, NULL },
++                             { "d9-gpio", "d9-ehrpwm5-a", NULL, NULL, NULL } },
++    [10] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              39,
++                              { 7, 0, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single",
++                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                              { "d10-gpio", "d10-spi0-cs0", NULL, NULL, NULL },
++                              { "d10-gpio", "d10-spi0-cs0", NULL, NULL, NULL } },
++    [11] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              37,
++                              { 7, 0, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single",
++                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                              { "d11-gpio", "d11-spi0-d0", NULL, NULL, NULL },
++                              { "d11-gpio", "d11-spi0-d0", NULL, NULL, NULL } },
++    [12] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              38,
++                              { 7, 0, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single",
++                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                              { "d12-gpio", "d12-spi0-d1", NULL, NULL, NULL },
++                              { "d12-gpio", "d12-spi0-d1", NULL, NULL, NULL } },
++    [13] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              36,
++                              { 7, 0, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single",
++                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
++                              { "d13-gpio", "d13-spi0-clk", NULL, NULL, NULL },
++                              { "d13-gpio", "d13-spi0-clk", NULL, NULL, NULL } },
++    [14] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              33,
++                              { 7, -1, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL, NULL },
++                              { "a0-gpio", NULL, NULL, NULL, NULL },
++                              { "a0-gpio", NULL, NULL, NULL, NULL } },
++    [15] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              32,
++                              { 7, -1, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL, NULL },
++                              { "a1-gpio", NULL, NULL, NULL, NULL },
++                              { "a1-gpio", NULL, NULL, NULL, NULL } },
++    [16] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              31,
++                              { 7, -1, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL, NULL },
++                              { "a2-gpio", NULL, NULL, NULL, NULL },
++                              { "a2-gpio", NULL, NULL, NULL, NULL } },
++    [17] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              27,
++                              { 7, -1, -1, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL, NULL },
++                              { "a3-gpio", NULL, NULL, NULL, NULL },
++                              { "a3-gpio", NULL, NULL, NULL, NULL } },
++    [18] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              30,
++                              { 7, -1, 0, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL, NULL },
++                              { "a4-gpio", NULL, NULL, NULL, NULL },
++                              { "a4-gpio", NULL, NULL, NULL, NULL } },
++    [19] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
++                              23,
++                              { 7, -1, 0, -1, -1 },
++                              { "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL, NULL },
++                              { "a5-gpio", NULL, NULL, NULL, NULL },
++                              { "a5-gpio", NULL, NULL, NULL, NULL } }
++};
++static regmux_info_t* pinmux_info_rev[MRAA_IOT2050_PINCOUNT] = { NULL };
++static regmux_info_t** pinmux_info_current;
+ static mraa_gpio_context output_en_pins[MRAA_IOT2050_PINCOUNT];
+ static int pull_en_pins[MRAA_IOT2050_PINCOUNT];
+ 
+@@ -114,18 +239,6 @@ err:
+     return -1;
+ }
+ 
+-static inline regmux_info_t*
+-iot2050_get_regmux_by_pinmap(int pinmap)
+-{
+-    for (int i = 0; i < MRAA_IOT2050_PINCOUNT; i++) {
+-        if ((pinmux_info[i].group != PINMUX_GROUP_NONE) &&
+-            (pinmux_info[i].mode[MUX_REGISTER_MODE_GPIO] != -1) && (pinmux_info[i].pinmap == pinmap)) {
+-            return &pinmux_info[i];
+-        }
+-    }
+-    return NULL;
+-}
+-
+ static mraa_result_t
+ iot2050_mux_debugfs(int phy_pin, const char *base_dir, const char *group, const char *function, mraa_gpio_mode_t gpio_mode)
+ {
+@@ -224,16 +337,18 @@ iot2050_mux_mmap(const regmux_info_t* info, int mode, mraa_gpio_mode_t gpio_mode
+ static mraa_result_t
+ iot2050_mux_init_reg(int phy_pin, int mode)
+ {
+-    regmux_info_t *info = &pinmux_info[phy_pin];
++    regmux_info_t* info;
+     int8_t mux_mode;
+     mraa_result_t ret;
+ 
+-    if (info->group == PINMUX_GROUP_NONE) {
++    if ((phy_pin < 0) || (phy_pin >= MRAA_IOT2050_PINCOUNT) || phy_pin == 20) {
+         return MRAA_SUCCESS;
+     }
+-
+-    if((phy_pin < 0) || (phy_pin > MRAA_IOT2050_PINCOUNT) || phy_pin == 20)
++    if (pinmux_info_current[phy_pin] == NULL) {
+         return MRAA_SUCCESS;
++    }
++    info = pinmux_info_current[phy_pin];
++
+     if((mode < 0) || (mode >= MAX_MUX_REGISTER_MODE)) {
+         return MRAA_ERROR_FEATURE_NOT_SUPPORTED;
+     }
+@@ -357,7 +472,7 @@ static mraa_result_t
+ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+ {
+     /* Only support mode change on interface pins */
+-    if(dev->phy_pin == -1) {
++    if (dev->phy_pin < 0 || dev->phy_pin >= MRAA_IOT2050_PINCOUNT) {
+         return MRAA_ERROR_INVALID_RESOURCE;
+     }
+     /* Handle mode changes for interface pins without pull pin */
+@@ -365,17 +480,12 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+         if (dev->phy_pin == 20) {
+             return MRAA_SUCCESS;
+         }
+-
+-        // if (dev->phy_pin < 14) {
+-        //     return MRAA_ERROR_INVALID_RESOURCE;
+-        // }
+-
+         return iot2050_gpio_mode_ioexpander(dev, mode);
+     }
+ 
+     mraa_result_t ret = MRAA_SUCCESS;
+ 
+-    regmux_info_t* info = iot2050_get_regmux_by_pinmap(dev->pin);
++    regmux_info_t* info = pinmux_info_current[dev->phy_pin];
+     mraa_gpio_context pull_en_pin = mraa_gpio_init_raw(pull_en_pins[dev->phy_pin]);
+     if(pull_en_pin == NULL) {
+         return MRAA_ERROR_INVALID_RESOURCE;
+@@ -463,11 +573,10 @@ iot2050_gpio_init_internal_replace(mraa_gpio_context dev, int pin)
+     return MRAA_SUCCESS;
+ }
+ static inline void
+-iot2050_setup_pins(mraa_board_t* board, int pin_index, char* pin_name, mraa_pincapabilities_t cap, regmux_info_t mux_info)
++iot2050_setup_pins(mraa_board_t* board, int pin_index, char* pin_name, mraa_pincapabilities_t cap)
+ {
+     strncpy(board->pins[pin_index].name, pin_name, MRAA_PIN_NAME_SIZE);
+     board->pins[pin_index].capabilities = cap;
+-    pinmux_info[pin_index] = mux_info;
+ }
+ 
+ static inline void
+@@ -475,9 +584,7 @@ iot2050_pin_add_gpio(mraa_board_t* board, int pin_index, int chip, int line, int
+ {
+     int i;
+ 
+-    mraa_pininfo_t *pininfo = &(board->pins[pin_index]);
+-    /*for sysfs*/
+-    pininfo->gpio.pinmap = pinmux_info[pin_index].pinmap;
++    mraa_pininfo_t* pininfo = &(board->pins[pin_index]);
+     pininfo->gpio.mux_total = 0;
+     /*for gpio chardev*/
+     pininfo->gpio.gpio_chip = chip;
+@@ -622,25 +729,26 @@ mraa_board_t*
+ mraa_siemens_iot2050()
+ {
+     mraa_board_t* b = (mraa_board_t*) calloc(1, sizeof(mraa_board_t));
+-    mraa_mux_t mux_info[6];
++    mraa_mux_t mux_info[6] = { 0 };
+     int pin_index = 0;
+-    unsigned main_gpio0_chip, main_gpio0_base;
++    unsigned main_gpio0_chip;
+     unsigned wkup_gpio0_chip, wkup_gpio0_base;
+     unsigned d4200_gpio_chip, d4200_gpio_base;
+     unsigned d4201_gpio_chip, d4201_gpio_base;
+     unsigned d4202_gpio_chip, d4202_gpio_base;
+     unsigned line_offset;
+     int res;
++    int is_rev = 0;
+ 
+-    if (mraa_find_gpio_line_by_name("main_gpio0-base", &main_gpio0_chip, &line_offset) < 0 || line_offset != 0) {
+-        goto error;
++    if (mraa_file_contains("/proc/device-tree/model", "SIMATIC IOT2050 Advanced PG2 Rev") ||
++        mraa_file_contains("/proc/device-tree/model", "SIMATIC IOT2050 Advanced M2 Rev")) {
++        is_rev = 1;
+     }
+-    res = mraa_get_chip_base_by_number(main_gpio0_chip);
+-    if (res < 0) {
++    pinmux_info_current = is_rev ? pinmux_info_rev : pinmux_info;
++
++    if (mraa_find_gpio_line_by_name("main_gpio0-base", &main_gpio0_chip, &line_offset) < 0 || line_offset != 0) {
+         goto error;
+     }
+-    main_gpio0_base = res;
+-
+     if (mraa_find_gpio_line_by_name("wkup_gpio0-base", &wkup_gpio0_chip, &line_offset) < 0 || line_offset != 0) {
+         goto error;
+     }
+@@ -650,8 +758,9 @@ mraa_siemens_iot2050()
+     }
+     wkup_gpio0_base = res;
+ 
+-    /* A0-pull is line 0 in D4200 */
+-    if (mraa_find_gpio_line_by_name("A0-pull", &d4200_gpio_chip, &line_offset) < 0 || line_offset != 0) {
++    /* A0/A0-pull is line 0 in D4200 */
++    if (mraa_find_gpio_line_by_name(is_rev ? "A0" : "A0-pull", &d4200_gpio_chip, &line_offset) < 0 ||
++        line_offset != 0) {
+         goto error;
+     }
+     res = mraa_get_chip_base_by_number(d4200_gpio_chip);
+@@ -670,8 +779,9 @@ mraa_siemens_iot2050()
+     }
+     d4201_gpio_base = res;
+ 
+-    /* IO0-pull is line 0 in D4202 */
+-    if (mraa_find_gpio_line_by_name("IO0-pull", &d4202_gpio_chip, &line_offset) < 0 || line_offset != 0) {
++    /* IO0/IO0-pull is line 0 in D4202 */
++    if (mraa_find_gpio_line_by_name(is_rev ? "IO0" : "IO0-pull", &d4202_gpio_chip, &line_offset) < 0 ||
++        line_offset != 0) {
+         goto error;
+     }
+     res = mraa_get_chip_base_by_number(d4202_gpio_chip);
+@@ -707,133 +817,92 @@ mraa_siemens_iot2050()
+         goto error;
+     }
+ 
+-    /* IO */
+-    iot2050_setup_pins(b, pin_index, "IO0",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  1 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d0-uart0-rxd
+-                       });
++    iot2050_setup_pins(b, pin_index, "IO0", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 0, 1 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 0;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 0, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 29, d4201_gpio_base + 0,
++                             d4202_gpio_base + 0, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 0;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO0_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 0, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 29, d4201_gpio_base+0, d4202_gpio_base+0, NULL, 0);
+-    mux_info[0].pin = d4201_gpio_base+0;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_LOW;
+-    mux_info[1].pin = d4202_gpio_base+0;
++    mux_info[1].pin = d4202_gpio_base + 0;
+     mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[1].value = MRAA_GPIO_IN;
+     iot2050_pin_add_uart(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO1",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  1 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d1-uart0-txd
+-                       });
++    iot2050_setup_pins(b, pin_index, "IO1", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 0, 1 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 1;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 1, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 30, d4201_gpio_base + 1,
++                             d4202_gpio_base + 1, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 1;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO1_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 1, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 30, d4201_gpio_base+1, d4202_gpio_base+1, NULL, 0);
+-    mux_info[0].pin = d4201_gpio_base+1;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+-    mux_info[1].pin = d4202_gpio_base+1;
++    mux_info[1].pin = d4202_gpio_base + 1;
+     mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[1].value = MRAA_GPIO_IN;
+     iot2050_pin_add_uart(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO2",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  1 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d2-uart0-ctsn
+-                       });
++    iot2050_setup_pins(b, pin_index, "IO2", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 0, 1 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 2;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 2, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 31, d4201_gpio_base + 2,
++                             d4202_gpio_base + 2, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 2;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO2_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 2, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 31, d4201_gpio_base+2, d4202_gpio_base+2, NULL, 0);
+-    mux_info[0].pin = d4201_gpio_base+2;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_LOW;
+-    mux_info[1].pin = d4202_gpio_base+2;
++    mux_info[1].pin = d4202_gpio_base + 2;
+     mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[1].value = MRAA_GPIO_IN;
+     iot2050_pin_add_uart(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO3",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  1 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d3-uart0-rtsn
+-                       });
++    iot2050_setup_pins(b, pin_index, "IO3", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 0, 1 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 3;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 3, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 33, d4201_gpio_base + 3,
++                             d4202_gpio_base + 3, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 3;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO3_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 3, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 33, d4201_gpio_base+3, d4202_gpio_base+3, NULL, 0);
+-    mux_info[0].pin = d4201_gpio_base+3;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+-    mux_info[1].pin = d4202_gpio_base+3;
++    mux_info[1].pin = d4202_gpio_base + 3;
+     mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[1].value = MRAA_GPIO_IN;
+     iot2050_pin_add_uart(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO4",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  1,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d4-ehrpwm0-a
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 4;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO4_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 4, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 33, d4201_gpio_base+4, d4202_gpio_base+4, NULL, 0);
++    iot2050_setup_pins(b, pin_index, "IO4", (mraa_pincapabilities_t) { 1, 1, 1, 0, 0, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 4;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 4, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 33, d4201_gpio_base + 4,
++                             d4202_gpio_base + 4, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 4;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -843,24 +912,16 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_pwm(b, pin_index, 0, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO5",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  1,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d5-ehrpwm1-a
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 5;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO5_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 5, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 35, d4201_gpio_base+5, d4202_gpio_base+5, NULL, 0);
++    iot2050_setup_pins(b, pin_index, "IO5", (mraa_pincapabilities_t) { 1, 1, 1, 0, 0, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 5;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 5, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 35, d4201_gpio_base + 5,
++                             d4202_gpio_base + 5, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 5;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -870,51 +931,35 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_pwm(b, pin_index, 1, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO6",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  1,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d6-ehrpwm2-a
+-                       });
++    iot2050_setup_pins(b, pin_index, "IO6", (mraa_pincapabilities_t) { 1, 1, 1, 0, 0, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 6;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 6, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 38, d4201_gpio_base + 6,
++                             d4202_gpio_base + 6, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 6;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO6_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 6, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 38, d4201_gpio_base+6, d4202_gpio_base+6, NULL, 0);
+-    mux_info[0].pin = d4201_gpio_base+6;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+-    mux_info[1].pin = d4202_gpio_base+6;
++    mux_info[1].pin = d4202_gpio_base + 6;
+     mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[1].value = MRAA_GPIO_IN;
+     iot2050_pin_add_pwm(b, pin_index, 2, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO7",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  1,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d7-ehrpwm3-a
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 7;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO7_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 7, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 43, d4201_gpio_base+7, d4202_gpio_base+7, NULL, 0);
++    iot2050_setup_pins(b, pin_index, "IO7", (mraa_pincapabilities_t) { 1, 1, 1, 0, 0, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 7;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 7, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 43, d4201_gpio_base + 7,
++                             d4202_gpio_base + 7, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 7;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -924,25 +969,16 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_pwm(b, pin_index, 3, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO8",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  1,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d8-ehrpwm4-a
+-                       });
+-
+-    mux_info[0].pin = d4201_gpio_base + 8;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO8_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 8, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 48, d4201_gpio_base+8, d4202_gpio_base+8, NULL, 0);
++    iot2050_setup_pins(b, pin_index, "IO8", (mraa_pincapabilities_t) { 1, 1, 1, 0, 0, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 8;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 8, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 48, d4201_gpio_base + 8,
++                             d4202_gpio_base + 8, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 8;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -952,51 +988,35 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_pwm(b, pin_index, 4, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO9",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  1,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d9-ehrpwm5-a
+-                       });
++    iot2050_setup_pins(b, pin_index, "IO9", (mraa_pincapabilities_t) { 1, 1, 1, 0, 0, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 9;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 9, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 51, d4201_gpio_base + 9,
++                             d4202_gpio_base + 9, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 9;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO9_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 9, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, main_gpio0_chip, 51, d4201_gpio_base+9, d4202_gpio_base+9, NULL, 0);
+-    mux_info[0].pin = d4201_gpio_base+9;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+-    mux_info[1].pin = d4202_gpio_base+9;
++    mux_info[1].pin = d4202_gpio_base + 9;
+     mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[1].value = MRAA_GPIO_IN;
+     iot2050_pin_add_pwm(b, pin_index, 5, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO10",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  1,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d10-spi0-cs0
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 10;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO10_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 10, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 51, d4201_gpio_base+10, d4202_gpio_base+10, NULL, 0);
++    iot2050_setup_pins(b, pin_index, "IO10", (mraa_pincapabilities_t) { 1, 1, 0, 0, 1, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 10;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 10, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 51, d4201_gpio_base + 10,
++                             d4202_gpio_base + 10, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 10;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -1006,24 +1026,16 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_spi(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO11",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  1,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d11-spi0-d0
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 11;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO11_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 11, -1, -1, mux_info, 1);
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 49, d4201_gpio_base+11, d4202_gpio_base+11, NULL, 0);
++    iot2050_setup_pins(b, pin_index, "IO11", (mraa_pincapabilities_t) { 1, 1, 0, 0, 1, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 11;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 11, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 49, d4201_gpio_base + 11,
++                             d4202_gpio_base + 11, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 11;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -1033,24 +1045,16 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_spi(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO12",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  1,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d12-spi0-d1
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 12;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO12_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 50, d4201_gpio_base+12, d4202_gpio_base+12, NULL, 0);
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 12, -1, -1, mux_info, 1);
++    iot2050_setup_pins(b, pin_index, "IO12", (mraa_pincapabilities_t) { 1, 1, 0, 0, 1, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 12, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 50, d4201_gpio_base + 12,
++                             d4202_gpio_base + 12, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 12;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_LOW;
+@@ -1060,24 +1064,16 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_spi(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "IO13",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  1,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  0,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: DTS: Fix to d13-spi0-clk
+-                       });
+-    mux_info[0].pin = d4201_gpio_base + 13;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_OUT_LOW; /* IO13_DIR needs to be low, so that the direction is
+-                        from B to A, in this case the IO expander GPIO input and output is not affected. */
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 48, d4201_gpio_base+13, d4202_gpio_base+13, NULL, 0);
+-    iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 13, -1, -1, mux_info, 1);
++    iot2050_setup_pins(b, pin_index, "IO13", (mraa_pincapabilities_t) { 1, 1, 0, 0, 1, 0, 0, 0 });
++    if (is_rev) {
++        mux_info[0].pin = d4201_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, d4202_gpio_chip, 13, -1, -1, mux_info, 1);
++    } else {
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 48, d4201_gpio_base + 13,
++                             d4202_gpio_base + 13, NULL, 0);
++    }
+     mux_info[0].pin = d4201_gpio_base + 13;
+     mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+     mux_info[0].value = MRAA_GPIO_OUT_HIGH;
+@@ -1087,217 +1083,286 @@ mraa_siemens_iot2050()
+     iot2050_pin_add_spi(b, pin_index, 0, mux_info, 2);
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "A0",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  1,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE, // TODO: Remove a0-gpio from device tree
+-                       });
+-    /* IO14_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 8;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 45, wkup_gpio0_base+38, d4200_gpio_base+0, mux_info, 1);
+-    iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 0, -1, -1, mux_info, 1);
+-    // IO14 GPIO should be input
+-    mux_info[1].pin = d4200_gpio_base + 0;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_IN;
+-    iot2050_pin_add_aio(b, pin_index, 0, mux_info, 2);
++    iot2050_setup_pins(b, pin_index, "A0", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 1, 0 });
++    if (is_rev) {
++        /* IO14_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 8;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 0, -1, -1, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 8;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = d4200_gpio_base + 0;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 0, mux_info, 2);
++    } else {
++        mux_info[0].pin = wkup_gpio0_base + 45;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 45, wkup_gpio0_base + 38,
++                             d4200_gpio_base + 0, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 8;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 45;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        mux_info[2].pin = wkup_gpio0_base + 38;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_OUT_LOW;
++        mux_info[3].pin = d4200_gpio_base + 0;
++        mux_info[3].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[3].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 0, mux_info, 4);
++    }
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "A1",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  1,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE,
+-                       });
+-    /* IO15_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 9;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 44, wkup_gpio0_base+37, -1, mux_info, 1);
+-    iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 1, -1, -1, mux_info, 1);
+-    // IO15 GPIO should be input
+-    mux_info[1].pin = d4200_gpio_base + 1;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_IN;
+-    iot2050_pin_add_aio(b, pin_index, 1, mux_info, 2);
++    iot2050_setup_pins(b, pin_index, "A1", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 1, 0 });
++    if (is_rev) {
++        /* IO15_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 9;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 1, -1, -1, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 9;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = d4200_gpio_base + 1;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 1, mux_info, 2);
++    } else {
++        mux_info[0].pin = wkup_gpio0_base + 44;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 44, wkup_gpio0_base + 37, -1, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 9;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 44;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        mux_info[2].pin = wkup_gpio0_base + 37;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_OUT_LOW;
++        mux_info[3].pin = d4200_gpio_base + 1;
++        mux_info[3].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[3].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 1, mux_info, 4);
++    }
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "A2",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  1,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE,
+-                       });
+-    /* IO16_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 10;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 43, wkup_gpio0_base+36, d4200_gpio_base+2, mux_info, 1);
+-    iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 2, -1, -1, mux_info, 1);
+-    // IO16 GPIO should be input
+-    mux_info[1].pin = d4200_gpio_base + 2;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_IN;
+-    iot2050_pin_add_aio(b, pin_index, 2, mux_info, 2);
++    iot2050_setup_pins(b, pin_index, "A2", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 1, 0 });
++    if (is_rev) {
++        /* IO16_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 10;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 2, -1, -1, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 10;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = d4200_gpio_base + 2;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 2, mux_info, 2);
++    } else {
++        mux_info[0].pin = wkup_gpio0_base + 43;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 43, wkup_gpio0_base + 36,
++                             d4200_gpio_base + 2, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 10;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 43;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        mux_info[2].pin = wkup_gpio0_base + 36;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_OUT_LOW;
++        mux_info[3].pin = d4200_gpio_base + 2;
++        mux_info[3].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[3].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 2, mux_info, 4);
++    }
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "A3",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  0,   /*i2c*/
+-                                                  1,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE,
+-                       });
+-    /* IO17_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 11;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 39, wkup_gpio0_base+34, d4200_gpio_base+3, mux_info, 1);
+-    iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 3, -1, -1, mux_info, 1);
+-    // IO17 GPIO should be input
+-    mux_info[1].pin = d4200_gpio_base + 3;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_IN;
+-    iot2050_pin_add_aio(b, pin_index, 3, mux_info, 2);
++    iot2050_setup_pins(b, pin_index, "A3", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 1, 0 });
++    if (is_rev) {
++        /* IO17_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 11;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 3, -1, -1, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 11;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = d4200_gpio_base + 3;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 3, mux_info, 2);
++    } else {
++        mux_info[0].pin = wkup_gpio0_base + 39;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 39, wkup_gpio0_base + 34,
++                             d4200_gpio_base + 3, mux_info, 1);
++        mux_info[0].pin = d4200_gpio_base + 11;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 39;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        mux_info[2].pin = wkup_gpio0_base + 34;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_OUT_LOW;
++        mux_info[3].pin = d4200_gpio_base + 3;
++        mux_info[3].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[3].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 3, mux_info, 4);
++    }
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "A4",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  1,   /*i2c*/
+-                                                  1,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE,
+-                       });
+-    /* IO18_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 12;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    /* AMUX_IN */
+-    mux_info[1].pin = wkup_gpio0_base + 21;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_OUT_HIGH;
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 42, wkup_gpio0_base+41, d4200_gpio_base+4, mux_info, 2);
+-    iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 4, -1, -1, mux_info, 2);
+-    /* IO18_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 12;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    /* AMUX_IN */
+-    mux_info[1].pin = wkup_gpio0_base + 21;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_OUT_HIGH;
+-    // IO18 GPIO should be input
+-    mux_info[2].pin = d4200_gpio_base + 4;
+-    mux_info[2].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[2].value = MRAA_GPIO_IN;
+-    iot2050_pin_add_aio(b, pin_index, 4, mux_info, 3);
+-    /* IO18_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 12;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    /* AMUX_IN */
+-    mux_info[1].pin = wkup_gpio0_base + 21;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_OUT_LOW;
+-    iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 2);
++    iot2050_setup_pins(b, pin_index, "A4", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 1, 1, 0 });
++    if (is_rev) {
++        /* IO18_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        /* AMUX_IN */
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_HIGH;
++        iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 4, -1, -1, mux_info, 2);
++        /* IO18_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        /* AMUX_IN */
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_HIGH;
++        /* IO18 GPIO should be input */
++        mux_info[2].pin = d4200_gpio_base + 4;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 4, mux_info, 3);
++        /* IO18_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        /* AMUX_IN */
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 2);
++    } else {
++        mux_info[0].pin = d4200_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_HIGH;
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 42, wkup_gpio0_base + 41,
++                             d4200_gpio_base + 4, mux_info, 2);
++        mux_info[0].pin = d4200_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 42;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        mux_info[2].pin = wkup_gpio0_base + 41;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_OUT_LOW;
++        mux_info[3].pin = d4200_gpio_base + 4;
++        mux_info[3].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[3].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 4, mux_info, 5);
++        mux_info[0].pin = d4200_gpio_base + 12;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_OUT_VALUE;
++        mux_info[1].value = 0;
++        mux_info[2].pin = d4200_gpio_base + 4;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_IN;
++        iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 3);
++    }
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "A5",
+-                       (mraa_pincapabilities_t) { 1,   /*valid*/
+-                                                  1,   /*gpio*/
+-                                                  0,   /*pwm*/
+-                                                  0,   /*fast gpio*/
+-                                                  0,   /*spi*/
+-                                                  1,   /*i2c*/
+-                                                  1,   /*aio*/
+-                                                  0 }, /*uart*/
+-                       (regmux_info_t) {
+-                       .group = PINMUX_GROUP_NONE,
+-                       });
+-    /* IO19_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 13;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    /* AMUX_IN */
+-    mux_info[1].pin = wkup_gpio0_base + 21;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_OUT_HIGH;
+-    // iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 42, wkup_gpio0_base+41, d4200_gpio_base+4, mux_info, 2);
+-    iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 5, -1, -1, mux_info, 2);
+-    /* IO19_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 13;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    /* AMUX_IN */
+-    mux_info[1].pin = wkup_gpio0_base + 21;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_OUT_HIGH;
+-    // IO19 GPIO should be input
+-    mux_info[2].pin = d4200_gpio_base + 5;
+-    mux_info[2].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[2].value = MRAA_GPIO_IN;
+-    iot2050_pin_add_aio(b, pin_index, 5, mux_info, 3);
+-    /* IO19_EN# PIN */
+-    mux_info[0].pin = d4200_gpio_base + 13;
+-    mux_info[0].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[0].value = MRAA_GPIO_IN; /* Disable the VCCB of level switch */
+-    /* AMUX_IN */
+-    mux_info[1].pin = wkup_gpio0_base + 21;
+-    mux_info[1].pincmd = PINCMD_SET_DIRECTION;
+-    mux_info[1].value = MRAA_GPIO_OUT_LOW;
+-    iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 2);
++    iot2050_setup_pins(b, pin_index, "A5", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 1, 1, 0 });
++    if (is_rev) {
++        /* IO19_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        /* AMUX_IN */
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_HIGH;
++        iot2050_pin_add_gpio(b, pin_index, d4200_gpio_chip, 5, -1, -1, mux_info, 2);
++        /* IO19_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        /* AMUX_IN */
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_HIGH;
++        /* IO19 GPIO should be input */
++        mux_info[2].pin = d4200_gpio_base + 5;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 5, mux_info, 3);
++        /* IO19_EN# PIN */
++        mux_info[0].pin = d4200_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        /* AMUX_IN */
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_LOW;
++        iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 2);
++    } else {
++        mux_info[0].pin = d4200_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_OUT_LOW;
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_OUT_HIGH;
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 35, d4201_gpio_base + 14,
++                             d4200_gpio_base + 5, mux_info, 2);
++        mux_info[0].pin = d4200_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 35;
++        mux_info[1].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[1].value = MRAA_GPIO_IN;
++        mux_info[2].pin = d4201_gpio_base + 14;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_OUT_LOW;
++        mux_info[3].pin = d4200_gpio_base + 5;
++        mux_info[3].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[3].value = MRAA_GPIO_IN;
++        iot2050_pin_add_aio(b, pin_index, 5, mux_info, 5);
++        mux_info[0].pin = d4200_gpio_base + 13;
++        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[0].value = MRAA_GPIO_IN;
++        mux_info[1].pin = wkup_gpio0_base + 21;
++        mux_info[1].pincmd = PINCMD_SET_OUT_VALUE;
++        mux_info[1].value = 0;
++        mux_info[2].pin = d4200_gpio_base + 5;
++        mux_info[2].pincmd = PINCMD_SET_DIRECTION;
++        mux_info[2].value = MRAA_GPIO_IN;
++        iot2050_pin_add_i2c(b, pin_index, 0, mux_info, 3);
++    }
+     pin_index++;
+ 
+-    iot2050_setup_pins(b, pin_index, "USER",
+-                        (mraa_pincapabilities_t) {
+-                            1,  /*valid*/
+-                            1,  /*gpio*/
+-                            0,  /*pwm*/
+-                            0,  /*fast gpio*/
+-                            0,  /*spi*/
+-                            0,  /*i2c*/
+-                            0,  /*aio*/
+-                            0}, /*uart*/
+-                        (regmux_info_t) {
+-                            -1,
+-                            -1,
+-                            wkup_gpio0_base+25,
+-                            {0},
+-                            {0},
+-                            {0},
+-                            {0}
+-                        });
++    iot2050_setup_pins(b, pin_index, "USER", (mraa_pincapabilities_t) { 1, 1, 0, 0, 0, 0, 0, 0 });
+     iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 25, -1, -1, NULL, 0);
+     pin_index++;
+ 
+@@ -1338,6 +1403,8 @@ mraa_siemens_iot2050_sm()
+     unsigned line_offset;
+     mraa_board_t* b = (mraa_board_t*) calloc(1, sizeof(mraa_board_t));
+ 
++    pinmux_info_current = pinmux_info_rev;
++
+     if (NULL == b) {
+         goto error_board;
+     }
+@@ -1364,24 +1431,8 @@ mraa_siemens_iot2050_sm()
+ 
+     /* USER BUTTON */
+     iot2050_setup_pins(b, pin_index, "USER",
+-                        (mraa_pincapabilities_t) {
+-                            .valid = 1,
+-                            .gpio = 1,
+-                            .pwm = 0,
+-                            .fast_gpio = 0,
+-                            .spi = 0,
+-                            .i2c = 0,
+-                            .aio = 0,
+-                            .uart = 0},
+-                        (regmux_info_t) {
+-                            .group = -1,
+-                            .index = -1,
+-                            .pinmap = wkup_gpio0_base+25,
+-                            .mode = {0},
+-                            .debugfs_path = {0},
+-                            .pmx_function = {0},
+-                            .pmx_group = {0},
+-                        });
++                       (mraa_pincapabilities_t) {
++                       .valid = 1, .gpio = 1, .pwm = 0, .fast_gpio = 0, .spi = 0, .i2c = 0, .aio = 0, .uart = 0 });
+     iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 25, -1, -1, NULL, 0);
+ 
+     /* LED */

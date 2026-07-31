@@ -1,62 +1,349 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Su Bao Cheng <baocheng.su@siemens.com>
-Date: Wed, 24 Jun 2026 21:42:59 -0400
-Subject: [PATCH] wip: DIO Rework
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 23 Jul 2026 19:00:14 +0800
+Subject: [PATCH] wip dio rework
 
-Signed-off-by: Su Bao Cheng <baocheng.su@siemens.com>
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
 ---
- arch/arm64/boot/dts/ti/Makefile               |   8 +
- ...k3-am65-iot2050-arduino-connector-rev.dtsi | 253 ++++++++++++++++++
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi  |  32 +++
+ board/siemens/iot2050/board.c                 | 175 +++++++++---
+ configs/iot2050_defconfig                     |   2 +-
+ ...k3-am65-iot2050-arduino-connector-rev.dtsi | 248 ++++++++++++++++++
  .../k3-am6548-iot2050-advanced-m2-common.dtsi |  83 ++++++
  .../ti/k3-am6548-iot2050-advanced-m2-rev.dts  |  24 ++
- .../dts/ti/k3-am6548-iot2050-advanced-m2.dts  |  77 +-----
+ .../ti/k3-am6548-iot2050-advanced-m2.dts      |  75 +-----
  .../ti/k3-am6548-iot2050-advanced-pg2-rev.dts |  29 ++
- 6 files changed, 399 insertions(+), 75 deletions(-)
- create mode 100644 arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-rev.dts
- create mode 100644 arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
+ .../ti/k3-am6548-iot2050-advanced-pg2.dts     |   2 +-
+ 9 files changed, 561 insertions(+), 109 deletions(-)
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
 
-diff --git a/arch/arm64/boot/dts/ti/Makefile b/arch/arm64/boot/dts/ti/Makefile
-index a97736de605f..c497fd41df0e 100644
---- a/arch/arm64/boot/dts/ti/Makefile
-+++ b/arch/arm64/boot/dts/ti/Makefile
-@@ -73,13 +73,19 @@ k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-dtbs := k3-am6548-iot2050-advanced-
- 	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie.dtbo
- k3-am6548-iot2050-advanced-m2-bkey-usb3-dtbs := k3-am6548-iot2050-advanced-m2.dtb \
- 	k3-am6548-iot2050-advanced-m2-bkey-usb3.dtbo
-+k3-am6548-iot2050-advanced-m2-rev-bkey-ekey-pcie-dtbs := k3-am6548-iot2050-advanced-m2-rev.dtb \
-+	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie.dtbo
-+k3-am6548-iot2050-advanced-m2-rev-bkey-usb3-dtbs := k3-am6548-iot2050-advanced-m2-rev.dtb \
-+	k3-am6548-iot2050-advanced-m2-bkey-usb3.dtbo
- dtb-$(CONFIG_ARCH_K3) += k3-am6528-iot2050-basic.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6528-iot2050-basic-pg2.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-m2.dtb
-+dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-m2-rev.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-m2-bkey-usb3.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-pg2.dtb
-+dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-pg2-rev.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am6548-iot2050-advanced-sm.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am654-base-board.dtb
- dtb-$(CONFIG_ARCH_K3) += k3-am654-gp-evm.dtb
-@@ -237,7 +243,9 @@ DTC_FLAGS_k3-am642-evm += -@
- DTC_FLAGS_k3-am642-phyboard-electra-rdk += -@
- DTC_FLAGS_k3-am642-tqma64xxl-mbax4xxl += -@
- DTC_FLAGS_k3-am6548-iot2050-advanced-m2 += -@
-+DTC_FLAGS_k3-am6548-iot2050-advanced-m2-rev += -@
- DTC_FLAGS_k3-am6548-iot2050-advanced-pg2 += -@
-+DTC_FLAGS_k3-am6548-iot2050-advanced-pg2-rev += -@
- DTC_FLAGS_k3-am6548-iot2050-advanced-sm += -@
- DTC_FLAGS_k3-am68-sk-base-board += -@
- DTC_FLAGS_k3-am69-sk += -@
-diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-rev.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 97db5f2e06e2..10bda9d9ce42 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -247,10 +247,40 @@
+ 		fit@380000 {
+ 			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic-pg2",
+ 					   "ti/k3-am6548-iot2050-advanced-pg2",
++					   "ti/k3-am6548-iot2050-advanced-pg2-rev",
+ 					   "ti/k3-am6548-iot2050-advanced-m2",
++					   "ti/k3-am6548-iot2050-advanced-m2-rev",
+ 					   "ti/k3-am6548-iot2050-advanced-sm";
+ 
+ 			images {
++				advanced-pg2-rev-dtb {
++					description = "Advanced PG2 rev DTB";
++					type = "flat_dt";
++					load = <0x82140000>;
++					arch = "arm64";
++					compression = "none";
++					blob-ext {
++						filename = "ti/k3-am6548-iot2050-advanced-pg2-rev.dtb";
++					};
++					hash {
++						algo = "sha512";
++					};
++				};
++
++				advanced-m2-rev-dtb {
++					description = "Advanced M2 rev DTB";
++					type = "flat_dt";
++					load = <0x82180000>;
++					arch = "arm64";
++					compression = "none";
++					blob-ext {
++						filename = "ti/k3-am6548-iot2050-advanced-m2-rev.dtb";
++					};
++					hash {
++						algo = "sha512";
++					};
++				};
++
+ 				bkey-usb3-overlay {
+ 					description = "M.2-bkey-usb3-overlay";
+ 					type = "blob";
+@@ -301,6 +331,8 @@
+ #ifdef CONFIG_WDT_K3_RTI_FW_FILE
+ 						"k3-rti-wdt-firmware",
+ #endif
++						"advanced-pg2-rev-dtb",
++						"advanced-m2-rev-dtb",
+ 						"bkey-usb3-overlay",
+ 						"bkey-ekey-pcie-overlay",
+ 						"dma-isolation-overlay";
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 15af7f714ffe..359150dbf800 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -11,6 +11,7 @@
+ #include <config.h>
+ #include <bootstage.h>
+ #include <dm.h>
++#include <errno.h>
+ #include <fdt_support.h>
+ #include <i2c.h>
+ #include <led.h>
+@@ -21,6 +22,7 @@
+ #include <spl.h>
+ #include <version.h>
+ #include <linux/delay.h>
++#include <linux/libfdt.h>
+ #include <asm/arch/hardware.h>
+ #include <asm/gpio.h>
+ #include <asm/io.h>
+@@ -182,6 +184,49 @@ static bool board_is_sm(void)
+ 		strcmp((char *)info->name, "IOT2050-ADVANCED-SM") == 0;
+ }
+ 
++static bool board_is_pg2(void)
++{
++	struct iot2050_info *info = IOT2050_INFO_DATA;
++
++	return info->magic == IOT2050_INFO_MAGIC &&
++		strcmp((char *)info->name, "IOT2050-ADVANCED-PG2") == 0;
++}
++
++static bool iot2050_rev_requested(void)
++{
++	return env_get_ulong("iot2050_rev", 10, 0) == 1;
++}
++
++static bool rev_dtb_switch_applicable(void)
++{
++	return iot2050_rev_requested() && (board_is_pg2() || board_is_m2());
++}
++
++static const char *select_fdtfile(bool use_rev)
++{
++	if (board_is_advanced()) {
++		if (board_is_pg1())
++			return "ti/k3-am6548-iot2050-advanced.dtb";
++		if (board_is_m2())
++			return use_rev ?
++				"ti/k3-am6548-iot2050-advanced-m2-rev.dtb" :
++				"ti/k3-am6548-iot2050-advanced-m2.dtb";
++		if (board_is_sm())
++			return "ti/k3-am6548-iot2050-advanced-sm.dtb";
++		if (board_is_pg2())
++			return use_rev ?
++				"ti/k3-am6548-iot2050-advanced-pg2-rev.dtb" :
++				"ti/k3-am6548-iot2050-advanced-pg2.dtb";
++
++		return "ti/k3-am6548-iot2050-advanced-pg2.dtb";
++	}
++
++	if (board_is_pg1())
++		return "ti/k3-am6528-iot2050-basic.dtb";
++
++	return "ti/k3-am6528-iot2050-basic-pg2.dtb";
++}
++
+ static void remove_mmc1_target(void)
+ {
+ 	char *boot_targets = strdup(env_get("boot_targets"));
+@@ -208,6 +253,7 @@ void set_board_info_env(void)
+ {
+ 	struct iot2050_info *info = IOT2050_INFO_DATA;
+ 	u8 __maybe_unused mac_cnt;
++	bool env_initialized;
+ 	const char *fdtfile;
+ 
+ 	if (info->magic != IOT2050_INFO_MAGIC) {
+@@ -215,47 +261,36 @@ void set_board_info_env(void)
+ 		return;
+ 	}
+ 
+-	if (env_get("board_uuid"))
+-		return;
+-
+-	env_set("board_name", info->name);
+-	env_set("board_serial", info->serial);
+-	env_set("mlfb", info->mlfb);
+-	env_set("board_uuid", info->uuid);
+-	env_set("board_a5e", info->a5e);
+-	env_set("fw_version", PLAIN_VERSION);
+-	env_set("seboot_version", info->seboot_version);
+-
+-	if (IS_ENABLED(CONFIG_NET)) {
+-		/* set MAC addresses to ensure forwarding to the OS */
+-		for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
+-			if (is_valid_ethaddr(info->mac_addr[mac_cnt]))
+-				eth_env_set_enetaddr_by_index("eth",
++	env_initialized = env_get("board_uuid") != NULL;
++	if (!env_initialized) {
++		env_set("board_name", info->name);
++		env_set("board_serial", info->serial);
++		env_set("mlfb", info->mlfb);
++		env_set("board_uuid", info->uuid);
++		env_set("board_a5e", info->a5e);
++		env_set("fw_version", PLAIN_VERSION);
++		env_set("seboot_version", info->seboot_version);
++
++		if (IS_ENABLED(CONFIG_NET)) {
++			/* set MAC addresses to ensure forwarding to the OS */
++			for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
++				if (is_valid_ethaddr(info->mac_addr[mac_cnt]))
++					eth_env_set_enetaddr_by_index("eth",
+ 							      mac_cnt + 1,
+ 							      info->mac_addr[mac_cnt]);
++			}
+ 		}
+ 	}
+ 
+-	if (board_is_advanced()) {
+-		if (board_is_pg1())
+-			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
+-		else if (board_is_m2())
+-			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
+-		else if (board_is_sm())
+-			fdtfile = "ti/k3-am6548-iot2050-advanced-sm.dtb";
+-		else
+-			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
+-	} else {
+-		if (board_is_pg1())
+-			fdtfile = "ti/k3-am6528-iot2050-basic.dtb";
+-		else
+-			fdtfile = "ti/k3-am6528-iot2050-basic-pg2.dtb";
++	fdtfile = select_fdtfile(rev_dtb_switch_applicable());
++	if (!board_is_advanced())
+ 		/* remove the unavailable eMMC (mmc1) from the list */
+ 		remove_mmc1_target();
+-	}
++
+ 	env_set("fdtfile", fdtfile);
+ 
+-	env_save();
++	if (!env_initialized)
++		env_save();
+ }
+ 
+ static void *overlay_prepare(const char *overlay_path, u32 *poverlay_size)
+@@ -275,7 +310,7 @@ static void *overlay_prepare(const char *overlay_path, u32 *poverlay_size)
+ 	if (ret)
+ 		goto fit_error;
+ 
+-	ret = ret = ofnode_read_u32(node, "size", &size);
++	ret = ofnode_read_u32(node, "size", &size);
+ 	if (ret)
+ 		goto fit_error;
+ 
+@@ -312,6 +347,74 @@ static void m2_overlay_prepare(void)
+ 					    &connector_overlay_size);
+ }
+ 
++static int fit_image_prepare(const char *fit_image_path,
++			     void **pimage, u32 *pimage_size)
++{
++	ofnode node;
++	u64 loadaddr;
++	u32 size;
++	int ret;
++
++	node = ofnode_path(fit_image_path);
++	if (!ofnode_valid(node))
++		return -ENOENT;
++
++	ret = ofnode_read_u64(node, "load", &loadaddr);
++	if (ret)
++		return ret;
++
++	ret = ofnode_read_u32(node, "size", &size);
++	if (ret)
++		return ret;
++
++	*pimage = map_sysmem(loadaddr, size);
++	*pimage_size = size;
++
++	return 0;
++}
++
++static int maybe_switch_rev_fdtcontroladdr(void)
++{
++	const char *fit_image_path;
++	void *fdt_blob;
++	u32 fdt_size;
++	int total_size;
++	int ret;
++
++	if (!rev_dtb_switch_applicable())
++		return 0;
++
++	if (board_is_m2())
++		fit_image_path = "/fit-images/advanced-m2-rev-dtb";
++	else
++		fit_image_path = "/fit-images/advanced-pg2-rev-dtb";
++
++	ret = fit_image_prepare(fit_image_path, &fdt_blob, &fdt_size);
++	if (ret) {
++		pr_err("IOT2050: Cannot access requested rev DTB metadata %s\n",
++		       fit_image_path);
++		return ret;
++	}
++
++	ret = fdt_check_header(fdt_blob);
++	if (ret) {
++		pr_err("IOT2050: Invalid requested rev DTB at %s (%d)\n",
++		       fit_image_path, ret);
++		return -EINVAL;
++	}
++
++	total_size = fdt_totalsize(fdt_blob);
++	if (total_size <= 0 || total_size > fdt_size) {
++		pr_err("IOT2050: Requested rev DTB size mismatch at %s\n",
++		       fit_image_path);
++		return -EINVAL;
++	}
++
++	env_set_hex("fdtcontroladdr", (unsigned long)map_to_sysmem(fdt_blob));
++
++	return 0;
++}
++
+ static void m2_connector_setup(void)
+ {
+ 	ulong m2_manual_config = env_get_ulong("m2_manual_config", 10,
+@@ -512,6 +615,8 @@ static bool user_button_pressed(void)
+ 
+ int board_late_init(void)
+ {
++	int ret;
++
+ 	/* change CTRL_MMR register to let serdes0 not output USB3.0 signals. */
+ 	writel(0x3, SERDES0_LANE_SELECT);
+ 
+@@ -525,6 +630,10 @@ int board_late_init(void)
+ 
+ 	set_board_info_env();
+ 
++	ret = maybe_switch_rev_fdtcontroladdr();
++	if (ret)
++		return ret;
++
+ 	/* remove the eMMC if requested via button */
+ 	if (IS_ENABLED(CONFIG_IOT2050_BOOT_SWITCH) && board_is_advanced() &&
+ 	    user_button_pressed())
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index f94afa8cb55a..0f0481185a60 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -79,7 +79,7 @@ CONFIG_CMD_TIME=y
+ CONFIG_OF_CONTROL=y
+ CONFIG_SPL_OF_CONTROL=y
+ CONFIG_OF_UPSTREAM=y
+-CONFIG_OF_LIST="ti/k3-am6528-iot2050-basic ti/k3-am6528-iot2050-basic-pg2 ti/k3-am6548-iot2050-advanced ti/k3-am6548-iot2050-advanced-pg2 ti/k3-am6548-iot2050-advanced-m2 ti/k3-am6548-iot2050-advanced-sm"
++CONFIG_OF_LIST="ti/k3-am6528-iot2050-basic ti/k3-am6528-iot2050-basic-pg2 ti/k3-am6548-iot2050-advanced ti/k3-am6548-iot2050-advanced-pg2 ti/k3-am6548-iot2050-advanced-pg2-rev ti/k3-am6548-iot2050-advanced-m2 ti/k3-am6548-iot2050-advanced-m2-rev ti/k3-am6548-iot2050-advanced-sm"
+ CONFIG_OF_OVERLAY_LIST="ti/k3-am6548-iot2050-advanced-m2-bkey-usb3 ti/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie ti/k3-am6548-iot2050-advanced-dma-isolation"
+ CONFIG_SPL_MULTI_DTB_FIT=y
+ CONFIG_SPL_OF_LIST="ti/k3-am6528-iot2050-basic"
+diff --git a/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi b/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
 new file mode 100644
-index 000000000000..fc7571e6325a
+index 000000000000..4129b69c3cc3
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
-@@ -0,0 +1,253 @@
++++ b/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
+@@ -0,0 +1,248 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (c) Siemens AG, 2026
@@ -90,7 +377,6 @@ index 000000000000..fc7571e6325a
 +////////////////////////////////////////////////////////////////////////////////
 +
 +// #include <dt-bindings/interrupt-controller/irq.h>
-+
 +
 +&main_pmx0 {
 +	ehrpwm0_pins_default: ehrpwm0-default-pins {
@@ -134,10 +420,6 @@ index 000000000000..fc7571e6325a
 +			AM65X_IOPAD(0x00CC, PIN_OUTPUT, 5)
 +		>;
 +	};
-+};
-+
-+&main_gpio0 {
-+	gpio-line-names = "main_gpio0-base";
 +};
 +
 +&wkup_pmx0 {
@@ -310,11 +592,11 @@ index 000000000000..fc7571e6325a
 +	pinctrl-0 = <&ehrpwm5_pins_default>;
 +	status = "okay";
 +};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-common.dtsi b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
 new file mode 100644
 index 000000000000..665e2f9d3f4b
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
 @@ -0,0 +1,83 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
@@ -399,11 +681,11 @@ index 000000000000..665e2f9d3f4b
 +&pcie1_rc {
 +	status = "disabled";
 +};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-rev.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-rev.dts
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts
 new file mode 100644
 index 000000000000..5e2ea2c64cfd
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2-rev.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts
 @@ -0,0 +1,24 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
@@ -429,27 +711,19 @@ index 000000000000..5e2ea2c64cfd
 +	compatible = "siemens,iot2050-advanced-m2-rev", "ti,am654";
 +	model = "SIMATIC IOT2050 Advanced M2 Rev";
 +};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
-index abf0690fca89..0ff659a2c1b8 100644
---- a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-m2.dts
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) Siemens AG, 2018-2023
-+ * Copyright (c) Siemens AG, 2018-2026
-  *
-  * Authors:
-  *   Chao Zeng <chao.zeng@siemens.com>
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts
+index cc619bbec181..eea99061c72a 100644
+--- a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts
 @@ -13,83 +13,10 @@
   * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
   */
  
 -#include "k3-am6548-iot2050-advanced-common.dtsi"
--#include "k3-am65-iot2050-dp.dtsi"
 -#include "k3-am65-iot2050-common-pg2.dtsi"
 +#include "k3-am6548-iot2050-advanced-m2-common.dtsi"
  #include "k3-am65-iot2050-arduino-connector.dtsi"
+-#include "k3-am65-iot2050-dp.dtsi"
  
  / {
  	compatible = "siemens,iot2050-advanced-m2", "ti,am654";
@@ -526,11 +800,11 @@ index abf0690fca89..0ff659a2c1b8 100644
 -&pcie1_rc {
 -	status = "disabled";
 -};
-diff --git a/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2-rev.dts b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
 new file mode 100644
 index 000000000000..4f1f3a3222db
 --- /dev/null
-+++ b/arch/arm64/boot/dts/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
 @@ -0,0 +1,29 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
@@ -561,3 +835,18 @@ index 000000000000..4f1f3a3222db
 +	compatible = "siemens,iot2050-advanced-pg2-rev", "ti,am654";
 +	model = "SIMATIC IOT2050 Advanced PG2 Rev";
 +};
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts
+index ec721275e8e2..231af1363d91 100644
+--- a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts
+@@ -16,9 +16,9 @@
+ /dts-v1/;
+ 
+ #include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-arduino-connector.dtsi"
+-#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-usb3.dtsi"
+ 
+ / {

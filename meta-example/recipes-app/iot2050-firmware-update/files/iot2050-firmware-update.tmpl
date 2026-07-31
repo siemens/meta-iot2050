@@ -78,9 +78,9 @@ mandatory `target_boards` inside the `firmware` node. Possible target boards:
   - PG2 Basic:
       "SIMATIC IOT2050 Basic PG2"
   - PG2 Advanced:
-      "SIMATIC IOT2050 Advanced PG2"
+      "SIMATIC IOT2050 Advanced PG2", "SIMATIC IOT2050 Advanced PG2 Rev"
   - M2 Variant:
-      "SIMATIC IOT2050 Advanced M2"
+      "SIMATIC IOT2050 Advanced M2", "SIMATIC IOT2050 Advanced M2 Rev"
 
 To indicate which OS the firmware could be updated upon, use either the
 `target_os` inside the `firmware` node as a local configuration, or use

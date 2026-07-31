@@ -24,6 +24,7 @@ SRC_URI += " \
     file://0007-dts-k3-am65-iot2050-Switch-to-SHA512-for-FIT-image-p.patch \
     file://0008-tools-iot2050-Switch-to-SHA512-for-signing.patch \
     file://0009-lib-efi_loader-Silence-missing-EFI-var-file-on-first.patch \
+    file://0010-wip-dio-rework.patch \
     "
 
 SRC_URI[sha256sum] = "439d3bef296effd54130be6a731c5b118be7fddd7fcc663ccbc5fb18294d8718"
