@@ -1,0 +1,4 @@
+{
+  "module": "../iot2050_firmware_provider_sm.py",
+  "class": "EIOControllerProvider"
+}
