@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IOT2050 Firmware</title>
+  <link rel="stylesheet" href="firmware.css">
+  <script src="../base1/cockpit.js"></script>
+  <script defer src="firmware.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">SIMATIC IOT2050</p>
+        <h1>Firmware Center</h1>
+        <p class="subtitle">Inspect firmware availability and device compatibility from one place.</p>
+      </div>
+      <button id="refresh" class="secondary">Refresh</button>
+    </header>
+
+    <div id="error" class="alert hidden" role="alert"></div>
+    <div id="loading" class="loading">Discovering firmware capabilities…</div>
+
+    <section id="providers" class="cards hidden">
+      <article id="system-card" class="card hidden">
+        <div class="card-heading">
+          <div>
+            <span class="tag">SYSTEM</span>
+            <h2>System Firmware</h2>
+          </div>
+          <span class="status neutral">Available</span>
+        </div>
+        <p>OSPI boot-chain firmware for the IOT2050 device.</p>
+        <dl>
+          <div><dt>Source</dt><dd>Signed update package</dd></div>
+          <div><dt>Protection</dt><dd>Signature, compatibility, backup</dd></div>
+        </dl>
+        <label for="system-firmware">Firmware update package</label>
+        <input id="system-firmware" class="file" type="file" accept=".tar,.xz,.txz">
+        <dl id="system-details"></dl>
+        <button id="update-system">Inspect signed package</button>
+      </article>
+
+      <article id="controller-card" class="card hidden">
+        <div class="card-heading">
+          <div>
+            <span class="tag sm">SM VARIANT</span>
+            <h2>EIO Controller Firmware</h2>
+          </div>
+          <span id="controller-status" class="status neutral">Inspecting</span>
+        </div>
+        <p>Image-default MAP3 controller firmware.</p>
+        <dl id="controller-details"></dl>
+        <button id="update-controller">Update controller</button>
+      </article>
+
+      <article id="module-card" class="card hidden">
+        <div class="card-heading">
+          <div>
+            <span class="tag sm">SM VARIANT</span>
+            <h2>Module Firmware</h2>
+          </div>
+          <span class="status neutral">Available</span>
+        </div>
+        <p>Firmware for chip A and chip B of a module in an EIO slot.</p>
+        <label for="module-slot">Inspect slot</label>
+        <div class="inline">
+          <input id="module-slot" type="number" min="1" max="6" value="1">
+          <button id="inspect-module" class="secondary">Inspect</button>
+        </div>
+        <dl id="module-details"></dl>
+        <label for="firmware-a">Chip A firmware</label>
+        <input id="firmware-a" class="file" type="file">
+        <label for="firmware-b">Chip B firmware</label>
+        <input id="firmware-b" class="file" type="file">
+        <button id="update-module">Update module</button>
+      </article>
+    </section>
+
+    <section id="task-panel" class="task hidden" aria-live="polite">
+      <div>
+        <span class="tag">ACTIVE TASK</span>
+        <h2 id="task-title">Firmware update</h2>
+        <p id="task-message">Starting…</p>
+      </div>
+      <span id="task-state" class="status warn">queued</span>
+    </section>
+  </main>
+</body>
+</html>
