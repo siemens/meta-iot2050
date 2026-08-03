@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+systemctl daemon-reload >/dev/null 2>&1 || true
+
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || \
+   [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ]; then
+	deb-systemd-helper unmask 'iot2050-firmware-manager.socket' >/dev/null || true
+
+	if deb-systemd-helper --quiet was-enabled 'iot2050-firmware-manager.socket'; then
+		deb-systemd-helper enable 'iot2050-firmware-manager.socket' >/dev/null || true
+	else
+		deb-systemd-helper update-state 'iot2050-firmware-manager.socket' >/dev/null || true
+	fi
+
+	deb-systemd-invoke start 'iot2050-firmware-manager.socket' >/dev/null || true
+fi

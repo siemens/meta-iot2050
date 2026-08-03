@@ -1,0 +1,15 @@
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 Firmware Manager Socket
+
+[Socket]
+ListenStream=/run/iot2050/firmware-manager.sock
+SocketMode=0600
+SocketUser=root
+SocketGroup=root
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target

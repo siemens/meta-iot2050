@@ -1,0 +1,20 @@
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 Firmware Manager
+Requires=iot2050-firmware-manager.socket
+After=iot2050-firmware-manager.socket
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -u /usr/lib/iot2050/firmware-manager/iot2050-firmware-manager.py
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+PrivateTmp=true
+TimeoutStopSec=infinity
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
