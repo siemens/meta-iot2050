@@ -14,7 +14,8 @@ DESCRIPTION = "IOT2050 Customized External Signal Module Firmware Update"
 MAINTAINER = "huaqian.li@siemens.com"
 
 SRC_URI = " \
-    file://iot2050-module-firmware-update.tmpl"
+    file://iot2050-module-firmware-update.tmpl \
+    file://iot2050_module_firmware_update.py"
 
 TEMPLATE_FILES = "iot2050-module-firmware-update.tmpl"
 
@@ -23,6 +24,10 @@ inherit dpkg-raw
 do_install() {
     install -v -d ${D}/usr/sbin/
     install -v -m 755 ${WORKDIR}/iot2050-module-firmware-update ${D}/usr/sbin/
+
+    install -v -d ${D}/usr/lib/python3/dist-packages/
+    install -v -m 644 ${WORKDIR}/iot2050_module_firmware_update.py \
+        ${D}/usr/lib/python3/dist-packages/
 }
 
 do_deploy_deb[dirs] = "${DEPLOY_DIR_IMAGE}"

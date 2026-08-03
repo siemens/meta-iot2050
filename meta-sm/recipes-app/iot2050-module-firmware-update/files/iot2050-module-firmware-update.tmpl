@@ -7,10 +7,14 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os
 import sys
 import argparse
 import textwrap
+
+from iot2050_module_firmware_update import (
+    ModuleFirmwareUpdateError,
+    update_module_firmware,
+)
 
 def main(args):
     description=textwrap.dedent('''\
@@ -46,24 +50,16 @@ def main(args):
         parser.print_help()
         return 1
 
-    slot_path = f"/eiofs/controller/slot{args.slot}"
-    if args.firmware_a:
-        print("Updating firmware A ...")
-        try:
-            with open(slot_path + "/fwa", "wb") as f:
-                f.write(args.firmware_a.read())
-        except Exception as e:
-            print(f"Error: Failed to write firmware A, {e}")
-            return 1
-
-    if args.firmware_b:
-        print("Updating firmware B ...")
-        try:
-            with open(slot_path + "/fwb", "wb") as f:
-                f.write(args.firmware_b.read())
-        except Exception as e:
-            print(f"Error: Failed to write firmware B, {e}")
-            return 1
+    try:
+        update_module_firmware(
+            args.slot,
+            args.firmware_a,
+            args.firmware_b,
+            on_chip_start=lambda chip: print(f"Updating firmware {chip} ..."),
+        )
+    except ModuleFirmwareUpdateError as e:
+        print(f"Error: Failed to write firmware {e.chip}, {e.error}")
+        return 1
 
     print("Firmware updated successfully. Please reboot the upgraded module.")
 
