@@ -17,6 +17,7 @@ MAINTAINER = "chao.zeng@siemens.com"
 SRC_URI = " \
     file://update.conf.json.tmpl \
     file://iot2050-firmware-update.tmpl \
+    file://iot2050-firmware-update-cli \
     file://custMpk.crt"
 SRC_URI:append:trust-center = " file://tc-pub.pem"
 SRC_URI:remove:trust-center = " file://custMpk.crt"
@@ -36,7 +37,12 @@ DEBIAN_BUILD_DEPENDS = "openssl"
 
 do_install() {
     install -v -d ${D}/usr/sbin/
-    install -v -m 755 ${WORKDIR}/iot2050-firmware-update ${D}/usr/sbin/
+    install -v -m 755 ${WORKDIR}/iot2050-firmware-update-cli \
+        ${D}/usr/sbin/iot2050-firmware-update
+
+    install -v -d ${D}/usr/lib/python3/dist-packages/
+    install -v -m 644 ${WORKDIR}/iot2050-firmware-update \
+        ${D}/usr/lib/python3/dist-packages/iot2050_firmware_update.py
 
     install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 644 ${WORKDIR}/update.conf.json ${D}/usr/share/iot2050/fwu/

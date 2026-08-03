@@ -492,6 +492,13 @@ class FirmwareUpdate():
         except UpgradeError as e:
             raise UpgradeError(e.err, e.code)
 
+    def close(self):
+        """Release package files deterministically after a manager task."""
+        for firmware in getattr(self, "firmwares", {}).values():
+            file_object = getattr(firmware, "firmware", None)
+            if file_object and not file_object.closed:
+                file_object.close()
+
     def backup(self):
         """Backup the original firmware from flash"""
         print("\nFirmware backup started")
@@ -500,7 +507,10 @@ class FirmwareUpdate():
                 os.mkdir(self.back_fw_path)
 
             self.interactor.progress_bar(info="Backing up")
-            tmpl_json = json.load(open("/usr/share/iot2050/fwu/update.conf.json", "r"))
+            with open(
+                "/usr/share/iot2050/fwu/update.conf.json", "r", encoding="utf-8"
+            ) as template_file:
+                tmpl_json = json.load(template_file)
             for firmware_type in self.firmwares:
                 md5_digest = []
                 fw_name = self.tarball.get_file_name(firmware_type)
@@ -539,7 +549,8 @@ class FirmwareUpdate():
             self.interactor.progress_bar(start=False)
         except (OSError, UpgradeError) as e:
             self.interactor.progress_bar(start=False)
-            raise UpgradeError(e.err, ErrorCode.BACKUP_FAILED.value)
+            message = e.err if isinstance(e, UpgradeError) else str(e)
+            raise UpgradeError(message, ErrorCode.BACKUP_FAILED.value)
         print("Firmware backup ended\n")
 
     def update(self):
@@ -607,27 +618,36 @@ class FirmwareTarball(object):
         "conf"
     ]
 
+    # These limits prevent a small uploaded archive from expanding until it
+    # exhausts the root filesystem. The normal update package is far smaller.
+    MAX_MEMBERS = 128
+    MAX_EXTRACTED_SIZE = 256 * 1024 * 1024
+
     def __init__(self, firmware_tarball, interactor, env_list, verify_signature_flag=False):
         self.interactor = interactor
         self.firmware_tarball = firmware_tarball
         self.env_list = env_list
         self.verify_signature_flag = verify_signature_flag
 
-        # extract file path
-        self.extract_path = "/tmp"
+        # A private per-package directory makes the verified files immutable to
+        # unprivileged users for the lifetime of the update operation.
+        self._temporary_directory = tempfile.TemporaryDirectory(
+            prefix="iot2050-firmware-update-"
+        )
+        self.extract_path = self._temporary_directory.name
         self.firmware_tarball.seek(0)
         self.extracted_files = []
-        with tarfile.open(fileobj=self.firmware_tarball) as f:
-            for member in f:
-                file_tarfileinfo = f.getmember(name=member.name)
-                file_tarfileinfo.uid = os.getuid()
-                file_tarfileinfo.gid = os.getgid()
-                try:
-                    f.extract(file_tarfileinfo, path=self.extract_path,
-                              filter='fully_trusted')
-                except TypeError:
-                    f.extract(file_tarfileinfo, path=self.extract_path)
-                self.extracted_files.append(self.extract_path + "/" + member.name)
+        try:
+            self.__extract_safely()
+        except (tarfile.TarError, EOFError, OSError) as error:
+            self.close()
+            raise UpgradeError(
+                "Cannot read firmware update package",
+                ErrorCode.INVALID_FIRMWARE.value,
+            ) from error
+        except Exception:
+            self.close()
+            raise
 
         self._board_info = BoardInfo()
         print("Current board: {}".format(self._board_info.board_name))
@@ -645,9 +665,66 @@ class FirmwareTarball(object):
 
         self.firmware_names = dict.fromkeys(self.FIRMWARE_TYPES)
 
+    def __extract_safely(self):
+        """Extract regular files without trusting tar paths or link metadata."""
+        total_size = 0
+        with tarfile.open(fileobj=self.firmware_tarball) as archive:
+            members = archive.getmembers()
+            if len(members) > self.MAX_MEMBERS:
+                raise UpgradeError(
+                    "Firmware package contains too many files",
+                    ErrorCode.INVALID_FIRMWARE.value,
+                )
+            for member in members:
+                # Update packages are intentionally flat. Rejecting all other
+                # entry types also excludes symlinks, hardlinks and devices.
+                if not member.isfile() or member.name != os.path.basename(member.name):
+                    raise UpgradeError(
+                        f"Unsafe firmware package member: {member.name}",
+                        ErrorCode.INVALID_FIRMWARE.value,
+                    )
+                if member.name in ("", ".", "..") or "\0" in member.name:
+                    raise UpgradeError(
+                        "Invalid firmware package member name",
+                        ErrorCode.INVALID_FIRMWARE.value,
+                    )
+                total_size += member.size
+                if total_size > self.MAX_EXTRACTED_SIZE:
+                    raise UpgradeError(
+                        "Firmware package expands beyond the size limit",
+                        ErrorCode.INVALID_FIRMWARE.value,
+                    )
+                source = archive.extractfile(member)
+                if source is None:
+                    raise UpgradeError(
+                        f"Cannot read firmware package member: {member.name}",
+                        ErrorCode.INVALID_FIRMWARE.value,
+                    )
+                destination = os.path.join(self.extract_path, member.name)
+                flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                if hasattr(os, "O_NOFOLLOW"):
+                    flags |= os.O_NOFOLLOW
+                destination_fd = os.open(destination, flags, 0o600)
+                try:
+                    with source, os.fdopen(destination_fd, "wb") as output:
+                        shutil.copyfileobj(source, output)
+                except Exception:
+                    try:
+                        os.close(destination_fd)
+                    except OSError:
+                        pass
+                    raise
+                self.extracted_files.append(destination)
+
+    def close(self):
+        temporary_directory = getattr(self, "_temporary_directory", None)
+        if temporary_directory is not None:
+            temporary_directory.cleanup()
+            self._temporary_directory = None
+        self.extracted_files = []
+
     def __del__(self):
-        for file in self.extracted_files:
-            os.remove(file)
+        self.close()
 
     def __check_os(self, target_os, os_info) -> bool:
         for tos in target_os:
@@ -670,6 +747,34 @@ class FirmwareTarball(object):
         if len(self.get_file_name(self.FIRMWARE_TYPES[0])) <= 0:
             return False
         return True
+
+    def inspect(self):
+        """Return the selected package metadata without touching the flash."""
+        firmware_name = self.get_file_name(self.FIRMWARE_TYPES[0])
+        if not firmware_name:
+            raise UpgradeError(
+                "No compatible firmware image was found",
+                ErrorCode.INVALID_FIRMWARE.value,
+            )
+        selected = next(
+            firmware for firmware in self._jsonobj.firmware
+            if firmware.name == firmware_name
+        )
+        firmware_path = self.get_file_path(firmware_name)
+        digest = hashlib.sha256()
+        with open(firmware_path, "rb") as firmware:
+            for chunk in iter(lambda: firmware.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return {
+            "firmware_name": firmware_name,
+            "target_version": getattr(selected, "version", None),
+            "description": getattr(selected, "description", None),
+            "target_board": self._board_info.board_name,
+            "firmware_sha256": digest.hexdigest(),
+            "signature_present": os.path.isfile(
+                firmware_path + self.FIRMWARE_SIG_EXT
+            ),
+        }
 
     def get_file_name(self, firmware_type):
         """Get the file names of working firmware"""
@@ -728,8 +833,13 @@ class FirmwareTarball(object):
     def get_file(self, name):
         """Get the file object of specified name"""
         file = os.path.join(self.extract_path, name)
-
-        return open(file, 'rb')
+        try:
+            return open(file, 'rb')
+        except OSError as error:
+            raise UpgradeError(
+                f"Firmware package file is unavailable: {name}",
+                ErrorCode.INVALID_FIRMWARE.value,
+            ) from error
 
     def get_file_path(self, name):
         """Get the file object of specified name"""
@@ -950,6 +1060,81 @@ class UserInterface(object):
             except AttributeError as e:
                 print("Progress bar is not started yet!")
                 pass
+
+
+class NonInteractiveInterface(object):
+    """Progress adapter for trusted callers such as the local manager."""
+
+    def __init__(self, progress=None):
+        self.progress = progress or (lambda phase: None)
+
+    def interact(self, *args):
+        raise UpgradeError(
+            "Interactive input is not allowed for managed updates",
+            ErrorCode.FAILED.value,
+        )
+
+    def print_info(self, *args):
+        pass
+
+    def progress_bar(self, info="", interval=0.2, start=True):
+        if start and info:
+            self.progress(info.lower().replace(" ", "-"))
+
+
+def inspect_system_firmware(firmware_path, public_key_path=None):
+    """Validate compatibility and signature without accessing flash devices."""
+    interactor = NonInteractiveInterface()
+    with open(firmware_path, "rb") as archive:
+        package = FirmwareTarball(archive, interactor, None, True)
+        try:
+            if public_key_path is not None:
+                package.PUBLIC_KEY_PATH = public_key_path
+            details = package.inspect()
+            package.verify_firmware_signature(details["firmware_name"])
+            details["signature_verified"] = True
+            details["public_key"] = package.PUBLIC_KEY_PATH
+            return details
+        finally:
+            package.close()
+
+
+def update_system_firmware(firmware_path, backup_dir,
+                           preserve_list=None, reset=False, progress=None,
+                           public_key_path=None):
+    """Perform one signed update attempt without prompts, retry or reboot."""
+    interactor = NonInteractiveInterface(progress)
+    with open(firmware_path, "rb") as archive:
+        package = FirmwareTarball(
+            archive, interactor, preserve_list, verify_signature_flag=True
+        )
+        updater = None
+        try:
+            if public_key_path is not None:
+                package.PUBLIC_KEY_PATH = public_key_path
+            details = package.inspect()
+            # Verify before FirmwareUpdate gathers environment state or opens
+            # flash devices. FirmwareUpdate verifies again immediately before
+            # writing, using the same private extracted files.
+            package.verify_firmware_signature(details["firmware_name"])
+            progress and progress("preparing-backup")
+            updater = FirmwareUpdate(
+                package, backup_dir, interactor,
+                rollback=False, reset=reset, verify_signature=True,
+            )
+            updater.backup()
+            progress and progress("flashing-system")
+            updater.update()
+            return {
+                **details,
+                "signature_verified": True,
+                "backup_path": updater.rollback_fw_tar,
+                "reboot_required": True,
+            }
+        finally:
+            if updater is not None:
+                updater.close()
+            package.close()
 
 __version__ = "${PV}"
 def main(argv):
