@@ -43,7 +43,6 @@ SRC_URI_PKG = " \
 SRC_URI = " \
     ${SRC_URI_PKG} \
     file://manifest.json \
-    file://src \
     "
 
 NPM_MAPPED_NAME = "${PN}"
