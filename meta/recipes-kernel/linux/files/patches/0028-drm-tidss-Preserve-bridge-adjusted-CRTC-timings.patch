@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Li Hua Qian <huaqian.li@siemens.com>
+Date: Tue, 4 Aug 2026 17:01:43 +0800
+Subject: [PATCH] drm/tidss: Preserve bridge-adjusted CRTC timings
+
+Only initialize crtc_* timing fields when they are not already available.
+Bridges such as tc358767 adjust adjusted_mode before the TIDSS CRTC check.
+
+Recomputing the fields unconditionally can overwrite bridge-prepared timing
+state and causes DisplayPort synchronization failures on IOT2050.
+
+Keep existing bridge adjustments while retaining a fallback for modes whose
+CRTC timing fields are still uninitialized.
+
+Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
+---
+ drivers/gpu/drm/tidss/tidss_crtc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/tidss/tidss_crtc.c b/drivers/gpu/drm/tidss/tidss_crtc.c
+index 36c22d860852..377276106caf 100644
+--- a/drivers/gpu/drm/tidss/tidss_crtc.c
++++ b/drivers/gpu/drm/tidss/tidss_crtc.c
+@@ -108,7 +108,9 @@ static int tidss_crtc_atomic_check(struct drm_crtc *crtc,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (drm_atomic_crtc_needs_modeset(crtc_state))
++	if (drm_atomic_crtc_needs_modeset(crtc_state) &&
++	    (!mode->crtc_clock || !mode->crtc_hdisplay ||
++	     !mode->crtc_vdisplay))
+ 		drm_mode_set_crtcinfo(mode, 0);
+ 
+ 	return dispc_vp_bus_check(dispc, hw_videoport, crtc_state);
