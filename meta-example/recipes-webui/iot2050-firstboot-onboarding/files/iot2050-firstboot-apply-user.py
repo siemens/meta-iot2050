@@ -21,10 +21,30 @@ from pathlib import Path
 
 STATE_DIR = Path('/var/lib/iot2050-firstboot-onboarding')
 REQUEST_FILE = STATE_DIR / 'last-request.json'
-DEFAULT_ADMIN_GROUPS = ('sudo', 'adm', 'dialout')
+DEFAULT_ADMIN_GROUPS = ('sudo', 'adm', 'dialout', 'iot2050-admin')
 RESERVED_USERNAMES = {'root'}
 USERNAME_PATTERN = re.compile(r'^[a-z_][a-z0-9_-]{0,31}$')
 HOSTNAME_PATTERN = re.compile(r'^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$')
+PASSWORD_MIN_LENGTH = 12
+
+
+def password_policy_error(password):
+    if len(password) < PASSWORD_MIN_LENGTH:
+        return 'Use at least 12 characters.'
+
+    character_classes = sum([
+        bool(re.search(r'[a-z]', password)),
+        bool(re.search(r'[A-Z]', password)),
+        bool(re.search(r'[0-9]', password)),
+        bool(re.search(r'[^A-Za-z0-9]', password)),
+    ])
+    if character_classes < 3:
+        return 'Use at least 3 character classes: lowercase, uppercase, digits, or symbols.'
+    if re.search(r'(.)\1\1\1', password):
+        return 'Do not use 4 repeated characters.'
+    if re.search(r'0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210', password):
+        return 'Do not use simple sequences.'
+    return None
 
 
 def run_command(arguments, input_text=None):
@@ -48,6 +68,19 @@ def existing_admin_groups():
         groups.append(group_name)
 
     return groups
+
+
+def ensure_backend_admin_group():
+    try:
+        grp.getgrnam('iot2050-admin')
+    except KeyError:
+        result = run_command(['groupadd', '--system', 'iot2050-admin'])
+        if result.returncode != 0:
+            try:
+                grp.getgrnam('iot2050-admin')
+            except KeyError:
+                return False
+    return True
 
 
 def update_hosts_file(current_hostname, new_hostname):
@@ -179,8 +212,10 @@ def validate_payload(username, full_name, password, confirm_password, device_nam
 
     if not password:
         errors['password'] = 'Choose a password.'
-    elif len(password) < 8:
-        errors['password'] = 'Use at least 8 characters.'
+    else:
+        password_error = password_policy_error(password)
+        if password_error:
+            errors['password'] = password_error
 
     if confirm_password != password:
         errors['confirmPassword'] = 'Passwords do not match.'
@@ -253,6 +288,8 @@ def main():
         return
 
     admin_groups = existing_admin_groups() if grant_admin else []
+    if grant_admin and ensure_backend_admin_group() and 'iot2050-admin' not in admin_groups:
+        admin_groups.append('iot2050-admin')
     user_error = create_user(username, password, full_name, admin_groups)
     if user_error:
         result = helper_error(user_error, {

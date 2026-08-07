@@ -9,6 +9,7 @@ const waitTitle = document.getElementById('wait-title');
 const waitCopy = document.getElementById('wait-copy');
 const waitFootnote = document.getElementById('wait-footnote');
 const grantAdminInput = document.getElementById('grant-admin');
+const passwordGuidance = document.getElementById('password-guidance');
 
 const cockpit = window.cockpit || {
   language: 'en',
@@ -33,6 +34,7 @@ let isSubmitting = false;
 
 const MESSAGE_ALIASES = {
   'Use at least 8 characters.': 'At least 8 characters',
+  'Use at least 12 characters.': 'At least 12 characters',
   'Cockpit did not become ready in time.': 'Timed out while waiting for Cockpit to start.',
 };
 
@@ -78,6 +80,19 @@ function applyTranslations() {
   document.getElementById('user-name-label').textContent = _('User name');
   document.getElementById('password-label').textContent = _('Password');
   document.getElementById('confirm-password-label').textContent = _('Confirm password');
+  document.getElementById('password-guidance-title').textContent = _('Password requirements');
+  const passwordRequirementText = {
+    length: 'At least 12 characters',
+    classes: 'At least 3 of: lowercase, uppercase, number, symbol',
+    repeat: 'No 4 repeated characters in a row',
+    sequence: 'No simple number sequence such as 1234',
+  };
+  Object.entries(passwordRequirementText).forEach(([rule, text]) => {
+    const target = document.querySelector(`[data-password-text="${rule}"]`);
+    if (target) {
+      target.textContent = _(text);
+    }
+  });
   waitEyebrow.hidden = true;
   waitEyebrow.textContent = '';
   waitCopy.hidden = true;
@@ -89,7 +104,7 @@ function applyTranslations() {
   fieldMap.deviceName.placeholder = 'iot2050-edge-01';
   fieldMap.fullName.placeholder = _('Full name');
   fieldMap.username.placeholder = _('username');
-  fieldMap.password.placeholder = _('At least 8 characters');
+  fieldMap.password.placeholder = _('At least 12 characters and 3 character classes');
   fieldMap.confirmPassword.placeholder = _('Repeat the password');
 
   resetSubmitButton();
@@ -232,12 +247,56 @@ function applyFieldErrors(fieldErrors = {}) {
 function getClientFieldErrors(payload) {
   const fieldErrors = {};
   const normalizedUsername = String(payload.username || '').trim().toLowerCase();
+  const password = String(payload.password || '');
+  const passwordRules = getPasswordRules(password);
 
   if (RESERVED_USERNAMES.has(normalizedUsername)) {
     fieldErrors.username = 'Create a non-root administrator account.';
   }
 
+  if (password && !passwordRules.length) {
+    fieldErrors.password = 'Use at least 12 characters.';
+  } else if (password && !passwordRules.classes) {
+    fieldErrors.password = 'Use at least 3 character classes: lowercase, uppercase, digits, or symbols.';
+  } else if (password && !passwordRules.repeat) {
+    fieldErrors.password = 'Do not use 4 repeated characters.';
+  } else if (password && !passwordRules.sequence) {
+    fieldErrors.password = 'Do not use simple sequences.';
+  }
+
   return fieldErrors;
+}
+
+function getPasswordRules(password) {
+  const classes = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/]
+    .filter((pattern) => pattern.test(password)).length;
+
+  return {
+    length: password.length >= 12,
+    classes: classes >= 3,
+    repeat: !/(.)\1\1\1/.test(password),
+    sequence: !/(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(password),
+  };
+}
+
+function updatePasswordGuidance() {
+  if (!passwordGuidance) {
+    return;
+  }
+
+  const payload = collectPayload();
+  const rules = getPasswordRules(payload.password);
+  Object.entries(rules).forEach(([rule, met]) => {
+    const item = passwordGuidance.querySelector(`[data-password-rule="${rule}"]`);
+    if (!item) {
+      return;
+    }
+    item.classList.toggle('met', met);
+    const marker = item.querySelector('.password-rule-marker');
+    if (marker) {
+      marker.textContent = met ? '✓' : '○';
+    }
+  });
 }
 
 function updateSubmitButtonState() {
@@ -253,6 +312,20 @@ function handleUsernameInput() {
     clearFieldError('username');
   }
 
+  updateSubmitButtonState();
+  updatePasswordGuidance();
+}
+
+function handlePasswordInput() {
+  const fieldErrors = getClientFieldErrors(collectPayload());
+
+  if (fieldErrors.password) {
+    setFieldError('password', fieldErrors.password);
+  } else {
+    clearFieldError('password');
+  }
+
+  updatePasswordGuidance();
   updateSubmitButtonState();
 }
 
@@ -349,6 +422,8 @@ function bootstrap() {
   showSetupView();
   applyTranslations();
   fieldMap.username.addEventListener('input', handleUsernameInput);
+  fieldMap.password.addEventListener('input', handlePasswordInput);
+  updatePasswordGuidance();
   form.addEventListener('submit', submitOnboarding);
   updateSubmitButtonState();
   loadStatus();
