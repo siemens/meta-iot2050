@@ -1,0 +1,173 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+# Configure failed-login handling with pam_faillock.
+# Also installs the persistent password-quality policy used by passwd,
+# chpasswd, onboarding, and the privileged backend password-reset path.
+#
+
+set -eu
+
+# The recipe creates this group at image build time; retain this fallback for
+# package upgrades or images assembled without the normal group-generation step.
+if ! getent group iot2050-admin >/dev/null 2>&1; then
+    groupadd --system iot2050-admin || true
+fi
+
+FAILL_CONF="/etc/security/faillock.conf"
+FAILL_DIR="/var/lib/faillock"
+PAM_AUTH_FILE="/etc/pam.d/common-auth"
+PAM_ACCOUNT_FILE="/etc/pam.d/common-account"
+PAM_PASSWORD_FILE="/etc/pam.d/common-password"
+PWQUALITY_CONF="/etc/security/pwquality.conf"
+SSHD_POLICY_DIR="/etc/ssh/sshd_config.d"
+SSHD_POLICY_FILE="${SSHD_POLICY_DIR}/10-iot2050-product-security.conf"
+
+DENY="${IOT2050_FAILLOCK_DENY}"
+FAIL_INTERVAL="${IOT2050_FAILLOCK_FAIL_INTERVAL}"
+UNLOCK_TIME="${IOT2050_FAILLOCK_UNLOCK_TIME}"
+EVEN_DENY_ROOT="${IOT2050_FAILLOCK_EVEN_DENY_ROOT}"
+ROOT_UNLOCK_TIME="${IOT2050_FAILLOCK_ROOT_UNLOCK_TIME}"
+LOCK_ROOT_PASSWORD="${IOT2050_LOCK_ROOT_PASSWORD}"
+
+case "${DENY}" in
+    ''|*[!0-9]*) echo "Invalid deny value: ${DENY}"; exit 1 ;;
+esac
+case "${FAIL_INTERVAL}" in
+    ''|*[!0-9]*) echo "Invalid fail_interval value: ${FAIL_INTERVAL}"; exit 1 ;;
+esac
+case "${UNLOCK_TIME}" in
+    ''|*[!0-9]*) echo "Invalid unlock_time value: ${UNLOCK_TIME}"; exit 1 ;;
+esac
+case "${ROOT_UNLOCK_TIME}" in
+    ''|*[!0-9]*) echo "Invalid root_unlock_time value: ${ROOT_UNLOCK_TIME}"; exit 1 ;;
+esac
+case "${EVEN_DENY_ROOT}" in
+    0|1) ;;
+    *) echo "Invalid even_deny_root value: ${EVEN_DENY_ROOT}"; exit 1 ;;
+esac
+case "${LOCK_ROOT_PASSWORD}" in
+    0|1) ;;
+    *) echo "Invalid lock_root_password value: ${LOCK_ROOT_PASSWORD}"; exit 1 ;;
+esac
+
+if ! readlink -f /lib/*-linux-gnu*/security/pam_faillock.so >/dev/null 2>&1; then
+    echo "pam_faillock.so is required but not found"
+    exit 1
+fi
+
+mkdir -p /etc/security "${FAILL_DIR}"
+chmod 0700 "${FAILL_DIR}"
+cat > "${PWQUALITY_CONF}" <<'EOF'
+# Managed by iot2050-login-security
+minlen = 12
+minclass = 3
+maxrepeat = 3
+maxsequence = 3
+usercheck = 1
+gecoscheck = 1
+dictcheck = 1
+enforce_for_root
+EOF
+cat > "${FAILL_CONF}" <<EOF
+# Managed by iot2050-login-security
+
+dir=${FAILL_DIR}
+deny=${DENY}
+fail_interval=${FAIL_INTERVAL}
+unlock_time=${UNLOCK_TIME}
+EOF
+
+if [ "${EVEN_DENY_ROOT}" = "1" ]; then
+    {
+        echo "even_deny_root"
+        echo "root_unlock_time=${ROOT_UNLOCK_TIME}"
+    } >> "${FAILL_CONF}"
+fi
+
+if [ "${LOCK_ROOT_PASSWORD}" = "1" ]; then
+    passwd -l root
+fi
+
+TMP_AUTH="$(mktemp)"
+trap 'rm -f "${TMP_AUTH}"' EXIT
+
+awk '
+BEGIN {
+    pre = "auth required pam_faillock.so preauth"
+    fail = "auth [default=die] pam_faillock.so authfail"
+    succ = "auth sufficient pam_faillock.so authsucc"
+}
+$0 ~ /^[[:space:]]*auth[[:space:]].*pam_faillock\.so/ { next }
+{
+    if (!inserted && $0 ~ /^[[:space:]]*auth[[:space:]]+\[[^\]]*\][[:space:]]+pam_unix\.so/) {
+        print pre
+        print
+        print fail
+        print succ
+        inserted = 1
+        next
+    }
+    print
+}
+END {
+    if (!inserted) {
+        print pre
+        print fail
+        print succ
+    }
+}
+' "${PAM_AUTH_FILE}" > "${TMP_AUTH}"
+
+cat "${TMP_AUTH}" > "${PAM_AUTH_FILE}"
+
+if ! grep -q '^account[[:space:]]\+required[[:space:]]\+pam_faillock\.so\b' "${PAM_ACCOUNT_FILE}"; then
+    printf '\naccount required pam_faillock.so\n' >> "${PAM_ACCOUNT_FILE}"
+fi
+
+if ! readlink -f /lib/*-linux-gnu*/security/pam_pwquality.so >/dev/null 2>&1; then
+    echo "pam_pwquality.so is required but not found"
+    exit 1
+fi
+
+
+if [ ! -f /var/cache/cracklib/cracklib_dict.pwd ]; then
+    echo "CrackLib dictionary is required but not found: /var/cache/cracklib/cracklib_dict.pwd"
+    exit 1
+fi
+
+TMP_PASSWORD="$(mktemp)"
+trap 'rm -f "${TMP_AUTH}" "${TMP_PASSWORD}"' EXIT
+
+awk '
+BEGIN {
+    quality = "password requisite pam_pwquality.so retry=3"
+}
+$0 ~ /^[[:space:]]*password[[:space:]].*pam_pwquality\.so/ { next }
+{
+    if (!inserted && $0 ~ /^[[:space:]]*password[[:space:]].*pam_unix\.so/) {
+        print quality
+        inserted = 1
+    }
+    print
+}
+END {
+    if (!inserted) print quality
+}
+' "${PAM_PASSWORD_FILE}" > "${TMP_PASSWORD}"
+
+cat "${TMP_PASSWORD}" > "${PAM_PASSWORD_FILE}"
+
+mkdir -p "${SSHD_POLICY_DIR}"
+cat > "${SSHD_POLICY_FILE}" <<EOF
+# Managed by iot2050-login-security
+UsePAM yes
+PermitRootLogin no
+MaxAuthTries 3
+EOF

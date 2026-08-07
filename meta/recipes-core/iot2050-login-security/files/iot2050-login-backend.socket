@@ -1,0 +1,20 @@
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 privileged login backend socket
+
+[Socket]
+ListenStream=/run/iot2050/login-backend.sock
+DirectoryMode=0755
+SocketMode=0660
+SocketUser=root
+SocketGroup=iot2050-admin
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target
