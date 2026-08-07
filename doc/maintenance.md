@@ -28,9 +28,114 @@ sudo dd if=<image>.wic of=/dev/mmcblk0 bs=4M oflag=sync status=progress
 - **Base BSP image**: no network preconfigured (must be configured manually
   via the UART console).
 
-**Credentials (default)**: user `root` (no separate password-protected user);
-you will be prompted to change the password on first login. This should be
-done immediately for any network-connected deployment.
+## Login Security Operations
+
+For package architecture and implementation details, see
+[`meta/recipes-core/iot2050-login-security/README.md`](../meta/recipes-core/iot2050-login-security/README.md).
+For repository validation commands, see
+[`scripts/host/README.md`](../scripts/host/README.md).
+
+**Credentials (Example image default)**: no preset `root` password is shipped.
+First-boot onboarding creates the named administrator account, while the root
+password remains locked and direct root SSH login is disabled.
+
+**Development compatibility**: when explicitly built with
+`kas-iot2050-example.yml:kas/opt/dev.yml`, the image restores legacy `root`
+and `iot2050` credentials with forced password change and direct root SSH for
+local development workflows.
+
+The Dev SSH compatibility package removes the Example image `PermitRootLogin no`
+drop-in before installing its later `PermitRootLogin yes` compatibility rule.
+This is intentionally limited to the explicit Dev append and is not present in
+Example images.
+
+**Failed-login security baseline**: password-based authentication currently
+ships with `deny=5`, `fail_interval=900`, `unlock_time=900`,
+`even_deny_root`, and `root_unlock_time=900`. An administrator can clear a
+lockout by resetting the failed-attempt state on the device.
+
+Failed-login counters are stored under `/var/lib/faillock` so they survive
+service restart and reboot. Runtime validation should verify this persistence.
+
+Named-account passwords use the system `pam_pwquality` policy. The baseline
+requires at least 12 characters and at least 3 of 4 character classes
+(lowercase, uppercase, digits, and symbols), and rejects long repeated runs
+and simple numeric sequences. This policy is applied by PAM so
+it covers the onboarding `chpasswd` path, interactive `passwd`, and the
+privileged backend password-reset path consistently. The image also installs
+the CrackLib runtime and an explicit wordlist so dictionary checks work during
+password changes.
+
+To inspect or clear the failed-login state of a named account on the device:
+```sh
+sudo iot2050-failed-login status <user>
+sudo iot2050-failed-login reset <user>
+```
+
+To reset a named user's password locally and clear its failed-login state in
+one step:
+```sh
+sudo iot2050-account-admin set-password <user>
+```
+
+To clear a named user's failed-login state through the account helper:
+```sh
+sudo iot2050-account-admin unlock <user>
+```
+
+For account lifecycle operations, use the privileged backend:
+```sh
+sudo iot2050-login-backend account status <user>
+sudo iot2050-login-backend account disable <user>
+sudo iot2050-login-backend account enable <user>
+sudo iot2050-login-backend account delete <user>
+```
+
+The backend only permits named interactive accounts and protects the last
+usable `iot2050-admin` administrator.
+
+For target-device runtime validation, run the remote checker from the
+repository root. The default mode prompts for the SSH and sudo passwords
+without echoing them:
+```sh
+bash scripts/host/check-login-runtime-remote.sh
+```
+
+The checker validates the `iot2050-admin` group, backend socket and service
+state, effective `PermitRootLogin`, persistent faillock storage, and a backend
+smoke response. It prints colored `INFO`, `PASS`, and `FAIL` markers on an
+interactive terminal; set `NO_COLOR=1` for plain output.
+
+For automation or a lab-only device, a direct password argument is also
+supported. Quote the value when needed, and remember that command-line
+passwords can be recorded in shell history or process listings:
+```sh
+bash scripts/host/check-login-runtime-remote.sh --password 'password'
+```
+
+To include a read-only account lifecycle probe, provide an existing named
+account. This only calls `account status`; it does not create, disable, enable,
+or delete any account:
+```sh
+bash scripts/host/check-login-runtime-remote.sh --lifecycle-user iot2050
+```
+
+The probe passes when the backend returns `error_code=OK` for the requested
+account. Use a named test account on a development image when validating the
+full lifecycle operations separately; do not use the only administrator for
+destructive tests.
+
+For a complete, destructive lifecycle integration test, provide a temporary
+account name with the required `iot2050-rt-` prefix. The checker creates the
+account, exercises disable/enable/status/delete, and removes it automatically
+on failure:
+```sh
+bash scripts/host/check-login-runtime-remote.sh \
+  --lifecycle-test-user iot2050-rt-a
+```
+
+This mode must only be used on a test device. It never accepts an arbitrary
+account name, which prevents accidental operations on a real administrator.
 
 ## eMMC Installation
 This installation flow is provided by the example image. It is not available

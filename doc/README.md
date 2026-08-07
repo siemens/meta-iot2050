@@ -11,10 +11,10 @@ in the repository root.
 | Topic | File | TL;DR |
 |-------|------|-------|
 | Layer architecture | [layer-architecture](layer-architecture.md) | Modular split of core vs feature/variant layers. |
-| Build configuration (menu & manual) | [build-config](build-config.md) | TUI vs manual fragment chaining and examples. |
+| Build configuration (menu & manual) | [build-config](build-config.md) | TUI vs manual fragment chaining, Example/Dev auth profiles, and local verification. |
 | Web UI recipes in meta-example | [recipes-webui.md](recipes-webui.md) | Onboarding and nginx gateway architecture, runtime mode switching, and integration notes. |
-| First-boot onboarding details | [firstboot-onboarding.md](firstboot-onboarding.md) | End-to-end onboarding control flow and handoff to Cockpit runtime mode. |
-| Maintenance & operations | [maintenance](maintenance.md) | Flashing, network defaults, eMMC install, firmware tool, env adaptation. |
+| First-boot onboarding details | [firstboot-onboarding.md](firstboot-onboarding.md) | End-to-end onboarding control flow, named-admin first boot, and runtime handoff. |
+| Maintenance & operations | [maintenance](maintenance.md) | Flashing, network defaults, Example/Dev credential model, login-security baseline, and firmware operations. |
 | Fragment catalog (advanced) | [fragment-catalog](fragment-catalog.md) | Reference for advanced fragments (real-time, reproducibility, etc.). |
 | SDK | [sdk](sdk.md) | Build and use cross SDK (tarball & Docker). |
 | SWUpdate A/B images | [swupdate](swupdate.md) | Build, flash, and update dual-rootfs images; confirm updates safely. |

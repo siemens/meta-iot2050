@@ -65,6 +65,9 @@ Or use `kas-container build`:
 ```sh
 # Example image (includes demos, Node-RED, SM)
 ./kas-container build kas-iot2050-example.yml
+
+# Development compatibility mode (enables legacy root/iot2050 accounts)
+./kas-container build kas-iot2050-example.yml:kas/opt/dev.yml
 ```
 
 More composition patterns: [build-config §3](doc/build-config.md#3-manual-composition)
@@ -103,8 +106,17 @@ The BSP image does not configure the network. If you want to SSH into the
 system, you can use the root terminal via UART to configure the IP address
 using `ifconfig` and then connect via SSH.
 
-**NOTE**: The default username is `root`. You are required to change the
-default password upon first login.
+**NOTE**: The default Example image does not ship a preset login password for
+`root`; first-boot onboarding creates the named administrator account.
+
+For development compatibility only, append `:kas/opt/dev.yml` to enable the
+legacy `root` and `iot2050` default credentials with forced password change.
+
+The Example image also enables the password-authentication security baseline:
+`deny=5`, `fail_interval=900`, `unlock_time=900`, and
+`root_unlock_time=900` with `even_deny_root` enabled in the login-security
+package. Dev compatibility keeps the same failed-login defaults, but disables
+the Example image root-password lock so direct root workflows remain available.
 
 ### Installing the image on the eMMC (IOT2050 Advanced only)
 
