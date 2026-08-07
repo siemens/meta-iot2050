@@ -4,6 +4,10 @@ This note captures the current IOT2050 first-boot onboarding control flow and
 the handoff from the temporary onboarding service to the nginx-fronted Cockpit
 runtime.
 
+In the current Product security model, onboarding is the mechanism that creates
+the first named administrator. It does not provision a reusable default `root`
+password, does not unlock `root`, and does not enable direct root SSH login.
+
 For the broader design covering all current implementations under
 [meta-example/recipes-webui](../meta-example/recipes-webui), see
 [doc/recipes-webui.md](recipes-webui.md).
@@ -101,6 +105,15 @@ The flow covers:
   Marks onboarding as finished and prevents the service from starting again.
 - `/var/lib/iot2050-firstboot-onboarding/last-request.json`
   Stores the last apply attempt and result for diagnostics.
+
+## Authentication Notes
+
+- Product images create a named administrator during onboarding and keep the
+  `root` password locked.
+- Product images rely on the login-security package for the current CR 1.11
+  baseline on password-based authentication.
+- Development compatibility images created with `:kas/opt/dev.yml` are outside
+  the Product security baseline and re-enable legacy root workflows explicitly.
 
 ## Related Implementation
 
