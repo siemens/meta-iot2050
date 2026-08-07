@@ -260,6 +260,50 @@ html[data-view="wait"] #wait-view {
   background: #fff;
 }
 
+.password-guidance {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-alt);
+}
+
+.password-guidance-title {
+  margin: 0 0 5px;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.password-requirements {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.password-requirements li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.password-requirements .password-rule-marker {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.password-requirements li.met {
+  color: #1f5e1b;
+}
+
+.password-requirements li.met .password-rule-marker {
+  color: #1f8a31;
+}
+
 .checkbox-field {
   display: flex;
   align-items: center;

@@ -44,7 +44,16 @@
 
           <label class="field">
             <span id="password-label">Password</span>
-            <input id="password" name="password" type="password" autocomplete="new-password" required placeholder="At least 8 characters">
+            <input id="password" name="password" type="password" autocomplete="new-password" required aria-describedby="password-guidance" placeholder="At least 12 characters">
+            <div class="password-guidance" id="password-guidance" aria-live="polite">
+              <p class="password-guidance-title" id="password-guidance-title">Password requirements</p>
+              <ul class="password-requirements">
+                <li data-password-rule="length"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="length">At least 12 characters</span></li>
+                <li data-password-rule="classes"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="classes">At least 3 of: lowercase, uppercase, number, symbol</span></li>
+                <li data-password-rule="repeat"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="repeat">No 4 repeated characters in a row</span></li>
+                <li data-password-rule="sequence"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="sequence">No simple number sequence such as 1234</span></li>
+              </ul>
+            </div>
             <small data-error-for="password"></small>
           </label>
 

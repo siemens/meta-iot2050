@@ -255,8 +255,14 @@ function validatePayload(payload) {
 
   if (!password) {
     errors.password = 'Choose a password.';
-  } else if (password.length < 8) {
-    errors.password = 'Use at least 8 characters.';
+  } else if (password.length < 12) {
+    errors.password = 'Use at least 12 characters.';
+  } else if ([/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((pattern) => pattern.test(password)).length < 3) {
+    errors.password = 'Use at least 3 character classes: lowercase, uppercase, digits, or symbols.';
+  } else if (/(.)\1\1\1/.test(password)) {
+    errors.password = 'Do not use 4 repeated characters.';
+  } else if (/(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(password)) {
+    errors.password = 'Do not use simple sequences.';
   }
 
   if (confirmPassword !== password) {
