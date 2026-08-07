@@ -21,6 +21,8 @@ all:
     - export ftp_proxy=$FTP_PROXY
     - export no_proxy=$NO_PROXY
 
+    - ./scripts/host/check-account-policy.sh
+
     - kas build kas-iot2050-example.yml
     - kas build kas-iot2050-example.yml:kas/opt/preempt-rt.yml
     - kas build kas-iot2050-swupdate.yml
