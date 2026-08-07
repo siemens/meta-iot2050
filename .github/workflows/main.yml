@@ -58,6 +58,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  account-policy-check:
+    name: Account policy check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run account policy check
+        run: ./scripts/host/check-account-policy.sh
+
   debian-example-image:
     name: Debian example image
     if: github.event_name != 'workflow_dispatch' || inputs.build_debian_example_image
