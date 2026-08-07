@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+set -e
+
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || \
+   [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ]; then
+    if ! getent group iot2050-admin >/dev/null 2>&1; then
+        groupadd --system iot2050-admin || true
+    fi
+
+    deb-systemd-helper unmask 'iot2050-login-backend.socket' >/dev/null || true
+    deb-systemd-helper enable 'iot2050-login-backend.socket' >/dev/null || true
+    systemctl daemon-reload >/dev/null 2>&1 || true
+    systemctl start 'iot2050-login-backend.socket' >/dev/null 2>&1 || true
+fi

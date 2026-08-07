@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+# Client for the root-owned login-security Unix socket service.
+#
+
+set -eu
+
+exec /usr/bin/python3 /usr/lib/iot2050/login-backend-client.py "$@"

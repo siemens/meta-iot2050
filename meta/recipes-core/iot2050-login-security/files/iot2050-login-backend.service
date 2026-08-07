@@ -1,0 +1,25 @@
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 privileged login backend
+Requires=iot2050-login-backend.socket
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/iot2050/login-backend-service.py
+User=root
+Group=root
+PrivateTmp=true
+ProtectHome=true
+RestrictAddressFamilies=AF_UNIX
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

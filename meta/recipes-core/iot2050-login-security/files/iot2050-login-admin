@@ -1,0 +1,109 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+
+set -eu
+
+format_value=text
+usage() {
+    echo "Usage: $0 [--format text|json] schema [<domain>/<action>] | schema-id [<domain>/<action>] | failed-login <status|reset> <user> | account <status|set-password|unlock|disable|enable|delete> <user>" >&2
+    exit 2
+}
+
+schema_contract_id() {
+    case "${1-}" in
+        "") printf '%s\n' 'iot2050-login-admin/1.0.0/full' ;;
+        failed-login/status|failed-login/reset|account/status|account/set-password|account/unlock|account/disable|account/enable|account/delete)
+            printf 'iot2050-login-admin/1.0.0/%s\n' "$1" ;;
+        *) echo "Unknown schema action: $1" >&2; exit 2 ;;
+    esac
+}
+
+emit_action_schema() {
+    action_key="$1"
+    contract_id="$(schema_contract_id "${action_key}")"
+    case "${action_key}" in
+        failed-login/status) required='tool,action,target,result,reason,error_code,exit_code,detail,faillock_output'; optional='none' ;;
+        *) required='tool,action,target,result,reason,error_code,exit_code,detail'; optional='faillock_output' ;;
+    esac
+    if [ "${format_value}" = "json" ]; then
+        required_json="\"$(printf '%s' "${required}" | sed 's/,/","/g')\""
+        optional_json='[]'
+        [ "${optional}" = none ] || optional_json="[\"${optional}\"]"
+        printf '{"tool":"iot2050-login-admin","schema_version":"1.0.0","contract_id":"%s","action":"%s","required_fields":[%s],"optional_fields":%s}\n' "${contract_id}" "${action_key}" "${required_json}" "${optional_json}"
+    else
+        printf 'tool=iot2050-login-admin schema_version=1.0.0 contract_id=%s action=%s required=%s optional=%s\n' "${contract_id}" "${action_key}" "${required}" "${optional}"
+    fi
+}
+
+emit_schema_id() {
+    contract_id="$(schema_contract_id "${1-}")"
+    if [ "${format_value}" = "json" ]; then
+        printf '{"tool":"iot2050-login-admin","schema_version":"1.0.0","contract_id":"%s"}\n' "${contract_id}"
+    else
+        printf 'tool=iot2050-login-admin schema_version=1.0.0 contract_id=%s\n' "${contract_id}"
+    fi
+}
+
+emit_schema() {
+    if [ "${format_value}" = "json" ]; then
+        printf '%s\n' '{"tool":"iot2050-login-admin","schema_version":"1.0.0","contract_id":"iot2050-login-admin/1.0.0/full","domains":{"failed-login":["status","reset"],"account":["status","set-password","unlock","disable","enable","delete"]},"output_fields":["tool","action","target","result","reason","error_code","exit_code","detail","faillock_output"],"error_codes":["OK","E_PRIVILEGE_REQUIRED","E_PROTECTED_ROOT","E_INVALID_ACTION","E_INVALID_USER","E_UNKNOWN_USER","E_PROTECTED_SYSTEM_USER","E_PROTECTED_SERVICE_USER","E_PASSWORD_UPDATE_FAILED","E_UNLOCK_FAILED","E_STATUS_FAILED","E_RESET_FAILED","E_LAST_ADMIN_PROTECTED","E_ACCOUNT_OPERATION_FAILED"],"exit_codes":{"OK":0,"E_INVALID_USAGE":2,"E_PRIVILEGE_REQUIRED":10,"E_INVALID_ACTION":2,"E_INVALID_USER":11,"E_UNKNOWN_USER":12,"E_PROTECTED_ROOT":13,"E_PROTECTED_SYSTEM_USER":14,"E_PROTECTED_SERVICE_USER":15,"E_PASSWORD_UPDATE_FAILED":21,"E_UNLOCK_FAILED":22,"E_STATUS_FAILED":31,"E_RESET_FAILED":32,"E_LAST_ADMIN_PROTECTED":23,"E_ACCOUNT_OPERATION_FAILED":24},"compatibility":{"versioning":"semver","non_breaking_changes":["add output fields","add actions","add error codes"],"breaking_changes":["remove or rename output fields","change action semantics","change exit code mapping"],"consumer_rule":"major-only-breaking"}}'
+    else
+        cat <<'EOF'
+tool=iot2050-login-admin schema_version=1.0.0 contract_id=iot2050-login-admin/1.0.0/full
+domain=failed-login actions=status,reset
+domain=account actions=status,set-password,unlock,disable,enable,delete
+output_fields=tool,action,target,result,reason,error_code,exit_code,detail,faillock_output
+error_codes=OK,E_PRIVILEGE_REQUIRED,E_PROTECTED_ROOT,E_INVALID_ACTION,E_INVALID_USER,E_UNKNOWN_USER,E_PROTECTED_SYSTEM_USER,E_PROTECTED_SERVICE_USER,E_PASSWORD_UPDATE_FAILED,E_UNLOCK_FAILED,E_STATUS_FAILED,E_RESET_FAILED,E_LAST_ADMIN_PROTECTED,E_ACCOUNT_OPERATION_FAILED
+exit_codes=OK:0,E_INVALID_USAGE:2,E_PRIVILEGE_REQUIRED:10,E_INVALID_ACTION:2,E_INVALID_USER:11,E_UNKNOWN_USER:12,E_PROTECTED_ROOT:13,E_PROTECTED_SYSTEM_USER:14,E_PROTECTED_SERVICE_USER:15,E_PASSWORD_UPDATE_FAILED:21,E_UNLOCK_FAILED:22,E_STATUS_FAILED:31,E_RESET_FAILED:32,E_LAST_ADMIN_PROTECTED:23,E_ACCOUNT_OPERATION_FAILED:24
+action_contract_failed-login/status=required:tool,action,target,result,reason,error_code,exit_code,detail,faillock_output optional:none
+action_contract_failed-login/reset=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+action_contract_account/status=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+action_contract_account/set-password=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+action_contract_account/unlock=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+action_contract_account/disable=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+action_contract_account/enable=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+action_contract_account/delete=required:tool,action,target,result,reason,error_code,exit_code,detail optional:faillock_output
+compatibility_versioning=semver
+compatibility_non_breaking=add-output-fields,add-actions,add-error-codes
+compatibility_breaking=remove-or-rename-fields,change-action-semantics,change-exit-code-mapping
+compatibility_consumer_rule=major-only-breaking
+EOF
+    fi
+}
+
+if [ "$#" -ge 2 ] && [ "$1" = --format ]; then
+    format_value="$2"; shift 2
+fi
+case "${format_value}" in text|json) ;; *) usage ;; esac
+[ "$#" -ge 1 ] || usage
+case "$1" in
+    schema)
+        if [ "$#" -eq 1 ]; then
+            emit_schema
+        elif [ "$#" -eq 2 ]; then
+            emit_action_schema "$2"
+        else
+            usage
+        fi
+        ;;
+    schema-id)
+        if [ "$#" -eq 1 ]; then
+            emit_schema_id
+        elif [ "$#" -eq 2 ]; then
+            emit_schema_id "$2"
+        else
+            usage
+        fi
+        ;;
+    failed-login|account)
+        [ "$#" -eq 3 ] || usage
+        exec "$(dirname "$0")/iot2050-login-backend" --format "${format_value}" "$@"
+        ;;
+    *) usage ;;
+esac

@@ -1,0 +1,148 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+set -eu
+
+LOG_TAG="iot2050-account-admin"
+OUTPUT_FORMAT="text"
+
+audit_log() {
+    action_value="$1"
+    target_value="$2"
+    result_value="$3"
+    reason_value="$4"
+    logger -t "${LOG_TAG}" "action=${action_value} target=${target_value} result=${result_value} reason=${reason_value}" >/dev/null 2>&1 || true
+}
+
+reject() {
+    action_value="$1"
+    target_value="$2"
+    reason_value="$3"
+    error_code_value="$4"
+    exit_code_value="$5"
+    message="$6"
+    audit_log "${action_value}" "${target_value}" "denied" "${reason_value}"
+    emit_result "${action_value}" "${target_value}" "denied" "${reason_value}" "${error_code_value}" "${exit_code_value}" "${message}"
+    echo "${message}" >&2
+    exit "${exit_code_value}"
+}
+
+json_escape() {
+    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+emit_result() {
+    action_value="$1"
+    target_value="$2"
+    result_value="$3"
+    reason_value="$4"
+    error_code_value="$5"
+    exit_code_value="$6"
+    detail_value="$7"
+
+    if [ "${OUTPUT_FORMAT}" = "json" ]; then
+        printf '{"tool":"iot2050-account-admin","action":"%s","target":"%s","result":"%s","reason":"%s","error_code":"%s","exit_code":%s,"detail":"%s"}\n' \
+            "$(json_escape "${action_value}")" \
+            "$(json_escape "${target_value}")" \
+            "$(json_escape "${result_value}")" \
+            "$(json_escape "${reason_value}")" \
+            "$(json_escape "${error_code_value}")" \
+            "${exit_code_value}" \
+            "$(json_escape "${detail_value}")"
+        return
+    fi
+
+    printf 'tool=iot2050-account-admin action=%s target=%s result=%s reason=%s error_code=%s exit_code=%s detail=%s\n' \
+        "${action_value}" "${target_value}" "${result_value}" "${reason_value}" "${error_code_value}" "${exit_code_value}" "${detail_value}"
+}
+
+usage() {
+    echo "Usage: $0 [--format text|json] set-password <user> | unlock <user>" >&2
+    exit 2
+}
+
+parse_args() {
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --format)
+                [ "$#" -ge 2 ] || usage
+                OUTPUT_FORMAT="$2"
+                shift 2
+                ;;
+            -h|--help)
+                usage
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    case "${OUTPUT_FORMAT}" in
+        text|json) ;;
+        *) usage ;;
+    esac
+
+    [ "$#" -eq 2 ] || usage
+    action="$1"
+    user_name="$2"
+}
+
+parse_args "$@"
+
+case "${action}" in
+    set-password|unlock) ;;
+    *) usage ;;
+esac
+
+case "${user_name}" in
+    root)
+        reject "${action}" "${user_name}" "protected-root" "E_PROTECTED_ROOT" "13" "Refusing to operate on root"
+        ;;
+    ''|*[!A-Za-z0-9._-]*)
+        reject "${action}" "${user_name}" "invalid-user" "E_INVALID_USER" "11" "Invalid user name: ${user_name}"
+        ;;
+esac
+
+if ! id "${user_name}" >/dev/null 2>&1; then
+    reject "${action}" "${user_name}" "unknown-user" "E_UNKNOWN_USER" "12" "Unknown user: ${user_name}"
+fi
+
+user_uid="$(id -u "${user_name}")"
+if [ "${user_uid}" -lt 1000 ]; then
+    reject "${action}" "${user_name}" "protected-system-user" "E_PROTECTED_SYSTEM_USER" "14" "Refusing to operate on system account: ${user_name}"
+fi
+
+user_shell="$(getent passwd "${user_name}" | cut -d: -f7)"
+case "${user_shell}" in
+    */nologin|*/false)
+    reject "${action}" "${user_name}" "protected-service-user" "E_PROTECTED_SERVICE_USER" "15" "Refusing to operate on non-login service account: ${user_name}"
+        ;;
+esac
+
+case "${action}" in
+    set-password)
+        if ! passwd "${user_name}"; then
+            reject "${action}" "${user_name}" "password-command-failed" "E_PASSWORD_UPDATE_FAILED" "21" "Password update failed for ${user_name}"
+        fi
+        faillock --user "${user_name}" --reset
+        audit_log "${action}" "${user_name}" "success" "password-reset-and-unlock"
+        emit_result "${action}" "${user_name}" "success" "password-reset-and-unlock" "OK" "0" "Password updated and failed-login state cleared"
+        exit 0
+        ;;
+    unlock)
+        audit_log "${action}" "${user_name}" "success" "unlock"
+        if faillock --user "${user_name}" --reset; then
+            emit_result "${action}" "${user_name}" "success" "unlock" "OK" "0" "Failed-login state cleared"
+            exit 0
+        fi
+        reject "${action}" "${user_name}" "unlock-command-failed" "E_UNLOCK_FAILED" "22" "Failed to clear failed-login state for ${user_name}"
+        ;;
+esac
