@@ -35,7 +35,8 @@ IMAGE_PREINSTALL += "${@ ' \
 
 IMAGE_INSTALL += " \
     expand-on-first-boot \
-    ssh-root-login \
+    iot2050-login-security \
+    ${@ 'ssh-root-login' if d.getVar('IOT2050_DEV_COMPAT_ROOT_SSH') == '1' else '' } \
     sshd-regen-keys \
     install-on-emmc \
     iot2050-web-gateway-nginx \

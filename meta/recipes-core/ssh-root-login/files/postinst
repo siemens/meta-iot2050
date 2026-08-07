@@ -1,11 +1,17 @@
 #
-# Copyright (c) Siemens AG, 2019-2025
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
+#  Li Hua Qian <huaqian.li@siemens.com>
 #
 # This file is subject to the terms and conditions of the MIT License.  See
 # COPYING.MIT file in the top-level directory.
 #
 
-echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+install -d -m 0755 /etc/ssh/sshd_config.d
+rm -f /etc/ssh/sshd_config.d/10-iot2050-product-security.conf
+cat > /etc/ssh/sshd_config.d/99-iot2050-dev-root-ssh.conf <<EOF
+# Managed by ssh-root-login (development compatibility only)
+PermitRootLogin yes
+EOF
