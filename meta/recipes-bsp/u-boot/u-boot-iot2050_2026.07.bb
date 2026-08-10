@@ -24,9 +24,9 @@ SRC_URI += " \
     file://0007-dts-k3-am65-iot2050-Switch-to-SHA512-for-FIT-image-p.patch \
     file://0008-tools-iot2050-Switch-to-SHA512-for-signing.patch \
     file://0009-lib-efi_loader-Silence-missing-EFI-var-file-on-first.patch \
-    file://0010-tools-fdtgrep-Preserve-padding-in-SPL-control-DTB.patch \
-    file://0011-configs-iot2050-Add-padding-for-K3-FDT-fixups.patch \
-    file://0012-arm64-dts-ti-iot2050-Keep-SPI-NOR-node-in-SPL.patch \
+    file://0010-tools-fdtgrep-Preserve-SPL-DTB-padding.patch \
+    file://0011-configs-iot2050-Add-SPL-FDT-padding.patch \
+    file://0012-arm64-dts-ti-iot2050-Keep-SPI-NOR-in-SPL.patch \
     file://0013-arm-k3-Fix-SPL-reserved-memory-fixup-order.patch \
     file://0014-arm-armv8-mmu-Match-reserved-memory-basenames.patch \
     "

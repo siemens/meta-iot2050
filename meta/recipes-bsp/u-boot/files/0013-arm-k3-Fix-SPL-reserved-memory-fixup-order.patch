@@ -38,10 +38,10 @@ enable_caches() still performs the fixups for non-SPL builds.
 
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
 ---
- arch/arm/mach-k3/am65x/am654_init.c | 20 +++++++++++++++++++-
- arch/arm/mach-k3/common.c           | 10 ++++++----
- arch/arm/mach-k3/common_fdt.c       | 30 ++++++++++++++++++++----------
- 3 files changed, 46 insertions(+), 14 deletions(-)
+ arch/arm/mach-k3/am65x/am654_init.c | 20 ++++++++++++++-
+ arch/arm/mach-k3/common.c           | 10 +++++---
+ arch/arm/mach-k3/common_fdt.c       | 38 ++++++++++++++++++-----------
+ 3 files changed, 49 insertions(+), 19 deletions(-)
 
 diff --git a/arch/arm/mach-k3/am65x/am654_init.c b/arch/arm/mach-k3/am65x/am654_init.c
 index a4f038029d7c..7590b1f96139 100644
@@ -107,7 +107,7 @@ index 19a6e24f38b2..56df43fe90a7 100644
  	mmu_setup();
  
 diff --git a/arch/arm/mach-k3/common_fdt.c b/arch/arm/mach-k3/common_fdt.c
-index 39cb00c3f439..9f5849525aed 100644
+index 39cb00c3f439..63d5c91b05ba 100644
 --- a/arch/arm/mach-k3/common_fdt.c
 +++ b/arch/arm/mach-k3/common_fdt.c
 @@ -134,18 +134,23 @@ static int fdt_fixup_reserved_memory(void *blob, const char *name,
@@ -141,7 +141,7 @@ index 39cb00c3f439..9f5849525aed 100644
  			new_size = size;
  
  			/* Delete node */
-@@ -168,12 +173,17 @@ int fdt_fixup_reserved(void *blob)
+@@ -172,14 +177,19 @@ int fdt_fixup_reserved(void *blob)
  {
  	int ret;
  
@@ -155,14 +155,16 @@ index 39cb00c3f439..9f5849525aed 100644
 +		if (ret)
 +			return ret;
 +	}
-+
-+	if (CONFIG_K3_OPTEE_LOAD_ADDR >= CFG_SYS_SDRAM_BASE)
-+		return fdt_fixup_reserved_memory(blob, "optee",
-+						 CONFIG_K3_OPTEE_LOAD_ADDR,
-+						 CONFIG_K3_OPTEE_RESERVED_SIZE);
  
 -	return fdt_fixup_reserved_memory(blob, "optee",
 -					 CONFIG_K3_OPTEE_LOAD_ADDR,
 -					 CONFIG_K3_OPTEE_RESERVED_SIZE);
++	if (CONFIG_K3_OPTEE_LOAD_ADDR >= CFG_SYS_SDRAM_BASE)
++		return fdt_fixup_reserved_memory(blob, "optee",
++						 CONFIG_K3_OPTEE_LOAD_ADDR,
++						 CONFIG_K3_OPTEE_RESERVED_SIZE);
++
 +	return 0;
  }
+ 
+ static int fdt_fixup_critical_trips(void *blob, int zoneoffset, int maxc)

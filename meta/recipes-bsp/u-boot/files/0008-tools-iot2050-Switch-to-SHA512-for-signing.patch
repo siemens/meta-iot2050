@@ -4,7 +4,6 @@ Date: Tue, 27 Jan 2026 13:02:48 +0800
 Subject: [PATCH] tools: iot2050: Switch to SHA512 for signing
 
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
-
 ---
  tools/iot2050-sign-fw.sh | 4 ++--
  tools/key2dtsi.py        | 4 ++--
