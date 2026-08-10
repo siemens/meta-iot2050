@@ -29,6 +29,7 @@ SRC_URI += " \
     file://0012-arm64-dts-ti-iot2050-Keep-SPI-NOR-in-SPL.patch \
     file://0013-arm-k3-Fix-SPL-reserved-memory-fixup-order.patch \
     file://0014-arm-armv8-mmu-Match-reserved-memory-basenames.patch \
+    file://0015-board-siemens-iot2050-Add-Arduino-rev-support.patch \
     "
 
 SRC_URI[sha256sum] = "78e8bfc382fe388f9b55aa1daf8c563522a037779b5d4c349d1415e381f1243e"

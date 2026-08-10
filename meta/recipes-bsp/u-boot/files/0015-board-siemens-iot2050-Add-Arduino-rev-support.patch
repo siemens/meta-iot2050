@@ -1,0 +1,950 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Mon, 10 Aug 2026 19:57:01 +0800
+Subject: [PATCH] board: siemens: iot2050: Add Arduino rev support
+
+Read the board revision from system information and select the matching
+device tree for IOT2050 Advanced PG2 and M2 variants.
+
+Add U-Boot and SPL support for the revised Arduino interface, including
+board revision handling and device tree selection.
+
+Sync the device tree files with the Linux kernel. This includes changes
+already upstream and IOT2050-specific changes that are not upstream yet.
+---
+ arch/arm/dts/k3-am65-iot2050-boot-image.dtsi  |   2 +
+ ...am6548-iot2050-advanced-m2-rev-u-boot.dtsi |   1 +
+ ...m6548-iot2050-advanced-pg2-rev-u-boot.dtsi |   1 +
+ board/siemens/iot2050/board.c                 |  30 ++-
+ configs/iot2050_defconfig                     |   2 +-
+ drivers/sysinfo/iot2050.c                     |   6 +-
+ drivers/sysinfo/iot2050.h                     |   1 +
+ ...k3-am65-iot2050-arduino-connector-rev.dtsi | 231 ++++++++++++++++++
+ .../ti/k3-am65-iot2050-arduino-connector.dtsi |  58 ++---
+ .../arm64/ti/k3-am6528-iot2050-basic-pg2.dts  |   2 +-
+ .../k3-am6548-iot2050-advanced-m2-common.dtsi |  83 +++++++
+ .../ti/k3-am6548-iot2050-advanced-m2-rev.dts  |  23 ++
+ .../ti/k3-am6548-iot2050-advanced-m2.dts      |  77 +-----
+ .../ti/k3-am6548-iot2050-advanced-pg2-rev.dts |  28 +++
+ .../ti/k3-am6548-iot2050-advanced-pg2.dts     |   2 +-
+ 15 files changed, 435 insertions(+), 112 deletions(-)
+ create mode 120000 arch/arm/dts/k3-am6548-iot2050-advanced-m2-rev-u-boot.dtsi
+ create mode 120000 arch/arm/dts/k3-am6548-iot2050-advanced-pg2-rev-u-boot.dtsi
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts
+ create mode 100644 dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
+
+diff --git a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+index 05257a33d994..36f6b12c1d4f 100644
+--- a/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
++++ b/arch/arm/dts/k3-am65-iot2050-boot-image.dtsi
+@@ -247,7 +247,9 @@
+ 		fit@380000 {
+ 			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic-pg2",
+ 					   "ti/k3-am6548-iot2050-advanced-pg2",
++					   "ti/k3-am6548-iot2050-advanced-pg2-rev",
+ 					   "ti/k3-am6548-iot2050-advanced-m2",
++					   "ti/k3-am6548-iot2050-advanced-m2-rev",
+ 					   "ti/k3-am6548-iot2050-advanced-sm";
+ 
+ 			images {
+diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-m2-rev-u-boot.dtsi b/arch/arm/dts/k3-am6548-iot2050-advanced-m2-rev-u-boot.dtsi
+new file mode 120000
+index 000000000000..859776d3ffe1
+--- /dev/null
++++ b/arch/arm/dts/k3-am6548-iot2050-advanced-m2-rev-u-boot.dtsi
+@@ -0,0 +1 @@
++k3-am6528-iot2050-basic-pg2-u-boot.dtsi
+\ No newline at end of file
+diff --git a/arch/arm/dts/k3-am6548-iot2050-advanced-pg2-rev-u-boot.dtsi b/arch/arm/dts/k3-am6548-iot2050-advanced-pg2-rev-u-boot.dtsi
+new file mode 120000
+index 000000000000..859776d3ffe1
+--- /dev/null
++++ b/arch/arm/dts/k3-am6548-iot2050-advanced-pg2-rev-u-boot.dtsi
+@@ -0,0 +1 @@
++k3-am6528-iot2050-basic-pg2-u-boot.dtsi
+\ No newline at end of file
+diff --git a/board/siemens/iot2050/board.c b/board/siemens/iot2050/board.c
+index 1fbb30af923b..91c0ab371ca5 100644
+--- a/board/siemens/iot2050/board.c
++++ b/board/siemens/iot2050/board.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
+  * Board specific initialization for IOT2050
+- * Copyright (c) Siemens AG, 2018-2023
++ * Copyright (c) Siemens AG, 2018-2026
+  *
+  * Authors:
+  *   Le Jin <le.jin@siemens.com>
+@@ -210,6 +210,7 @@ void set_board_info_env(void)
+ {
+ 	struct udevice *sysinfo;
+ 	const char *fdtfile;
++	int board_rev;
+ 	char buf[41];
+ 
+ 	if (env_get("board_uuid"))
+@@ -248,15 +249,22 @@ void set_board_info_env(void)
+ 		}
+ 	}
+ 
++	if (sysinfo_get_int(sysinfo, BOARD_REVISION, &board_rev))
++		board_rev = 0;
++
+ 	if (board_is_advanced()) {
+ 		if (board_is_pg1())
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
+ 		else if (board_is_m2())
+-			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
++			fdtfile = board_rev == 1 ?
++				"ti/k3-am6548-iot2050-advanced-m2-rev.dtb" :
++				"ti/k3-am6548-iot2050-advanced-m2.dtb";
+ 		else if (board_is_sm())
+ 			fdtfile = "ti/k3-am6548-iot2050-advanced-sm.dtb";
+ 		else
+-			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
++			fdtfile = board_rev == 1 ?
++				"ti/k3-am6548-iot2050-advanced-pg2-rev.dtb" :
++				"ti/k3-am6548-iot2050-advanced-pg2.dtb";
+ 	} else {
+ 		if (board_is_pg1())
+ 			fdtfile = "ti/k3-am6528-iot2050-basic.dtb";
+@@ -470,10 +478,18 @@ int dram_init_banksize(void)
+ #ifdef CONFIG_SPL_LOAD_FIT
+ int board_fit_config_name_match(const char *name)
+ {
++	struct udevice *sysinfo;
++	char board_name_tmp[32];
+ 	char upper_name[32];
++	int board_rev = 0;
++
++	if (!setup_sysinfo(&sysinfo))
++		return -1;
+ 
+ 	get_board_name();
+ 
++	sysinfo_get_int(sysinfo, BOARD_REVISION, &board_rev);
++
+ 	/* skip the prefix "ti/k3-am65x8-" */
+ 	name += 13;
+ 
+@@ -481,7 +497,13 @@ int board_fit_config_name_match(const char *name)
+ 		return -1;
+ 
+ 	str_to_upper(name, upper_name, sizeof(upper_name));
+-	if (!strcmp(upper_name, iot2050_board_name))
++
++	strlcpy(board_name_tmp, iot2050_board_name, sizeof(board_name_tmp));
++	if (board_rev == 1 &&
++	    strlcat(board_name_tmp, "-REV", sizeof(board_name_tmp)) >= sizeof(board_name_tmp))
++		return -1;
++
++	if (!strcmp(upper_name, board_name_tmp))
+ 		return 0;
+ 
+ 	return -1;
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index 02ef5e5e8b77..e904c283c0e8 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -75,7 +75,7 @@ CONFIG_CMD_TIME=y
+ CONFIG_OF_CONTROL=y
+ CONFIG_SPL_OF_CONTROL=y
+ CONFIG_OF_UPSTREAM=y
+-CONFIG_OF_LIST="ti/k3-am6528-iot2050-basic ti/k3-am6528-iot2050-basic-pg2 ti/k3-am6548-iot2050-advanced ti/k3-am6548-iot2050-advanced-pg2 ti/k3-am6548-iot2050-advanced-m2 ti/k3-am6548-iot2050-advanced-sm"
++CONFIG_OF_LIST="ti/k3-am6528-iot2050-basic ti/k3-am6528-iot2050-basic-pg2 ti/k3-am6548-iot2050-advanced ti/k3-am6548-iot2050-advanced-pg2 ti/k3-am6548-iot2050-advanced-pg2-rev ti/k3-am6548-iot2050-advanced-m2 ti/k3-am6548-iot2050-advanced-m2-rev ti/k3-am6548-iot2050-advanced-sm"
+ CONFIG_OF_OVERLAY_LIST="ti/k3-am6548-iot2050-advanced-m2-bkey-usb3 ti/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie ti/k3-am6548-iot2050-advanced-dma-isolation"
+ CONFIG_SPL_MULTI_DTB_FIT=y
+ CONFIG_SPL_OF_LIST="ti/k3-am6528-iot2050-basic"
+diff --git a/drivers/sysinfo/iot2050.c b/drivers/sysinfo/iot2050.c
+index 579a9f4711db..c1db57f4a951 100644
+--- a/drivers/sysinfo/iot2050.c
++++ b/drivers/sysinfo/iot2050.c
+@@ -26,7 +26,8 @@ struct iot2050_info {
+ 	u8 mac_addr_cnt;
+ 	u8 mac_addr[8][ARP_HLEN];
+ 	char seboot_version[40 + 1];
+-	u8 padding[3];
++	u8 rev;
++	u8 padding[2];
+ 	u32 ddr_size_mb;
+ } __packed;
+ 
+@@ -93,6 +94,9 @@ static int sysinfo_iot2050_get_int(struct udevice *dev, int id, int *val)
+ 	case SYSID_BOARD_RAM_SIZE_MB:
+ 		*val = priv->info->ddr_size_mb;
+ 		return 0;
++	case BOARD_REVISION:
++		*val = priv->info->rev;
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	};
+diff --git a/drivers/sysinfo/iot2050.h b/drivers/sysinfo/iot2050.h
+index 657221db0960..09ac4e471b84 100644
+--- a/drivers/sysinfo/iot2050.h
++++ b/drivers/sysinfo/iot2050.h
+@@ -11,4 +11,5 @@ enum sysinfo_id_iot2050 {
+ 	BOARD_NAME,
+ 	BOARD_UUID,
+ 	BOARD_SEBOOT_VER,
++	BOARD_REVISION,
+ };
+diff --git a/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi b/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
+new file mode 100644
+index 000000000000..70638b5252c8
+--- /dev/null
++++ b/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector-rev.dtsi
+@@ -0,0 +1,231 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (c) Siemens AG, 2026
++ *
++ * Authors:
++ *   Baocheng Su <baocheng.su@siemens.com>
++ *
++ * Arduino connector rework for IOT2050 Advanced PG2 variants (M2/PG2).
++ *
++ * All the arduino pins are connected to the I2C GPIO expanders (D4200,
++ * D4201, D4202).
++ */
++
++&main_pmx0 {
++	ehrpwm0_pins_default: ehrpwm0-default-pins {
++		pinctrl-single,pins = <
++			/* (AG18) EHRPWM0_A */
++			AM65X_IOPAD(0x0084, PIN_OUTPUT, 5)
++		>;
++	};
++
++	ehrpwm1_pins_default: ehrpwm1-default-pins {
++		pinctrl-single,pins = <
++			/* (AF17) EHRPWM1_A */
++			AM65X_IOPAD(0x008C, PIN_OUTPUT, 5)
++		>;
++	};
++
++	ehrpwm2_pins_default: ehrpwm2-default-pins {
++		pinctrl-single,pins = <
++			/* (AH16) EHRPWM2_A */
++			AM65X_IOPAD(0x0098, PIN_OUTPUT, 5)
++		>;
++	};
++
++	ehrpwm3_pins_default: ehrpwm3-default-pins {
++		pinctrl-single,pins = <
++			/* (AH15) EHRPWM3_A */
++			AM65X_IOPAD(0x00AC, PIN_OUTPUT, 5)
++		>;
++	};
++
++	ehrpwm4_pins_default: ehrpwm4-default-pins {
++		pinctrl-single,pins = <
++			/* (AG15) EHRPWM4_A */
++			AM65X_IOPAD(0x00C0, PIN_OUTPUT, 5)
++		>;
++	};
++
++	ehrpwm5_pins_default: ehrpwm5-default-pins {
++		pinctrl-single,pins = <
++			/* (AD15) EHRPWM5_A */
++			AM65X_IOPAD(0x00CC, PIN_OUTPUT, 5)
++		>;
++	};
++};
++
++&main_gpio0 {
++	gpio-line-names = "main_gpio0-base";
++};
++
++&wkup_pmx0 {
++	mcu_uart0_pins_default: mcu-uart0-default-pins {
++		pinctrl-single,pins = <
++			/* (P4) MCU_UART0_RXD */
++			AM65X_WKUP_IOPAD(0x0044, PIN_INPUT, 4)
++			/* (P5) MCU_UART0_TXD */
++			AM65X_WKUP_IOPAD(0x0048, PIN_OUTPUT, 4)
++			/* (P1) MCU_UART0_CTSn */
++			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 4)
++			/* (N3) MCU_UART0_RTSn */
++			AM65X_WKUP_IOPAD(0x0054, PIN_OUTPUT, 4)
++		>;
++	};
++
++	wkup_i2c0_pins_default: wkup-i2c0-default-pins {
++		pinctrl-single,pins = <
++			/* (AC7) WKUP_I2C0_SCL */
++			AM65X_WKUP_IOPAD(0x00e0, PIN_INPUT,  0)
++			/* (AD6) WKUP_I2C0_SDA */
++			AM65X_WKUP_IOPAD(0x00e4, PIN_INPUT,  0)
++		>;
++	};
++
++	arduino_i2c_aio_switch_pins_default: arduino-i2c-aio-switch-default-pins {
++		pinctrl-single,pins = <
++			/* (R2) WKUP_GPIO0_21 */
++			AM65X_WKUP_IOPAD(0x0024, PIN_OUTPUT, 7)
++		>;
++	};
++
++	io_expander_int_pins_default: io-expander-int-default-pins {
++		pinctrl-single,pins = <
++			/* (M2) WKUP_GPIO0_36 → D4200 INT */
++			AM65X_WKUP_IOPAD(0x0060, PIN_INPUT_PULLUP, 7)
++			/* (M3) WKUP_GPIO0_37 → D4201 INT */
++			AM65X_WKUP_IOPAD(0x0064, PIN_INPUT_PULLUP, 7)
++			/* (M4) WKUP_GPIO0_38 → D4202 INT */
++			AM65X_WKUP_IOPAD(0x0068, PIN_INPUT_PULLUP, 7)
++		>;
++	};
++};
++
++&wkup_gpio0 {
++	pinctrl-names = "default";
++	pinctrl-0 =
++		<&arduino_i2c_aio_switch_pins_default>,
++		<&io_expander_int_pins_default>,
++		<&push_button_pins_default>,
++		<&db9_com_mode_pins_default>;
++
++	gpio-line-names =
++		/* 0..9 */
++		"wkup_gpio0-base", "", "", "", "UART0-mode1", "UART0-mode0",
++		"UART0-enable", "UART0-terminate", "", "WIFI-disable",
++		/* 10..19 */
++		"", "", "", "", "", "", "", "", "", "",
++		/* 20..29 */
++		"", "A4A5-I2C-mux", "", "", "", "USER-button", "", "", "", "",
++		/* 30..39 */
++		"", "", "", "", "", "", "D4200-INT", "D4201-INT", "D4202-INT";
++};
++
++&wkup_i2c0 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&wkup_i2c0_pins_default>;
++	clock-frequency = <400000>;
++};
++
++&mcu_i2c0 {
++	/* D4200 */
++	pcal9535_1: gpio@20 {
++		compatible = "nxp,pcal9535";
++		reg = <0x20>;
++		interrupt-parent = <&wkup_gpio0>;
++		interrupts = <37 IRQ_TYPE_EDGE_FALLING>;
++		#gpio-cells = <2>;
++		gpio-controller;
++		gpio-line-names =
++			"A0", "A1", "A2", "A3", "A4", "A5",
++			"IO14-direction", "IO15-direction",
++			"IO14-enable", "IO15-enable", "IO16-enable",
++			"IO17-enable", "IO18-enable", "IO19-enable",
++			"IO18-direction", "IO16-direction";
++	};
++
++	/* D4201 */
++	pcal9535_2: gpio@21 {
++		compatible = "nxp,pcal9535";
++		reg = <0x21>;
++		interrupt-parent = <&wkup_gpio0>;
++		interrupts = <36 IRQ_TYPE_EDGE_FALLING>;
++		#gpio-cells = <2>;
++		gpio-controller;
++		gpio-line-names =
++			"IO0-direction", "IO1-direction", "IO2-direction",
++			"IO3-direction", "IO4-direction", "IO5-direction",
++			"IO6-direction", "IO7-direction",
++			"IO8-direction", "IO9-direction", "IO10-direction",
++			"IO11-direction", "IO12-direction", "IO13-direction",
++			"IO19-direction";
++	};
++
++	/* D4202 */
++	pcal9535_3: gpio@25 {
++		compatible = "nxp,pcal9535";
++		reg = <0x25>;
++		interrupt-parent = <&wkup_gpio0>;
++		interrupts = <38 IRQ_TYPE_EDGE_FALLING>;
++		#gpio-cells = <2>;
++		gpio-controller;
++		gpio-line-names =
++			"IO0", "IO1", "IO2", "IO3",	"IO4", "IO5", "IO6", "IO7",
++			"IO8", "IO9", "IO10", "IO11", "IO12", "IO13";
++	};
++};
++
++&mcu_uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcu_uart0_pins_default>;
++	status = "okay";
++};
++
++&mcu_spi0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcu_spi0_pins_default>;
++};
++
++&tscadc1 {
++	status = "okay";
++	adc {
++		ti,adc-channels = <0 1 2 3 4 5>;
++	};
++};
++
++&ehrpwm0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm0_pins_default>;
++	status = "okay";
++};
++
++&ehrpwm1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm1_pins_default>;
++	status = "okay";
++};
++
++&ehrpwm2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm2_pins_default>;
++	status = "okay";
++};
++
++&ehrpwm3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm3_pins_default>;
++	status = "okay";
++};
++
++&ehrpwm4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm4_pins_default>;
++	status = "okay";
++};
++
++&ehrpwm5 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm5_pins_default>;
++	status = "okay";
++};
+diff --git a/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector.dtsi b/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector.dtsi
+index 6c7fdaf1f2c4..7ff0abd7c62e 100644
+--- a/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector.dtsi
++++ b/dts/upstream/src/arm64/ti/k3-am65-iot2050-arduino-connector.dtsi
+@@ -138,28 +138,28 @@
+ 	d2_uart0_ctsn: d2-uart0-ctsn-pins {
+ 		pinctrl-single,pins = <
+ 			/* (P1) MCU_UART0_CTSn */
+-			AM65X_WKUP_IOPAD(0x004c, PIN_INPUT, 4)
++			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 4)
+ 		>;
+ 	};
+ 
+ 	d2_gpio: d2-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (P5) WKUP_GPIO0_31 */
+-			AM65X_WKUP_IOPAD(0x004c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	d2_gpio_pullup: d2-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (P5) WKUP_GPIO0_31 */
+-			AM65X_WKUP_IOPAD(0x004c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	d2_gpio_pulldown: d2-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (P5) WKUP_GPIO0_31 */
+-			AM65X_WKUP_IOPAD(0x004c, PIN_INPUT_PULLDOWN, 7)
++			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+@@ -348,42 +348,42 @@
+ 	a2_gpio: a2-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (L5) WKUP_GPIO0_43 */
+-			AM65X_WKUP_IOPAD(0x007c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x007C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	a2_gpio_pullup: a2-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (L5) WKUP_GPIO0_43 */
+-			AM65X_WKUP_IOPAD(0x007c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x007C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	a2_gpio_pulldown: a2-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (L5) WKUP_GPIO0_43 */
+-			AM65X_WKUP_IOPAD(0x007c, PIN_INPUT_PULLDOWN, 7)
++			AM65X_WKUP_IOPAD(0x007C, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+ 	a3_gpio: a3-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (M5) WKUP_GPIO0_39 */
+-			AM65X_WKUP_IOPAD(0x006c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x006C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	a3_gpio_pullup: a3-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (M5) WKUP_GPIO0_39 */
+-			AM65X_WKUP_IOPAD(0x006c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x006C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	a3_gpio_pulldown: a3-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (M5) WKUP_GPIO0_39 */
+-			AM65X_WKUP_IOPAD(0x006c, PIN_INPUT_PULLDOWN, 7)
++			AM65X_WKUP_IOPAD(0x006C, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+@@ -411,21 +411,21 @@
+ 	a5_gpio: a5-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (N5) WKUP_GPIO0_35 */
+-			AM65X_WKUP_IOPAD(0x005c, PIN_INPUT, 7)
++			AM65X_WKUP_IOPAD(0x005C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	a5_gpio_pullup: a5-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (N5) WKUP_GPIO0_35 */
+-			AM65X_WKUP_IOPAD(0x005c, PIN_INPUT_PULLUP, 7)
++			AM65X_WKUP_IOPAD(0x005C, PIN_INPUT_PULLUP, 7)
+ 		>;
+ 	};
+ 
+ 	a5_gpio_pulldown: a5-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (N5) WKUP_GPIO0_35 */
+-			AM65X_WKUP_IOPAD(0x005c, PIN_INPUT_PULLDOWN, 7)
++			AM65X_WKUP_IOPAD(0x005C, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+@@ -533,28 +533,28 @@
+ 	d5_ehrpwm1_a: d5-ehrpwm1-a-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AF17) EHRPWM1_A */
+-			AM65X_IOPAD(0x008c, PIN_OUTPUT, 5)
++			AM65X_IOPAD(0x008C, PIN_OUTPUT, 5)
+ 		>;
+ 	};
+ 
+ 	d5_gpio: d5-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AF17) GPIO0_35 */
+-			AM65X_IOPAD(0x008c, PIN_INPUT, 7)
++			AM65X_IOPAD(0x008C, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	d5_gpio_pullup: d5-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AF17) GPIO0_35 */
+-			AM65X_IOPAD(0x008c, PIN_INPUT_PULLUP, 7)
++			AM65X_IOPAD(0x008C, PIN_INPUT_PULLUP, 7)
+ 		>;
+ 	};
+ 
+ 	d5_gpio_pulldown: d5-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AF17) GPIO0_35 */
+-			AM65X_IOPAD(0x008c, PIN_INPUT_PULLDOWN, 7)
++			AM65X_IOPAD(0x008C, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+@@ -589,84 +589,84 @@
+ 	d7_ehrpwm3_a: d7-ehrpwm3-a-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AH15) EHRPWM3_A */
+-			AM65X_IOPAD(0x00ac, PIN_OUTPUT, 5)
++			AM65X_IOPAD(0x00AC, PIN_OUTPUT, 5)
+ 		>;
+ 	};
+ 
+ 	d7_gpio: d7-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AH15) GPIO0_43 */
+-			AM65X_IOPAD(0x00ac, PIN_INPUT, 7)
++			AM65X_IOPAD(0x00AC, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	d7_gpio_pullup: d7-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AH15) GPIO0_43 */
+-			AM65X_IOPAD(0x00ac, PIN_INPUT_PULLUP, 7)
++			AM65X_IOPAD(0x00AC, PIN_INPUT_PULLUP, 7)
+ 		>;
+ 	};
+ 
+ 	d7_gpio_pulldown: d7-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AH15) GPIO0_43 */
+-			AM65X_IOPAD(0x00ac, PIN_INPUT_PULLDOWN, 7)
++			AM65X_IOPAD(0x00AC, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+ 	d8_ehrpwm4_a: d8-ehrpwm4-a-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AG15) EHRPWM4_A */
+-			AM65X_IOPAD(0x00c0, PIN_OUTPUT, 5)
++			AM65X_IOPAD(0x00C0, PIN_OUTPUT, 5)
+ 		>;
+ 	};
+ 
+ 	d8_gpio: d8-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AG15) GPIO0_48 */
+-			AM65X_IOPAD(0x00c0, PIN_INPUT, 7)
++			AM65X_IOPAD(0x00C0, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	d8_gpio_pullup: d8-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AG15) GPIO0_48 */
+-			AM65X_IOPAD(0x00c0, PIN_INPUT_PULLUP, 7)
++			AM65X_IOPAD(0x00C0, PIN_INPUT_PULLUP, 7)
+ 		>;
+ 	};
+ 
+ 	d8_gpio_pulldown: d8-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AG15) GPIO0_48 */
+-			AM65X_IOPAD(0x00c0, PIN_INPUT_PULLDOWN, 7)
++			AM65X_IOPAD(0x00C0, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ 
+ 	d9_ehrpwm5_a: d9-ehrpwm5-a-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AD15) EHRPWM5_A */
+-			AM65X_IOPAD(0x00cc, PIN_OUTPUT, 5)
++			AM65X_IOPAD(0x00CC, PIN_OUTPUT, 5)
+ 		>;
+ 	};
+ 
+ 	d9_gpio: d9-gpio-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AD15) GPIO0_51 */
+-			AM65X_IOPAD(0x00cc, PIN_INPUT, 7)
++			AM65X_IOPAD(0x00CC, PIN_INPUT, 7)
+ 		>;
+ 	};
+ 
+ 	d9_gpio_pullup: d9-gpio-pullup-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AD15) GPIO0_51 */
+-			AM65X_IOPAD(0x00cc, PIN_INPUT_PULLUP, 7)
++			AM65X_IOPAD(0x00CC, PIN_INPUT_PULLUP, 7)
+ 		>;
+ 	};
+ 
+ 	d9_gpio_pulldown: d9-gpio-pulldown-pins {
+ 		pinctrl-single,pins = <
+ 			/* (AD15) GPIO0_51 */
+-			AM65X_IOPAD(0x00cc, PIN_INPUT_PULLDOWN, 7)
++			AM65X_IOPAD(0x00CC, PIN_INPUT_PULLDOWN, 7)
+ 		>;
+ 	};
+ };
+diff --git a/dts/upstream/src/arm64/ti/k3-am6528-iot2050-basic-pg2.dts b/dts/upstream/src/arm64/ti/k3-am6528-iot2050-basic-pg2.dts
+index c1faf9497b63..a312f6db15e3 100644
+--- a/dts/upstream/src/arm64/ti/k3-am6528-iot2050-basic-pg2.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6528-iot2050-basic-pg2.dts
+@@ -16,8 +16,8 @@
+ /dts-v1/;
+ 
+ #include "k3-am6528-iot2050-basic-common.dtsi"
+-#include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-dp.dtsi"
++#include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-usb3.dtsi"
+ 
+ / {
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
+new file mode 100644
+index 000000000000..665e2f9d3f4b
+--- /dev/null
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-common.dtsi
+@@ -0,0 +1,83 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (c) Siemens AG, 2018-2026
++ *
++ * Authors:
++ *   Chao Zeng <chao.zeng@siemens.com>
++ *   Jan Kiszka <jan.kiszka@siemens.com>
++ */
++
++#include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-dp.dtsi"
++#include "k3-am65-iot2050-common-pg2.dtsi"
++
++&main_pmx0 {
++	main_bkey_pcie_reset: main-bkey-pcie-reset-default-pins {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01bc, PIN_OUTPUT_PULLUP, 7)  /* (AG13) GPIO1_15 */
++		>;
++	};
++
++	main_pmx0_m2_config_pins_default: main-pmx0-m2-config-default-pins {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x01c8, PIN_INPUT_PULLUP, 7)  /* (AE13) GPIO1_18 */
++			AM65X_IOPAD(0x01cc, PIN_INPUT_PULLUP, 7)  /* (AD13) GPIO1_19 */
++		>;
++	};
++
++	main_m2_pcie_mux_control: main-m2-pcie-mux-control-default-pins {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x0148, PIN_INPUT_PULLUP, 7)  /* (AG22) GPIO0_82 */
++			AM65X_IOPAD(0x0160, PIN_INPUT_PULLUP, 7)  /* (AE20) GPIO0_88 */
++			AM65X_IOPAD(0x0164, PIN_INPUT_PULLUP, 7)  /* (AF19) GPIO0_89 */
++		>;
++	};
++};
++
++&main_pmx1 {
++	main_pmx1_m2_config_pins_default: main-pmx1-m2-config-default-pins {
++		pinctrl-single,pins = <
++			AM65X_IOPAD(0x0018, PIN_INPUT_PULLUP, 7)  /* (B22) GPIO1_88 */
++			AM65X_IOPAD(0x001c, PIN_INPUT_PULLUP, 7)  /* (C23) GPIO1_89 */
++		>;
++	};
++};
++
++&main_gpio0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_m2_pcie_mux_control>;
++};
++
++&main_gpio1 {
++	pinctrl-names = "default";
++	pinctrl-0 =
++		<&main_pcie_enable_pins_default>,
++		<&main_pmx0_m2_config_pins_default>,
++		<&main_pmx1_m2_config_pins_default>,
++		<&cp2102n_reset_pin_default>;
++};
++
++/*
++ * Base configuration for B-key slot with PCIe x2, E-key with USB 2.0 only.
++ * Firmware switches to other modes via device tree overlays.
++ */
++
++&serdes0 {
++	assigned-clocks = <&k3_clks 153 4>, <&serdes0 AM654_SERDES_CMU_REFCLK>;
++	assigned-clock-parents = <&k3_clks 153 8>, <&k3_clks 153 4>;
++};
++
++&pcie0_rc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&main_bkey_pcie_reset>;
++
++	num-lanes = <2>;
++	phys = <&serdes0 PHY_TYPE_PCIE 1>, <&serdes1 PHY_TYPE_PCIE 1>;
++	phy-names = "pcie-phy0","pcie-phy1";
++	reset-gpios = <&main_gpio1 15 GPIO_ACTIVE_HIGH>;
++	status = "okay";
++};
++
++&pcie1_rc {
++	status = "disabled";
++};
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts
+new file mode 100644
+index 000000000000..07b2350fb218
+--- /dev/null
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2-rev.dts
+@@ -0,0 +1,23 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (c) Siemens AG, 2026
++ *
++ * Authors:
++ *   Baocheng Su <baocheng.su@siemens.com>
++ *
++ * AM6548-based (quad-core) IOT2050 M.2 variant (based on Advanced Product
++ * Generation 2), 2 GB RAM, 16 GB eMMC, USB-serial converter on connector X30
++ *
++ * Rev: Arduino interface re-design
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
++ */
++
++#include "k3-am6548-iot2050-advanced-m2-common.dtsi"
++#include "k3-am65-iot2050-arduino-connector-rev.dtsi"
++
++/ {
++	compatible = "siemens,iot2050-advanced-m2-rev", "ti,am654";
++	model = "SIMATIC IOT2050 Advanced M2 Rev";
++};
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts
+index cc619bbec181..0ff659a2c1b8 100644
+--- a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-m2.dts
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) Siemens AG, 2018-2023
++ * Copyright (c) Siemens AG, 2018-2026
+  *
+  * Authors:
+  *   Chao Zeng <chao.zeng@siemens.com>
+@@ -13,83 +13,10 @@
+  * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
+  */
+ 
+-#include "k3-am6548-iot2050-advanced-common.dtsi"
+-#include "k3-am65-iot2050-common-pg2.dtsi"
++#include "k3-am6548-iot2050-advanced-m2-common.dtsi"
+ #include "k3-am65-iot2050-arduino-connector.dtsi"
+-#include "k3-am65-iot2050-dp.dtsi"
+ 
+ / {
+ 	compatible = "siemens,iot2050-advanced-m2", "ti,am654";
+ 	model = "SIMATIC IOT2050 Advanced M2";
+ };
+-
+-&main_pmx0 {
+-	main_bkey_pcie_reset: main-bkey-pcie-reset-default-pins {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x01bc, PIN_OUTPUT_PULLUP, 7)  /* (AG13) GPIO1_15 */
+-		>;
+-	};
+-
+-	main_pmx0_m2_config_pins_default: main-pmx0-m2-config-default-pins {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x01c8, PIN_INPUT_PULLUP, 7)  /* (AE13) GPIO1_18 */
+-			AM65X_IOPAD(0x01cc, PIN_INPUT_PULLUP, 7)  /* (AD13) GPIO1_19 */
+-		>;
+-	};
+-
+-	main_m2_pcie_mux_control: main-m2-pcie-mux-control-default-pins {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x0148, PIN_INPUT_PULLUP, 7)  /* (AG22) GPIO0_82 */
+-			AM65X_IOPAD(0x0160, PIN_INPUT_PULLUP, 7)  /* (AE20) GPIO0_88 */
+-			AM65X_IOPAD(0x0164, PIN_INPUT_PULLUP, 7)  /* (AF19) GPIO0_89 */
+-		>;
+-	};
+-};
+-
+-&main_pmx1 {
+-	main_pmx1_m2_config_pins_default: main-pmx1-m2-config-default-pins {
+-		pinctrl-single,pins = <
+-			AM65X_IOPAD(0x0018, PIN_INPUT_PULLUP, 7)  /* (B22) GPIO1_88 */
+-			AM65X_IOPAD(0x001c, PIN_INPUT_PULLUP, 7)  /* (C23) GPIO1_89 */
+-		>;
+-	};
+-};
+-
+-&main_gpio0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&main_m2_pcie_mux_control>;
+-};
+-
+-&main_gpio1 {
+-	pinctrl-names = "default";
+-	pinctrl-0 =
+-		<&main_pcie_enable_pins_default>,
+-		<&main_pmx0_m2_config_pins_default>,
+-		<&main_pmx1_m2_config_pins_default>,
+-		<&cp2102n_reset_pin_default>;
+-};
+-
+-/*
+- * Base configuration for B-key slot with PCIe x2, E-key with USB 2.0 only.
+- * Firmware switches to other modes via device tree overlays.
+- */
+-
+-&serdes0 {
+-	assigned-clocks = <&k3_clks 153 4>, <&serdes0 AM654_SERDES_CMU_REFCLK>;
+-	assigned-clock-parents = <&k3_clks 153 8>, <&k3_clks 153 4>;
+-};
+-
+-&pcie0_rc {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&main_bkey_pcie_reset>;
+-
+-	num-lanes = <2>;
+-	phys = <&serdes0 PHY_TYPE_PCIE 1>, <&serdes1 PHY_TYPE_PCIE 1>;
+-	phy-names = "pcie-phy0","pcie-phy1";
+-	reset-gpios = <&main_gpio1 15 GPIO_ACTIVE_HIGH>;
+-	status = "okay";
+-};
+-
+-&pcie1_rc {
+-	status = "disabled";
+-};
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
+new file mode 100644
+index 000000000000..d84c2ffa31b8
+--- /dev/null
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2-rev.dts
+@@ -0,0 +1,28 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (c) Siemens AG, 2026
++ *
++ * Authors:
++ *   Baocheng Su <baocheng.su@siemens.com>
++ *
++ * AM6548-based (quad-core) IOT2050 Advanced variant, Product Generation 2
++ * 2 GB RAM, 16 GB eMMC, USB-serial converter on connector X30
++ *
++ * Rev: Arduino interface re-design
++ *
++ * Product homepage:
++ * https://new.siemens.com/global/en/products/automation/pc-based/iot-gateways/simatic-iot2050.html
++ */
++
++/dts-v1/;
++
++#include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-dp.dtsi"
++#include "k3-am65-iot2050-common-pg2.dtsi"
++#include "k3-am65-iot2050-arduino-connector-rev.dtsi"
++#include "k3-am65-iot2050-usb3.dtsi"
++
++/ {
++	compatible = "siemens,iot2050-advanced-pg2-rev", "ti,am654";
++	model = "SIMATIC IOT2050 Advanced PG2 Rev";
++};
+diff --git a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts
+index ec721275e8e2..231af1363d91 100644
+--- a/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6548-iot2050-advanced-pg2.dts
+@@ -16,9 +16,9 @@
+ /dts-v1/;
+ 
+ #include "k3-am6548-iot2050-advanced-common.dtsi"
++#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-common-pg2.dtsi"
+ #include "k3-am65-iot2050-arduino-connector.dtsi"
+-#include "k3-am65-iot2050-dp.dtsi"
+ #include "k3-am65-iot2050-usb3.dtsi"
+ 
+ / {
