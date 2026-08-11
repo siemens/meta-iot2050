@@ -17,7 +17,7 @@ boot reliability.
 Signed-off-by: Li Hua Qian <huaqian.li@siemens.com>
 ---
  arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi b/arch/arm64/boot/dts/ti/k3-am65-iot2050-common-pg2.dtsi
 index b3c4c0eec3dc..149bc29ef356 100644
