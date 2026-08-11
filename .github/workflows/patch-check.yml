@@ -1,0 +1,82 @@
+name: Patch Check
+
+on:
+  push:
+    branches:
+      - master
+      - stable/V*
+    paths:
+      - 'meta/recipes-bsp/u-boot/**'
+      - 'meta/recipes-kernel/**'
+      - 'scripts/host/check-patch-format.sh'
+      - '.github/workflows/patch-check.yml'
+  pull_request:
+    branches:
+      - master
+      - stable/V*
+    paths:
+      - 'meta/recipes-bsp/u-boot/**'
+      - 'meta/recipes-kernel/**'
+      - 'scripts/host/check-patch-format.sh'
+      - '.github/workflows/patch-check.yml'
+  workflow_dispatch: {}
+
+jobs:
+  patch-format:
+    name: Check U-Boot and Linux patches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Find latest upstream tags
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # The upstream master branches do not guarantee stable availability
+          # of the checkpatch scripts and their companion files. Use the
+          # latest stable tag instead.
+          uboot_tag=$(git ls-remote --tags --refs \
+            https://github.com/u-boot/u-boot.git 'v*' |
+            sed 's#.*refs/tags/##' |
+            grep -E '^v[0-9]{4}\.[0-9]{2}$' |
+            sort -V | tail -n 1)
+          linux_tag=$(git ls-remote --tags --refs \
+            https://gitlab.com/cip-project/cip-kernel/linux-cip.git 'v*' |
+            sed 's#.*refs/tags/##' |
+            grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-cip[0-9]+$' |
+            sort -V | tail -n 1)
+
+          test -n "$uboot_tag"
+          test -n "$linux_tag"
+          echo "U-Boot tag: $uboot_tag"
+          echo "Linux CIP tag: $linux_tag"
+          echo "uboot_tag=$uboot_tag" >> "$GITHUB_OUTPUT"
+          echo "linux_tag=$linux_tag" >> "$GITHUB_OUTPUT"
+      - name: Fetch U-Boot checkpatch
+        run: |
+          mkdir -p uboot-checkpatch
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/u-boot/u-boot/${{ steps.tags.outputs.uboot_tag }}/scripts/checkpatch.pl" \
+            --output uboot-checkpatch/checkpatch.pl
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/u-boot/u-boot/${{ steps.tags.outputs.uboot_tag }}/scripts/spelling.txt" \
+            --output uboot-checkpatch/spelling.txt
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/u-boot/u-boot/${{ steps.tags.outputs.uboot_tag }}/scripts/const_structs.checkpatch" \
+            --output uboot-checkpatch/const_structs.checkpatch
+      - name: Fetch Linux checkpatch
+        run: |
+          mkdir -p linux-checkpatch
+          curl --fail --location --retry 3 \
+            "https://gitlab.com/cip-project/cip-kernel/linux-cip/-/raw/${{ steps.tags.outputs.linux_tag }}/scripts/checkpatch.pl" \
+            --output linux-checkpatch/checkpatch.pl
+          curl --fail --location --retry 3 \
+            "https://gitlab.com/cip-project/cip-kernel/linux-cip/-/raw/${{ steps.tags.outputs.linux_tag }}/scripts/spelling.txt" \
+            --output linux-checkpatch/spelling.txt
+          curl --fail --location --retry 3 \
+            "https://gitlab.com/cip-project/cip-kernel/linux-cip/-/raw/${{ steps.tags.outputs.linux_tag }}/scripts/const_structs.checkpatch" \
+            --output linux-checkpatch/const_structs.checkpatch
+      - name: Validate patch format
+        run: bash scripts/host/check-patch-format.sh "$PWD/uboot-checkpatch/checkpatch.pl" "$PWD/linux-checkpatch/checkpatch.pl"
