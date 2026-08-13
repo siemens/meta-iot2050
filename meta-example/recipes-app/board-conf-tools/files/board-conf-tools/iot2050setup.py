@@ -343,6 +343,7 @@ class ArduinoIoMode(BoardConfigurationUtility):
                                                     title='Configure Arduino I/O',
                                                     text=ioInfor,
                                                     items=[('Arduino Pinout', self.show_arduino_pinout),
+                                                           ('Configure Do Not Touch', self.configureArduinoDoNotTouch),
                                                            ('Enable GPIO', self.configureArduinoGpio),
                                                            ('Enable I2C on IO18 & IO19', self.configureArduinoI2c),
                                                            ('Enable SPI on IO10-IO13', self.configureArduinoSpi),
@@ -354,6 +355,34 @@ class ArduinoIoMode(BoardConfigurationUtility):
             if action == 'back':
                 return
             selection()
+
+    def configureArduinoDoNotTouch(self):
+        helpText = Label('Checked IOs are not configured during boot.\n'
+                         'Current Mux settings are preserved.\n'
+                         'The APP is responsible for configuring them.\n'
+                         'Changes take effect after the next reboot.')
+        doNotTouchTree = CheckboxTree(height=10, scroll=1)
+        for i in range(0, 20):
+            doNotTouchTree.append(text='IO' + str(i),
+                                  item=i,
+                                  selected=self.getArduinoIoDoNotTouch(i))
+
+        buttonbar = ButtonBar(screen=self.topmenu.gscreen,
+                              buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
+        g = GridForm(self.topmenu.gscreen,
+                     'Configure Do Not Touch',
+                     1, 3)
+        g.add(helpText, 0, 0)
+        g.add(doNotTouchTree, 0, 1)
+        g.add(buttonbar, 0, 2)
+        result = g.runOnce()
+        if buttonbar.buttonPressed(result) == 'cancel':
+            return
+
+        selected = doNotTouchTree.getSelection()
+        for i in range(0, 20):
+            self.setArduinoIoDoNotTouch(i, i in selected)
+        self.__saveConfig()
 
     def resetPinDefault(self, pinmux):
         for i in range(0, 20):
@@ -687,7 +716,7 @@ class PeripheralsMenu:
         menuItems = [('Configure External COM Ports', ExternalSerialMode(self.topmenu))]
         if self.topmenu.boardType != 'IOT2050 Advanced SM':
             menuItems.append(('Configure Arduino I/O', ArduinoIoMode(self.topmenu)))
-        if self.topmenu.boardType == 'IOT2050 Advanced M2':
+        if self.topmenu.boardType.startswith('IOT2050 Advanced M2'):
             menuItems.append(('Configure M.2 Connector', M2Connector(self.topmenu)))
 
         while True:

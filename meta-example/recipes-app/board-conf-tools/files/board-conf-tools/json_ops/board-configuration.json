@@ -26,6 +26,28 @@
         "IO18_MUX": "GPIO_Input",
         "IO19_MUX": "GPIO_Input"
     },
+    "Arduino_io_do_not_touch": {
+        "IO0_DO_NOT_TOUCH": false,
+        "IO1_DO_NOT_TOUCH": false,
+        "IO2_DO_NOT_TOUCH": false,
+        "IO3_DO_NOT_TOUCH": false,
+        "IO4_DO_NOT_TOUCH": false,
+        "IO5_DO_NOT_TOUCH": false,
+        "IO6_DO_NOT_TOUCH": false,
+        "IO7_DO_NOT_TOUCH": false,
+        "IO8_DO_NOT_TOUCH": false,
+        "IO9_DO_NOT_TOUCH": false,
+        "IO10_DO_NOT_TOUCH": false,
+        "IO11_DO_NOT_TOUCH": false,
+        "IO12_DO_NOT_TOUCH": false,
+        "IO13_DO_NOT_TOUCH": false,
+        "IO14_DO_NOT_TOUCH": false,
+        "IO15_DO_NOT_TOUCH": false,
+        "IO16_DO_NOT_TOUCH": false,
+        "IO17_DO_NOT_TOUCH": false,
+        "IO18_DO_NOT_TOUCH": false,
+        "IO19_DO_NOT_TOUCH": false
+    },
     "Arduino_io_pull_mode":{
         "IO0_PULL_MODE": "Hiz",
         "IO1_PULL_MODE": "Hiz",

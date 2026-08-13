@@ -59,11 +59,15 @@ def preAllocatePwm():
         This is required for non-root access to PWM pins.
     """
     for i in [4, 5, 6, 7, 8, 9]:
+        if board_conf.getArduinoIoDoNotTouch(i):
+            continue
         p = mraa.Pwm(i, owner=False)
         p.close()
 
 def initAruinoPins():
     for i in range(0, 20):
+        if board_conf.getArduinoIoDoNotTouch(i):
+            continue
         pinmux = board_conf.getArduinoPinmuxCfg(i)
         if pinmux in board_conf.arduinoPinmuxMap(i):
             setPinmux(i, pinmux)
