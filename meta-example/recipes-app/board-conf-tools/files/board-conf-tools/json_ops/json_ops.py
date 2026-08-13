@@ -18,6 +18,9 @@ class BoardConfigurationUtility:
         self.config = self.getConfig()
         self.arduino_pinmux_map = self.config['Arduino_pinmux_map']
         self.arduino_io_mux = self.config['Arduino_io_mux']
+        self.arduino_io_do_not_touch = self.config.setdefault(
+            'Arduino_io_do_not_touch',
+            OrderedDict(('IO' + str(i) + '_DO_NOT_TOUCH', False) for i in range(0, 20)))
         self.arduino_io_pull_mode = self.config['Arduino_io_pull_mode']
         self.external_db9_serial_config = self.config['External_db9_serial']
 
@@ -53,6 +56,12 @@ class BoardConfigurationUtility:
 
     def getArduinoPinmuxCfg(self, index):
         return self.arduino_io_mux['IO' + str(index) + '_MUX']
+
+    def getArduinoIoDoNotTouch(self, index):
+        return self.arduino_io_do_not_touch['IO' + str(index) + '_DO_NOT_TOUCH']
+
+    def setArduinoIoDoNotTouch(self, index, do_not_touch):
+        self.arduino_io_do_not_touch['IO' + str(index) + '_DO_NOT_TOUCH'] = do_not_touch
 
     def _setPinmuxOfUserConfig(self, pinmux, index):
         self.arduino_io_mux['IO' + str(index) + '_MUX'] = pinmux
