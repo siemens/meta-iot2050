@@ -1,961 +1,49 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) Siemens AG, 2020-2026
+# Copyright (c) Siemens AG, 2026
 #
-# Authors:
-#  Chao Zeng <chao.zeng@siemens.com>
-#  Jan Kiszka <jan.kiszka@siemens.com>
-#  Su Bao Cheng <baocheng.su@siemens.com>
-#  Li Hua Qian <huaqian.li@siemens.com>
+# SPDX-License-Identifier: MIT
 #
-# This file is subject to the terms and conditions of the MIT License.  See
-# COPYING.MIT file in the top-level directory.
-#
-"""
-To use this tool, an update package in <firmware-update-package>.tar.xz
-format is needed.
-
-The <firmware-update-package>.tar.xz should contain:
-  - firmware.bin: The firmware to update, could be more than one.
-  - update.conf.json: The update criteria.
-  - u-boot-initial-env: Builtin environment
-  - firmware.bin.sig: (Optional)The signature file for the firmware.bin
-
-Example of update.conf.json:
-{
-    "firmware": [
-        {
-            "description": "IOT2050 PG1 Bootloader Release V01.01.01",
-            "name": "iot2050-pg1-image-boot.bin",
-            "version": "V01.01.01",
-            "type": "uboot",
-            "target_boards": [
-                "SIMATIC IOT2050-BASIC",
-                "SIMATIC IOT2050 Basic",
-                "SIMATIC IOT2050-ADVANCED",
-                "SIMATIC IOT2050 Advanced"
-            ]
-        },
-        {
-            "description": "IOT2050 PG2 Bootloader Release V01.01.01",
-            "name": "iot2050-pg2-image-boot.bin",
-            "version": "V01.01.01",
-            "type": "uboot",
-            "target_boards": [
-                "SIMATIC IOT2050 Basic PG2",
-                "SIMATIC IOT2050 Advanced PG2",
-                "SIMATIC IOT2050 Advanced SM"
-            ]
-        },
-    ],
-    "target_os": [
-        {
-            "type": "[optional] Example Image",
-            "key": "BUILD_ID",
-            "min_version": "V01.01.01"
-        },
-        {
-            "type": "[optional] Industrial OS",
-            "key": "VERSION_ID",
-            "min_version": "2.1.1"
-        }
-    ],
-    "suggest_preserved_uboot_env": [
-        "boot_targets"
-    ]
-}
-
-There are one or more `firmware` node, each node represents one firmware file
-in the tarball and its update control fields, such as which board and which OS
-it could be updated upon.
-
-To indicate which board or boards the firmware could be updated upon, use the
-mandatory `target_boards` inside the `firmware` node. Possible target boards:
-  - PG1 Basic:
-      "SIMATIC IOT2050-BASIC", "SIMATIC IOT2050 Basic"
-  - PG1 Advanced:
-      "SIMATIC IOT2050-ADVANCED", "SIMATIC IOT2050 Advanced"
-  - PG2 Basic:
-      "SIMATIC IOT2050 Basic PG2"
-  - PG2 Advanced:
-      "SIMATIC IOT2050 Advanced PG2"
-  - M2 Variant:
-      "SIMATIC IOT2050 Advanced M2"
-
-To indicate which OS the firmware could be updated upon, use either the
-`target_os` inside the `firmware` node as a local configuration, or use
-a global `target_os` outside the `firmware` node as the global configuration.
-If both exists, the local one will overwrite the global one.
-
-Either global or local `target_os` is optional, if none exists, the updater
-will not check against the OS information.
-
-The `key` and `min_version` field within the `target_os` node will be compared
-to the value from `/etc/os-release` on the board. The `key` matches exactly,
-and the `min_version` matches the minimal version number.
-
-There are one `suggest_preserved_uboot_env` node, this filed in this node
-represent the env variable need to be preserved. there could be multiple
-fileds in this node. Besides, there is a control parameter "-p" to add the
-preserved list from cli, this would not use the preserved env variable in the
-`suggest_preserved_uboot_env` node.
-"""
+"""CLI client for the System Firmware gRPC service."""
 
 import argparse
-import fcntl
-import hashlib
-import io
 import json
 import os
-import sys
-import shutil
-import struct
 import subprocess
-import time
+import sys
 import tarfile
 import textwrap
-import tempfile
-from packaging import version
-from abc import ABC, abstractmethod
-from ctypes import *
-from enum import Enum
-from io import StringIO
-from progress.bar import Bar
-from threading import Thread, Event
-from types import SimpleNamespace as Namespace
-
-# Import cryptography modules for signature verification
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.exceptions import InvalidSignature
-
-class ErrorCode(Enum):
-    """The ErrorCode class describes the return codes"""
-    SUCCESS = 0
-    ROLLBACK_SUCCESS = 1
-    INVALID_ARG = 2
-    BACKUP_FAILED = 3
-    ROLLBACK_FAILED = 4
-    FLASHING_FAILED = 5
-    CANCELED = 6
-    INVALID_FIRMWARE = 7
-    FAILED = 8
-    MISSING_SIGNATURE = 9
-    MISSING_PUBLIC_KEY = 10
-    BAD_SIGNATURE = 11
-
-class UpgradeError(Exception):
-    def __init__(self, ErrorInfo, code=ErrorCode.FAILED.value):
-        super().__init__(self)
-        self.err = ErrorInfo
-        self.code = code
-
-    def __str__(self):
-        return self.err
-
-class Firmware():
-    """The Firmware class represents flash base operations for all flashes"""
-    def __init__(self, firmware):
-        if not isinstance(firmware, io.IOBase):
-            raise UpgradeError("TypeError: firmware must be a file-like object!")
-        self.firmware = firmware
-
-    def __del__(self):
-        if hasattr(self, 'firmware'):
-            self.firmware.close()
-            del self.firmware
-
-    @abstractmethod
-    def write(self):
-        """An Firmware can be written to flash"""
-
-    @abstractmethod
-    def read(self):
-        """An Firmware can be read out from flash"""
-
-class MtdDevice():
-    def __get_path_type_value(self, path):
-        """get the path value"""
-        try:
-            with open(path, "r") as f:
-                return f.read()
-        except IOError as e:
-            raise UpgradeError("Reading {} failed: {}".format(path, e.strerror))
-
-    def __erase(self, dev, start, nbytes):
-        """This function erases flash sectors
-        @dev: flash device file descriptor
-        @start: start address
-        @nbytes: number of bytes to erase
-        """
-        MEMERASE = 0x40084d02
-
-        ioctl_data = struct.pack('II', start, nbytes)
-
-        try:
-            fcntl.ioctl(dev, MEMERASE, ioctl_data)
-        except IOError:
-            raise UpgradeError("Flash erasing failed")
-
-    def get_mtd_info(self, mtd_num):
-        """The uboot ops can get all mtd infos of uboot"""
-        ospi_dev_path = "/sys/bus/platform/devices/47040000.spi"
-        if os.path.exists(ospi_dev_path + "/spi_master"):
-            # kernel 5.9 and later
-            spi_dev = os.listdir(ospi_dev_path + "/spi_master")[0]
-            mtd_base_path = "{}/spi_master/{}/{}.0/mtd".format(
-                ospi_dev_path, spi_dev, spi_dev
-            )
-        else:
-            # kernel 5.8 and earlier
-            mtd_base_path = "{}/mtd".format(ospi_dev_path)
-
-        mtd_sys_path = "{}/mtd{}".format(mtd_base_path, mtd_num)
-        mtd_name_path = "{}/name".format(mtd_sys_path)
-        mtd_size_path = "{}/size".format(mtd_sys_path)
-        mtd_erasesize_path = "{}/erasesize".format(mtd_sys_path)
-
-        mtd_dev_path = "/dev/mtd{}".format(mtd_num)
-        try:
-            mtd_size = int(self.__get_path_type_value(mtd_size_path))
-            mtd_erasesize = int(self.__get_path_type_value(mtd_erasesize_path))
-            mtd_name = self.__get_path_type_value(mtd_name_path).strip()
-        except UpgradeError as e:
-            raise UpgradeError(e.err)
-
-        return mtd_dev_path, mtd_size, mtd_erasesize, mtd_name
-
-    def write(self, mtd_dev_path, mtd_size, mtd_erasesize,
-                      file_obj, file_size):
-        mtd_pos = 0
-        try:
-            mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDWR)
-
-            while mtd_pos < mtd_size and file_size > 0:
-                mtd_content = os.read(mtd_dev, mtd_erasesize)
-                firmware_content = file_obj.read(mtd_erasesize)
-                padsize = mtd_erasesize - len(firmware_content)
-                firmware_content += bytearray([0xff] * padsize)
-
-                if not mtd_content == firmware_content:
-                    self.__erase(mtd_dev, mtd_pos, mtd_erasesize)
-                    os.lseek(mtd_dev, mtd_pos, os.SEEK_SET)
-                    os.write(mtd_dev, firmware_content)
-
-                mtd_pos += mtd_erasesize
-                file_size -= mtd_erasesize
-            os.close(mtd_dev)
-        except IOError as e:
-            raise UpgradeError("Opening {} failed: {}".format(mtd_dev_path,
-                               e.strerror))
-        except UpgradeError as e:
-            raise UpgradeError(e.err)
-
-        return file_size
-
-    def read(self, mtd_dev_path, mtd_size, mtd_erasesize,
-                file_size):
-        mtd_in_memory = b''
-
-        try:
-            mtd_dev = os.open(mtd_dev_path, os.O_SYNC | os.O_RDONLY)
-        except IOError as e:
-            raise UpgradeError("Opening {} failed: {}"
-                               "".format(mtd_dev_path, e.strerror))
-
-        mtd_pos = 0
-        while mtd_pos < mtd_size and file_size > 0:
-            mtd_content = os.read(mtd_dev, mtd_erasesize)
-            mtd_pos += mtd_erasesize
-            file_size -= mtd_erasesize
-            mtd_in_memory += mtd_content
-
-        os.close(mtd_dev)
-
-        return mtd_in_memory
-
-class BootloaderFirmware(Firmware):
-    """The Bootloader Firmware class represents uboot flash operations"""
-    def __init__(self, firmware):
-        super().__init__(firmware)
-        self.mtd_device = MtdDevice()
-
-    def write(self):
-        """The uboot ops can write contents to uboot flash"""
-        mtd_num = 0
-
-        self.firmware.seek(0)
-        self.firmware.seek(0, os.SEEK_END)
-        firmware_size = self.firmware.tell()
-        self.firmware_len = firmware_size
-        self.firmware.seek(0)
-
-        while True:
-            if firmware_size <= 0:
-                break
-
-            try:
-                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
-                    self.mtd_device.get_mtd_info(mtd_num)
-                firmware_size = self.mtd_device.write(
-                    mtd_dev_path, mtd_size, mtd_erasesize,
-                    self.firmware, firmware_size
-                )
-            except UpgradeError as e:
-                raise UpgradeError("BootloaderFirmware: {}".format(e.err))
-
-            mtd_num += 1
-
-    def read(self, firmware_len=0x8c0000):
-        mtd_in_memory = b''
-        mtd_num = 0
-        while True:
-            if firmware_len <= 0:
-                break
-
-            try:
-                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
-                    self.mtd_device.get_mtd_info(mtd_num)
-
-                mtd_in_memory += self.mtd_device.read(mtd_dev_path,
-                                                      mtd_size,
-                                                      mtd_erasesize,
-                                                      firmware_len)
-            except UpgradeError as e:
-                raise UpgradeError("BootloaderFirmware: {}".format(e.err))
-
-            firmware_len -= mtd_size
-            mtd_num += 1
-
-        return mtd_in_memory
-
-class EnvFirmware(Firmware):
-    """The EnvFirmware class represents env partition operations"""
-    def __init__(self, firmware_path, firmware):
-        super().__init__(firmware)
-        self.firmware_path = firmware_path
-        self.mtd_device = MtdDevice()
-
-        mtd_num = 0
-        self.env_mtd_num = 0
-        self.env_bk_mtd_num = 0
-        # mtd_device is typically less than 20, if one mtd device can't be
-        # located in 20 rounds, jump out the loop.
-        for mtd_num in range(20):
-            try:
-                mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
-                    self.mtd_device.get_mtd_info(mtd_num)
-            except UpgradeError as e:
-                raise UpgradeError("EnvFirmware: {}".format(e.err))
-
-            if "env" == mtd_name:
-                self.env_mtd_num = mtd_num
-            if "env.backup" == mtd_name:
-                self.env_bk_mtd_num = mtd_num
-
-            if self.env_mtd_num and self.env_bk_mtd_num:
-                break
-        else:
-            raise UpgradeError("EnvFirmware: No env partition found")
-
-    def write(self):
-        """A env firmware can write contents to the env partition"""
-        with tempfile.NamedTemporaryFile() as env_default_binary:
-            for mtd_num in self.env_mtd_num, self.env_bk_mtd_num:
-                try:
-                    mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
-                        self.mtd_device.get_mtd_info(mtd_num)
-                    subprocess.run('mkenvimage -s {} -r -o {} {}'.format(
-                                   mtd_size,
-                                   env_default_binary.name,
-                                   self.firmware_path),
-                                   check=True, shell=True)
-                    firmware_size = os.path.getsize(env_default_binary.name)
-                    self.firmware = open(env_default_binary.name, "rb")
-
-                    firmware_size = self.mtd_device.write(
-                        mtd_dev_path, mtd_size, mtd_erasesize,
-                        env_default_binary, firmware_size
-                    )
-
-                    if firmware_size > 0:
-                        raise UpgradeError("Write env failed")
-                except subprocess.CalledProcessError as error:
-                    print(error.stdout)
-                    raise UpgradeError("EnvFirmware: Run mkenvimage failed")
-                except UpgradeError as e:
-                    raise UpgradeError("EnvFirmware: {}".format(e.err))
-
-    def read(self):
-        """A env firmware can read contents from the env partition"""
-        mtd_in_memory = b''
-        try:
-            mtd_dev_path, mtd_size, mtd_erasesize, mtd_name = \
-                self.mtd_device.get_mtd_info(self.env_mtd_num)
-
-            if "env" == mtd_name:
-                mtd_in_memory = self.mtd_device.read(mtd_dev_path,
-                                                     mtd_size,
-                                                     mtd_erasesize,
-                                                     mtd_size)
-        except UpgradeError as e:
-            raise UpgradeError("EnvFirmware: {}".format(e.err))
-
-        return mtd_in_memory
-
-class ForceUpdate():
-    def __init__(self, interactor, firmware, firmware_type="uboot"):
-        self.firmware = firmware
-        self.firmware_type = firmware_type
-        self.interactor = interactor
-
-        if self.firmware_type == "uboot":
-            try:
-                self.firmware_obj = BootloaderFirmware(self.firmware)
-            except UpgradeError as e:
-                raise UpgradeError(e.err, ErrorCode.INVALID_FIRMWARE.value)
-        else:
-            raise UpgradeError("Unsupported firmware type!", ErrorCode.INVALID_FIRMWARE.value)
-
-    def update(self):
-        print("===================================================")
-        print("IOT2050 firmware update started - DO NOT INTERRUPT!")
-        print("===================================================")
-
-        self.interactor.progress_bar(info="Updating {}".format(self.firmware_type))
-        self.firmware_obj.write()
-
-        firmware_md5 = hashlib.md5()
-        self.firmware.seek(0)
-        firmware_md5.update(self.firmware.read())
-
-        read_out_md5  = hashlib.md5()
-        read_out_md5.update(self.firmware_obj.read())
-        self.interactor.progress_bar(start=False)
-
-        if firmware_md5.hexdigest() != read_out_md5.hexdigest():
-            raise UpgradeError("Firmware digest verification failed",
-               ErrorCode.FLASHING_FAILED.value)
-
-    def backup(self):
-        pass
-
-class FirmwareUpdate():
-    """
-    The FirmwareUpdate models the firmware updating behavior for all IOT2050
-    firmware update.
-    """
-    def __init__(self, tarball, backup_path, interactor,
-                rollback=False, reset=False, verify_signature=False):
-        self.back_fw_path = os.path.join("".join(backup_path), ".rollback_fw")
-        self.rollback_fw_tar = os.path.join(self.back_fw_path,
-                                            'rollback_backup_fw.tar')
-        self.interactor = interactor
-        self.verify_signature = verify_signature
-        try:
-            if rollback:
-                if not os.path.exists(self.rollback_fw_tar) or \
-                   not tarfile.is_tarfile(self.rollback_fw_tar):
-                    raise UpgradeError("No rollback firmware exists",
-                                       ErrorCode.ROLLBACK_FAILED.value)
-
-                tarball = open(self.rollback_fw_tar, "rb")
-                self.tarball = FirmwareTarball(tarball, interactor, None, False)
-            else:
-                self.tarball = tarball
-
-            self.firmwares = {}
-            for firmware_type in self.tarball.FIRMWARE_TYPES:
-                if firmware_type ==  self.tarball.FIRMWARE_TYPES[0]:
-                    name = self.tarball.get_file_name(firmware_type)
-                    self.firmwares[firmware_type] = BootloaderFirmware(
-                        self.tarball.get_file(name)
-                    )
-                elif firmware_type ==  self.tarball.FIRMWARE_TYPES[1]:
-                    if not reset:
-                        env_list = self.tarball.get_preserved_uboot_env()
-                        print("\nPreserved env list: ")
-                        for env in env_list:
-                            print(env)
-                        env_path, env_binary = \
-                            self.tarball.generate_env_firmware(env_list)
-                        self.firmwares[firmware_type] = \
-                            EnvFirmware(env_path, env_binary)
-                    else:
-                        self.firmwares[firmware_type] = EnvFirmware(
-                            self.tarball.get_file_path(self.tarball.UBOOT_ENV_FILE),
-                            self.tarball.get_file(self.tarball.UBOOT_ENV_FILE)
-                        )
-                elif firmware_type ==  self.tarball.FIRMWARE_TYPES[2]:
-                    self.firmwares[firmware_type] = \
-                        Firmware(self.tarball.get_file(self.tarball.CONF_JSON))
-        except UpgradeError as e:
-            raise UpgradeError(e.err, e.code)
-
-    def backup(self):
-        """Backup the original firmware from flash"""
-        print("\nFirmware backup started")
-        try:
-            if not os.path.exists(self.back_fw_path):
-                os.mkdir(self.back_fw_path)
-
-            self.interactor.progress_bar(info="Backing up")
-            tmpl_json = json.load(open("/usr/share/iot2050/fwu/update.conf.json", "r"))
-            for firmware_type in self.firmwares:
-                md5_digest = []
-                fw_name = self.tarball.get_file_name(firmware_type)
-
-                if self.tarball.FIRMWARE_TYPES[0] == firmware_type:
-                    i = 0
-                    while i < 2:
-                        file_content = self.firmwares[firmware_type].read()
-                        md5_digest.append(self.__get_md5_digest(file_content))
-                        i += 1
-                    fw_name = tmpl_json['firmware'][0]['name']
-                elif self.tarball.FIRMWARE_TYPES[1] == firmware_type:
-                    file = self.firmwares[firmware_type].firmware
-                    file.seek(0)
-                    file_content = file.read()
-                elif self.tarball.FIRMWARE_TYPES[2] == firmware_type:
-                    with open("/sys/firmware/devicetree/base/model", "r") as model_f:
-                        target_board = model_f.read().replace("\u0000", "")
-                    tmpl_json['firmware'][0]['target_boards'] = target_board
-                    file_content = bytes(json.dumps(tmpl_json, indent=4), "utf8")
-                else:
-                    raise UpgradeError("Wrong Firmware Type!")
-
-                if len(md5_digest) > 0 and md5_digest[0] != md5_digest[1]:
-                    raise UpgradeError("Firmware backup failed")
-
-                info = tarfile.TarInfo(fw_name)
-                info.size = len(file_content)
-
-                if firmware_type == self.tarball.FIRMWARE_TYPES[0]:
-                    with tarfile.TarFile(self.rollback_fw_tar, 'w') as tar:
-                        tar.addfile(info, io.BytesIO(file_content))
-                else:
-                    with tarfile.TarFile(self.rollback_fw_tar, 'a') as tar:
-                        tar.addfile(info, io.BytesIO(file_content))
-            self.interactor.progress_bar(start=False)
-        except (OSError, UpgradeError) as e:
-            self.interactor.progress_bar(start=False)
-            raise UpgradeError(e.err, ErrorCode.BACKUP_FAILED.value)
-        print("Firmware backup ended\n")
-
-    def update(self):
-        """Update the firmware to the specified flash"""
-        print("===================================================")
-        print("IOT2050 firmware update started - DO NOT INTERRUPT!")
-        print("===================================================")
-
-        try:
-            # Perform signature verification before starting the actual flashing
-            if self.verify_signature:
-                print("Verifying firmware signatures...")
-                # The primary firmware (uboot) is the one to be signed
-                firmware_name_to_verify = self.tarball.get_file_name(self.tarball.FIRMWARE_TYPES[0])
-                if firmware_name_to_verify:
-                    self.tarball.verify_firmware_signature(firmware_name_to_verify)
-                    print(f"Signature for {firmware_name_to_verify} verified successfully.")
-                else:
-                    raise UpgradeError("Could not determine primary firmware name for signature verification.",
-                                       ErrorCode.INVALID_FIRMWARE.value)
-                print("Firmware signature verification complete. Proceeding with update.")
-
-            for firmware_type in self.firmwares:
-                if firmware_type == self.tarball.FIRMWARE_TYPES[2]:
-                    continue
-                self.interactor.progress_bar(info="Updating {}".format(firmware_type))
-
-                self.firmwares[firmware_type].write()
-
-                self.firmwares[firmware_type].firmware.seek(0)
-                content = self.firmwares[firmware_type].firmware.read()
-                firmware_md5 = self.__get_md5_digest(content)
-
-                content = self.firmwares[firmware_type].read()
-                read_out_md5 = self.__get_md5_digest(content)
-                self.interactor.progress_bar(start=False)
-
-                if firmware_md5 != read_out_md5:
-                    raise UpgradeError("Firmware digest verification failed")
-        except UpgradeError as e:
-            self.interactor.progress_bar(start=False)
-            raise UpgradeError(e.err, e.code)
-
-    def __get_md5_digest(self, content):
-        """Verify the update integrity"""
-        md5 = hashlib.md5()
-
-        md5.update(content)
-
-        return md5.hexdigest()
-
-class FirmwareTarball(object):
-    """A FirmwareTarball models a upgrade package in specified format"""
-
-    CONF_JSON = 'update.conf.json'
-    UBOOT_ENV_FILE = 'u-boot-initial-env'
-    FIRMWARE_SIG_EXT = '.sig'
-    PUBLIC_KEY_PATH = '/usr/share/iot2050/fwu/public.key'
-
-    # "env" must be after "uboot" because uboot update will overwrite env
-    # partition
-    FIRMWARE_TYPES = [
-        "uboot",
-        "env",
-        "conf"
-    ]
-
-    def __init__(self, firmware_tarball, interactor, env_list, verify_signature_flag=False):
-        self.interactor = interactor
-        self.firmware_tarball = firmware_tarball
-        self.env_list = env_list
-        self.verify_signature_flag = verify_signature_flag
-
-        # extract file path
-        self.extract_path = "/tmp"
-        self.firmware_tarball.seek(0)
-        self.extracted_files = []
-        with tarfile.open(fileobj=self.firmware_tarball) as f:
-            for member in f:
-                file_tarfileinfo = f.getmember(name=member.name)
-                file_tarfileinfo.uid = os.getuid()
-                file_tarfileinfo.gid = os.getgid()
-                try:
-                    f.extract(file_tarfileinfo, path=self.extract_path,
-                              filter='fully_trusted')
-                except TypeError:
-                    f.extract(file_tarfileinfo, path=self.extract_path)
-                self.extracted_files.append(self.extract_path + "/" + member.name)
-
-        self._board_info = BoardInfo()
-        print("Current board: {}".format(self._board_info.board_name))
-
-        # Parse the update configuration from the json file within the tarball
-        # Deserialize the json file to an object so that we can use dot operator
-        # to access the fields.
-        try:
-            self._jsonobj = json.load(
-                self.get_file(self.CONF_JSON),
-                object_hook=lambda d: Namespace(**d)
-            )
-        except ValueError:
-            raise UpgradeError("Decoding JSON has failed")
-
-        self.firmware_names = dict.fromkeys(self.FIRMWARE_TYPES)
-
-    def __del__(self):
-        for file in self.extracted_files:
-            os.remove(file)
-
-    def __check_os(self, target_os, os_info) -> bool:
-        for tos in target_os:
-            try:
-                current_version = version.parse(os_info[tos.key])
-                required_version = version.parse(tos.min_version)
-                if current_version >= required_version:
-                    return True
-            except version.InvalidVersion:
-                if tos.key in os_info and os_info[tos.key] >= (tos.min_version):
-                    return True
-            print("\nFirmware requires a minimal version of ",
-                  tos.min_version, ", the current OS has ",
-                  os_info[tos.key], ".", sep="")
-
-        return False
-
-    def check_firmware(self):
-        """Check if the tarball is a valid upgrade package"""
-        if len(self.get_file_name(self.FIRMWARE_TYPES[0])) <= 0:
-            return False
-        return True
-
-    def get_file_name(self, firmware_type):
-        """Get the file names of working firmware"""
-        res = []
-        if self.FIRMWARE_TYPES[1] == firmware_type:
-            res = self.UBOOT_ENV_FILE
-            return res
-        if self.FIRMWARE_TYPES[2] == firmware_type:
-            res = self.CONF_JSON
-            return res
-        if not self.firmware_names[firmware_type]:
-            for firmware in self._jsonobj.firmware:
-                if self._board_info.board_name in firmware.target_boards:
-                    # Be forward compatible, the previous uboot firmware
-                    # tarballs don't have the type node
-                    if not hasattr(firmware, "type"):
-                        firmware.type = self.FIRMWARE_TYPES[0]
-
-                    if firmware.type ==  firmware_type:
-                        target_os = []
-                        try:
-                            target_os = self._jsonobj.target_os
-                        except AttributeError:
-                            pass
-
-                        # local target_os configuration prior to global
-                        try:
-                            target_os = firmware.target_os
-                        except AttributeError:
-                            pass
-
-                        # Get available firmware names by checking the board name
-                        # and the os information, or the firmware w/o target_os node
-                        # which means it doesn't care the OS info.
-                        if len(target_os) == 0 or \
-                                self.__check_os(target_os, self._board_info.os_info):
-                            res.append(firmware.name)
-
-            if len(res) > 1:
-                # Ask user to pick one firmware image to update
-                print("Please select which firmware image to update:")
-                for n in res:
-                    print("{}\t{}".format(res.index(n) + 1, n))
-
-                choice = int(self.interactor.interact("-> "))
-                while choice > len(res) or choice < 1:
-                    print("Out of range, please reinput your choice:")
-                    choice = int(self.interactor.interact("-> "))
-
-                res = res[choice - 1]
-
-            self.firmware_names[firmware_type] = "".join(res)
-
-        return self.firmware_names[firmware_type]
-
-    def get_file(self, name):
-        """Get the file object of specified name"""
-        file = os.path.join(self.extract_path, name)
-
-        return open(file, 'rb')
-
-    def get_file_path(self, name):
-        """Get the file object of specified name"""
-        file = os.path.join(self.extract_path, name)
-
-        return file
-
-    def __get_suggest_preserved_uboot_env(self):
-        """Get the default uboot env list from tarball"""
-        try:
-            return self._jsonobj.suggest_preserved_uboot_env
-        except Exception:
-            raise UpgradeError("Get suggested preserved uboot env failed")
-
-    def get_preserved_uboot_env(self):
-        try:
-            if self.env_list:
-                preserved_uboot_env_name = [
-                    item for item in self.env_list.split(',')]
-            else:
-                preserved_uboot_env_name = \
-                   self.__get_suggest_preserved_uboot_env()
-
-            preserved_uboot_env_value = []
-
-            if not preserved_uboot_env_name:
-                return None
-
-            for env_name in preserved_uboot_env_name:
-                env_value = subprocess.run(
-                    'fw_printenv %s' % env_name, shell=True,
-                    stdout=subprocess.PIPE, check=True) \
-                    .stdout.decode('utf-8').lstrip().rstrip()
-                preserved_uboot_env_value.append(env_value)
-
-            return preserved_uboot_env_value
-        except subprocess.CalledProcessError:
-            pass
-        except UpgradeError as e:
-            raise UpgradeError(e.err)
-
-    def __remove_line_by_index(self, file, index):
-        with open(file, 'r+') as fp:
-            lines = fp.readlines()
-            fp.seek(0)
-            fp.truncate()
-            for number, line in enumerate(lines):
-                if number != index:
-                    fp.write(line)
-
-    def __remove_duplicate_default_env(self, uboot_env_file, env_list):
-        with open(uboot_env_file, 'r', encoding='utf-8') as f:
-            default_env_list = [i.split('=')[0] for i in f.readlines()]
-        for value in env_list:
-            if value.split('=')[0] in default_env_list:
-                value_index = default_env_list.index(value.split('=')[0])
-                self.__remove_line_by_index(uboot_env_file, value_index)
-
-    def generate_env_firmware(self, env_list):
-        """Generate the update env file based on env_list"""
-        uboot_default_env_file = os.path.join(
-            self.extract_path, self.UBOOT_ENV_FILE)
-        uboot_env_assemble_file = os.path.join(
-            self.extract_path, "env_assemble_file")
-        assert os.path.isfile(uboot_default_env_file)
-        # assemble the env
-        shutil.copy(uboot_default_env_file, uboot_env_assemble_file)
-        self.__remove_duplicate_default_env(uboot_env_assemble_file, env_list)
-
-        with open(uboot_env_assemble_file, encoding="utf-8", mode="a") as file:
-            for value in env_list:
-                file.write(value)
-                file.write("\n")
-
-        return uboot_env_assemble_file, open(uboot_env_assemble_file, 'rb')
-
-    def verify_firmware_signature(self, firmware_name):
-        """
-        Verifies the digital signature of a firmware file.
-        Expects a signature file with the same name as the firmware
-        but with a .sig extension in the tarball.
-        The public key is expected at PUBLIC_KEY_PATH.
-        """
-        firmware_path = self.get_file_path(firmware_name)
-        signature_path = firmware_path + self.FIRMWARE_SIG_EXT
-
-        if not os.path.exists(firmware_path):
-            raise UpgradeError(f"Firmware file not found: {firmware_path}",
-                               ErrorCode.INVALID_FIRMWARE.value)
-        if not os.path.exists(signature_path):
-            # If --verify is used, signature file is mandatory
-            if self.verify_signature_flag:
-                raise UpgradeError(f"Signature file not found {signature_path}. Signature verification is enabled, but the .sig file is missing.",
-                                   ErrorCode.MISSING_SIGNATURE.value)
-            else:
-                # This case should ideally not be reached if verify_signature_flag is false
-                # as this method would only be called if verify_signature_flag is true.
-                # However, as a safeguard:
-                print(f"Warning: Signature file not found for {firmware_name}. Skipping signature verification.")
-                return
-
-        if not os.path.exists(self.PUBLIC_KEY_PATH):
-            raise UpgradeError(f"Public key not found at {self.PUBLIC_KEY_PATH}. Cannot verify signature.",
-                               ErrorCode.MISSING_PUBLIC_KEY.value)
-
-        try:
-            with open(self.PUBLIC_KEY_PATH, "rb") as f:
-                pubkey = serialization.load_pem_public_key(f.read())
-
-            with open(firmware_path, "rb") as f:
-                message = f.read()
-
-            with open(signature_path, "rb") as f:
-                sig = f.read()
-
-            pubkey.verify(sig, message, padding.PKCS1v15(), hashes.SHA512())
-            print(f"Signature for {firmware_name} is GOOD.")
-        except InvalidSignature:
-            raise UpgradeError(f"BAD SIGNATURE for {firmware_name}. Firmware is malicious or corrupted. Aborting update.",
-                               ErrorCode.BAD_SIGNATURE.value)
-        except Exception as e:
-            raise UpgradeError(f"Error during signature verification for {firmware_name}: {e}",
-                               ErrorCode.FAILED.value)
-
-class BoardInfo(object):
-    """The BoardInfo represents the updating IOT2050 board information"""
-    def __init__(self):
-        self.board_name = self._get_board_name()
-        self.os_info = self._get_os_info()
-
-    def _get_board_name(self) -> str:
-        """
-        Get the board name by checking the device tree node
-        /proc/device-tree/model
-        """
-        with open('/proc/device-tree/model') as f_model:
-            board_name = f_model.read().strip('\0')
-
-        return board_name
-
-    def _get_os_info(self) -> dict:
-        '''
-        Get the OS information by parsing the /etc/os-release
-
-        Returned is a dict that converted from /etc/os-release, for example:
-            NAME="debian"
-            VERSION_ID="3.1.1"
-
-        =>
-            {
-                "NAME": "debian"
-                "VERSION_ID": "3.1.1"
-            }
-        '''
-        with open('/etc/os-release') as f:
-            return {
-                l.split('=')[0]:
-                l.strip().split('=')[-1].strip('"')
-                for l in f.readlines()
-            }
-
-class UserInterface(object):
-    """The UserInterface models the interaction for user"""
-    BOLD = "\033[1m"
-    ENDC = "\033[0m"
-    def __init__(self, quiet):
-        self.quiet = quiet
-        self.__progress_bar_occupied = None
-
-    def interact(self, *args):
-        """Prompt the user and wait for user input"""
-        # No quiet mode when no input context as argument
-        if self.quiet and len(args) > 1:
-            the_stdin = sys.stdin
-            sys.stdin = StringIO(args[0])
-        if len(args) > 1:
-            info = args[1]
-        else:
-            info = args[0]
-
-        ret = input(self.BOLD + info + self.ENDC )
-
-        if self.quiet and len(args) > 1:
-            print(args[0] + '\n', end="")
-            sys.stdin = the_stdin
-
-        return ret
-
-    def print_info(self, *args):
-        print(args[0])
-
-    def __show_progress_bar(self, info, interval, event: Event) -> None:
-        with Bar(info.ljust(15), fill='.', bar_prefix='',
-                 bar_suffix='', suffix='') as bar:
-            while True:
-                bar.next()
-                if event.is_set():
-                    break
-                time.sleep(interval)
-
-    def progress_bar(self, info="", interval=0.2, start=True):
-        if start and self.__progress_bar_occupied:
-            print("Progress bar is occupied!")
-            return
-        self.__progress_bar_occupied = start
-
-        if start:
-            self.event = Event()
-            self.t = Thread(
-                target = self.__show_progress_bar,
-                args = (info, interval, self.event)
-            )
-            self.t.start()
-        else:
-            try:
-                self.event.set()
-                self.t.join()
-            except AttributeError as e:
-                print("Progress bar is not started yet!")
-                pass
-
-__version__ = "${PV}"
-def main(argv):
-    """The main function"""
-
-    description=textwrap.dedent('''\
+import time
+
+import grpc
+
+from iot2050_system_firmware_pb2 import (
+    OperationRequest,
+    RollbackRequest,
+    UpdateRequest,
+)
+from iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
+from iot2050_firmware_global import SYSTEM_FIRMWARE_SOCKET_TARGET
+
+
+SOCKET_TARGET = SYSTEM_FIRMWARE_SOCKET_TARGET
+ACTIVE_PROGRESS_STAGES = ("backing-up", "updating-uboot", "updating-env")
+PROGRESS_DOT_INTERVAL = 0.4
+LINE_STAGES = ACTIVE_PROGRESS_STAGES + ("preparing-rollback",)
+# Semantic service error codes mapped to the documented CLI exit codes.
+EXIT_CODES = {
+    "backup-failed": 3,
+    "rollback-failed": 4,
+    "flashing-failed": 5,
+    "firmware-incompatible": 7,
+    "missing-signature": 9,
+    "missing-key": 10,
+    "bad-signature": 11,
+}
+
+
+def parser():
+    description = textwrap.dedent("""\
         Update OSPI firmware.
         Examples:
         1. %(prog)s -f file.bin
@@ -970,8 +58,10 @@ def main(argv):
              rollback the firmware to the version before the upgrade
         6. %(prog)s --verify file.tar.xz
              perform a regular update, but enforce signature verification for the firmware
-         ''')
-    epilog=textwrap.dedent('''\
+
+        Hardware operations are performed by the privileged gRPC service.
+        """)
+    epilog = textwrap.dedent("""\
         Return Value:
           | Error code  | Description                              |
           |-------------|------------------------------------------|
@@ -987,159 +77,284 @@ def main(argv):
           | 9           | Missing firmware signature               |
           | 10          | Missing public key                       |
           | 11          | Bad firmware signature                   |
-         ''')
-    parser = argparse.ArgumentParser(
+        """)
+    result = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    group = parser.add_mutually_exclusive_group()
-    parser.add_argument('firmware', nargs='?', metavar='FIRMWARE',
-                        type=argparse.FileType('rb'),
-                        help='firmware or tarball')
-    group.add_argument('-f', '--force',
-                        help='Force update, ignore all the checking',
-                        action='store_true')
-    group.add_argument('-p', '--preserve_list',
-                        type=str,
-                        help='env preserve list, using comma to separate env')
-    group.add_argument('-r', '--reset',
-                        help='reset env to default value',
-                        action='store_true')
-    parser.add_argument('-v', '--version',
-                        action='version',
-                        version="%(prog)s version: " + __version__)
-    group.add_argument('-b', '--rollback',
-                        help='Rollback the firmware to the version before the \
-                        upgrade',
-                        action='store_true')
-    parser.add_argument('--verify',
-                        help='Enforce signature verification for the firmware in the tarball',
-                        action='store_true')
-    group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument('-n', '--no-backup',
-                        help='Do not generate a firmware backup',
-                        action='store_true')
-    group2.add_argument('-d', '--backup-dir',
-                        help='Specify the firmware backup directory',
-                        nargs=1)
-    parser.add_argument('-q', '--quiet',
-                        help='Update firmware quietly with the original \
-                        firmware auto backed up and rollback in case of \
-                        failure, and without automatic rebooting',
-                        action='store_true')
+    group = result.add_mutually_exclusive_group()
+    result.add_argument("firmware", nargs="?", metavar="FIRMWARE")
+    group.add_argument("-f", "--force", action="store_true",
+                       help="Force update, ignore package checks")
+    group.add_argument("-p", "--preserve_list", type=str,
+                       help="Comma-separated U-Boot environment variables")
+    group.add_argument("-r", "--reset", action="store_true",
+                       help="Reset the U-Boot environment")
+    group.add_argument("-b", "--rollback", action="store_true",
+                       help="Rollback to the previous firmware")
+    result.add_argument("-v", "--version", action="version",
+                        version="%(prog)s version: ${PV}")
+    result.add_argument("-V", "--verify", action="store_true",
+                        help="Enforce firmware signature verification")
+    backup_group = result.add_mutually_exclusive_group()
+    backup_group.add_argument("-n", "--no-backup", action="store_true",
+                              help="Do not generate a firmware backup")
+    backup_group.add_argument("-d", "--backup-dir", nargs=1,
+                              help="Specify the firmware backup directory")
+    result.add_argument("-q", "--quiet", action="store_true",
+                        help="Automatically answer prompts, show progress, and do not reboot")
+    return result
 
+
+def confirm(message, quiet, auto_answer="y"):
+    if quiet:
+        print(f"\033[1m{message} (y/N)?{auto_answer}\033[0m")
+        return auto_answer.lower() == "y"
     try:
-        args = parser.parse_args()
-        if args.force and (args.no_backup or args.backup_dir or args.verify):
-            parser.error("argument -f/--force: not allowed with -n/--no-backup, -d/--backup-dir, or --verify")
-        # Ensure firmware is specified for any update or verify operation
-        if not args.rollback and not args.firmware:
-             print("No firmware or action specified. A firmware tarball is required for update or verification.", file=sys.stderr)
-             return ErrorCode.INVALID_ARG.value
+        return input(f"\033[1m{message} (y/N)? \033[0m").strip().lower() == "y"
+    except EOFError:
+        return False
 
-    except IOError as e:
-        print(e.strerror, file=sys.stderr)
-        return ErrorCode.INVALID_ARG.value
 
-    interactor = UserInterface(args.quiet);
+def result_code(response, rollback=False):
+    if response.ok:
+        return 1 if rollback else 0
+    return EXIT_CODES.get(response.code, 8)
 
+
+def absolute_path(value):
+    return os.path.abspath(value) if value else ""
+
+
+def current_board():
     try:
-        if args.rollback or args.force:
-            tarball = None
-        else:
-            # For regular update or update with verification
-            tarball = FirmwareTarball(args.firmware, interactor,
-                                      args.preserve_list, args.verify)
+        with open("/sys/firmware/devicetree/base/model", encoding="utf-8") as model:
+            return model.read().strip("\0")
+    except OSError:
+        return None
 
-            # FirmwareTarball to check firmware compatibility
-            if not tarball.check_firmware():
-                print("OS image version must be newer than the minimal version, "
-                      "no firmware image could be updated on this device!")
-                return ErrorCode.INVALID_FIRMWARE.value
 
-        update_input = interactor.interact(
-            'y',
-            "\nWarning: Update may render device unbootable. Continue (y/N)?"
+def package_file(package, name):
+    """Find a regular package member with or without a ./ prefix."""
+    for member in package.getmembers():
+        if member.name.removeprefix("./") == name and member.isfile():
+            return package.extractfile(member)
+    return None
+
+
+def preserved_environment(firmware_path, preserve_list):
+    """Read the legacy display values without moving update logic into the CLI."""
+    if preserve_list:
+        names = preserve_list
+    else:
+        try:
+            with tarfile.open(firmware_path, "r:*") as package:
+                config_file = package_file(package, "update.conf.json")
+                config = json.load(config_file) if config_file else {}
+            names = (config.get("suggest_preserved_uboot_env", [])
+                     if isinstance(config, dict) else [])
+            if not isinstance(names, (list, tuple)):
+                names = []
+        except (OSError, EOFError, tarfile.TarError, KeyError, TypeError,
+                ValueError):
+            return []
+
+    values = []
+    for name in names:
+        if not isinstance(name, str) or not name:
+            continue
+        try:
+            result = subprocess.run(
+                ["fw_printenv", name],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=10,
+            )
+        except (OSError, subprocess.CalledProcessError,
+                subprocess.TimeoutExpired):
+            continue
+        value = result.stdout.strip()
+        if value:
+            values.append(value)
+    return values
+
+
+def print_legacy_context():
+    board = current_board()
+    if board:
+        print(f"Current board: {board}\n")
+
+
+def print_preserved_environment(firmware_path, preserve_list):
+    print("Preserved env list:")
+    for value in preserved_environment(firmware_path, preserve_list):
+        print(value)
+    print()
+
+
+def print_stage(stage, previous_stage, backup):
+    if previous_stage in LINE_STAGES and stage != previous_stage:
+        print()
+    if stage == "preparing-backup" and backup:
+        print("\nFirmware backup started")
+    elif stage == "backing-up":
+        if previous_stage != "preparing-backup":
+            print("\nFirmware backup started")
+        print("Backing up     ", end="", flush=True)
+    elif stage == "flashing-system":
+        if backup:
+            print("Firmware backup ended\n")
+        print(
+            "===================================================\n"
+            "IOT2050 firmware update started - DO NOT INTERRUPT!\n"
+            "==================================================="
         )
-        if not update_input == "y":
-            return ErrorCode.CANCELED.value
+    elif stage == "updating-uboot":
+        print("Updating uboot ", end="", flush=True)
+    elif stage == "updating-env":
+        print("Updating env   ", end="", flush=True)
+    elif stage == "preparing-rollback":
+        print("Preparing rollback", end="", flush=True)
+    elif stage == "retrying-flash":
+        print("Retrying firmware update")
 
-        if args.reset:
-            erase_env_input = interactor.interact(
-                'y',
-                "\nWarning: All U-Boot environment variables will be reset to"
-                " factory settings. Continue (y/N)? "
-            )
-            if not erase_env_input == "y":
-                return ErrorCode.CANCELED.value
 
-        if args.force:
-            updater = ForceUpdate(interactor, args.firmware)
+def wait_for_operation(stub, operation_id, quiet, backup, timeout=3600):
+    deadline = time.monotonic() + timeout
+    previous_stage = None
+    next_progress_at = 0.0
+    while True:
+        response = stub.GetOperation(
+            OperationRequest(operation_id=operation_id), timeout=10
+        )
+        now = time.monotonic()
+        if response.stage != previous_stage:
+            print_stage(response.stage, previous_stage, backup)
+            previous_stage = response.stage
+            if response.stage in ACTIVE_PROGRESS_STAGES:
+                next_progress_at = now + PROGRESS_DOT_INTERVAL
+        if response.state != "running":
+            if previous_stage in LINE_STAGES:
+                print()
+            return response
+        if (previous_stage in ACTIVE_PROGRESS_STAGES and
+            now >= next_progress_at):
+            print(".", end="", flush=True)
+            next_progress_at = now + PROGRESS_DOT_INTERVAL
+        if now >= deadline:
+            raise TimeoutError("System firmware operation timed out")
+        time.sleep(0.2)
+
+
+def main(argv=None):
+    args = parser().parse_args(argv[1:] if argv else None)
+    if args.force and (args.no_backup or args.backup_dir or args.verify):
+        parser().error("argument -f/--force is not allowed with -n, -d, or --verify")
+    if not args.rollback and not args.firmware:
+        print("No firmware or action specified. A firmware file is required.",
+              file=sys.stderr)
+        return 2
+    if not args.rollback and not os.path.isfile(absolute_path(args.firmware)):
+        print(f"Firmware file not found: {args.firmware}", file=sys.stderr)
+        return 2
+    preserve_list = list(dict.fromkeys(
+        item.strip() for item in (args.preserve_list or "").split(",")
+        if item.strip()
+    ))
+    if not args.rollback and not args.force:
+        print_legacy_context()
+    if not confirm("\nWarning: Update may render device unbootable. Continue",
+                   args.quiet):
+        return 6
+    if args.reset and not confirm(
+            "\nWarning: All U-Boot environment variables will be reset to"
+            " factory settings. Continue",
+            args.quiet):
+        return 6
+    if args.rollback and not confirm(
+            "\nRollback the firmware to the version before the upgrade",
+            args.quiet):
+        return 6
+    if not args.rollback and not args.force and not args.reset:
+        print_preserved_environment(absolute_path(args.firmware), preserve_list)
+
+    channel = grpc.insecure_channel(SOCKET_TARGET)
+    stub = SystemFirmwareStub(channel)
+    try:
+        if args.rollback:
+            response = stub.StartRollback(
+                RollbackRequest(
+                    backup_dir=absolute_path(
+                        args.backup_dir[0] if args.backup_dir else ""),
+                    legacy_cli=True,
+                ), timeout=10)
+            if response.ok:
+                response = wait_for_operation(
+                    stub, response.operation_id, args.quiet, False
+                )
         else:
-            if not args.backup_dir:
-                args.backup_dir = os.getenv('HOME')
-            updater = FirmwareUpdate(
-                tarball,
-                args.backup_dir,
-                interactor,
-                args.rollback,
-                args.reset,
-                args.verify
+            response = stub.StartUpdate(
+                UpdateRequest(
+                    firmware_path=absolute_path(args.firmware),
+                    backup_dir=absolute_path(
+                        args.backup_dir[0] if args.backup_dir else ""),
+                    preserve_list=preserve_list,
+                    reset=args.reset,
+                    no_backup=args.no_backup,
+                    force=args.force,
+                    verify_signature=args.verify,
+                    legacy_cli=True,
+                ), timeout=10)
+            if response.ok:
+                response = wait_for_operation(
+                    stub,
+                    response.operation_id,
+                    args.quiet,
+                    not args.no_backup and not args.force,
+                )
+    except grpc.RpcError as error:
+        print(f"System Firmware service unavailable: {error.details()}",
+              file=sys.stderr)
+        return 8
+    except TimeoutError as error:
+        print(str(error), file=sys.stderr)
+        return 8
+    finally:
+        channel.close()
+
+    if not response.ok:
+        print(response.message, file=sys.stderr)
+        if response.code == "flashing-failed":
+            print(
+                "\n   ====================================\n"
+                "   Upgrade Failed! Please do not reboot!!\n"
+                "   The Device may become brick.\n"
+                "   Please try to rollback!\n"
+                "   ====================================",
+                file=sys.stderr,
             )
-
-        # FirmwareUpdate to rollback
-        if args.rollback:
-            rollback_confirm = interactor.interact(
-                'y',
-                "\nRollback the firmware to the version before the upgrade (y/N)?"
+            if not args.quiet:
+                print("Hit the Enter Key to Exit:", file=sys.stderr)
+                try:
+                    input()
+                except EOFError:
+                    pass
+        elif response.code == "rollback-failed":
+            print(
+                "\n   ====================================\n"
+                "   Rollback failed! Please do not reboot!!\n"
+                "   The device may become unbootable.\n"
+                "   ====================================",
+                file=sys.stderr,
             )
-            if not rollback_confirm == "y":
-                return ErrorCode.CANCELED.value
-            if not updater.update():
-                return ErrorCode.ROLLBACK_SUCCESS.value
+        return result_code(response, args.rollback)
+    if confirm("\nWarning: Completed. Please reboot the device. Reboot now",
+               args.quiet, auto_answer="n"):
+        os.system("reboot")
+    return result_code(response, args.rollback)
 
-        if not args.no_backup:
-            updater.backup()
-
-        index = 0
-        while True:
-            try:
-                updater.update()
-                break
-            except UpgradeError as e:
-                if (index > 2 or
-                    e.code == ErrorCode.MISSING_SIGNATURE.value or
-                    e.code == ErrorCode.BAD_SIGNATURE.value or
-                    e.code == ErrorCode.MISSING_PUBLIC_KEY.value):
-                    raise UpgradeError(e.err, e.code)
-                index += 1
-                print("{}, trying again!".format(e.err))
-    except UpgradeError as e:
-        print(e.err)
-        input_reminder = '''
-   ====================================
-   Upgrade Failed! Please do not reboot!!
-   The Device may become brick.
-   Please try to rollback!
-   ====================================
-Hit the Enter Key to Exit:
-'''
-        if e.code == ErrorCode.FLASHING_FAILED.value:
-            interactor.interact(" ", input_reminder)
-        if args.rollback:
-            e.code = ErrorCode.ROLLBACK_FAILED.value
-
-        return e.code
-
-    reboot_input = interactor.interact(
-        'n',
-        "\nWarning: Completed. Please reboot the device. Reboot now (y/N)?"
-    )
-    if not reboot_input == "y":
-        return ErrorCode.SUCCESS.value
-    os.system('reboot')
 
 if __name__ == '__main__':
-    CODE = main(sys.argv)
-    sys.exit(CODE)
+    sys.exit(main(sys.argv))

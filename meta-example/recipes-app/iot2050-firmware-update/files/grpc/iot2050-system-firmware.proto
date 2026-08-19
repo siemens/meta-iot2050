@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package iot2050.systemfirmware;
+
+service SystemFirmware {
+  rpc GetCapabilities (Empty) returns (CapabilitiesReply) {}
+  rpc Inspect (InspectRequest) returns (InspectionReply) {}
+  rpc Update (UpdateRequest) returns (OperationReply) {}
+  rpc StartUpdate (UpdateRequest) returns (OperationReply) {}
+  rpc GetOperation (OperationRequest) returns (OperationReply) {}
+  rpc InspectRollback (RollbackRequest) returns (RollbackReply) {}
+  rpc Rollback (RollbackRequest) returns (OperationReply) {}
+  rpc StartRollback (RollbackRequest) returns (OperationReply) {}
+}
+
+message Empty {}
+
+message CapabilitiesReply {
+  bool supported = 1;
+  string details_json = 2;
+}
+
+message InspectRequest {
+  string firmware_path = 1;
+  bool pg2_only = 2;
+}
+
+message InspectionReply {
+  bool ok = 1;
+  string code = 2;
+  string message = 3;
+  string details_json = 4;
+}
+
+message UpdateRequest {
+  string firmware_path = 1;
+  string backup_dir = 2;
+  repeated string preserve_list = 3;
+  bool reset = 4;
+  bool pg2_only = 5;
+  bool no_backup = 6;
+  bool force = 7;
+  bool verify_signature = 8;
+  bool legacy_cli = 9;
+}
+
+message RollbackRequest {
+  string backup_dir = 1;
+  bool legacy_cli = 2;
+}
+
+message RollbackReply {
+  bool ok = 1;
+  string code = 2;
+  string message = 3;
+  string details_json = 4;
+}
+
+message OperationReply {
+  bool ok = 1;
+  string code = 2;
+  string message = 3;
+  string details_json = 4;
+  string operation_id = 5;
+  string state = 6;
+  string stage = 7;
+}
+
+message OperationRequest {
+  string operation_id = 1;
+}

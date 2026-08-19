@@ -1,0 +1,24 @@
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 System Firmware gRPC service
+After=local-fs.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=HOME=/root
+RuntimeDirectory=iot2050
+RuntimeDirectoryMode=0755
+ExecStart=/usr/bin/python3 -u -m iot2050_firmware_update --grpc-server
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=infinity
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
