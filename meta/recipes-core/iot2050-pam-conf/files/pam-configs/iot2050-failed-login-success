@@ -1,0 +1,6 @@
+Name: IOT2050 failed login success cleanup
+Default: yes
+Priority: 128
+Auth-Type: Additional
+Auth:
+	sufficient	pam_faillock.so authsucc
