@@ -43,6 +43,7 @@ IMAGE_INSTALL += " \
     iot2050-firewall-default \
     iot2050-firstboot-onboarding \
     iot2050-cockpit-customization \
+    iot2050-cockpit-firmware \
     iot2050-nm-settings \
     change-root-homedir \
     iot2050-firmware-update \

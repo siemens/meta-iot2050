@@ -107,4 +107,5 @@ IOT2050_DEBIAN_COCKPIT_PACKAGES = " \
     cockpit \
     cockpit-system \
     cockpit-networkmanager \
+    pkexec \
     "
