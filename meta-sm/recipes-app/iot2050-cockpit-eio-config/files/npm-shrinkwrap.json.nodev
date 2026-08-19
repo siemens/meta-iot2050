@@ -1,12 +1,12 @@
 {
-  "name": "iot2050-eio-webui",
+  "name": "iot2050-eio-config",
   "version": "1.1.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "iot2050-eio-webui",
-      "version": "1.0.1",
+      "name": "iot2050-eio-config",
+      "version": "1.1.0",
       "license": "MIT",
       "dependencies": {
         "@emotion/cache": "~11.14.0",

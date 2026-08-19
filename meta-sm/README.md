@@ -46,14 +46,14 @@ IOT2050_META_SM_PACKAGES ?= " \
 		iot2050-proximity-driver \
 		iot2050-eio-manager \
 		iot2050-event-record \
-		iot2050-eio-webui \
+		iot2050-cockpit-eio-config \
 		iot2050-module-firmware-update \
 		"
 ```
 Image recipes will append this list to `IMAGE_INSTALL` only when
 `IOT2050_SM_SUPPORT = "1"`.
 
-`iot2050-eio-webui` is a Cockpit plugin. In the standard example and SWUpdate
+`iot2050-cockpit-eio-config` is a Cockpit plugin. In the standard example and SWUpdate
 image flows, Cockpit is already provided by the example layer and exposed
 through the HTTPS gateway at `/`.
 

@@ -1,0 +1,26 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--pf-t--global--background--color--primary--default, #f0f0f0);
+  color: var(--pf-t--global--text--color--regular, #151515);
+  font-family: "Siemens Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+:root.pf-v6-theme-dark,
+:root[data-cockpit-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root.pf-v6-theme-dark body,
+:root[data-cockpit-theme="dark"] body {
+  background: var(--pf-t--global--background--color--primary--default, #151515) !important;
+  color: var(--pf-t--global--text--color--regular, #f5f5f5) !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

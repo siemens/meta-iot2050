@@ -14,7 +14,7 @@ IOT2050_META_SM_PACKAGES ?= " \
     iot2050-eiofsd \
     iot2050-eio-manager \
     iot2050-event-record \
-    iot2050-eio-webui \
+    iot2050-cockpit-eio-config \
     iot2050-module-firmware-update \
     iot2050-firmware-backend-sm \
     "
