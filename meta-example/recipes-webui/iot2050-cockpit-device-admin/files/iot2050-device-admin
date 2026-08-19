@@ -1,0 +1,344 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) Siemens AG, 2026
+#
+# SPDX-License-Identifier: MIT
+
+import base64
+import binascii
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import subprocess
+import sys
+import tempfile
+
+
+CERT_DIR = Path("/etc/iot2050/web-gateway")
+CERT_PATH = CERT_DIR / "tls.crt"
+KEY_PATH = CERT_DIR / "tls.key"
+SOURCE_PATH = CERT_DIR / "tls.source"
+OPENSSL = "/usr/bin/openssl"
+NGINX = "/usr/sbin/nginx"
+SYSTEMCTL = "/usr/bin/systemctl"
+MAX_REQUEST_SIZE = 2 * 1024 * 1024
+MAX_CERTIFICATE_SIZE = 512 * 1024
+MAX_PRIVATE_KEY_SIZE = 256 * 1024
+
+
+class AdminError(Exception):
+    """An expected, user-facing administration error."""
+
+
+def write_response(ok, data=None, message=None):
+    response = {"ok": ok}
+    if ok:
+        response["data"] = data or {}
+    else:
+        response["error"] = {"message": message or "The operation failed."}
+    print(json.dumps(response, separators=(",", ":")))
+
+
+def command_result(arguments, input_data=None):
+    try:
+        return subprocess.run(
+            arguments,
+            input=input_data,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as error:
+        raise AdminError(f"Could not execute {arguments[0]}: {error}") from error
+
+
+def command_error(result, fallback):
+    details = (result.stderr or result.stdout).decode("utf-8", errors="replace").strip()
+    return details or fallback
+
+
+def ensure_regular_file(path, label):
+    try:
+        file_stat = path.stat()
+    except FileNotFoundError as error:
+        raise AdminError(f"{label} is not available.") from error
+    if not stat.S_ISREG(file_stat.st_mode):
+        raise AdminError(f"{label} is not a regular file.")
+    return file_stat
+
+
+def parse_certificate(path):
+    result = command_result([
+        OPENSSL, "x509", "-in", str(path), "-noout",
+        "-subject", "-issuer", "-startdate", "-enddate",
+        "-fingerprint", "-sha256",
+    ])
+    if result.returncode != 0:
+        raise AdminError("The certificate is not a valid PEM X.509 certificate.")
+
+    values = {}
+    for line in result.stdout.decode("utf-8", errors="replace").splitlines():
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip()
+
+    fingerprint = next(
+        (value for key, value in values.items() if key.lower() == "sha256 fingerprint"),
+        "",
+    ).replace(":", "").lower()
+    return {
+        "subject": values.get("subject", "Unavailable"),
+        "issuer": values.get("issuer", "Unavailable"),
+        "not_before": values.get("notBefore", "Unavailable"),
+        "not_after": values.get("notAfter", "Unavailable"),
+        "fingerprint_sha256": fingerprint or "Unavailable",
+    }
+
+
+def public_key_digest_from_certificate(path):
+    certificate_public_key = command_result([
+        OPENSSL, "x509", "-in", str(path), "-pubkey", "-noout",
+    ])
+    if certificate_public_key.returncode != 0:
+        raise AdminError("Could not read the certificate public key.")
+    public_key = command_result(
+        [OPENSSL, "pkey", "-pubin", "-outform", "DER"],
+        input_data=certificate_public_key.stdout,
+    )
+    if public_key.returncode != 0:
+        raise AdminError("Could not read the certificate public key.")
+    return hashlib.sha256(public_key.stdout).digest()
+
+
+def public_key_digest_from_private_key(path):
+    private_key_public_key = command_result([
+        OPENSSL, "pkey", "-in", str(path), "-pubout", "-passin", "pass:",
+    ])
+    if private_key_public_key.returncode != 0:
+        raise AdminError("The private key must be an unencrypted, valid PEM key.")
+    public_key = command_result(
+        [OPENSSL, "pkey", "-pubin", "-outform", "DER"],
+        input_data=private_key_public_key.stdout,
+    )
+    if public_key.returncode != 0:
+        raise AdminError("Could not read the private key public key.")
+    return hashlib.sha256(public_key.stdout).digest()
+
+
+def validate_pair(certificate_path, key_path, check_expiry=True):
+    certificate = parse_certificate(certificate_path)
+    if check_expiry:
+        validate_certificate_dates(certificate)
+
+    certificate_key = public_key_digest_from_certificate(certificate_path)
+    private_key = public_key_digest_from_private_key(key_path)
+    if certificate_key != private_key:
+        raise AdminError("The certificate and private key do not match.")
+    return certificate
+
+
+def validate_certificate_dates(certificate):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    try:
+        not_before = datetime.datetime.strptime(
+            certificate["not_before"], "%b %d %H:%M:%S %Y %Z",
+        ).replace(tzinfo=datetime.timezone.utc)
+        not_after = datetime.datetime.strptime(
+            certificate["not_after"], "%b %d %H:%M:%S %Y %Z",
+        ).replace(tzinfo=datetime.timezone.utc)
+    except (KeyError, TypeError, ValueError) as error:
+        raise AdminError("The certificate validity period is invalid.") from error
+    if now < not_before:
+        raise AdminError("The certificate is not yet valid.")
+    if now > not_after:
+        raise AdminError("The certificate has expired.")
+
+
+def certificate_status():
+    if not os.path.exists(CERT_PATH) or not os.path.exists(KEY_PATH):
+        return {
+            "available": False,
+            "error": "The HTTPS certificate or private key is missing.",
+        }
+
+    try:
+        certificate = validate_pair(CERT_PATH, KEY_PATH, check_expiry=False)
+        try:
+            validate_certificate_dates(certificate)
+            certificate["valid"] = True
+        except AdminError as error:
+            certificate["valid"] = False
+            certificate["error"] = str(error)
+        source = SOURCE_PATH.read_text(encoding="utf-8").strip() if SOURCE_PATH.exists() else ""
+        if source == "custom":
+            certificate["source"] = "Custom certificate"
+        elif certificate["subject"] == certificate["issuer"]:
+            certificate["source"] = "Self-signed certificate"
+        else:
+            certificate["source"] = "Installed certificate"
+        certificate["available"] = True
+        return certificate
+    except AdminError as error:
+        return {
+            "available": True,
+            "valid": False,
+            "error": str(error),
+        }
+
+
+def decode_upload(payload, field, maximum, label):
+    encoded = payload.get(field)
+    if not isinstance(encoded, str) or not encoded:
+        raise AdminError(f"{label} was not provided.")
+    try:
+        data = base64.b64decode(encoded, validate=True)
+    except (ValueError, binascii.Error) as error:
+        raise AdminError(f"The uploaded {label.lower()} is not valid base64 data.") from error
+    if not data or len(data) > maximum:
+        raise AdminError(f"The uploaded {label.lower()} is too large or empty.")
+    return data
+
+
+def write_private_temp(data, prefix):
+    fd, name = tempfile.mkstemp(prefix=prefix, dir=str(CERT_DIR))
+    try:
+        with os.fdopen(fd, "wb") as output:
+            output.write(data)
+            output.flush()
+            os.fchmod(output.fileno(), 0o600)
+    except Exception:
+        try:
+            os.unlink(name)
+        except FileNotFoundError:
+            pass
+        raise
+    return Path(name)
+
+
+def path_exists(path):
+    return os.path.lexists(path)
+
+
+def remove_path(path):
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def restore_certificates(backups, replaced_targets):
+    for target in replaced_targets:
+        remove_path(target)
+    for target, backup in backups.items():
+        if path_exists(backup):
+            os.replace(backup, target)
+
+
+def install_certificate(payload):
+    certificate_data = decode_upload(
+        payload, "certificate", MAX_CERTIFICATE_SIZE, "certificate",
+    )
+    private_key_data = decode_upload(
+        payload, "private_key", MAX_PRIVATE_KEY_SIZE, "private key",
+    )
+    if b"BEGIN CERTIFICATE" not in certificate_data:
+        raise AdminError("The certificate must be PEM encoded.")
+    if b"BEGIN" not in private_key_data or b"PRIVATE KEY" not in private_key_data:
+        raise AdminError("The private key must be PEM encoded.")
+
+    CERT_DIR.mkdir(mode=0o755, parents=True, exist_ok=True)
+    temporary_certificate = write_private_temp(certificate_data, ".tls.crt.")
+    temporary_key = write_private_temp(private_key_data, ".tls.key.")
+    temporary_source = write_private_temp(b"custom\n", ".tls.source.")
+    backups = {}
+    replaced_targets = []
+    try:
+        validate_pair(temporary_certificate, temporary_key)
+        for target in (CERT_PATH, KEY_PATH, SOURCE_PATH):
+            if path_exists(target):
+                backup = Path(f"{target}.rollback-{os.getpid()}")
+                remove_path(backup)
+                os.replace(target, backup)
+                backups[target] = backup
+
+        os.replace(temporary_certificate, CERT_PATH)
+        replaced_targets.append(CERT_PATH)
+        os.replace(temporary_key, KEY_PATH)
+        replaced_targets.append(KEY_PATH)
+        os.replace(temporary_source, SOURCE_PATH)
+        replaced_targets.append(SOURCE_PATH)
+        os.chmod(CERT_PATH, 0o644)
+        os.chmod(KEY_PATH, 0o600)
+        os.chmod(SOURCE_PATH, 0o644)
+
+        nginx_test = command_result([NGINX, "-t"])
+        if nginx_test.returncode != 0:
+            raise AdminError(command_error(nginx_test, "nginx rejected the new certificate."))
+        reload_result = command_result([SYSTEMCTL, "reload-or-restart", "nginx.service"])
+        if reload_result.returncode != 0:
+            raise AdminError(command_error(reload_result, "Could not reload nginx."))
+
+        for backup in backups.values():
+            remove_path(backup)
+        return {"message": "The custom certificate is active."}
+    except AdminError:
+        restore_certificates(backups, replaced_targets)
+        # Best effort: restore the old certificate in the running nginx process.
+        command_result([SYSTEMCTL, "reload-or-restart", "nginx.service"])
+        raise
+    except Exception as error:
+        restore_certificates(backups, replaced_targets)
+        command_result([SYSTEMCTL, "reload-or-restart", "nginx.service"])
+        raise AdminError("Could not install the certificate safely.") from error
+    finally:
+        remove_path(temporary_certificate)
+        remove_path(temporary_key)
+        remove_path(temporary_source)
+        for backup in backups.values():
+            remove_path(backup)
+
+
+def read_request():
+    raw = sys.stdin.buffer.read(MAX_REQUEST_SIZE + 1)
+    if len(raw) > MAX_REQUEST_SIZE:
+        raise AdminError("The certificate upload request is too large.")
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise AdminError("The certificate upload request is invalid JSON.") from error
+    if not isinstance(payload, dict):
+        raise AdminError("The certificate upload request must be a JSON object.")
+    return payload
+
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: iot2050-device-admin status|certificate-install", file=sys.stderr)
+        return 2
+
+    operation = sys.argv[1]
+    try:
+        if operation == "status":
+            write_response(True, {
+                "certificate": certificate_status(),
+            })
+            return 0
+        if operation == "certificate-install":
+            write_response(True, install_certificate(read_request()))
+            return 0
+        print(f"Unsupported operation: {operation}", file=sys.stderr)
+        return 2
+    except AdminError as error:
+        write_response(False, message=str(error))
+        return 0
+    except Exception as error:
+        write_response(False, message="The system helper encountered an unexpected error.")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

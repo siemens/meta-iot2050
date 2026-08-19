@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIMATIC IOT2050 Device Administration</title>
+  <link rel="stylesheet" href="device-admin.css">
+  <script src="../base1/cockpit.js"></script>
+  <script defer src="device-admin.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+          <h1>Device Administration</h1>
+        <p class="subtitle">Manage device security and compliance resources.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="refresh" class="secondary">Refresh</button>
+      </div>
+    </header>
+
+    <div id="message" class="message hidden" role="status" aria-live="polite"></div>
+    <div id="error" class="alert hidden" role="alert"></div>
+    <div id="loading" class="loading">Reading system information…</div>
+
+    <section id="settings" class="cards hidden">
+      <article class="card certificate-card">
+        <div class="card-heading">
+          <div>
+            <span class="tag">HTTPS</span>
+            <h2>Web certificate</h2>
+          </div>
+          <span id="certificate-status" class="status neutral">Inspecting</span>
+        </div>
+        <p>Install an HTTPS certificate and its matching private key. The certificate already contains the public key.</p>
+        <dl id="certificate-details"></dl>
+
+        <div class="form-grid">
+          <div>
+            <label for="certificate-file">Certificate or full chain</label>
+            <div class="file-picker">
+              <input id="certificate-file" class="file-input" type="file" accept=".crt,.cer,.pem,application/x-pem-file">
+              <label id="choose-certificate-file" class="file-picker-button secondary" for="certificate-file">Choose file</label>
+              <span id="certificate-file-name" class="file-name">No file selected</span>
+            </div>
+            <p class="file-hint">PEM certificate or full chain. Include the browser address in the certificate SAN.</p>
+          </div>
+          <div>
+            <label for="private-key-file">Private key</label>
+            <div class="file-picker">
+              <input id="private-key-file" class="file-input" type="file" accept=".key,.pem,application/x-pem-file">
+              <label id="choose-private-key-file" class="file-picker-button secondary" for="private-key-file">Choose file</label>
+              <span id="private-key-file-name" class="file-name">No file selected</span>
+            </div>
+            <p class="file-hint">Matching unencrypted PEM private key. The private key is not shown after upload.</p>
+          </div>
+        </div>
+        <button id="install-certificate">Install certificate</button>
+        <p class="warning">Installing a certificate reloads nginx. A trusted CA certificate is needed to remove browser security warnings.</p>
+      </article>
+
+    </section>
+  </main>
+</body>
+</html>
