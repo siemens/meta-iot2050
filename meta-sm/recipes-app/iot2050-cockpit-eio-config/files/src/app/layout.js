@@ -2,6 +2,7 @@
 import * as React from 'react';
 import localFont from 'next/font/local';
 import './globals.css';
+import ThemeRegistry from '@/components/ThemeRegistry/ThemeRegistry';
 
 const siemensSans = localFont({
   src: [
@@ -40,7 +41,7 @@ export default function RootLayout ({ children }) {
       <head>
         <script src="../base1/cockpit.js"></script>
       </head>
-      <body>{children}</body>
+      <body><ThemeRegistry>{children}</ThemeRegistry></body>
     </html>
   );
 }

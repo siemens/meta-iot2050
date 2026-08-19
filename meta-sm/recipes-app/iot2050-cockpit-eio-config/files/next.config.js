@@ -7,7 +7,7 @@ const nextConfig = {
     unoptimized: true,
   },
   assetPrefix: process.env.NODE_ENV === 'production'
-    ? '/cockpit/@localhost/eio-config'
+    ? '/cockpit/@localhost/iot2050-eio-config'
     : undefined,
   modularizeImports: {
     '@mui/icons-material': {

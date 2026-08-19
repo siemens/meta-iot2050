@@ -9,9 +9,9 @@ PR = "1"
 
 inherit dpkg-raw
 
-DESCRIPTION = "IOT2050 EIO WebUI Cockpit plugin"
+DESCRIPTION = "IOT2050 EIO Config Cockpit plugin"
 
-NPMPN ?= "${PN}"
+NPMPN ?= "iot2050-eio-config"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json.nodev"
 PKG_INSTALL_DIR ?= "/usr/share/cockpit"
 NPM_INSTALL_FLAGS ?= ""
@@ -43,10 +43,9 @@ SRC_URI_PKG = " \
 SRC_URI = " \
     ${SRC_URI_PKG} \
     file://manifest.json \
-    file://src \
     "
 
-NPM_MAPPED_NAME = "${PN}"
+NPM_MAPPED_NAME = "${NPMPN}"
 NPM_REGISTRY = "https://registry.npmjs.org"
 
 def npm_arch_map(target_arch, d):
@@ -66,7 +65,7 @@ OWN_NPM_CLASS_PACKAGE ?= "0"
 
 DEBIAN_BUILD_DEPENDS =. "${@'python3, libnode115,' if d.getVar('NPM_REBUILD') == '1' else ''}"
 DEBIAN_BUILD_DEPENDS =. "${NPM_CLASS_PACKAGE},"
-DEBIAN_DEPENDS = "cockpit, iot2050-eio-manager, iot2050-cockpit-customization, \${shlibs:Depends}, \${misc:Depends}"
+DEBIAN_DEPENDS = "cockpit, iot2050-eio-manager, \${shlibs:Depends}, \${misc:Depends}"
 
 SCHROOT_MOUNTS = "${WORKDIR}"
 
@@ -223,7 +222,6 @@ do_install() {
 
 do_prepare_build:append() {
     install -m 644 ${WORKDIR}/manifest.json ${S}/manifest.json
-    install -m 644 ${WORKDIR}/src/app/icon-siemens.svg ${S}/icon-siemens.svg
 
     INSTALL_FLAGS="--offline --omit=dev --no-package-lock --verbose \
                    --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} \
@@ -259,7 +257,6 @@ override_dh_auto_install:
 	install -d ${CHDIR}/${NPMPN}.static
 	cp -a ${CHDIR}/${NPMPN}/out/. ${CHDIR}/${NPMPN}.static/
 	install -m 644 manifest.json ${CHDIR}/${NPMPN}.static/
-	install -m 644 icon-siemens.svg ${CHDIR}/${NPMPN}.static/icon-siemens.svg
 	rm -rf ${CHDIR}/${NPMPN}
 	mv ${CHDIR}/${NPMPN}.static ${CHDIR}/${NPMPN}
 

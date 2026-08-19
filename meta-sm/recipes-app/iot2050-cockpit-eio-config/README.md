@@ -1,4 +1,4 @@
-# IOT2050 EIO WebUI
+# IOT2050 EIO Config Cockpit Plugin
 
 This package provides the Extended IO management UI for the IOT2050 SM variant.
 It is installed as a Cockpit plugin and is reached through the existing Cockpit
@@ -6,7 +6,8 @@ runtime rather than a standalone web service.
 
 ## Runtime Model
 
-- UI package id: `iot2050-eio-webui`
+- Debian/Isar package: `iot2050-cockpit-eio-config`
+- Cockpit package id: `iot2050-eio-config`
 - Cockpit navigation label: `EIO Config`
 - Public entrypoint: the existing HTTPS gateway in front of Cockpit
 - Backend integration: loopback HTTP bridge inside `iot2050-eio-service`
@@ -71,7 +72,7 @@ Run the following workflow inside the corresponding Debian `<version>-<snapshot>
 dependency resolution matches the ISAR build environment.
 
 ```sh
-cd meta-sm/recipes-app/iot2050-eio-webui/files
+cd meta-sm/recipes-app/iot2050-cockpit-eio-config/files
 
 cp package.json package.json.bak
 jq 'del(.devDependencies)' package.json > package.json.tmp && mv package.json.tmp package.json
@@ -95,7 +96,7 @@ npm run build
 ```
 
 The production package installs the generated static export under
-`/usr/share/cockpit/eio-config/`.
+`/usr/share/cockpit/iot2050-eio-config/`.
 
 ## Feature Scope
 
@@ -113,4 +114,4 @@ deploy/retrieve interface, but the UI no longer depends on it.
 ## Related
 
 - CLI source: [meta-sm/recipes-app/iot2050-eio-manager/files/iot2050-eio-cli.py](../iot2050-eio-manager/files/iot2050-eio-cli.py)
-- Web UI recipes overview: [doc/recipes-webui.md](../../../doc/recipes-webui.md)
+- Cockpit integration architecture: [doc/cockpit-architecture.md](../../../doc/cockpit-architecture.md)
