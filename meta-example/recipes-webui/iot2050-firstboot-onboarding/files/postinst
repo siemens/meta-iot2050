@@ -14,5 +14,4 @@ run_optional() {
 run_optional systemctl daemon-reload
 run_optional systemctl disable cockpit.socket
 run_optional systemctl stop cockpit.socket
-run_optional systemctl enable iot2050-firstboot-onboarding.service
-run_optional systemctl start iot2050-firstboot-onboarding.service
+run_optional systemctl try-restart nginx.service

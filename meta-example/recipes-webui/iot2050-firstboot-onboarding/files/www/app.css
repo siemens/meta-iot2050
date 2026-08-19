@@ -6,9 +6,12 @@
   --border-strong: #8a8d90;
   --text: #151515;
   --muted: #6a6e73;
-  --primary: #06c;
-  --primary-hover: #004080;
-  --focus: rgba(0, 102, 204, 0.28);
+  --primary: #009999;
+  --primary-hover: #007f7f;
+  --focus: rgba(0, 153, 153, 0.28);
+  --brand-petrol: #009999;
+  --brand-background: #ffffff;
+  --brand-text: #151515;
   --success: #3e8635;
   --danger: #c9190b;
   --shadow: 0 12px 32px rgba(3, 3, 3, 0.12);
@@ -33,7 +36,7 @@ body {
   font-family: var(--font-ui);
   color: var(--text);
   background:
-    linear-gradient(180deg, rgba(0, 102, 204, 0.08), transparent 120px),
+    linear-gradient(180deg, rgba(0, 153, 153, 0.08), transparent 120px),
     var(--page-bg);
 }
 
@@ -93,22 +96,92 @@ html[data-view="wait"] #wait-view {
 }
 
 .product-brand {
-  display: inline-block;
-  color: var(--text);
-  font-size: 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 40px;
+  margin-top: -10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 4px;
+  padding: 10px 0;
+  background: var(--brand-background);
+  color: var(--brand-text);
+  font-size: 0.92rem;
   font-weight: 600;
+  line-height: 1.2;
+  border-bottom: 1px solid var(--border);
+}
+
+.product-brand img {
+  display: block;
+  width: 101px;
+  top: 12px;
+  height: auto;
+  flex: 0 0 auto;
+  position: absolute;
+  left: 0;
+}
+
+.product-name {
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 0px;
+  white-space: nowrap;
+  font-size: 1rem;
+  line-height: 20px;
+  letter-spacing: 0.02em;
+  color: inherit;
 }
 
 .product-brand-wait {
   margin-top: -4px;
 }
 
+@media (max-width: 480px) {
+  .product-brand {
+    gap: 4px;
+    padding-inline: 0 4px;
+    font-size: 0.8rem;
+  }
+
+  .product-brand img {
+    width: 91px;
+    height: auto;
+  }
+
+  .product-name {
+    top: 10px;
+    right: 4px;
+    font-size: 0.9rem;
+    line-height: 18px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-background: #172025;
+    --brand-text: #ffffff;
+  }
+}
+
 .setup-header {
   display: grid;
-  gap: 0;
+  gap: 12px;
   margin-bottom: 14px;
   justify-items: center;
   text-align: center;
+}
+
+.setup-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
 }
 
 .eyebrow {
@@ -229,6 +302,60 @@ html[data-view="wait"] #wait-view {
   transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap input {
+  padding-right: 42px;
+}
+
+.password-input-wrap input::-ms-reveal,
+.password-input-wrap input::-ms-clear,
+.password-input-wrap input::-webkit-credentials-auto-fill-button {
+  display: none;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.password-visibility {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  transform: translateY(-50%);
+  place-items: center;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.password-visibility:hover,
+.password-visibility:focus-visible {
+  background: rgba(0, 153, 153, 0.12);
+  color: var(--primary);
+}
+
+.password-visibility:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.password-eye {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .field input:hover {
   border-color: #4f5255;
 }
@@ -258,6 +385,50 @@ html[data-view="wait"] #wait-view {
   border: 1px solid var(--border);
   border-radius: 6px;
   background: #fff;
+}
+
+.password-guidance {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-alt);
+}
+
+.password-guidance-title {
+  margin: 0 0 5px;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.password-requirements {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.password-requirements li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.password-requirements .password-rule-marker {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.password-requirements li.met {
+  color: #1f5e1b;
+}
+
+.password-requirements li.met .password-rule-marker {
+  color: #1f8a31;
 }
 
 .checkbox-field {
@@ -367,37 +538,9 @@ html[data-view="wait"] #wait-view {
   text-align: center;
 }
 
-.progress-track {
-  position: relative;
-  width: min(100%, 360px);
-  height: 8px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #d2d2d2;
-}
-
-.progress-bar {
-  position: absolute;
-  inset: 0 auto 0 -35%;
-  width: 35%;
-  border-radius: inherit;
-  background: var(--primary);
-  animation: progress-slide 1.2s ease-in-out infinite;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes progress-slide {
-  0% {
-    transform: translateX(0%);
-  }
-
-  100% {
-    transform: translateX(390%);
   }
 }
 

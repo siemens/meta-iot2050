@@ -12,15 +12,17 @@ inherit dpkg-raw
 
 DESCRIPTION = "IOT2050 first-boot onboarding web service"
 
-DEBIAN_DEPENDS = "cockpit, iot2050-web-gateway-nginx, nodejs, passwd, python3, sudo, systemd"
+DEBIAN_DEPENDS = "cockpit, iot2050-branding, iot2050-pam-conf, iot2050-web-gateway-nginx, nodejs, passwd, python3, systemd"
 
 SRC_URI = " \
     file://iot2050-firstboot-onboarding.service \
+    file://nginx.service.d/zz-iot2050-firstboot-onboarding.conf \
     file://iot2050-firstboot-onboarding.js \
     file://iot2050-firstboot-onboarding-launcher \
     file://iot2050-firstboot-apply-user.py \
-    file://iot2050-firstboot-finalize.sh \
     file://postinst \
+    file://prerm \
+    file://postrm \
     file://www/index.html \
     file://www/app.css \
     file://www/app.js \
@@ -36,10 +38,13 @@ do_install() {
     install -d -m 755 ${D}/usr/lib/systemd/system
     install -m 644 ${WORKDIR}/iot2050-firstboot-onboarding.service ${D}/usr/lib/systemd/system/
 
+    install -d -m 755 ${D}/usr/lib/systemd/system/nginx.service.d
+    install -m 644 ${WORKDIR}/nginx.service.d/zz-iot2050-firstboot-onboarding.conf \
+        ${D}/usr/lib/systemd/system/nginx.service.d/
+
     install -d -m 755 ${D}/usr/lib/iot2050/onboarding
     install -m 755 ${WORKDIR}/iot2050-firstboot-onboarding.js ${D}/usr/lib/iot2050/onboarding/
     install -m 755 ${WORKDIR}/iot2050-firstboot-apply-user.py ${D}/usr/lib/iot2050/onboarding/
-    install -m 755 ${WORKDIR}/iot2050-firstboot-finalize.sh ${D}/usr/lib/iot2050/onboarding/
 
     install -d -m 755 ${D}/usr/share/iot2050-firstboot-onboarding
     sed "s/@BUILD_YEAR@/${build_year}/g" ${WORKDIR}/www/index.html > ${D}/usr/share/iot2050-firstboot-onboarding/index.html
@@ -48,6 +53,8 @@ do_install() {
     install -m 644 ${WORKDIR}/www/app.js ${D}/usr/share/iot2050-firstboot-onboarding/
     install -m 644 ${WORKDIR}/www/locale.js ${D}/usr/share/iot2050-firstboot-onboarding/
     install -m 644 ${WORKDIR}/www/favicon.ico ${D}/usr/share/iot2050-firstboot-onboarding/favicon.ico
+    ln -s /usr/share/iot2050/branding/logo/sie-logo-petrol-rgb.svg \
+        ${D}/usr/share/iot2050-firstboot-onboarding/siemens-logo.svg
     PYTHONDONTWRITEBYTECODE=1 python3 -B ${WORKDIR}/i18n/generate-po-bundles.py \
         --source ${WORKDIR}/i18n/catalog.json \
         --output-dir ${D}/usr/share/iot2050-firstboot-onboarding
