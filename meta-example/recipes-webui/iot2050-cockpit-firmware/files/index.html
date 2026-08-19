@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IOT2050 Firmware</title>
+  <link rel="stylesheet" href="firmware.css">
+  <script src="../base1/cockpit.js"></script>
+  <script defer src="firmware.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <h1>Firmware Center</h1>
+        <p class="subtitle">Inspect firmware availability and device compatibility from one place.</p>
+        <div id="device-summary" class="device-summary hidden" aria-label="Device identity">
+          <dl id="device-details"></dl>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button id="refresh" class="secondary">Refresh</button>
+      </div>
+    </header>
+
+    <div id="error" class="alert hidden" role="alert"></div>
+    <div id="loading" class="loading">Discovering firmware capabilities…</div>
+
+    <section id="backends" class="cards hidden">
+      <article id="system-card" class="card hidden">
+        <div class="card-heading">
+          <div>
+            <span class="tag">SYSTEM</span>
+            <h2>System Firmware</h2>
+          </div>
+          <span class="status neutral">Inspecting</span>
+        </div>
+        <p>OSPI boot-chain firmware for the IOT2050 device.</p>
+        <dl id="system-details"></dl>
+        <label for="system-firmware">Custom firmware package (optional)</label>
+        <div class="file-picker">
+          <input id="system-firmware" class="file-input" type="file" accept=".tar,.xz,.txz">
+          <label id="choose-system-firmware" class="file-picker-button secondary" for="system-firmware">Choose file</label>
+          <span id="system-file-name" class="file-name placeholder" title="Default package: checking image firmware…">Default package: checking image firmware…</span>
+        </div>
+        <p id="system-file-hint" class="file-hint">Leave empty to use the default package.</p>
+        <div class="card-actions">
+          <button id="update-system" aria-label="Update System Firmware">Update</button>
+          <button id="rollback-system" class="secondary hidden" aria-label="Rollback System Firmware">Rollback</button>
+        </div>
+      </article>
+
+      <article id="controller-card" class="card hidden">
+        <div class="card-heading">
+          <div>
+            <span class="tag sm">SM VARIANT</span>
+            <h2>EIO Controller Firmware</h2>
+          </div>
+          <span id="controller-status" class="status neutral">Inspecting</span>
+        </div>
+        <p>Image-default MAP3 controller firmware.</p>
+        <dl id="controller-details"></dl>
+        <div class="card-actions">
+          <button id="update-controller" aria-label="Update EIO Controller Firmware">Update</button>
+        </div>
+      </article>
+
+      <article id="module-card" class="card hidden">
+        <div class="card-heading">
+          <div>
+            <span class="tag sm">SM VARIANT</span>
+            <h2>Module Firmware</h2>
+          </div>
+          <span id="module-status" class="status neutral">Inspecting</span>
+        </div>
+        <p>Firmware for chip A and chip B of a module in an EIO slot.</p>
+        <label for="module-slot">Inspect slot</label>
+        <div class="inline">
+          <select id="module-slot" disabled>
+            <option value="">Discovering slots…</option>
+          </select>
+          <span id="module-slot-label" class="slot-label" hidden></span>
+          <button id="inspect-module" class="secondary">Inspect</button>
+        </div>
+        <dl id="module-details"></dl>
+        <label for="firmware-a">Chip A firmware</label>
+        <div class="file-picker">
+          <input id="firmware-a" class="file-input" type="file">
+          <label id="choose-firmware-a" class="file-picker-button secondary" for="firmware-a">Choose file</label>
+          <span id="firmware-a-name" class="file-name placeholder" title="No file selected">No file selected</span>
+        </div>
+        <label for="firmware-b">Chip B firmware</label>
+        <div class="file-picker">
+          <input id="firmware-b" class="file-input" type="file">
+          <label id="choose-firmware-b" class="file-picker-button secondary" for="firmware-b">Choose file</label>
+          <span id="firmware-b-name" class="file-name placeholder" title="No file selected">No file selected</span>
+        </div>
+        <div class="card-actions">
+          <button id="update-module" aria-label="Update Module Firmware">Update</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="task-panel" class="task hidden" aria-live="polite">
+      <div>
+        <span class="tag">ACTIVE TASK</span>
+        <h2 id="task-title">Firmware update</h2>
+        <p id="task-message">Starting…</p>
+        <p id="task-safety" class="task-safety hidden"></p>
+      </div>
+      <span id="task-state" class="status warn">running</span>
+      <div class="task-actions">
+        <button id="reboot-device" class="secondary hidden">Reboot now</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
