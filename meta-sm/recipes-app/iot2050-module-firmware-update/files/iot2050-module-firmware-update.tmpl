@@ -1,75 +1,111 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) Siemens AG, 2024
+# Copyright (c) Siemens AG, 2024-2026
 #
 # Authors:
 #  Li Hua Qian <huaqian.li@siemens.com>
 #
 # SPDX-License-Identifier: MIT
+#
+"""CLI client for the Module Firmware gRPC service."""
 
+import argparse
 import os
 import sys
-import argparse
 import textwrap
 
-def main(args):
-    description=textwrap.dedent('''\
+import grpc
+
+from iot2050_eio_common import MODULE_FIRMWARE_SOCKET
+from iot2050_module_firmware_pb2 import UpdateRequest
+from iot2050_module_firmware_pb2_grpc import ModuleFirmwareStub
+
+SOCKET_TARGET = "unix://" + MODULE_FIRMWARE_SOCKET
+
+
+def parser():
+    description = textwrap.dedent('''\
         Script for updating module firmware on IoT2050
         Examples usage:
           1. iot2050-module-firmware-update -s 1 -fwa firmwareA.bin
           2. iot2050-module-firmware-update -s 1 -fwa firmwareA.bin -fwb firmwareB.bin
          ''')
-    parser = argparse.ArgumentParser(
+    result = argparse.ArgumentParser(
         description=description,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument(
+    result.add_argument(
         "-s", "--slot",
         type=int,
         required=True,
-        help="Slot number"
+        help="Slot number",
     )
-    parser.add_argument(
+    result.add_argument(
         "-fwa", "--firmware-a",
         help="Path to firmware A file",
-        type=argparse.FileType('rb')
     )
-    parser.add_argument(
+    result.add_argument(
         "-fwb", "--firmware-b",
         help="Path to firmware B file",
-        type=argparse.FileType('rb')
     )
-    args = parser.parse_args(args)
+    return result
+
+
+def main(argv=None):
+    args = parser().parse_args(argv)
 
     if not args.firmware_a and not args.firmware_b:
         print("Error: No firmware file specified")
-        parser.print_help()
+        parser().print_help()
         return 1
 
-    slot_path = f"/eiofs/controller/slot{args.slot}"
+    firmware_a = b""
+    firmware_b = b""
     if args.firmware_a:
+        if not os.path.isfile(args.firmware_a):
+            print(f"Error: Firmware file not found: {args.firmware_a}",
+                  file=sys.stderr)
+            return 1
+        with open(args.firmware_a, "rb") as f:
+            firmware_a = f.read()
         print("Updating firmware A ...")
-        try:
-            with open(slot_path + "/fwa", "wb") as f:
-                f.write(args.firmware_a.read())
-        except Exception as e:
-            print(f"Error: Failed to write firmware A, {e}")
-            return 1
-
     if args.firmware_b:
-        print("Updating firmware B ...")
-        try:
-            with open(slot_path + "/fwb", "wb") as f:
-                f.write(args.firmware_b.read())
-        except Exception as e:
-            print(f"Error: Failed to write firmware B, {e}")
+        if not os.path.isfile(args.firmware_b):
+            print(f"Error: Firmware file not found: {args.firmware_b}",
+                  file=sys.stderr)
             return 1
+        with open(args.firmware_b, "rb") as f:
+            firmware_b = f.read()
+        print("Updating firmware B ...")
+
+    channel = grpc.insecure_channel(SOCKET_TARGET)
+    stub = ModuleFirmwareStub(channel)
+    try:
+        response = stub.Update(
+            UpdateRequest(
+                slot=args.slot,
+                firmware_a=firmware_a,
+                firmware_b=firmware_b,
+            ),
+            timeout=3600,
+        )
+    except grpc.RpcError as error:
+        print(f"Module Firmware service unavailable: {error.details()}",
+              file=sys.stderr)
+        return 1
+    finally:
+        channel.close()
+
+    if not response.ok:
+        print(f"Error: {response.message}", file=sys.stderr)
+        if response.partial_failure:
+            print("Partial update: some chips were written successfully.",
+                  file=sys.stderr)
+        return 1
 
     print("Firmware updated successfully. Please reboot the upgraded module.")
-
     return 0
 
-if __name__ == '__main__':
-    CODE = main(sys.argv[1:])
-    sys.exit(CODE)
 
+if __name__ == '__main__':
+    sys.exit(main())
