@@ -1,0 +1,8 @@
+[Unit]
+Description=Garbage collect staged IOT2050 firmware files
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/iot2050-fwmgr staging-gc --older-than-seconds 86400
+NoNewPrivileges=true
+PrivateTmp=true

@@ -1,0 +1,18 @@
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+
+[Unit]
+Description=IOT2050 firmware task %i
+After=local-fs.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=HOME=/root
+ExecStart=/usr/sbin/iot2050-fwmgr worker %i
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=infinity
+TimeoutStopSec=infinity
+KillMode=control-group
