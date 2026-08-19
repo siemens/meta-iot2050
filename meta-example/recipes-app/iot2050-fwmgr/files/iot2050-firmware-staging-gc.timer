@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodic IOT2050 firmware staging cleanup
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
