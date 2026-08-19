@@ -12,6 +12,8 @@ BindsTo=iot2050-eiofsd.service
 
 [Service]
 Type=simple
+RuntimeDirectory=iot2050
+RuntimeDirectoryMode=0755
 ExecStart=/usr/bin/python3 -u /usr/bin/iot2050-eio-service
 StandardOutput=journal+console
 StandardError=journal+console

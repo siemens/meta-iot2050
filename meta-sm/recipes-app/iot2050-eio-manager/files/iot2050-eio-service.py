@@ -11,6 +11,7 @@ from concurrent import futures
 import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import os
 import sys
 import threading
 import grpc
@@ -19,7 +20,7 @@ from gRPC.EIOManager.iot2050_eio_pb2 import (
     RetrieveRequest, RetrieveReply,
     SyncTimeRequest, SyncTimeReply,
     UpdateFirmwareRequest, UpdateFirmwareReply,
-    CheckFWURequest, CheckFWUReply,
+    CheckFWURequest, CheckFWUReply, FirmwareInspection,
     ReadEIOEventRequest, ReadEIOEventReply
 )
 from gRPC.EIOManager.iot2050_eio_pb2_grpc import (
@@ -83,8 +84,23 @@ class EIOManagerServicer(BaseEIOManagerServicer):
         return UpdateFirmwareReply(status=status, message=f'{message}')
 
     def CheckFWU(self, request: CheckFWURequest, context):
-        status, message = FirmwareUpdateChecker().collect_fwu_info()
-        return CheckFWUReply(status=status, message=message)
+        inspection = FirmwareUpdateChecker(strict=False).inspect()
+        return CheckFWUReply(
+            status=inspection['status_code'],
+            message=json.dumps(inspection, separators=(',', ':')),
+            inspection=FirmwareInspection(
+                supported=bool(inspection.get('supported')),
+                current_version=inspection.get('current_version') or '',
+                bundled_version=inspection.get('bundled_version') or '',
+                metadata_sha1=inspection.get('metadata_sha1') or '',
+                actual_sha256=inspection.get('actual_sha256') or '',
+                integrity=bool(inspection.get('integrity')),
+                update_needed=bool(inspection.get('update_needed')),
+                status=inspection.get('status') or '',
+                status_code=int(inspection.get('status_code', 2)),
+                detail_message=inspection.get('message') or '',
+            ),
+        )
 
     def ReadEIOEvent(self, request: ReadEIOEventRequest, context):
         try:
@@ -233,10 +249,22 @@ def serve():
         # Cockpit WebUI bridge cannot bind its loopback HTTP port.
         print(f'Warning: EIO WebUI bridge disabled: {e}', file=sys.stderr)
 
+    socket_path = None
+    if iot2050_eio_api_server.startswith("unix://"):
+        socket_path = iot2050_eio_api_server[len("unix://"):]
+        os.makedirs(os.path.dirname(socket_path), mode=0o755, exist_ok=True)
+        try:
+            os.unlink(socket_path)
+        except FileNotFoundError:
+            pass
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     add_EIOManagerServicer_to_server(EIOManagerServicer(), server)
-    server.add_insecure_port(iot2050_eio_api_server)
+    if server.add_insecure_port(iot2050_eio_api_server) == 0:
+        raise RuntimeError('Unable to bind the EIO gRPC endpoint')
     server.start()
+    if socket_path is not None:
+        os.chmod(socket_path, 0o600)
     server.wait_for_termination()
 
 

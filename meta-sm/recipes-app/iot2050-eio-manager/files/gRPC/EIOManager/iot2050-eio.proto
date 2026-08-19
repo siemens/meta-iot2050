@@ -111,6 +111,23 @@ message CheckFWURequest {
 message CheckFWUReply {
   int32 status = 1;
   string message = 2;
+  FirmwareInspection inspection = 3;
+}
+
+/* FirmwareInspection
+ * - Structured controller firmware information for managed callers.
+ */
+message FirmwareInspection {
+  bool supported = 1;
+  string current_version = 2;
+  string bundled_version = 3;
+  string metadata_sha1 = 4;
+  string actual_sha256 = 5;
+  bool integrity = 6;
+  bool update_needed = 7;
+  string status = 8;
+  int32 status_code = 9;
+  string detail_message = 10;
 }
 
 /* ----------------- Read EIO event ----------------- */

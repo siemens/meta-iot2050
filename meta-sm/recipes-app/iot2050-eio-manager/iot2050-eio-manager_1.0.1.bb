@@ -16,6 +16,8 @@ inherit dpkg-raw
 DESCRIPTION = "IOT2050 Extended IO Manager"
 MAINTAINER = "baocheng.su@siemens.com"
 
+DEPENDS = "iot2050-eio-common"
+
 SRC_URI = " \
     file://gRPC/EIOManager/iot2050_eio_pb2_grpc.py \
     file://gRPC/EIOManager/iot2050_eio_pb2.py \
@@ -58,7 +60,7 @@ SRC_URI += " \
 
 DEBIAN_DEPENDS = "python3, python3-grpcio, python3-dotenv, python3-jsonschema, \
 python3-yaml, python3-bitstruct, python3-libgpiod, libflashrom1, libflashrom-dev, \
-python3-progress, python3-psutil, iot2050-eiofsd, "
+python3-progress, python3-psutil, iot2050-eio-common, iot2050-eiofsd"
 
 
 do_install() {

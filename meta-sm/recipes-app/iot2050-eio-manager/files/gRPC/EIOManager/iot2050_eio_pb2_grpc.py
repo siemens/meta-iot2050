@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from gRPC.EIOManager import iot2050_eio_pb2 as gRPC_dot_EIOManager_dot_iot2050__eio__pb2
+from . import iot2050_eio_pb2 as iot2050__eio__pb2
 
 
 class EIOManagerStub(object):
@@ -16,33 +16,33 @@ class EIOManagerStub(object):
         """
         self.Deploy = channel.unary_unary(
                 '/eiomanager.EIOManager/Deploy',
-                request_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.DeployRequest.SerializeToString,
-                response_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.DeployReply.FromString,
+                request_serializer=iot2050__eio__pb2.DeployRequest.SerializeToString,
+                response_deserializer=iot2050__eio__pb2.DeployReply.FromString,
                 )
         self.Retrieve = channel.unary_unary(
                 '/eiomanager.EIOManager/Retrieve',
-                request_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.RetrieveRequest.SerializeToString,
-                response_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.RetrieveReply.FromString,
+                request_serializer=iot2050__eio__pb2.RetrieveRequest.SerializeToString,
+                response_deserializer=iot2050__eio__pb2.RetrieveReply.FromString,
                 )
         self.SyncTime = channel.unary_unary(
                 '/eiomanager.EIOManager/SyncTime',
-                request_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.SyncTimeRequest.SerializeToString,
-                response_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.SyncTimeReply.FromString,
+                request_serializer=iot2050__eio__pb2.SyncTimeRequest.SerializeToString,
+                response_deserializer=iot2050__eio__pb2.SyncTimeReply.FromString,
                 )
         self.UpdateFirmware = channel.unary_unary(
                 '/eiomanager.EIOManager/UpdateFirmware',
-                request_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.UpdateFirmwareRequest.SerializeToString,
-                response_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.UpdateFirmwareReply.FromString,
+                request_serializer=iot2050__eio__pb2.UpdateFirmwareRequest.SerializeToString,
+                response_deserializer=iot2050__eio__pb2.UpdateFirmwareReply.FromString,
                 )
         self.CheckFWU = channel.unary_unary(
                 '/eiomanager.EIOManager/CheckFWU',
-                request_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.CheckFWURequest.SerializeToString,
-                response_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.CheckFWUReply.FromString,
+                request_serializer=iot2050__eio__pb2.CheckFWURequest.SerializeToString,
+                response_deserializer=iot2050__eio__pb2.CheckFWUReply.FromString,
                 )
         self.ReadEIOEvent = channel.unary_unary(
                 '/eiomanager.EIOManager/ReadEIOEvent',
-                request_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.ReadEIOEventRequest.SerializeToString,
-                response_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.ReadEIOEventReply.FromString,
+                request_serializer=iot2050__eio__pb2.ReadEIOEventRequest.SerializeToString,
+                response_deserializer=iot2050__eio__pb2.ReadEIOEventReply.FromString,
                 )
 
 
@@ -90,33 +90,33 @@ def add_EIOManagerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Deploy': grpc.unary_unary_rpc_method_handler(
                     servicer.Deploy,
-                    request_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.DeployRequest.FromString,
-                    response_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.DeployReply.SerializeToString,
+                    request_deserializer=iot2050__eio__pb2.DeployRequest.FromString,
+                    response_serializer=iot2050__eio__pb2.DeployReply.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
-                    request_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.RetrieveRequest.FromString,
-                    response_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.RetrieveReply.SerializeToString,
+                    request_deserializer=iot2050__eio__pb2.RetrieveRequest.FromString,
+                    response_serializer=iot2050__eio__pb2.RetrieveReply.SerializeToString,
             ),
             'SyncTime': grpc.unary_unary_rpc_method_handler(
                     servicer.SyncTime,
-                    request_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.SyncTimeRequest.FromString,
-                    response_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.SyncTimeReply.SerializeToString,
+                    request_deserializer=iot2050__eio__pb2.SyncTimeRequest.FromString,
+                    response_serializer=iot2050__eio__pb2.SyncTimeReply.SerializeToString,
             ),
             'UpdateFirmware': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateFirmware,
-                    request_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.UpdateFirmwareRequest.FromString,
-                    response_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.UpdateFirmwareReply.SerializeToString,
+                    request_deserializer=iot2050__eio__pb2.UpdateFirmwareRequest.FromString,
+                    response_serializer=iot2050__eio__pb2.UpdateFirmwareReply.SerializeToString,
             ),
             'CheckFWU': grpc.unary_unary_rpc_method_handler(
                     servicer.CheckFWU,
-                    request_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.CheckFWURequest.FromString,
-                    response_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.CheckFWUReply.SerializeToString,
+                    request_deserializer=iot2050__eio__pb2.CheckFWURequest.FromString,
+                    response_serializer=iot2050__eio__pb2.CheckFWUReply.SerializeToString,
             ),
             'ReadEIOEvent': grpc.unary_unary_rpc_method_handler(
                     servicer.ReadEIOEvent,
-                    request_deserializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.ReadEIOEventRequest.FromString,
-                    response_serializer=gRPC_dot_EIOManager_dot_iot2050__eio__pb2.ReadEIOEventReply.SerializeToString,
+                    request_deserializer=iot2050__eio__pb2.ReadEIOEventRequest.FromString,
+                    response_serializer=iot2050__eio__pb2.ReadEIOEventReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -140,8 +140,8 @@ class EIOManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/eiomanager.EIOManager/Deploy',
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.DeployRequest.SerializeToString,
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.DeployReply.FromString,
+            iot2050__eio__pb2.DeployRequest.SerializeToString,
+            iot2050__eio__pb2.DeployReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -157,8 +157,8 @@ class EIOManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/eiomanager.EIOManager/Retrieve',
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.RetrieveRequest.SerializeToString,
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.RetrieveReply.FromString,
+            iot2050__eio__pb2.RetrieveRequest.SerializeToString,
+            iot2050__eio__pb2.RetrieveReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -174,8 +174,8 @@ class EIOManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/eiomanager.EIOManager/SyncTime',
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.SyncTimeRequest.SerializeToString,
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.SyncTimeReply.FromString,
+            iot2050__eio__pb2.SyncTimeRequest.SerializeToString,
+            iot2050__eio__pb2.SyncTimeReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -191,8 +191,8 @@ class EIOManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/eiomanager.EIOManager/UpdateFirmware',
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.UpdateFirmwareRequest.SerializeToString,
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.UpdateFirmwareReply.FromString,
+            iot2050__eio__pb2.UpdateFirmwareRequest.SerializeToString,
+            iot2050__eio__pb2.UpdateFirmwareReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -208,8 +208,8 @@ class EIOManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/eiomanager.EIOManager/CheckFWU',
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.CheckFWURequest.SerializeToString,
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.CheckFWUReply.FromString,
+            iot2050__eio__pb2.CheckFWURequest.SerializeToString,
+            iot2050__eio__pb2.CheckFWUReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -225,7 +225,7 @@ class EIOManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/eiomanager.EIOManager/ReadEIOEvent',
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.ReadEIOEventRequest.SerializeToString,
-            gRPC_dot_EIOManager_dot_iot2050__eio__pb2.ReadEIOEventReply.FromString,
+            iot2050__eio__pb2.ReadEIOEventRequest.SerializeToString,
+            iot2050__eio__pb2.ReadEIOEventReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

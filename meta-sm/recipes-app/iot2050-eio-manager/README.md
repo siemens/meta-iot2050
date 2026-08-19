@@ -5,7 +5,10 @@ IOs, currently the PLC1200 signal modules.
 
 This subsystem is only valid on IOT2050-SM variant at the moment.
 
-The core is a RPC service implemented with the help of gPRC.
+The core is an RPC service implemented with gRPC. Its default API endpoint is
+the root-only Unix socket `/run/iot2050/eio.sock`; socket permissions provide
+the local authentication boundary. A TCP endpoint is available only when an
+explicit local configuration overrides the default.
 
 In addition:
  - A FUSE service for loading the eio file system.
@@ -30,11 +33,8 @@ When debug locally, create a `files/.env` file to store the local environments.
 An example:
 
 ```python
-# IOT2050 Extended IO API server hostname
-EIO_API_SERVER_HOSTNAME="localhost"
-
-# IOT2050 Extended IO API server port
-EIO_API_SERVER_PORT="5020"
+# Root-only Unix socket used by the local EIO gRPC service
+EIO_API_SERVER_SOCKET="/run/iot2050/eio.sock"
 
 # Periodically syncing timestamp to Extended IO controller
 EIO_TIME_SYNC_INTERVAL=30
