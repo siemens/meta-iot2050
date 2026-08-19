@@ -2,7 +2,7 @@
 # IoT2050 Example Configuration
 # Includes all example applications and sample configurations
 #
-# Copyright (c) Siemens AG, 2025
+# Copyright (c) Siemens AG, 2025-2026
 #
 # Authors:
 #  Li Hua Qian <huaqian.li@siemens.com>
@@ -17,13 +17,3 @@ repos:
   meta-iot2050:
     layers:
       meta-example:
-
-local_conf_header:
-  iot2050_user: |
-    GROUPS += "gpio pinctrl i2c spi pwm iio dialout"
-
-    USERS += "iot2050"
-    USER_iot2050[password] ??= "iot2050"
-    USER_iot2050[flags] ??= "clear-text-password force-passwd-change create-home"
-    USER_iot2050[groups] ??= "gpio pinctrl i2c spi pwm iio dialout"
-    USER_iot2050[shell] ??= "/bin/bash"

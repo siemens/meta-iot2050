@@ -2,7 +2,7 @@
 # IoT2050 Base Configuration
 # Minimal bootable system with hardware enablement only
 #
-# Copyright (c) Siemens AG, 2019-2025
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -49,7 +49,3 @@ local_conf_header:
     USE_CCACHE = "1"
   compatsupport: |
     ISAR_ENABLE_COMPAT_ARCH = "1"
-  root_password: |
-    USERS += "root"
-    USER_root[password] ??= "root"
-    USER_root[flags] ??= "clear-text-password"
