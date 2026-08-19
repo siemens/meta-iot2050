@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package iot2050.modulefirmware;
+
+service ModuleFirmware {
+  rpc GetCapabilities (Empty) returns (CapabilitiesReply) {}
+  rpc Inspect (InspectRequest) returns (InspectionReply) {}
+  rpc Update (UpdateRequest) returns (UpdateReply) {}
+  rpc StartUpdate (UpdateRequest) returns (OperationReply) {}
+  rpc GetOperation (OperationRequest) returns (OperationReply) {}
+}
+
+message Empty {}
+
+message CapabilitiesReply {
+  bool supported = 1;
+  int32 max_slots = 2;
+  bool chip_a_supported = 3;
+  bool chip_b_supported = 4;
+}
+
+message InspectRequest {
+  int32 slot = 1;
+  bool scan = 2;
+}
+
+message SlotInspection {
+  int32 slot = 1;
+  bool available = 2;
+  bool chip_a_node = 3;
+  bool chip_b_node = 4;
+}
+
+message InspectionReply {
+  bool ok = 1;
+  string code = 2;
+  string message = 3;
+  repeated SlotInspection slots = 4;
+}
+
+message UpdateRequest {
+  int32 slot = 1;
+  bytes firmware_a = 2;
+  bytes firmware_b = 3;
+}
+
+message ChipResult {
+  bool attempted = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message UpdateReply {
+  bool ok = 1;
+  string code = 2;
+  string message = 3;
+  int32 slot = 4;
+  ChipResult chip_a = 5;
+  ChipResult chip_b = 6;
+  bool partial_failure = 7;
+  bool reboot_required = 8;
+}
+
+message OperationRequest {
+  string operation_id = 1;
+}
+
+message OperationReply {
+  bool ok = 1;
+  string code = 2;
+  string message = 3;
+  string details_json = 4;
+  string operation_id = 5;
+  string state = 6;
+  string stage = 7;
+}
