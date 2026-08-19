@@ -1,0 +1,4 @@
+{
+  "module": "../iot2050_firmware_backend_sm.py",
+  "class": "ModuleFirmwareBackend"
+}
