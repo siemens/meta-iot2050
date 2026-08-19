@@ -1,0 +1,30 @@
+#
+# IoT2050 Development Compatibility Configuration
+# Keeps legacy root access for development and test compatibility.
+#
+# Copyright (c) Siemens AG, 2026
+#
+# Authors:
+#  Li Hua Qian <huaqian.li@siemens.com>
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+local_conf_header:
+  dev_compat_accounts: |
+    GROUPS += "gpio pinctrl i2c spi pwm iio dialout sudo"
+
+    USERS += "root iot2050"
+
+    USER_root[password] ??= "root"
+    USER_root[flags] ??= "clear-text-password"
+
+    USER_iot2050[password] ??= "iot2050"
+    USER_iot2050[flags] ??= "clear-text-password create-home"
+    IMAGE_INSTALL:append = " ssh-root-login"
+    IMAGE_INSTALL:remove = "iot2050-pam-conf iot2050-firstboot-onboarding"
+    USER_iot2050[groups] ??= "sudo gpio pinctrl i2c spi pwm iio dialout"
+    USER_iot2050[shell] ??= "/bin/bash"

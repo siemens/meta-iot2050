@@ -2,7 +2,7 @@
 # IoT2050 Full Example Configuration
 # Includes all demo applications, Node-RED, and SM board variant support
 #
-# Copyright (c) Siemens AG, 2019-2025
+# Copyright (c) Siemens AG, 2019-2026
 #
 # Authors:
 #  Le Jin <le.jin@siemens.com>
@@ -28,8 +28,3 @@ local_conf_header:
   efibootguard: |
     # Keep example aligned with its single BOOT partition layout.
     EFIBOOTGUARD_NUM_CONFIG_PARTS = "1"
-
-  root_password: |
-    USERS += "root"
-    USER_root[password] ??= "root"
-    USER_root[flags] ??= "clear-text-password force-passwd-change"

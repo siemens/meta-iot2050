@@ -36,7 +36,6 @@ IMAGE_PREINSTALL += "${@ ' \
 IMAGE_INSTALL += " \
     expand-on-first-boot \
     iot2050-pam-conf \
-    ssh-root-login \
     sshd-regen-keys \
     install-on-emmc \
     iot2050-web-gateway-nginx \
