@@ -12,6 +12,7 @@ import time
 import os
 import textwrap
 import subprocess
+import json
 import grpc
 from gRPC.EIOManager.iot2050_eio_pb2 import CheckFWURequest
 from gRPC.EIOManager.iot2050_eio_pb2_grpc import EIOManagerStub
@@ -69,7 +70,11 @@ def do_fwu_check():
     with grpc.insecure_channel(iot2050_eio_api_server) as channel:
         stub = EIOManagerStub(channel)
         response = stub.CheckFWU(CheckFWURequest(entity=0))
-    return response.status, response.message
+    try:
+        inspection = json.loads(response.message)
+    except (TypeError, ValueError):
+        return response.status, response.message
+    return response.status, inspection.get('message', response.message)
 
 
 def firmware_check():

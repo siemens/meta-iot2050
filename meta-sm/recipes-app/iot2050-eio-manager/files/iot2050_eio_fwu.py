@@ -200,15 +200,95 @@ class FirmwareUpdate():
 
 
 class FirmwareUpdateChecker():
-    def __init__(self):
-        self.fwu_meta = json.load(open(EIO_FWU_META, "r", encoding='ascii'),
-            object_hook=lambda d: Namespace(**d))
+    def __init__(self, fs_fw_ver_path=None,
+                 fwu_meta_path=None,
+                 map3_fw_bin_path=None,
+                 strict=True):
+        self.fs_fw_ver_path = fs_fw_ver_path or EIO_FS_FW_VER
+        self.fwu_meta_path = fwu_meta_path or EIO_FWU_META
+        self.map3_fw_bin_path = map3_fw_bin_path or EIO_FWU_MAP3_FW_BIN
+        self.strict = strict
+        self.fwu_meta = None
+        self.metadata_error = None
 
         try:
-            with open(EIO_FS_FW_VER, "r", encoding='ascii') as f:
+            with open(self.fwu_meta_path, "r", encoding='ascii') as f:
+                self.fwu_meta = json.load(
+                    f, object_hook=lambda d: Namespace(**d))
+        except (OSError, ValueError, AttributeError) as e:
+            if self.strict:
+                raise
+            self.metadata_error = e
+
+        try:
+            with open(self.fs_fw_ver_path, "r", encoding='ascii') as f:
                 self.eio_controller_current_fw_ver = f.readline().split(' ')[0]
         except OSError:
             self.eio_controller_current_fw_ver = None
+
+    def inspect(self):
+        """Return structured information about the bundled EIO firmware."""
+        current_version = self.eio_controller_current_fw_ver
+        if current_version is not None:
+            current_version = current_version.strip()
+        result = {
+            'supported': self.eio_controller_current_fw_ver is not None,
+            'current_version': current_version,
+            'bundled_version': None,
+            'metadata_sha1': None,
+            'actual_sha256': None,
+            'integrity': None,
+            'update_needed': False,
+            'status': 'unavailable',
+            'status_code': 2,
+            'message': '',
+        }
+
+        if self.metadata_error is not None or self.fwu_meta is None:
+            result['message'] = 'EIO firmware metadata is missing or invalid!'
+            return result
+
+        try:
+            result['bundled_version'] = self.fwu_meta.version
+            result['metadata_sha1'] = self.fwu_meta.sha1sum
+        except AttributeError:
+            result['message'] = 'EIO firmware metadata is incomplete!'
+            return result
+
+        try:
+            with open(self.map3_fw_bin_path, "rb") as f:
+                firmware = f.read()
+        except OSError:
+            result['message'] = 'EIO firmware binary is missing!'
+            return result
+
+        actual_sha1 = hashlib.sha1(firmware).hexdigest()
+        result['actual_sha256'] = hashlib.sha256(firmware).hexdigest()
+        result['integrity'] = (
+            result['metadata_sha1'].lower() == actual_sha1.lower())
+        result['update_needed'] = (
+            current_version is None or
+            result['bundled_version'] != current_version)
+
+        if not result['integrity']:
+            result['status'] = 'corrupt'
+            result['message'] = 'EIO firmware need update, however, the firmware checksum does not match, Binary may be corrupted!'
+            return result
+
+        if self.eio_controller_current_fw_ver is None:
+            result['status'] = 'runtime-unavailable'
+            result['status_code'] = 1
+            result['message'] = 'EIO FUSE does not exist! Suggest to update the firmware via iot2050-eio, and check the iot2050-eiofsd.service'
+        elif result['update_needed']:
+            result['status'] = 'update-available'
+            result['status_code'] = 1
+            result['message'] = 'EIO firmware need update via cli "iot2050-eio fwu controller"!'
+        else:
+            result['status'] = 'up-to-date'
+            result['status_code'] = 0
+            result['message'] = 'EIO firmware is up-to-date, no need to update!'
+
+        return result
 
     def collect_fwu_info(self) -> tuple[int, str]:
         """Collect EIO Firmware information for updating purpose
@@ -232,7 +312,7 @@ class FirmwareUpdateChecker():
             message = 'EIO FUSE does not exist! Suggest to update the firmware ' \
                       'via iot2050-eio, and check the iot2050-eiofsd.service'
         elif self.fwu_meta.version != self.eio_controller_current_fw_ver:
-            with open(EIO_FWU_MAP3_FW_BIN, "rb") as f:
+            with open(self.map3_fw_bin_path, "rb") as f:
                 # Examine the checksum
                 if self.fwu_meta.sha1sum.lower() == hashlib.sha1(f.read()).hexdigest().lower():
                     status = 1
