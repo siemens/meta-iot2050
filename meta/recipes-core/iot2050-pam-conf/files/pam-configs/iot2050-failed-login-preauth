@@ -1,0 +1,6 @@
+Name: IOT2050 failed login pre-authentication
+Default: yes
+Priority: 512
+Auth-Type: Primary
+Auth:
+	requisite	pam_faillock.so preauth deny=5 fail_interval=900 unlock_time=900 even_deny_root root_unlock_time=900

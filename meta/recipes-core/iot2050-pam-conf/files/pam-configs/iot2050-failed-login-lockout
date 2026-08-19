@@ -1,0 +1,9 @@
+Name: IOT2050 failed login lockout post-authentication
+Default: yes
+Priority: 128
+Auth-Type: Primary
+Auth:
+	[default=die]	pam_faillock.so authfail deny=5 fail_interval=900 unlock_time=900 even_deny_root root_unlock_time=900
+Account-Type: Primary
+Account:
+	required	pam_faillock.so deny=5 fail_interval=900 unlock_time=900 even_deny_root root_unlock_time=900
