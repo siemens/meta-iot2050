@@ -9,15 +9,21 @@
       document.documentElement.dataset.view = 'setup';
     }());
   </script>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="stylesheet" href="/app.css">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
   <main class="app-shell">
     <section class="setup-card" id="setup-view">
       <div class="surface-main">
         <div class="setup-header">
-          <h1 id="setup-title">Create your account</h1>
+          <div class="product-brand" aria-label="SIEMENS SIMATIC IOT2050">
+            <img src="siemens-logo.svg" alt="" aria-hidden="true">
+            <span class="product-name">SIMATIC IOT2050</span>
+          </div>
+          <div class="setup-title-row">
+            <h1 id="setup-title">Create your account</h1>
+          </div>
         </div>
 
         <div class="status-banner" id="status-banner" hidden></div>
@@ -31,12 +37,6 @@
           </label>
 
           <label class="field">
-            <span id="full-name-label">Full name</span>
-            <input id="full-name" name="fullName" type="text" autocomplete="name" maxlength="64" placeholder="Full name">
-            <small data-error-for="fullName"></small>
-          </label>
-
-          <label class="field">
             <span id="user-name-label">User name</span>
             <input id="user-name" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="username">
             <small data-error-for="username"></small>
@@ -44,19 +44,41 @@
 
           <label class="field">
             <span id="password-label">Password</span>
-            <input id="password" name="password" type="password" autocomplete="new-password" required placeholder="At least 8 characters">
+            <div class="password-input-wrap">
+              <input id="password" name="password" type="password" autocomplete="new-password" required aria-describedby="password-guidance" placeholder="At least 12 characters">
+              <button class="password-visibility" type="button" data-password-toggle="password" aria-label="Show password" aria-pressed="false" title="Show password" hidden>
+                <svg class="password-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path>
+                  <circle cx="12" cy="12" r="2.5"></circle>
+                </svg>
+              </button>
+            </div>
+            <div class="password-guidance" id="password-guidance" aria-live="polite">
+              <p class="password-guidance-title" id="password-guidance-title">Password requirements</p>
+              <ul class="password-requirements">
+                <li data-password-rule="length"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="length">At least 12 characters</span></li>
+                <li data-password-rule="classes"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="classes">At least 3 of 4: lowercase, uppercase, number, and symbol</span></li>
+                <li data-password-rule="repeat"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="repeat">No more than 3 repeated characters in a row</span></li>
+                <li data-password-rule="sequence"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="sequence">Avoid simple sequential characters</span></li>
+                <li data-password-rule="username"><span class="password-rule-marker" aria-hidden="true">○</span><span data-password-text="username">Do not include the user name</span></li>
+                <li data-password-rule="system-policy"><span class="password-rule-marker" aria-hidden="true">i</span><span data-password-text="system-policy">The system also checks dictionary words and account information.</span></li>
+              </ul>
+            </div>
             <small data-error-for="password"></small>
           </label>
 
           <label class="field">
             <span id="confirm-password-label">Confirm password</span>
-            <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required placeholder="Repeat the password">
+            <div class="password-input-wrap">
+              <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required placeholder="Repeat the password">
+              <button class="password-visibility" type="button" data-password-toggle="confirm-password" aria-label="Show password" aria-pressed="false" title="Show password" hidden>
+                <svg class="password-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path>
+                  <circle cx="12" cy="12" r="2.5"></circle>
+                </svg>
+              </button>
+            </div>
             <small data-error-for="confirmPassword"></small>
-          </label>
-
-          <label class="checkbox-field" for="grant-admin">
-            <input id="grant-admin" name="grantAdmin" type="checkbox" checked>
-            <span id="grant-admin-label">Grant administrator privileges</span>
           </label>
 
           <div class="actions">
@@ -75,16 +97,16 @@
         <div class="spinner-shell" aria-hidden="true">
           <div class="spinner-ring"></div>
         </div>
-        <div class="product-brand product-brand-wait">IOT2050</div>
+        <div class="product-brand product-brand-wait">
+          <img src="siemens-logo.svg" alt="" aria-hidden="true">
+          <span class="product-name">SIMATIC IOT2050</span>
+        </div>
         <p class="eyebrow wait-eyebrow" id="wait-eyebrow" hidden></p>
         <h2 id="wait-title">Applying your configuration</h2>
         <p class="wait-copy" id="wait-copy" hidden></p>
       </div>
 
       <div class="surface-details surface-details-wait">
-        <div class="progress-track" aria-hidden="true">
-          <div class="progress-bar"></div>
-        </div>
         <p class="wait-footnote" id="wait-footnote">
           Please keep this page open to ensure your configuration is applied safely.
         </p>
@@ -92,8 +114,8 @@
     </section>
   </main>
 
-  <script src="/locale.js"></script>
-  <script src="/po.js"></script>
-  <script src="/app.js" defer></script>
+  <script src="locale.js"></script>
+  <script src="po.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>

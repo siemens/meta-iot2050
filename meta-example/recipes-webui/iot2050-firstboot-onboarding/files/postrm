@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# SPDX-License-Identifier: MIT
+
+set -eu
+
+run_optional() {
+	"$@" >/dev/null 2>&1 || echo "Warning: failed to run: $*" >&2
+}
+
+case "$1" in
+	remove|purge)
+		run_optional systemctl daemon-reload
+		;;
+esac

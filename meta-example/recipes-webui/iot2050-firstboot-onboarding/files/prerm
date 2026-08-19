@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Copyright (c) Siemens AG, 2026
+#
+# SPDX-License-Identifier: MIT
+
+set -eu
+
+run_optional() {
+	"$@" >/dev/null 2>&1 || echo "Warning: failed to run: $*" >&2
+}
+
+case "$1" in
+	remove|deconfigure)
+		run_optional systemctl stop iot2050-firstboot-onboarding.service
+		run_optional /usr/lib/iot2050/web-gateway/iot2050-web-gateway-select-mode runtime --no-reload
+		run_optional systemctl reload nginx.service
+		;;
+esac

@@ -7,15 +7,16 @@
 
 [Unit]
 Description=IOT2050 first-boot onboarding web service
-After=network.target NetworkManager.service nginx.service
+After=network.target NetworkManager.service
 Wants=NetworkManager.service
 ConditionPathExists=!/var/lib/iot2050-firstboot-onboarding/complete
 
 [Service]
 Type=simple
-ExecStartPre=/bin/mkdir -p /var/lib/iot2050-firstboot-onboarding
+StateDirectory=iot2050-firstboot-onboarding
+StateDirectoryMode=0755
+ExecStartPre=/usr/lib/iot2050/web-gateway/iot2050-web-gateway-select-mode onboarding --no-reload
 ExecStart=/usr/bin/iot2050-firstboot-onboarding
-ExecStopPost=/usr/lib/iot2050/onboarding/iot2050-firstboot-finalize.sh
 Restart=on-failure
 RestartSec=2s
 WorkingDirectory=/usr/lib/iot2050/onboarding
