@@ -41,6 +41,7 @@ IMAGE_INSTALL += " \
     install-on-emmc \
     iot2050-web-gateway-nginx \
     iot2050-firewall-default \
+    iot2050-branding \
     iot2050-firstboot-onboarding \
     iot2050-cockpit-customization \
     iot2050-cockpit-firmware \
