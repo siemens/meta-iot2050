@@ -10,6 +10,10 @@ Description=IOT2050 Event Record daemon
 
 [Service]
 Type=exec
+User=root
+Group=root
+RuntimeDirectory=iot2050
+RuntimeDirectoryMode=0755
 ExecStart=/usr/bin/iot2050-event-serve
 Restart=always
 RestartSec=5

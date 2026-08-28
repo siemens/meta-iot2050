@@ -5,20 +5,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-# IOT2050 Event API server hostname
-EVENT_API_SERVER_HOSTNAME = 'localhost'
-
-# IOT2050 Event API server port
-EVENT_API_SERVER_PORT = '5050'
+from iot2050_eio_common import (
+    EIO_API_SERVER_SOCKET as DEFAULT_EIO_API_SERVER_SOCKET,
+    EVENT_API_SERVER_SOCKET as DEFAULT_EVENT_API_SERVER_SOCKET,
+    iot2050_eio_api_server,
+    iot2050_event_api_server,
+)
 
 # IOT2050 Event Log identifier
 EVENT_IDENTIFIER = 'IOT2050-EventRecord'
 
-# IOT2050 Extended IO API server hostname
-EIO_API_SERVER_HOSTNAME = 'localhost'
+# Root-only Unix socket used by the local event gRPC service.
+EVENT_API_SERVER_SOCKET = DEFAULT_EVENT_API_SERVER_SOCKET
 
-# IOT2050 Extended IO API server port
-EIO_API_SERVER_PORT = '5020'
-
-iot2050_event_api_server = f"{EVENT_API_SERVER_HOSTNAME}:{EVENT_API_SERVER_PORT}"
-iot2050_eio_api_server = f"{EIO_API_SERVER_HOSTNAME}:{EIO_API_SERVER_PORT}"
+# Root-only Unix socket used by the local EIO gRPC service.
+EIO_API_SERVER_SOCKET = DEFAULT_EIO_API_SERVER_SOCKET
