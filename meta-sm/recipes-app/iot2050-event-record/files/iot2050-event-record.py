@@ -56,7 +56,9 @@ def grpc_server_on(channel) -> bool:
 def is_grpc_servers_ready():
     with grpc.insecure_channel(iot2050_event_api_server) as channel:
         if not grpc_server_on(channel):
-            print(f"ipv4:{iot2050_event_api_server}: Failed to connect to remote host: Connection refused")
+            print(
+                f"{iot2050_event_api_server}: Failed to connect to local event service"
+            )
             return False
 
     return True

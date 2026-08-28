@@ -8,6 +8,8 @@
 # SPDX-License-Identifier: MIT
 from concurrent import futures
 import datetime
+import os
+from pathlib import Path
 import grpc
 from iot2050_event import (
     write_event,
@@ -15,8 +17,8 @@ from iot2050_event import (
     EventIOError
 )
 from iot2050_event_global import (
-    EVENT_API_SERVER_HOSTNAME,
-    EVENT_API_SERVER_PORT
+    EVENT_API_SERVER_SOCKET,
+    iot2050_event_api_server,
 )
 from gRPC.EventInterface.iot2050_event_pb2 import (
     WriteRequest, WriteReply,
@@ -45,15 +47,33 @@ class EventRecordServicer(EventRecordServicer):
 
 
 def serve():
-    iot2050_event_api_server = "{}:{}".format(
-        EVENT_API_SERVER_HOSTNAME, EVENT_API_SERVER_PORT)
+    socket_file = Path(EVENT_API_SERVER_SOCKET)
+    socket_file.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        socket_file.unlink()
+    except FileNotFoundError:
+        pass
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     add_EventRecordServicer_to_server(
         EventRecordServicer(), server
     )
-    server.add_insecure_port(iot2050_event_api_server)
-    server.start()
-    server.wait_for_termination()
+    if server.add_insecure_port(iot2050_event_api_server) == 0:
+        raise RuntimeError('Unable to bind the event gRPC endpoint')
+    old_umask = os.umask(0o177)
+    try:
+        server.start()
+        os.chmod(socket_file, 0o600)
+    finally:
+        os.umask(old_umask)
+    try:
+        server.wait_for_termination()
+    finally:
+        server.stop(grace=0)
+        try:
+            socket_file.unlink()
+        except FileNotFoundError:
+            pass
 
 
 if __name__ == "__main__":
