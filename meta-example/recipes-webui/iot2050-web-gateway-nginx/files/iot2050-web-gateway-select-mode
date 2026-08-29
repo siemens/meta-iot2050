@@ -15,12 +15,12 @@ COMPLETE_MARKER="$STATE_DIR/complete"
 MODE_DIR=/usr/lib/iot2050/web-gateway/nginx
 LINK_DIR=/etc/nginx/conf.d/iot2050-web-gateway-mode
 LINK_PATH="$LINK_DIR/current.conf"
-MODE="${1:-auto}"
+MODE="${1:-runtime}"
 RELOAD_NGINX=1
 
 if [ "${2:-}" = "--no-reload" ] || [ "$MODE" = "--no-reload" ]; then
 	RELOAD_NGINX=0
-	[ "$MODE" = "--no-reload" ] && MODE="auto"
+	[ "$MODE" = "--no-reload" ] && MODE="runtime"
 fi
 
 case "$MODE" in
@@ -31,7 +31,9 @@ case "$MODE" in
 			MODE=onboarding
 		fi
 		;;
-	onboarding|runtime)
+	onboarding)
+		;;
+	runtime)
 		;;
 	*)
 		echo "Unsupported gateway mode: $MODE" >&2

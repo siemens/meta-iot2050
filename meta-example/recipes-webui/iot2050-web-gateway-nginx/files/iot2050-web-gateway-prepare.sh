@@ -13,4 +13,4 @@ set -eu
 BASE_DIR=/usr/lib/iot2050/web-gateway
 
 "$BASE_DIR/iot2050-web-gateway-ensure-cert.sh"
-"$BASE_DIR/iot2050-web-gateway-select-mode" auto --no-reload
+"$BASE_DIR/iot2050-web-gateway-select-mode" runtime --no-reload
