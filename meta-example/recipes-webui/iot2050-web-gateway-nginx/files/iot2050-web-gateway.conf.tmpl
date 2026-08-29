@@ -21,6 +21,12 @@ server {
     ssl_certificate_key /etc/iot2050/web-gateway/tls.key;
     client_max_body_size 64k;
 
+    location = /oss {
+        alias /usr/share/iot2050/oss-clearing/${OSS_ARCHIVE};
+        default_type application/zip;
+        add_header Content-Disposition 'attachment; filename="${OSS_ARCHIVE}"' always;
+    }
+
     location / {
         # The selected mode injects only the backend port. The TLS listener,
         # redirect, and proxy policy stay identical across onboarding/runtime.
