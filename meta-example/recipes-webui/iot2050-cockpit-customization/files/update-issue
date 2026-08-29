@@ -25,8 +25,10 @@ issue_net_file=/etc/issue.net
 mkdir -p /run/cockpit
 ln -snf active.issue /run/cockpit/issue
 
-# Choose title based on onboarding completion marker.
-if [ -f /var/lib/iot2050-firstboot-onboarding/complete ]; then
+# Choose title based on onboarding availability and completion marker.
+if [ -f /var/lib/iot2050-firstboot-onboarding/complete ] \
+	|| [ ! -x /usr/bin/iot2050-firstboot-onboarding ] \
+	|| [ ! -f /usr/lib/systemd/system/iot2050-firstboot-onboarding.service ]; then
 	title="IOT2050 Web Console"
 else
 	title="IOT2050 Device Setup"
