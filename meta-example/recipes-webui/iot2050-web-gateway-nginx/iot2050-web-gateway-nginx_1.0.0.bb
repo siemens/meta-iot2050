@@ -61,7 +61,7 @@ do_install() {
     install -m 644 ${WORKDIR}/iot2050-web-gateway-runtime.conf ${D}/usr/lib/iot2050/web-gateway/nginx/runtime.conf
 
     install -d -m 755 ${D}/etc/nginx/conf.d/iot2050-web-gateway-mode
-    ln -sfn /usr/lib/iot2050/web-gateway/nginx/onboarding.conf ${D}/etc/nginx/conf.d/iot2050-web-gateway-mode/current.conf
+    ln -sfn /usr/lib/iot2050/web-gateway/nginx/runtime.conf ${D}/etc/nginx/conf.d/iot2050-web-gateway-mode/current.conf
 
     install -d -m 755 ${D}/etc/iot2050/web-gateway
 }

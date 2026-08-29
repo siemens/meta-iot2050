@@ -20,7 +20,7 @@ rm -f /etc/nginx/conf.d/default.conf >/dev/null 2>&1 || true
 mkdir -p /etc/nginx/conf.d/iot2050-web-gateway-mode >/dev/null 2>&1 || true
 
 if [ -x "$MODE_SELECTOR" ]; then
-	run_optional "$MODE_SELECTOR" auto --no-reload
+	run_optional "$MODE_SELECTOR" runtime --no-reload
 fi
 
 run_optional systemctl daemon-reload
