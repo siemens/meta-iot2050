@@ -1,13 +1,204 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-/*
- * IOT2050 Cockpit branding overrides.
- *
- * Hide "Other options" (SSH to remote host) on the login page.
- * This feature is not applicable on an embedded device where
- * users always connect locally.
- */
+/* IOT2050 branding; Cockpit owns shell light/dark colors. */
+
+/* Login page: keep the logo and product name in one horizontal brand row.
+ * Cockpit's #badge normally occupies a separate side grid area, so it is not
+ * used here. */
+#badge {
+    display: none !important;
+}
+
+/* Keep Cockpit's own password toggle inside the password field and suppress
+ * browser-specific duplicates. */
+#password-group .password-with-toggle {
+    position: relative;
+    display: block;
+}
+
+#login-password-input {
+    padding-inline-end: 42px;
+}
+
+#login-password-toggle {
+    display: inline-flex !important;
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 4px;
+    z-index: 1;
+    inline-size: 34px;
+    block-size: 34px;
+    min-block-size: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+}
+
+#login-password-input::-ms-reveal,
+#login-password-input::-ms-clear,
+#login-password-input::-webkit-credentials-auto-fill-button {
+    display: none;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#login-password-toggle:hover,
+#login-password-toggle:focus-visible {
+    background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+h1#brand {
+    position: relative;
+    display: block !important;
+    inline-size: 100%;
+    min-block-size: 20px;
+    margin: -12px auto 0;
+    padding: 0 0 10px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--color-text, #151515);
+    font-size: 16px !important;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: .02em;
+    text-transform: none;
+    text-align: end;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-border, #d2d2d2);
+}
+
+#login-note {
+    margin-block: 28px 16px !important;
+    font-size: 0;
+}
+
+#login-note::after {
+    content: "Log in with your user account.";
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+h1#brand::before {
+    content: "SIMATIC IOT2050";
+    display: none !important;
+}
+
+h1#brand::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 3px;
+    inline-size: 88px;
+    block-size: 14px;
+    background-color: #009999;
+    -webkit-mask: url("siemens-logo.svg") center / 100% 100% no-repeat;
+    mask: url("siemens-logo.svg") center / 100% 100% no-repeat;
+}
+
+/* The authenticated shell renders the brand before account@host. */
+#hosts-sel {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 91px auto;
+    grid-template-rows: 18px 16px;
+}
+
+#hosts-sel::before {
+    content: "SIMATIC IOT2050";
+    display: block;
+    flex: 0 0 auto;
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: .03em;
+    white-space: nowrap;
+}
+
+#hosts-sel::after {
+    content: "";
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    flex: 0 0 auto;
+    inline-size: 88px;
+    block-size: 14px;
+    background-color: #009999;
+    -webkit-mask: url("siemens-logo.svg") center / 100% 100% no-repeat;
+    mask: url("siemens-logo.svg") center / 100% 100% no-repeat;
+}
+
+#hosts-sel > * {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-inline-start: 6px;
+    align-self: center;
+}
+
+#hosts-sel .ct-switcher-localonly,
+#hosts-sel #host-toggle {
+    align-self: center;
+    color: inherit;
+}
+
+/* The host switcher itself remains unchanged and follows the brand. */
+#hosts-sel .ct-switcher-localonly,
+#host-toggle {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+#hosts-sel .ct-switcher-localonly::before,
+#host-toggle::before {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    #hosts-sel::before {
+        font-size: 11px;
+    }
+
+    h1#brand {
+        font-size: 14px !important;
+        line-height: 18px;
+        min-block-size: 18px;
+        margin-block-start: -4px;
+        padding-block: 0 8px !important;
+    }
+
+    h1#brand::after {
+        inset-inline-start: 0;
+        inset-block-end: 2px;
+        inline-size: 80px;
+        block-size: 13px;
+    }
+
+    #hosts-sel::after {
+        inline-size: 88px;
+        block-size: 14px;
+    }
+
+    #hosts-sel {
+        grid-template-columns: 91px auto;
+    }
+}
+
 #option-group,
 #show-other-login-options,
 #show-other-login-options-text {
     display: none !important;
+}
+
+html,
+body {
+    font-family: "Siemens Sans", system-ui, sans-serif;
 }
