@@ -12,8 +12,8 @@ inherit dpkg-raw
 
 DESCRIPTION = "IOT2050 Cockpit customization (issue banner, branding, SM marker)"
 
-DEBIAN_DEPENDS = "cockpit, systemd, network-manager"
-DEBIAN_REPLACES = "cockpit-ws, cockpit"
+DEBIAN_DEPENDS = "cockpit, iot2050-branding, systemd, network-manager"
+DEBIAN_REPLACES = "cockpit-ws"
 
 SRC_URI = " \
     file://update-issue \
@@ -60,4 +60,8 @@ do_install() {
 
     install -d -m 755 ${D}/usr/share/cockpit/branding/default
     install -m 644 ${WORKDIR}/branding.css ${D}/usr/share/cockpit/branding/default/branding.css
+    ln -s /usr/share/iot2050/branding/logo/sie-logo-petrol-rgb.svg \
+        ${D}/usr/share/cockpit/branding/debian/siemens-logo.svg
+    ln -s /usr/share/iot2050/branding/logo/sie-logo-petrol-rgb.svg \
+        ${D}/usr/share/cockpit/branding/default/siemens-logo.svg
 }
