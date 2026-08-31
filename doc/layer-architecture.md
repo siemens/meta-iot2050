@@ -181,7 +181,7 @@ repos:
       meta-example:
 ```
 
-This automatically adds the `meta-hailo` layer to the build's `BBLAYERS`
+This automatically adds the `meta-example` layer to the build's `BBLAYERS`
 variable.
 
 ### Enabling Features

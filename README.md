@@ -67,7 +67,7 @@ Or use `kas-container build`:
 ./kas-container build kas-iot2050-example.yml
 ```
 
-More composition patterns: [build-config §3](doc/build-config.md#3-manual-composition)
+More composition patterns: [build-config](doc/build-config.md#manual-composition)
 
 After the build completes, the final image is located at:
 `build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic`
@@ -95,16 +95,17 @@ which is generally faster and safer:
 sudo bmaptool copy build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic /dev/mmcblk0
 ```
 
-The example image starts with the IP `192.168.200.1` preconfigured on the first
-Ethernet interface and uses DHCP on the other. You can use SSH to connect to
-the system.
+The example image starts with the IP `192.168.200.1/24` preconfigured on
+`eno1`, plus a cellular (4G) connection. You can use SSH to connect to the
+system.
 
 The BSP image does not configure the network. If you want to SSH into the
 system, you can use the root terminal via UART to configure the IP address
 using `ifconfig` and then connect via SSH.
 
-**NOTE**: The default username is `root`. You are required to change the
-default password upon first login.
+The example image has no preconfigured login: the first boot presents an
+onboarding page where you set the hostname and create the first administrator
+account. See [first-boot onboarding](doc/firstboot-onboarding.md).
 
 ### Installing the image on the eMMC (IOT2050 Advanced only)
 
@@ -184,10 +185,10 @@ Legend: ✅ = implicit / already included in example image & SWUpdate images, �
 | ➕ Hailo AI (fragment) | Hailo8 runtime & integration | [`hailo.yml`](kas/opt/hailo.yml) | Demos, minimal, example |
 | ➕ LXDE desktop (fragment) | Lightweight desktop environment | [`lxde.yml`](kas/opt/lxde.yml) | GUI builds (example/minimal) |
 | ➕ Docker / containers (fragment) | Container runtime & helpers | [`docker.yml`](kas/opt/docker.yml) | Example/minimal variants |
-| ➕ SDK (fragment) | Cross-toolchain + sysroot | [`sdk.yml`](kas/opt/sdk.yml) or menu | Any image variant |
+| ➕ SDK (fragment) | Cross-toolchain + sysroot | [`sdk.yml`](kas/opt/sdk.yml) or menu | Example/SWUpdate builds |
 | ➕ QEMU (fragment usage) | Emulation add-on (alternate view) | `:kas-iot2050-qemu.yml` | Minimal or example builds |
 
-See also composition reference: [build-config](doc/build-config.md#22-image-types-choices--glossary).
+See also composition reference: [build-config](doc/build-config.md#image-types-choices--glossary).
 
 *Note:* Boot firmware & firmware update descriptors build only boot chain
 components (no rootfs image). Combine image descriptors separately when you

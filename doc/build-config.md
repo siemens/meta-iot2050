@@ -44,11 +44,12 @@ if prompt wording evolves.
 | Node-RED support | `kas/opt/node-red.yml` | Adds meta-node-red packages | Minimal variant toggle; implicit in Example/SWUpdate |
 | SM variant support | `kas/opt/sm.yml` | SM hardware variant (sensors/EIO) | Minimal variant toggle; implicit in Example/SWUpdate |
 | Example demo content | `kas/opt/example.yml` | Demo apps and configs from example image | Minimal variant toggle; implicit in Example/SWUpdate |
+| Dev compatibility (local use) | `kas/opt/dev.yml` | Restores legacy accounts and root SSH compatibility, and skips Product onboarding/security packages | Manual local append only; not included in CI pipeline |
 | Docker support | `kas/opt/docker.yml` | Docker engine/tooling | All images |
 | LXDE graphical UI | `kas/opt/lxde.yml` | Lightweight desktop | All images |
 | Meta-Hailo AI card support | `kas/opt/hailo.yml` | Hailo driver & runtime | All (board HW required) |
 | Preempt-RT kernel | `kas/opt/preempt-rt.yml` | RT tuned kernel | All images |
-| Build SDK | `kas/opt/sdk.yml` | Cross SDK outputs | All images (produces SDK tarball) |
+| Build SDK | `kas/opt/sdk.yml` | Cross SDK outputs | Example/SWUpdate menu (produces SDK tarball) |
 | Secure boot & Data encryption | `kas/opt/secure-boot.yml` | Signing, verity, encrypted data | SWUpdate/Firmware contexts |
 | OTP Provisioning | `kas/opt/otpcmd/*.yml` | Embed OTP command payload | With secure boot & firmware images |
 | OPTEE RPMB setup | `kas/opt/rpmb-setup.yml` | One-time RPMB pairing build | Firmware / secure boot contexts |
@@ -97,6 +98,14 @@ The syntax follows this pattern:
 - `kas-iot2050-boot.yml`: Boot firmware only (for signing/provisioning flows).
 - `kas-iot2050-fwu-package.yml`: Field firmware update bundle.
 - `kas-iot2050-qemu.yml`: Emulation add-on (always chained).
+
+### Authentication Profiles
+- Example image (`kas-iot2050-example.yml`): installs the Product PAM security
+  baseline and first-boot onboarding.
+- Dev compatibility (`kas-iot2050-example.yml:kas/opt/dev.yml`): appends
+  `ssh-root-login`, removes `iot2050-pam-conf` and
+  `iot2050-firstboot-onboarding`, and restores the legacy `root` and `iot2050`
+  accounts.
 
 ### Security, Provisioning & Reproducibility
 **Demo Keys Warning**: `secure-boot.yml` ships with **DEMONSTRATION** keys.

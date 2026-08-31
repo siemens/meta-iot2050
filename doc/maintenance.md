@@ -23,14 +23,13 @@ sudo dd if=<image>.wic of=/dev/mmcblk0 bs=4M oflag=sync status=progress
 ```
 
 ## Boot Networking
-- **Example image**: static `192.168.200.1` on the first Ethernet port + DHCP
-  on the second interface.
+- **Example image**: static `192.168.200.1/24` on `eno1`, plus a cellular
+  (4G) connection. No other Ethernet port is preconfigured.
 - **Base BSP image**: no network preconfigured (must be configured manually
   via the UART console).
 
-**Credentials (default)**: user `root` (no separate password-protected user);
-you will be prompted to change the password on first login. This should be
-done immediately for any network-connected deployment.
+**Credentials**: the example image has no preconfigured login; the first boot
+presents the onboarding page where the first administrator account is created.
 
 ## eMMC Installation
 This installation flow is provided by the example image. It is not available
@@ -62,6 +61,14 @@ To apply a firmware update package from the running system:
 ```sh
 iot2050-firmware-update /usr/share/iot2050/fwu/IOT2050-FW-Update-PKG-<Version>.tar.xz
 ```
+
+The command is a compatibility client for the root-only System Firmware
+service. The Firmware Center uses `/usr/sbin/iot2050-fwmgr`, durable tasks,
+and systemd workers instead. Managed requests always use the service-owned
+`${HOME}/.rollback_fw/rollback_backup_fw.tar` identity and require a valid
+signature. The legacy `--verify` option remains optional for the command-line
+client; `--backup-dir` is accepted only as an explicit compatibility override
+for a private root-owned directory.
 
 ## Selecting Boot Device (Temporary Override)
 In the U-Boot serial console, you can temporarily change the boot device:
