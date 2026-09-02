@@ -186,7 +186,29 @@ function showCockpitAccessFallback(message, redirectUrl) {
   });
 }
 
-function redirectToCockpit(redirectUrl) {
+async function waitForCockpit(redirectUrl, timeoutMs = 15000) {
+  const cockpitUrl = new URL(redirectUrl || '/', window.location.href);
+  cockpitUrl.pathname = '/cockpit/login';
+  cockpitUrl.search = '';
+  cockpitUrl.hash = '';
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(cockpitUrl, { cache: 'no-store' });
+      if (response.status === 200 || response.status === 401) {
+        return true;
+      }
+    } catch (error) {
+      // The gateway may be briefly unavailable while nginx reloads.
+    }
+    await new Promise(resolve => window.setTimeout(resolve, 250));
+  }
+
+  return false;
+}
+
+async function redirectToCockpit(redirectUrl) {
   const cockpitUrl = resolveCockpitUrl(redirectUrl);
 
   clearCockpitRedirectFallbackTimer();
@@ -194,12 +216,17 @@ function redirectToCockpit(redirectUrl) {
     footnote: t(REDIRECT_FALLBACK_FOOTNOTE, { url: cockpitUrl }),
   });
 
+  if (!await waitForCockpit(cockpitUrl)) {
+    showCockpitAccessFallback(_('Automatic redirection did not complete.'), cockpitUrl);
+    return;
+  }
+
   window.addEventListener('pagehide', clearCockpitRedirectFallbackTimer, { once: true });
   cockpitRedirectFallbackTimer = window.setTimeout(() => {
     showWaitView(_('Unable to finish the handoff'), t(REDIRECT_FALLBACK_COPY, { url: cockpitUrl }), 'error');
   }, REDIRECT_FALLBACK_DELAY_MS);
 
-  window.location.href = cockpitUrl;
+  window.location.replace(cockpitUrl);
 }
 
 function showSetupView() {
@@ -500,7 +527,7 @@ async function submitOnboarding(event) {
       return;
     }
 
-    redirectToCockpit(body.redirectUrl || body.cockpitUrl);
+    await redirectToCockpit(body.redirectUrl || body.cockpitUrl);
   } catch (error) {
     setBanner('error', _('The onboarding service did not respond.'));
   } finally {
