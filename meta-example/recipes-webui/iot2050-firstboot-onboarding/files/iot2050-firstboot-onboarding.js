@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const http = require('http');
+const https = require('https');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -26,6 +27,7 @@ const LISTEN_PORT = 9080;
 const PUBLIC_PORTS = [80, 443];
 const MAX_BODY_SIZE = 16 * 1024;
 const COCKPIT_WAIT_SECONDS = 60;
+const GATEWAY_WAIT_SECONDS = 15;
 const ONBOARDING_SHUTDOWN_GRACE_MS = 3000;
 const USERNAME_PATTERN = /^[a-z_][a-z0-9_-]{0,31}$/;
 const HOSTNAME_PATTERN = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
@@ -382,6 +384,48 @@ function probeCockpitReady() {
   });
 }
 
+function probeRuntimeGateway() {
+  return new Promise((resolve) => {
+    const request = https.request({
+      host: '127.0.0.1',
+      port: 443,
+      path: '/cockpit/login',
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Host: 'localhost',
+      },
+      rejectUnauthorized: false,
+    }, (response) => {
+      response.resume();
+      response.on('end', () => {
+        resolve(response.statusCode === 200 || response.statusCode === 401);
+      });
+    });
+
+    request.setTimeout(2000, () => {
+      request.destroy(new Error('timeout'));
+    });
+
+    request.on('error', () => resolve(false));
+    request.end();
+  });
+}
+
+async function waitForRuntimeGateway(timeoutSeconds = GATEWAY_WAIT_SECONDS) {
+  const deadline = Date.now() + timeoutSeconds * 1000;
+
+  while (Date.now() < deadline) {
+    if (await probeRuntimeGateway()) {
+      return true;
+    }
+
+    await delay(250);
+  }
+
+  return false;
+}
+
 async function waitForCockpitReady(timeoutSeconds = COCKPIT_WAIT_SECONDS) {
   const deadline = Date.now() + timeoutSeconds * 1000;
 
@@ -423,6 +467,14 @@ async function switchToRuntime(payload) {
     return {
       ok: false,
       message: runtimeSwitch.message,
+    };
+  }
+
+  if (!await waitForRuntimeGateway()) {
+    selectGatewayMode('onboarding');
+    return {
+      ok: false,
+      message: 'The runtime gateway did not become available in time.',
     };
   }
 
