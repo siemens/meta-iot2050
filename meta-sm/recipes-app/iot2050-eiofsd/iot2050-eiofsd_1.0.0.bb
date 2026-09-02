@@ -64,7 +64,7 @@ python () {
             See meta-sm/recipes-app/iot2050-eiofsd/files/bin/README.md for details.
             *******************************************************************
             """)
-        bb.warn(warning_message)
+        bb.warnonce(warning_message)
 
     d.setVar('SRC_URI', d.getVar('SRC_URI') + ' ' + ' '.join(uris_to_keep))
 }
