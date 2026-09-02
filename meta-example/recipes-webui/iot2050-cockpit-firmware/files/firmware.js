@@ -517,7 +517,16 @@ async function loadCapabilities () {
     const controllerCapability = capabilityMap.get('controller');
     if (controllerCapability && controllerCapability.available) {
       setControllerControlsDisabled(false);
-      await inspectController();
+      try {
+        await inspectController();
+      } catch (error) {
+        setControllerControlsDisabled(true);
+        showUnavailable(
+          document.getElementById('controller-status'),
+          document.getElementById('controller-details'),
+          error.message,
+        );
+      }
     } else if (controllerCapability) {
       setControllerControlsDisabled(true);
       showUnavailable(
