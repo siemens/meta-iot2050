@@ -65,8 +65,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Free Disk Space
-        uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml
       - name: Upload image
@@ -84,8 +82,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Free Disk Space
-        uses: ./.github/workflows/free-disk-space
       - name: Build image
         run: ./kas-container build kas-iot2050-example.yml:kas-iot2050-qemu.yml
 
@@ -96,8 +92,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Free Disk Space
-        uses: ./.github/workflows/free-disk-space
       - name: Mock EIO binary stubs
         run: |
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/iot2050-eiofsd
@@ -120,8 +114,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Free Disk Space
-        uses: ./.github/workflows/free-disk-space
       - name: Mock EIO binary stubs
         run: |
           touch ./meta-sm/recipes-app/iot2050-eiofsd/files/bin/iot2050-eiofsd
@@ -137,8 +129,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Free Disk Space
-        uses: ./.github/workflows/free-disk-space
       - name: Build bootloader image
         run: ./kas-container build kas-iot2050-boot.yml
       - name: Archive bootloaders
