@@ -15,7 +15,7 @@ DESCRIPTION = "IOT2050 Debian Example Image"
 
 WKS_FILE = "iot2050-example.wks.in"
 
-INITRAMFS_RECIPE = "iot2050-initramfs-example"
+INITRAMFS_RECIPE ?= "iot2050-initramfs-example"
 
 IMAGE_INITRD = "${INITRAMFS_RECIPE}"
 do_image_wic[depends] += "${INITRAMFS_RECIPE}:do_build"
