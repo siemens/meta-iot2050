@@ -27,7 +27,7 @@ The provider transport matrix is:
 The `iot2050-module-firmware-update` command is a CLI client for the Module
 Firmware gRPC service, mirroring the pre-gRPC CLI behavior. The gRPC service
 itself is started by `iot2050-module-firmware.service` from the
-`iot2050_module_firmware_update_server` module.
+`iot2050-module-firmware-service` executable.
 
 ## Operation contracts
 

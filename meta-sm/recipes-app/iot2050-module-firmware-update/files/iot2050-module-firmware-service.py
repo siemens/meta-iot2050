@@ -11,7 +11,6 @@ import concurrent.futures
 import io
 import json
 import os
-import sys
 import uuid
 
 import grpc
@@ -109,8 +108,8 @@ def _update_reply(reply_type, request, results=None, error=None):
     )
 
 
-def serve_module_firmware_grpc():
-    from iot2050_module_firmware_pb2 import (
+def serve():
+    from gRPC.iot2050_module_firmware_pb2 import (
         CapabilitiesReply,
         InspectionReply,
         OperationReply,
@@ -118,7 +117,7 @@ def serve_module_firmware_grpc():
         SlotInspection,
         UpdateReply,
     )
-    from iot2050_module_firmware_pb2_grpc import (
+    from gRPC.iot2050_module_firmware_pb2_grpc import (
         ModuleFirmwareServicer,
         add_ModuleFirmwareServicer_to_server,
     )
@@ -361,16 +360,6 @@ class ModuleFirmwareUpdateSlot:
             "chip_b_node": os.path.exists(os.path.join(slot_path, "fwb")),
         }
 
-def main(args):
-    if args and args[0] == "--grpc-server":
-        serve_module_firmware_grpc()
-        return 0
-
-    print("This module is a gRPC service. Use the Module Firmware gRPC "
-          "service to update module firmware.", file=sys.stderr)
-    return 2
-
 if __name__ == '__main__':
-    CODE = main(sys.argv[1:])
-    sys.exit(CODE)
+    serve()
 

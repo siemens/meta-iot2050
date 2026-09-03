@@ -16,12 +16,12 @@ MAINTAINER = "chao.zeng@siemens.com"
 
 SRC_URI = " \
     file://update.conf.json.tmpl \
-    file://iot2050_firmware_update.py \
+    file://iot2050-firmware-service.py \
     file://iot2050-firmware-update.tmpl \
     file://iot2050-system-firmware.service \
-    file://grpc/iot2050-system-firmware.proto \
-    file://grpc/iot2050_system_firmware_pb2.py \
-    file://grpc/iot2050_system_firmware_pb2_grpc.py \
+    file://gRPC/iot2050-system-firmware.proto \
+    file://gRPC/iot2050_system_firmware_pb2.py \
+    file://gRPC/iot2050_system_firmware_pb2_grpc.py \
     file://custMpk.crt"
 SRC_URI:append:trust-center = " file://tc-pub.pem"
 SRC_URI:remove:trust-center = " file://custMpk.crt"
@@ -40,23 +40,31 @@ DEBIAN_DEPENDS = "python3-cryptography, python3-grpcio, python3-packaging, u-boo
 DEBIAN_BUILD_DEPENDS = "openssl"
 
 do_install() {
-    install -v -d ${D}/usr/sbin/
+    install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 755 ${WORKDIR}/iot2050-firmware-update \
-        ${D}/usr/sbin/iot2050-firmware-update
+        ${D}/usr/share/iot2050/fwu/
+    install -v -m 755 ${WORKDIR}/iot2050-firmware-service.py \
+        ${D}/usr/share/iot2050/fwu/
 
-    install -v -d ${D}/usr/lib/python3/dist-packages/
-    install -v -m 644 ${WORKDIR}/iot2050_firmware_update.py \
-        ${D}/usr/lib/python3/dist-packages/iot2050_firmware_update.py
-    install -v -m 644 ${WORKDIR}/grpc/iot2050_system_firmware_pb2.py \
-        ${D}/usr/lib/python3/dist-packages/iot2050_system_firmware_pb2.py
-    install -v -m 644 ${WORKDIR}/grpc/iot2050_system_firmware_pb2_grpc.py \
-        ${D}/usr/lib/python3/dist-packages/iot2050_system_firmware_pb2_grpc.py
+    install -v -d ${D}/usr/sbin/
+    ln -sf ../share/iot2050/fwu/iot2050-firmware-update \
+        ${D}/usr/sbin/iot2050-firmware-update
+    install -v -d ${D}/usr/bin/
+    ln -sf ../share/iot2050/fwu/iot2050-firmware-service.py \
+        ${D}/usr/bin/iot2050-firmware-service
+
+    install -v -d ${D}/usr/share/iot2050/fwu/gRPC/
+    install -v -m 755 ${WORKDIR}/gRPC/iot2050_system_firmware_pb2.py \
+        ${D}/usr/share/iot2050/fwu/gRPC/
+    install -v -m 755 ${WORKDIR}/gRPC/iot2050_system_firmware_pb2_grpc.py \
+        ${D}/usr/share/iot2050/fwu/gRPC/
+    install -v -m 755 ${WORKDIR}/gRPC/iot2050-system-firmware.proto \
+        ${D}/usr/share/iot2050/fwu/gRPC/
 
     install -v -d ${D}/usr/lib/systemd/system
     install -v -m 644 ${WORKDIR}/iot2050-system-firmware.service \
         ${D}/usr/lib/systemd/system/
 
-    install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 644 ${WORKDIR}/update.conf.json ${D}/usr/share/iot2050/fwu/
 
     if [ -f ${WORKDIR}/tc-pub.pem ]; then
@@ -65,7 +73,6 @@ do_install() {
         openssl x509 -in ${WORKDIR}/custMpk.crt -pubkey -noout > ${WORKDIR}/public.key
     fi
 
-    install -v -d ${D}/usr/share/iot2050/fwu
     install -v -m 644 ${WORKDIR}/public.key ${D}/usr/share/iot2050/fwu/
 }
 
