@@ -322,8 +322,8 @@ def serve():
     )
     service = Service()
     add_ModuleFirmwareServicer_to_server(service, server)
-    socket_path = MODULE_FIRMWARE_SOCKET.removeprefix("/run/iot2050/")
-    os.makedirs("/run/iot2050", mode=0o755, exist_ok=True)
+    socket_path = MODULE_FIRMWARE_SOCKET
+    os.makedirs(os.path.dirname(MODULE_FIRMWARE_SOCKET), mode=0o755, exist_ok=True)
     try:
         os.unlink(MODULE_FIRMWARE_SOCKET)
     except FileNotFoundError:
