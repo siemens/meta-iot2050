@@ -4,6 +4,9 @@
 
 """Shared local IPC endpoints for IOT2050 EIO-related services."""
 
+EIO_RUNTIME_DIR = "/usr/lib/iot2050/eio"
+MODULE_FIRMWARE_RUNTIME_DIR = "/usr/lib/iot2050/module-firmware"
+
 EIO_API_SERVER_SOCKET = "/run/iot2050/eio.sock"
 iot2050_eio_api_server = "unix://" + EIO_API_SERVER_SOCKET
 
