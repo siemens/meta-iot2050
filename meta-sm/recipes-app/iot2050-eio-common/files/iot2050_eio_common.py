@@ -7,10 +7,10 @@
 EIO_RUNTIME_DIR = "/usr/lib/iot2050/eio"
 MODULE_FIRMWARE_RUNTIME_DIR = "/usr/lib/iot2050/module-firmware"
 
-EIO_API_SERVER_SOCKET = "/run/iot2050/eio.sock"
+EIO_API_SERVER_SOCKET = "/run/iot2050-eio/eio.sock"
 iot2050_eio_api_server = "unix://" + EIO_API_SERVER_SOCKET
 
-EVENT_API_SERVER_SOCKET = "/run/iot2050/event-record.sock"
+EVENT_API_SERVER_SOCKET = "/run/iot2050-event-record/event-record.sock"
 iot2050_event_api_server = "unix://" + EVENT_API_SERVER_SOCKET
 
 MODULE_FIRMWARE_SOCKET = "/run/iot2050/module-firmware.sock"
