@@ -10,7 +10,7 @@ backend. Keep them in one importable module so every participant uses the
 same paths and limits.
 """
 
-SYSTEM_FIRMWARE_SOCKET_PATH = "/run/iot2050/system-firmware.sock"
+SYSTEM_FIRMWARE_SOCKET_PATH = "/run/iot2050-firmware/system-firmware.sock"
 SYSTEM_FIRMWARE_SOCKET_TARGET = "unix://" + SYSTEM_FIRMWARE_SOCKET_PATH
 
 SYSTEM_FIRMWARE_RUNTIME_DIR = "/usr/share/iot2050/fwu"
