@@ -17,8 +17,8 @@ import textwrap
 import grpc
 
 from iot2050_eio_common import MODULE_FIRMWARE_SOCKET
-from iot2050_module_firmware_pb2 import UpdateRequest
-from iot2050_module_firmware_pb2_grpc import ModuleFirmwareStub
+from gRPC.iot2050_module_firmware_pb2 import UpdateRequest
+from gRPC.iot2050_module_firmware_pb2_grpc import ModuleFirmwareStub
 
 SOCKET_TARGET = "unix://" + MODULE_FIRMWARE_SOCKET
 
