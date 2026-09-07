@@ -12,17 +12,18 @@ import time
 import grpc
 
 from iot2050_fwmgr import FirmwareError
-from iot2050_eio_common import iot2050_module_firmware_api_server
+from iot2050_eio_common import (
+    EIO_RUNTIME_DIR,
+    MODULE_FIRMWARE_RUNTIME_DIR,
+    iot2050_module_firmware_api_server,
+)
 
 
 SM_COMPATIBLE = "siemens,iot2050-advanced-sm"
 SM_MARKER = "/run/iot2050/sm-board"
-EIO_LIBRARY = "/usr/lib/iot2050/eio"
-
-
 def _eio_grpc_client():
-    if EIO_LIBRARY not in sys.path:
-        sys.path.insert(0, EIO_LIBRARY)
+    if EIO_RUNTIME_DIR not in sys.path:
+        sys.path.insert(0, EIO_RUNTIME_DIR)
     from gRPC.EIOManager.iot2050_eio_pb2 import (
         CheckFWURequest,
         UpdateFirmwareRequest,
@@ -97,12 +98,12 @@ def _parse_slot(request):
 
 
 def _module_grpc_client():
-    from iot2050_module_firmware_pb2 import (
-        InspectRequest,
-        OperationRequest,
-        UpdateRequest,
+    if MODULE_FIRMWARE_RUNTIME_DIR not in sys.path:
+        sys.path.insert(0, MODULE_FIRMWARE_RUNTIME_DIR)
+    from gRPC import (
+        iot2050_module_firmware_pb2 as module_pb2,
+        iot2050_module_firmware_pb2_grpc as module_pb2_grpc,
     )
-    from iot2050_module_firmware_pb2_grpc import ModuleFirmwareStub
 
     channel = grpc.insecure_channel(
         iot2050_module_firmware_api_server,
@@ -113,10 +114,10 @@ def _module_grpc_client():
     )
     return (
         channel,
-        ModuleFirmwareStub(channel),
-        InspectRequest,
-        UpdateRequest,
-        OperationRequest,
+        module_pb2_grpc.ModuleFirmwareStub(channel),
+        module_pb2.InspectRequest,
+        module_pb2.UpdateRequest,
+        module_pb2.OperationRequest,
     )
 
 

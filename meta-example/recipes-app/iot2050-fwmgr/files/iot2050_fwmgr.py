@@ -21,17 +21,11 @@ from pathlib import Path
 
 import grpc
 
-from iot2050_system_firmware_pb2 import (
-    InspectRequest,
-    OperationRequest,
-    RollbackRequest,
-    UpdateRequest,
-)
-from iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
 from iot2050_firmware_global import (
     DEFAULT_FIRMWARE_DIR,
     DEFAULT_FIRMWARE_PATTERN,
     DEFAULT_MAX_FIRMWARE_SIZE,
+    SYSTEM_FIRMWARE_RUNTIME_DIR,
     SYSTEM_FIRMWARE_SOCKET_TARGET as SYSTEM_FIRMWARE_SOCKET,
 )
 
@@ -90,8 +84,15 @@ class SystemFirmwareBackend:
 
     @staticmethod
     def _system_stub():
+        if SYSTEM_FIRMWARE_RUNTIME_DIR not in sys.path:
+            sys.path.insert(0, SYSTEM_FIRMWARE_RUNTIME_DIR)
+        from gRPC import (
+            iot2050_system_firmware_pb2 as system_pb2,
+            iot2050_system_firmware_pb2_grpc as system_pb2_grpc,
+        )
+
         channel = grpc.insecure_channel(SYSTEM_FIRMWARE_SOCKET)
-        return channel, SystemFirmwareStub(channel)
+        return channel, system_pb2_grpc.SystemFirmwareStub(channel), system_pb2
 
     @staticmethod
     def _system_response(response):
@@ -106,11 +107,14 @@ class SystemFirmwareBackend:
             ) from error
 
     @staticmethod
-    def _wait_system_operation(stub, operation_id, progress=None, timeout=3600):
+    def _wait_system_operation(stub, system_pb2, operation_id,
+                               progress=None, timeout=3600):
         deadline = time.monotonic() + timeout
         while True:
             response = stub.GetOperation(
-                OperationRequest(operation_id=operation_id), timeout=10)
+                system_pb2.OperationRequest(operation_id=operation_id),
+                timeout=10,
+            )
             if response.state == "running":
                 if time.monotonic() >= deadline:
                     raise FirmwareError(
@@ -134,10 +138,11 @@ class SystemFirmwareBackend:
     def inspect(self, request):
         path, package = self._resolve(request)
         try:
-            channel, stub = self._system_stub()
+            channel, stub, system_pb2 = self._system_stub()
             try:
                 response = stub.Inspect(
-                    InspectRequest(firmware_path=str(path), pg2_only=True),
+                    system_pb2.InspectRequest(
+                        firmware_path=str(path), pg2_only=True),
                     timeout=10,
                 )
             finally:
@@ -207,10 +212,10 @@ class SystemFirmwareBackend:
         path, package = self._resolve(request, staging_store)
         try:
             progress("checking-compatibility-and-signature")
-            channel, stub = self._system_stub()
+            channel, stub, system_pb2 = self._system_stub()
             try:
                 response = stub.StartUpdate(
-                    UpdateRequest(
+                    system_pb2.UpdateRequest(
                         firmware_path=str(path),
                         backup_dir=str(self.backup_dir) if self.backup_dir else "",
                         preserve_list=request.get("preserve_list") or [],
@@ -222,7 +227,7 @@ class SystemFirmwareBackend:
                 if not response.ok:
                     raise FirmwareError(response.code, response.message)
                 result = self._wait_system_operation(
-                    stub, response.operation_id, progress)
+                    stub, system_pb2, response.operation_id, progress)
             finally:
                 channel.close()
         except grpc.RpcError as error:
@@ -234,9 +239,10 @@ class SystemFirmwareBackend:
 
     def inspect_rollback(self, request):
         try:
-            channel, stub = self._system_stub()
+            channel, stub, system_pb2 = self._system_stub()
             try:
-                response = stub.InspectRollback(RollbackRequest(), timeout=10)
+                response = stub.InspectRollback(
+                    system_pb2.RollbackRequest(), timeout=10)
             finally:
                 channel.close()
             return self._system_response(response)
@@ -248,13 +254,14 @@ class SystemFirmwareBackend:
 
     def rollback(self, request, progress, staging_store):
         try:
-            channel, stub = self._system_stub()
+            channel, stub, system_pb2 = self._system_stub()
             try:
-                response = stub.StartRollback(RollbackRequest(), timeout=10)
+                response = stub.StartRollback(
+                    system_pb2.RollbackRequest(), timeout=10)
                 if not response.ok:
                     raise FirmwareError(response.code, response.message)
                 result = self._wait_system_operation(
-                    stub, response.operation_id, progress)
+                    stub, system_pb2, response.operation_id, progress)
             finally:
                 channel.close()
             return result
