@@ -560,12 +560,28 @@ async function loadCapabilities () {
       );
     }
     if (systemCapability && systemCapability.available) {
-      await inspectSystem();
+      try {
+        await inspectSystem();
+      } catch (error) {
+        setSystemUpdateDisabled(true);
+        showUnavailable(
+          document.querySelector('#system-card .status'),
+          document.getElementById('system-details'),
+          error.message,
+        );
+      }
       try {
         await inspectRollback();
       } catch (error) {
         document.getElementById('rollback-system').classList.add('hidden');
       }
+    } else if (systemCapability) {
+      setSystemUpdateDisabled(true);
+      showUnavailable(
+        document.querySelector('#system-card .status'),
+        document.getElementById('system-details'),
+        systemCapability.availability_reason,
+      );
     }
   } catch (error) {
     showError(error);
