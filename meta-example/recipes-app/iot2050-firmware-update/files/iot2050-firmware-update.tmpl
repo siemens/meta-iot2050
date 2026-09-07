@@ -17,12 +17,12 @@ import time
 
 import grpc
 
-from iot2050_system_firmware_pb2 import (
+from gRPC.iot2050_system_firmware_pb2 import (
     OperationRequest,
     RollbackRequest,
     UpdateRequest,
 )
-from iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
+from gRPC.iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
 from iot2050_firmware_global import SYSTEM_FIRMWARE_SOCKET_TARGET
 
 

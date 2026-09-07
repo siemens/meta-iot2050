@@ -1325,10 +1325,10 @@ def force_update_system_firmware(firmware_path, progress=None):
     }
 
 
-def serve_system_firmware_grpc():
-    """Serve System Firmware operations from this single backend module."""
+def serve():
+    """Serve Firmware operations through gRPC."""
     import grpc
-    from iot2050_system_firmware_pb2 import (
+    from gRPC.iot2050_system_firmware_pb2 import (
         CapabilitiesReply,
         Empty,
         InspectionReply,
@@ -1336,7 +1336,7 @@ def serve_system_firmware_grpc():
         OperationReply,
         RollbackReply,
     )
-    from iot2050_system_firmware_pb2_grpc import (
+    from gRPC.iot2050_system_firmware_pb2_grpc import (
         SystemFirmwareServicer,
         add_SystemFirmwareServicer_to_server,
     )
@@ -1702,17 +1702,5 @@ def rollback_system_firmware(backup_dir=None, progress=None):
             updater.close()
 
 
-def main(argv):
-    """The main function"""
-
-    if argv and len(argv) == 2 and argv[1] == "--grpc-server":
-        serve_system_firmware_grpc()
-        return ErrorCode.SUCCESS.value
-
-    print("This module is a gRPC service. Use the iot2050-firmware-update "
-          "CLI or the System Firmware gRPC service.", file=sys.stderr)
-    return 2
-
 if __name__ == '__main__':
-    CODE = main(sys.argv)
-    sys.exit(CODE)
+    serve()
