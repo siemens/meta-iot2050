@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import iot2050_system_firmware_pb2 as iot2050__system__firmware__pb2
+from . import iot2050_system_firmware_pb2 as iot2050__system__firmware__pb2
 
 
 class SystemFirmwareStub(object):
