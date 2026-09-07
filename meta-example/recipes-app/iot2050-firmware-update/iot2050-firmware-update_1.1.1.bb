@@ -38,6 +38,7 @@ inherit dpkg-raw
 
 DEBIAN_DEPENDS = "python3-cryptography, python3-grpcio, python3-packaging, u-boot-tools, iot2050-firmware-common"
 DEBIAN_BUILD_DEPENDS = "openssl"
+DEPENDS = "iot2050-firmware-common"
 
 do_install() {
     install -v -d ${D}/usr/sbin/
