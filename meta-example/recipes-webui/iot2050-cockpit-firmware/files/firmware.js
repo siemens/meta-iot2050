@@ -383,7 +383,10 @@ async function pollTask (taskId) {
   setWriteControlsDisabled(true);
   const task = await runManager(['task', taskId]);
   document.getElementById('task-title').textContent = `${task.backend} firmware update`;
-  document.getElementById('task-message').textContent = (task.error && task.error.message) || phaseLabel(task.phase);
+  document.getElementById('task-message').textContent =
+    (task.error && task.error.message) ||
+    (task.state === 'running' && task.progress_message) ||
+    phaseLabel(task.phase);
   const state = document.getElementById('task-state');
   const safety = document.getElementById('task-safety');
   const rebootButton = document.getElementById('reboot-device');

@@ -50,6 +50,19 @@ class FirmwareError(Exception):
 
 class SystemFirmwareBackend:
     name = "system"
+    STAGE_NAMES = {
+        1: "starting",
+        2: "checking-compatibility-and-signature",
+        3: "preparing-backup",
+        4: "backing-up",
+        5: "flashing-system",
+        6: "verifying-signature",
+        7: "signature-verified",
+        8: "updating-uboot",
+        9: "updating-env",
+        10: "retrying-flash",
+        11: "preparing-rollback",
+    }
 
     def __init__(self, backup_dir=None,
                  firmware_dir=DEFAULT_FIRMWARE_DIR):
@@ -110,30 +123,59 @@ class SystemFirmwareBackend:
     def _wait_system_operation(stub, system_pb2, operation_id,
                                progress=None, timeout=3600):
         deadline = time.monotonic() + timeout
+        progress_sequence = 0
         while True:
             response = stub.GetOperation(
                 system_pb2.OperationRequest(operation_id=operation_id),
                 timeout=10,
             )
-            if response.state == "running":
+            if progress:
+                for event in response.recent_events:
+                    if event.sequence <= progress_sequence:
+                        continue
+                    progress(
+                        SystemFirmwareBackend.STAGE_NAMES.get(
+                            event.stage, "starting"),
+                        event.message or None,
+                    )
+                    progress_sequence = event.sequence
+            if response.operation_state == system_pb2.OPERATION_RUNNING:
                 if time.monotonic() >= deadline:
                     raise FirmwareError(
                         "system-update-timeout",
                         "System firmware update timed out",
                     )
-                if progress and response.stage:
-                    progress(response.stage)
                 time.sleep(1)
                 continue
             if not response.ok:
-                raise FirmwareError(response.code, response.message)
-            try:
-                return json.loads(response.details_json) if response.details_json else {}
-            except ValueError as error:
+                error = response.operation_error
                 raise FirmwareError(
-                    "system-firmware-invalid-response",
-                    "System Firmware service returned invalid operation data",
-                ) from error
+                    error.code or response.code,
+                    error.message or response.message,
+                )
+            if response.HasField("update_result"):
+                return {
+                    "firmware_name": response.update_result.firmware_name,
+                    "target_version": response.update_result.target_version,
+                    "target_board": response.update_result.target_board,
+                    "firmware_sha256": response.update_result.firmware_sha256,
+                    "signature_verified": response.update_result.signature_verified,
+                    "backup_path": response.update_result.backup_path,
+                    "mode": response.update_result.mode,
+                    "reboot_required": response.update_result.reboot_required,
+                }
+            if response.HasField("rollback_result"):
+                return {
+                    "available": response.rollback_result.available,
+                    "size": response.rollback_result.size,
+                    "sha256": response.rollback_result.sha256,
+                    "created_at": response.rollback_result.created_at,
+                    "updater_version": response.rollback_result.updater_version,
+                    "source": response.rollback_result.source,
+                    "mode": response.rollback_result.mode,
+                    "reboot_required": response.rollback_result.reboot_required,
+                }
+            return {}
 
     def inspect(self, request):
         path, package = self._resolve(request)
@@ -738,6 +780,7 @@ class FirmwareTaskCore:
                     "payload": payload,
                     "state": "running",
                     "phase": "starting",
+                    "progress_message": None,
                     "result": None,
                     "error": None,
                     "staging_tokens": staging_tokens,
@@ -778,8 +821,10 @@ class FirmwareTaskCore:
         if task.get("state") != "running":
             return task
 
-        def progress(phase):
+        def progress(phase, message=None):
             task["phase"] = phase
+            if message:
+                task["progress_message"] = message
             try:
                 self.task_store.write(task)
             except OSError:
