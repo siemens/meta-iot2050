@@ -79,13 +79,19 @@ class FirmwareOperationStore:
                 if operation.get("state") != "running":
                     continue
                 operation.update({
-                    "state": "failed",
+                    "state": "interrupted",
+                    "stage": "interrupted",
                     "ok": False,
                     "code": "operation-interrupted",
                     "message": (
                         "Firmware service stopped before the operation completed"
                     ),
-                    "details_json": "",
+                    "error": {
+                        "code": "operation-interrupted",
+                        "message": (
+                            "Firmware service stopped before the operation completed"
+                        ),
+                    },
                 })
                 self._write(path.stem, operation)
             except (OSError, ValueError, KeyError):

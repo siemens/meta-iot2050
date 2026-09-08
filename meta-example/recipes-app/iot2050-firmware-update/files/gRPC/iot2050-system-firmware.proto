@@ -56,6 +56,65 @@ message RollbackReply {
   string details_json = 4;
 }
 
+enum OperationState {
+  OPERATION_STATE_UNSPECIFIED = 0;
+  OPERATION_RUNNING = 1;
+  OPERATION_SUCCEEDED = 2;
+  OPERATION_FAILED = 3;
+  OPERATION_INTERRUPTED = 4;
+}
+
+enum OperationStage {
+  OPERATION_STAGE_UNSPECIFIED = 0;
+  OPERATION_STAGE_STARTING = 1;
+  OPERATION_STAGE_CHECKING_COMPATIBILITY = 2;
+  OPERATION_STAGE_PREPARING_BACKUP = 3;
+  OPERATION_STAGE_BACKING_UP = 4;
+  OPERATION_STAGE_FLASHING_SYSTEM = 5;
+  OPERATION_STAGE_VERIFYING_SIGNATURE = 6;
+  OPERATION_STAGE_SIGNATURE_VERIFIED = 7;
+  OPERATION_STAGE_UPDATING_UBOOT = 8;
+  OPERATION_STAGE_UPDATING_ENV = 9;
+  OPERATION_STAGE_RETRYING_FLASH = 10;
+  OPERATION_STAGE_PREPARING_ROLLBACK = 11;
+  OPERATION_STAGE_COMPLETED = 12;
+  OPERATION_STAGE_FAILED = 13;
+  OPERATION_STAGE_INTERRUPTED = 14;
+}
+
+message ProgressEvent {
+  uint64 sequence = 1;
+  OperationStage stage = 2;
+  string message = 3;
+}
+
+message OperationError {
+  string code = 1;
+  string message = 2;
+}
+
+message UpdateResult {
+  string firmware_name = 1;
+  string target_version = 2;
+  string target_board = 3;
+  string firmware_sha256 = 4;
+  bool signature_verified = 5;
+  string backup_path = 6;
+  string mode = 7;
+  bool reboot_required = 8;
+}
+
+message RollbackResult {
+  bool available = 1;
+  uint64 size = 2;
+  string sha256 = 3;
+  string created_at = 4;
+  string updater_version = 5;
+  string source = 6;
+  string mode = 7;
+  bool reboot_required = 8;
+}
+
 message OperationReply {
   bool ok = 1;
   string code = 2;
@@ -64,6 +123,14 @@ message OperationReply {
   string operation_id = 5;
   string state = 6;
   string stage = 7;
+  OperationState operation_state = 8;
+  OperationStage operation_stage = 9;
+  repeated ProgressEvent recent_events = 10;
+  oneof outcome {
+    UpdateResult update_result = 11;
+    RollbackResult rollback_result = 12;
+    OperationError operation_error = 13;
+  }
 }
 
 message OperationRequest {

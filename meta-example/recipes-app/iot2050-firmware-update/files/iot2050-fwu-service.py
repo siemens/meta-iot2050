@@ -118,6 +118,7 @@ import subprocess
 import tarfile
 import textwrap
 import tempfile
+import traceback
 import uuid
 from pathlib import Path
 from packaging import version
@@ -695,15 +696,26 @@ class FirmwareUpdate():
         try:
             # Perform signature verification before starting the actual flashing
             if self.verify_signature:
+                self.interactor.report(
+                    "verifying-signature", "Verifying firmware signatures..."
+                )
                 print("Verifying firmware signatures...")
                 # The primary firmware (uboot) is the one to be signed
                 firmware_name_to_verify = self.tarball.get_file_name(self.tarball.FIRMWARE_TYPES[0])
                 if firmware_name_to_verify:
                     self.tarball.verify_firmware_signature(firmware_name_to_verify)
+                    self.interactor.report(
+                        "signature-verified",
+                        f"Signature for {firmware_name_to_verify} verified successfully.",
+                    )
                     print(f"Signature for {firmware_name_to_verify} verified successfully.")
                 else:
                     raise UpgradeError("Could not determine primary firmware name for signature verification.",
                                        ErrorCode.INVALID_FIRMWARE.value)
+                self.interactor.report(
+                    "signature-verified",
+                    "Firmware signature verification complete. Proceeding with update.",
+                )
                 print("Firmware signature verification complete. Proceeding with update.")
 
             for firmware_type in self.firmwares:
@@ -1210,7 +1222,10 @@ class NonInteractiveInterface(object):
     """Progress adapter for trusted callers such as the local manager."""
 
     def __init__(self, progress=None):
-        self.progress = progress or (lambda phase: None)
+        self.progress = progress or (lambda phase, message=None: None)
+
+    def report(self, stage, message=None):
+        self.progress(stage, message)
 
     def interact(self, *args):
         raise UpgradeError(
@@ -1223,7 +1238,7 @@ class NonInteractiveInterface(object):
 
     def progress_bar(self, info="", interval=0.2, start=True):
         if start and info:
-            self.progress(info.lower().replace(" ", "-"))
+            self.report(info.lower().replace(" ", "-"))
 
 
 def inspect_system_firmware(firmware_path, public_key_path=None, pg2_only=False):
@@ -1332,9 +1347,30 @@ def serve():
         CapabilitiesReply,
         Empty,
         InspectionReply,
+        OPERATION_FAILED,
+        OPERATION_INTERRUPTED,
+        OPERATION_RUNNING,
+        OPERATION_STAGE_BACKING_UP,
+        OPERATION_STAGE_CHECKING_COMPATIBILITY,
+        OPERATION_STAGE_COMPLETED,
+        OPERATION_STAGE_FAILED,
+        OPERATION_STAGE_FLASHING_SYSTEM,
+        OPERATION_STAGE_INTERRUPTED,
+        OPERATION_STAGE_PREPARING_BACKUP,
+        OPERATION_STAGE_PREPARING_ROLLBACK,
+        OPERATION_STAGE_RETRYING_FLASH,
+        OPERATION_STAGE_SIGNATURE_VERIFIED,
+        OPERATION_STAGE_STARTING,
+        OPERATION_STAGE_UPDATING_ENV,
+        OPERATION_STAGE_UPDATING_UBOOT,
+        OPERATION_STAGE_VERIFYING_SIGNATURE,
+        OPERATION_SUCCEEDED,
         OperationRequest,
         OperationReply,
+        OperationError,
+        RollbackResult,
         RollbackReply,
+        UpdateResult,
     )
     from gRPC.iot2050_system_firmware_pb2_grpc import (
         SystemFirmwareServicer,
@@ -1348,6 +1384,30 @@ def serve():
     max_firmware_size = DEFAULT_MAX_FIRMWARE_SIZE
 
     class Service(SystemFirmwareServicer):
+        MAX_PROGRESS_EVENTS = 64
+        STATE_VALUES = {
+            "running": OPERATION_RUNNING,
+            "succeeded": OPERATION_SUCCEEDED,
+            "failed": OPERATION_FAILED,
+            "interrupted": OPERATION_INTERRUPTED,
+        }
+        STAGE_VALUES = {
+            "starting": OPERATION_STAGE_STARTING,
+            "checking-compatibility-and-signature": OPERATION_STAGE_CHECKING_COMPATIBILITY,
+            "preparing-backup": OPERATION_STAGE_PREPARING_BACKUP,
+            "backing-up": OPERATION_STAGE_BACKING_UP,
+            "flashing-system": OPERATION_STAGE_FLASHING_SYSTEM,
+            "verifying-signature": OPERATION_STAGE_VERIFYING_SIGNATURE,
+            "signature-verified": OPERATION_STAGE_SIGNATURE_VERIFIED,
+            "updating-uboot": OPERATION_STAGE_UPDATING_UBOOT,
+            "updating-env": OPERATION_STAGE_UPDATING_ENV,
+            "retrying-flash": OPERATION_STAGE_RETRYING_FLASH,
+            "preparing-rollback": OPERATION_STAGE_PREPARING_ROLLBACK,
+            "completed": OPERATION_STAGE_COMPLETED,
+            "failed": OPERATION_STAGE_FAILED,
+            "interrupted": OPERATION_STAGE_INTERRUPTED,
+        }
+
         def __init__(self):
             self.operation_store = FirmwareOperationStore(
                 "/var/lib/iot2050/system-firmware/operations"
@@ -1424,75 +1484,183 @@ def serve():
         def _response(response):
             return response
 
-        def _submit(self, function):
+        @classmethod
+        def _typed_reply(cls, operation, operation_id=None):
+            reply = OperationReply(
+                ok=operation.get("ok", False),
+                code=operation.get("code", ""),
+                message=operation.get("message", ""),
+                operation_id=operation_id or operation.get("operation_id", ""),
+                state=operation.get("state", ""),
+                stage=operation.get("stage", ""),
+                operation_state=cls.STATE_VALUES.get(
+                    operation.get("state"), 0),
+                operation_stage=cls.STAGE_VALUES.get(
+                    operation.get("stage"), 0),
+            )
+            for event in operation.get("recent_events", []):
+                item = reply.recent_events.add(
+                    sequence=event["sequence"],
+                    stage=cls.STAGE_VALUES.get(event["stage"], 0),
+                )
+                if event.get("message"):
+                    item.message = event["message"]
+            error = operation.get("error")
+            if error:
+                reply.operation_error.CopyFrom(
+                    OperationError(
+                        code=error.get("code", "operation-failed"),
+                        message=error.get("message", "Operation failed"),
+                    )
+                )
+            result = operation.get("result") or {}
+            if operation.get("operation") == "rollback":
+                reply.rollback_result.CopyFrom(
+                    RollbackResult(
+                        available=bool(result.get("available", False)),
+                        size=int(result.get("size", 0) or 0),
+                        sha256=result.get("sha256", ""),
+                        created_at=result.get("created_at", ""),
+                        updater_version=result.get("updater_version", ""),
+                        source=result.get("source", ""),
+                        mode=result.get("mode", ""),
+                        reboot_required=bool(result.get("reboot_required", False)),
+                    )
+                )
+            elif result:
+                reply.update_result.CopyFrom(
+                    UpdateResult(
+                        firmware_name=result.get("firmware_name", ""),
+                        target_version=result.get("target_version", ""),
+                        target_board=result.get("target_board", ""),
+                        firmware_sha256=result.get("firmware_sha256", ""),
+                        signature_verified=bool(result.get("signature_verified", False)),
+                        backup_path=result.get("backup_path", ""),
+                        mode=result.get("mode", ""),
+                        reboot_required=bool(result.get("reboot_required", False)),
+                    )
+                )
+            return reply
+
+        def _submit(self, function, operation_kind):
             if self.operation_store.has_running():
-                return OperationReply(
-                    ok=False,
-                    code="firmware-busy",
-                    message="System firmware operation is already running",
-                    state="unknown",
+                return self._typed_reply({
+                    "ok": False,
+                    "code": "firmware-busy",
+                    "message": "System firmware operation is already running",
+                    "state": "failed",
+                    "error": {
+                        "code": "firmware-busy",
+                        "message": "System firmware operation is already running",
+                    },
+                    "recent_events": [],
+                }
                 )
             operation_id = str(uuid.uuid4())
             self.operation_store.create(operation_id, {
+                "operation_id": operation_id,
+                "operation": operation_kind,
                 "state": "running",
                 "ok": False,
                 "code": "operation-running",
                 "message": "System firmware operation is running",
                 "stage": "starting",
                 "details_json": "",
+                "recent_events": [{
+                    "sequence": 1,
+                    "stage": "starting",
+                }],
+                "next_sequence": 2,
             })
 
-            def progress(stage):
+            def progress(stage, message=None):
                 try:
-                    self.operation_store.update(operation_id, stage=stage)
+                    operation = self.operation_store.read(operation_id)
+                    sequence = operation.get("next_sequence", 1)
+                    event = {"sequence": sequence, "stage": stage}
+                    if message:
+                        event["message"] = message
+                    events = (operation.get("recent_events", []) + [event])[-self.MAX_PROGRESS_EVENTS:]
+                    self.operation_store.update(
+                        operation_id,
+                        stage=stage,
+                        recent_events=events,
+                        next_sequence=sequence + 1,
+                    )
                 except (OSError, KeyError):
                     pass
 
             def run():
+                operation_record = self.operation_store.read(operation_id)
                 try:
                     details = function(progress)
+                    result = json.loads(self._json(details))
                     outcome = {
+                        "operation": operation_record.get("operation", "update"),
                         "state": "succeeded",
                         "ok": True,
                         "code": "ok",
                         "message": "System firmware operation completed",
                         "stage": "completed",
-                        "details_json": self._json(details),
+                        "details_json": self._json(result),
+                        "result": result,
                     }
                 except Exception as error:
                     outcome = self._failure(error)
+                    outcome["operation"] = operation_record.get("operation", "update")
                     outcome["state"] = "failed"
-                self.operation_store.update(operation_id, **outcome)
+                    outcome["stage"] = "failed"
+                    outcome["error"] = {
+                        "code": outcome["code"],
+                        "message": outcome["message"],
+                    }
+                try:
+                    self.operation_store.update(operation_id, **outcome)
+                except Exception:
+                    finalize_error = traceback.format_exc()
+                    fallback = {
+                        "operation": operation_record.get("operation", "update"),
+                        "state": "failed",
+                        "ok": False,
+                        "code": "operation-finalize-failed",
+                        "message": "System firmware operation failed to finalize",
+                        "stage": "failed",
+                        "error": {
+                            "code": "operation-finalize-failed",
+                            "message": "System firmware operation failed to finalize",
+                            "details": finalize_error,
+                        },
+                    }
+                    try:
+                        self.operation_store.update(operation_id, **fallback)
+                    except Exception:
+                        print(finalize_error, file=sys.stderr, flush=True)
 
             self.operations_executor.submit(run)
-            return OperationReply(
-                ok=True,
-                code="operation-started",
-                message="System firmware operation started",
-                operation_id=operation_id,
-                state="running",
-                stage="starting",
-            )
+            return self._typed_reply({
+                **self.operation_store.read(operation_id),
+                "ok": True,
+                "code": "operation-started",
+                "message": "System firmware operation started",
+            })
 
         def _operation(self, operation_id):
             try:
                 operation = self.operation_store.read(operation_id)
             except KeyError:
-                return OperationReply(
-                    ok=False,
-                    code="operation-not-found",
-                    message="System firmware operation was not found",
-                    state="unknown",
+                return self._typed_reply({
+                    "ok": False,
+                    "code": "operation-not-found",
+                    "message": "System firmware operation was not found",
+                    "state": "failed",
+                    "error": {
+                        "code": "operation-not-found",
+                        "message": "System firmware operation was not found",
+                    },
+                    "recent_events": [],
+                }, operation_id
                 )
-            return OperationReply(
-                ok=operation["ok"],
-                code=operation["code"],
-                message=operation["message"],
-                details_json=operation["details_json"],
-                operation_id=operation_id,
-                state=operation["state"],
-                stage=operation.get("stage", ""),
-            )
+            return self._typed_reply(operation, operation_id)
 
         def _perform_update(self, request, progress=None):
             firmware_path = self._firmware_path(request.firmware_path)
@@ -1563,7 +1731,8 @@ def serve():
 
         def StartUpdate(self, request, context):
             return self._submit(
-                lambda progress: self._perform_update(request, progress))
+                lambda progress: self._perform_update(request, progress),
+                "update")
 
         def GetOperation(self, request: OperationRequest, context):
             return self._operation(request.operation_id)
@@ -1598,7 +1767,8 @@ def serve():
 
         def StartRollback(self, request, context):
             return self._submit(
-                lambda progress: self._perform_rollback(request, progress))
+                lambda progress: self._perform_rollback(request, progress),
+                "rollback")
 
     socket_file = Path(socket_path)
     socket_file.parent.mkdir(parents=True, exist_ok=True)
