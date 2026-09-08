@@ -28,6 +28,7 @@ from iot2050_firmware_global import SYSTEM_FIRMWARE_SOCKET_TARGET
 
 SOCKET_TARGET = SYSTEM_FIRMWARE_SOCKET_TARGET
 ACTIVE_PROGRESS_STAGES = ("backing-up", "updating-uboot", "updating-env")
+FLASHING_STAGES = ("flashing-system",) + ACTIVE_PROGRESS_STAGES[1:]
 PROGRESS_DOT_INTERVAL = 0.4
 LINE_STAGES = ACTIVE_PROGRESS_STAGES + ("preparing-rollback",)
 # Semantic service error codes mapped to the documented CLI exit codes.
@@ -194,7 +195,8 @@ def print_preserved_environment(firmware_path, preserve_list):
     print()
 
 
-def print_stage(stage, previous_stage, backup):
+def print_stage(stage, stages, backup):
+    previous_stage = stages[-1] if stages else None
     if previous_stage in LINE_STAGES and stage != previous_stage:
         print()
     if stage == "preparing-backup" and backup:
@@ -203,43 +205,44 @@ def print_stage(stage, previous_stage, backup):
         if previous_stage != "preparing-backup":
             print("\nFirmware backup started")
         print("Backing up     ", end="", flush=True)
-    elif stage == "flashing-system":
-        if backup:
-            print("Firmware backup ended\n")
-        print(
-            "===================================================\n"
-            "IOT2050 firmware update started - DO NOT INTERRUPT!\n"
-            "==================================================="
-        )
-    elif stage == "updating-uboot":
-        print("Updating uboot ", end="", flush=True)
-    elif stage == "updating-env":
-        print("Updating env   ", end="", flush=True)
+    elif stage in FLASHING_STAGES:
+        if not any(item in FLASHING_STAGES for item in stages):
+            if backup:
+                print("Firmware backup ended\n")
+            print(
+                "===================================================\n"
+                "IOT2050 firmware update started - DO NOT INTERRUPT!\n"
+                "==================================================="
+            )
+        if stage == "updating-uboot":
+            print("Updating uboot ", end="", flush=True)
+        elif stage == "updating-env":
+            print("Updating env   ", end="", flush=True)
     elif stage == "preparing-rollback":
         print("Preparing rollback", end="", flush=True)
     elif stage == "retrying-flash":
         print("Retrying firmware update")
+    stages.append(stage)
 
 
 def wait_for_operation(stub, operation_id, quiet, backup, timeout=3600):
     deadline = time.monotonic() + timeout
-    previous_stage = None
     next_progress_at = 0.0
+    stages = []
     while True:
         response = stub.GetOperation(
             OperationRequest(operation_id=operation_id), timeout=10
         )
         now = time.monotonic()
-        if response.stage != previous_stage:
-            print_stage(response.stage, previous_stage, backup)
-            previous_stage = response.stage
+        if response.stage != (stages[-1] if stages else None):
+            print_stage(response.stage, stages, backup)
             if response.stage in ACTIVE_PROGRESS_STAGES:
                 next_progress_at = now + PROGRESS_DOT_INTERVAL
         if response.state != "running":
-            if previous_stage in LINE_STAGES:
+            if stages and stages[-1] in LINE_STAGES:
                 print()
             return response
-        if (previous_stage in ACTIVE_PROGRESS_STAGES and
+        if (stages and stages[-1] in ACTIVE_PROGRESS_STAGES and
             now >= next_progress_at):
             print(".", end="", flush=True)
             next_progress_at = now + PROGRESS_DOT_INTERVAL
