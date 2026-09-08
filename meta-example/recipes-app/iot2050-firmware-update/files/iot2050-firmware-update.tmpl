@@ -21,6 +21,15 @@ from gRPC.iot2050_system_firmware_pb2 import (
     OperationRequest,
     RollbackRequest,
     UpdateRequest,
+    OPERATION_RUNNING,
+    OPERATION_STAGE_BACKING_UP,
+    OPERATION_STAGE_FLASHING_SYSTEM,
+    OPERATION_STAGE_PREPARING_BACKUP,
+    OPERATION_STAGE_PREPARING_ROLLBACK,
+    OPERATION_STAGE_RETRYING_FLASH,
+    OPERATION_STAGE_STARTING,
+    OPERATION_STAGE_UPDATING_ENV,
+    OPERATION_STAGE_UPDATING_UBOOT,
 )
 from gRPC.iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
 from iot2050_firmware_global import SYSTEM_FIRMWARE_SOCKET_TARGET
@@ -31,6 +40,16 @@ ACTIVE_PROGRESS_STAGES = ("backing-up", "updating-uboot", "updating-env")
 FLASHING_STAGES = ("flashing-system",) + ACTIVE_PROGRESS_STAGES[1:]
 PROGRESS_DOT_INTERVAL = 0.4
 LINE_STAGES = ACTIVE_PROGRESS_STAGES + ("preparing-rollback",)
+STAGE_NAMES = {
+    OPERATION_STAGE_STARTING: "starting",
+    OPERATION_STAGE_PREPARING_BACKUP: "preparing-backup",
+    OPERATION_STAGE_BACKING_UP: "backing-up",
+    OPERATION_STAGE_FLASHING_SYSTEM: "flashing-system",
+    OPERATION_STAGE_UPDATING_UBOOT: "updating-uboot",
+    OPERATION_STAGE_UPDATING_ENV: "updating-env",
+    OPERATION_STAGE_RETRYING_FLASH: "retrying-flash",
+    OPERATION_STAGE_PREPARING_ROLLBACK: "preparing-rollback",
+}
 # Semantic service error codes mapped to the documented CLI exit codes.
 EXIT_CODES = {
     "backup-failed": 3,
@@ -195,6 +214,19 @@ def print_preserved_environment(firmware_path, preserve_list):
     print()
 
 
+def render_progress(response, stages, backup, progress_sequence):
+    for event in response.recent_events:
+        if event.sequence <= progress_sequence:
+            continue
+        stage = STAGE_NAMES.get(event.stage)
+        if stage and (not stages or stages[-1] != stage):
+            print_stage(stage, stages, backup)
+        if event.message:
+            print(event.message)
+        progress_sequence = event.sequence
+    return progress_sequence
+
+
 def print_stage(stage, stages, backup):
     previous_stage = stages[-1] if stages else None
     if previous_stage in LINE_STAGES and stage != previous_stage:
@@ -229,16 +261,20 @@ def wait_for_operation(stub, operation_id, quiet, backup, timeout=3600):
     deadline = time.monotonic() + timeout
     next_progress_at = 0.0
     stages = []
+    progress_sequence = 0
     while True:
         response = stub.GetOperation(
             OperationRequest(operation_id=operation_id), timeout=10
         )
         now = time.monotonic()
-        if response.stage != (stages[-1] if stages else None):
-            print_stage(response.stage, stages, backup)
-            if response.stage in ACTIVE_PROGRESS_STAGES:
+        progress_sequence = render_progress(
+            response, stages, backup, progress_sequence)
+        current_stage = STAGE_NAMES.get(response.operation_stage)
+        if current_stage and (not stages or stages[-1] != current_stage):
+            print_stage(current_stage, stages, backup)
+            if stages[-1] in ACTIVE_PROGRESS_STAGES:
                 next_progress_at = now + PROGRESS_DOT_INTERVAL
-        if response.state != "running":
+        if response.operation_state != OPERATION_RUNNING:
             if stages and stages[-1] in LINE_STAGES:
                 print()
             return response
