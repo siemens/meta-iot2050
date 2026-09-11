@@ -36,6 +36,12 @@ iot2050-firmware-update <firmware-package>.tar.xz
 The tool will automatically back up the current firmware before proceeding. If the
 update fails, it can be rolled back.
 
+Firmware writes run asynchronously in the firmware service. The command
+receives an operation ID, displays live operation messages, and waits for the
+durable final result. The service keeps the operation status and final result
+available after a client disconnect or service restart; live messages are not
+stored for later replay.
+
 ### Key Features and Options
 
 - **Rollback (`-b`, `--rollback`)**:

@@ -110,6 +110,7 @@ import hashlib
 import io
 import json
 import os
+import queue
 import sys
 import shutil
 import stat
@@ -118,6 +119,7 @@ import subprocess
 import tarfile
 import textwrap
 import tempfile
+import traceback
 import uuid
 from pathlib import Path
 from packaging import version
@@ -135,7 +137,7 @@ from iot2050_firmware_global import (
     DEFAULT_FIRMWARE_DIR,
     DEFAULT_FIRMWARE_PATTERN,
     DEFAULT_MAX_FIRMWARE_SIZE,
-    SYSTEM_FIRMWARE_SOCKET_PATH,
+    FIRMWARE_SOCKET_PATH,
 )
 
 
@@ -695,15 +697,26 @@ class FirmwareUpdate():
         try:
             # Perform signature verification before starting the actual flashing
             if self.verify_signature:
+                self.interactor.report(
+                    "verifying-signature", "Verifying firmware signatures..."
+                )
                 print("Verifying firmware signatures...")
                 # The primary firmware (uboot) is the one to be signed
                 firmware_name_to_verify = self.tarball.get_file_name(self.tarball.FIRMWARE_TYPES[0])
                 if firmware_name_to_verify:
                     self.tarball.verify_firmware_signature(firmware_name_to_verify)
+                    self.interactor.report(
+                        "signature-verified",
+                        f"Signature for {firmware_name_to_verify} verified successfully.",
+                    )
                     print(f"Signature for {firmware_name_to_verify} verified successfully.")
                 else:
                     raise UpgradeError("Could not determine primary firmware name for signature verification.",
                                        ErrorCode.INVALID_FIRMWARE.value)
+                self.interactor.report(
+                    "signature-verified",
+                    "Firmware signature verification complete. Proceeding with update.",
+                )
                 print("Firmware signature verification complete. Proceeding with update.")
 
             for firmware_type in self.firmwares:
@@ -1210,7 +1223,10 @@ class NonInteractiveInterface(object):
     """Progress adapter for trusted callers such as the local manager."""
 
     def __init__(self, progress=None):
-        self.progress = progress or (lambda phase: None)
+        self.progress = progress or (lambda phase, message=None: None)
+
+    def report(self, stage, message=None):
+        self.progress(stage, message)
 
     def interact(self, *args):
         raise UpgradeError(
@@ -1223,10 +1239,10 @@ class NonInteractiveInterface(object):
 
     def progress_bar(self, info="", interval=0.2, start=True):
         if start and info:
-            self.progress(info.lower().replace(" ", "-"))
+            self.report(info.lower().replace(" ", "-"))
 
 
-def inspect_system_firmware(firmware_path, public_key_path=None, pg2_only=False):
+def inspect_firmware(firmware_path, public_key_path=None, pg2_only=False):
     """Validate compatibility and signature without accessing flash devices."""
     interactor = NonInteractiveInterface()
     with open(firmware_path, "rb") as archive:
@@ -1243,7 +1259,7 @@ def inspect_system_firmware(firmware_path, public_key_path=None, pg2_only=False)
             package.close()
 
 
-def update_system_firmware(firmware_path, backup_dir=None,
+def update_firmware(firmware_path, backup_dir=None,
                            preserve_list=None, reset=False, progress=None,
                            public_key_path=None, pg2_only=False,
                            backup=True, verify_signature=True):
@@ -1278,6 +1294,7 @@ def update_system_firmware(firmware_path, backup_dir=None,
             if backup:
                 progress and progress("preparing-backup")
                 updater.backup()
+                progress and progress("backup-ended")
             progress and progress("flashing-system")
             last_error = None
             for attempt in range(4):
@@ -1312,7 +1329,7 @@ def update_system_firmware(firmware_path, backup_dir=None,
             package.close()
 
 
-def force_update_system_firmware(firmware_path, progress=None):
+def force_update_firmware(firmware_path, progress=None):
     """Perform a raw U-Boot update without a package backup."""
     interactor = NonInteractiveInterface(progress)
     with open(firmware_path, "rb") as firmware:
@@ -1328,30 +1345,62 @@ def force_update_system_firmware(firmware_path, progress=None):
 def serve():
     """Serve Firmware operations through gRPC."""
     import grpc
-    from gRPC.iot2050_system_firmware_pb2 import (
+    from gRPC.iot2050_firmware_pb2 import (
         CapabilitiesReply,
         Empty,
         InspectionReply,
+        OPERATION_FAILED,
+        OPERATION_INTERRUPTED,
+        OPERATION_RUNNING,
+        OPERATION_SUCCEEDED,
         OperationRequest,
+        OperationLog,
         OperationReply,
+        OperationError,
+        RollbackResult,
         RollbackReply,
+        UpdateResult,
     )
-    from gRPC.iot2050_system_firmware_pb2_grpc import (
-        SystemFirmwareServicer,
-        add_SystemFirmwareServicer_to_server,
+    from gRPC.iot2050_firmware_pb2_grpc import (
+        FirmwareServicer,
+        add_FirmwareServicer_to_server,
     )
-    from iot2050_firmware_operation_store import FirmwareOperationStore
+    from iot2050_firmware_operation_store import (
+        FirmwareOperationLogHub,
+        FirmwareOperationStore,
+    )
 
-    socket_path = SYSTEM_FIRMWARE_SOCKET_PATH
+    socket_path = FIRMWARE_SOCKET_PATH
     firmware_dir = DEFAULT_FIRMWARE_DIR
     firmware_pattern = DEFAULT_FIRMWARE_PATTERN
     max_firmware_size = DEFAULT_MAX_FIRMWARE_SIZE
 
-    class Service(SystemFirmwareServicer):
+    class Service(FirmwareServicer):
+        LOG_MESSAGES = {
+            "preparing-backup": "Firmware backup started",
+            "backing-up": "Backing up",
+            "backup-ended": "Firmware backup ended",
+            "flashing-system": (
+                "===================================================\n"
+                "IOT2050 firmware update started - DO NOT INTERRUPT!\n"
+                "==================================================="
+            ),
+            "updating-uboot": "Updating uboot",
+            "updating-env": "Updating env",
+            "retrying-flash": "Retrying firmware update",
+            "preparing-rollback": "Preparing rollback",
+        }
+        STATE_VALUES = {
+            "running": OPERATION_RUNNING,
+            "succeeded": OPERATION_SUCCEEDED,
+            "failed": OPERATION_FAILED,
+            "interrupted": OPERATION_INTERRUPTED,
+        }
         def __init__(self):
             self.operation_store = FirmwareOperationStore(
-                "/var/lib/iot2050/system-firmware/operations"
+                "/var/lib/iot2050/firmware/operations"
             )
+            self.log_hub = FirmwareOperationLogHub()
             self.operation_store.recover_running()
             self.operations_executor = concurrent.futures.ThreadPoolExecutor(
                 max_workers=1
@@ -1412,87 +1461,177 @@ def serve():
                 )
                 path = candidates[-1] if candidates else None
             if path is None:
-                raise ValueError("The system firmware package is unavailable")
+                raise ValueError("The firmware package is unavailable")
             if os.path.islink(path) or not os.path.isfile(path):
                 raise ValueError(
-                    "The system firmware package must be a regular file")
+                    "The firmware package must be a regular file")
             if os.path.getsize(path) > max_firmware_size:
-                raise ValueError("The system firmware package is too large")
+                raise ValueError("The firmware package is too large")
             return path
 
         @staticmethod
         def _response(response):
             return response
 
-        def _submit(self, function):
-            if self.operation_store.has_running():
-                return OperationReply(
-                    ok=False,
-                    code="firmware-busy",
-                    message="System firmware operation is already running",
-                    state="unknown",
+        @classmethod
+        def _typed_reply(cls, operation, operation_id=None):
+            reply = OperationReply(
+                operation_id=operation_id or operation.get("operation_id", ""),
+                operation=operation.get("operation", ""),
+                status=cls.STATE_VALUES.get(operation.get("state"), 0),
+                code=operation.get("code", ""),
+                message=operation.get("message", ""),
+                created_at=operation.get("created_at", ""),
+                updated_at=operation.get("updated_at", ""),
+                finished_at=operation.get("finished_at", ""),
+                last_message=operation.get("last_message", ""),
+            )
+            error = operation.get("error")
+            if error:
+                reply.operation_error.CopyFrom(
+                    OperationError(
+                        code=error.get("code", "operation-failed"),
+                        message=error.get("message", "Operation failed"),
+                    )
                 )
+            result = operation.get("result") or {}
+            if operation.get("operation") == "rollback":
+                reply.rollback_result.CopyFrom(
+                    RollbackResult(
+                        available=bool(result.get("available", False)),
+                        size=int(result.get("size", 0) or 0),
+                        sha256=result.get("sha256", ""),
+                        created_at=result.get("created_at", ""),
+                        updater_version=result.get("updater_version", ""),
+                        source=result.get("source", ""),
+                        mode=result.get("mode", ""),
+                        reboot_required=bool(result.get("reboot_required", False)),
+                    )
+                )
+            elif result:
+                reply.update_result.CopyFrom(
+                    UpdateResult(
+                        firmware_name=result.get("firmware_name", ""),
+                        target_version=result.get("target_version", ""),
+                        target_board=result.get("target_board", ""),
+                        firmware_sha256=result.get("firmware_sha256", ""),
+                        signature_verified=bool(result.get("signature_verified", False)),
+                        backup_path=result.get("backup_path", ""),
+                        mode=result.get("mode", ""),
+                        reboot_required=bool(result.get("reboot_required", False)),
+                    )
+                )
+            return reply
+
+        @staticmethod
+        def _operation_failure(code, message, operation_id=""):
+            return OperationReply(
+                operation_id=operation_id,
+                status=OPERATION_FAILED,
+                code=code,
+                message=message,
+                operation_error=OperationError(code=code, message=message),
+            )
+
+        def _submit(self, function, operation_kind):
             operation_id = str(uuid.uuid4())
-            self.operation_store.create(operation_id, {
+            operation = {
+                "operation_id": operation_id,
+                "operation": operation_kind,
                 "state": "running",
                 "ok": False,
                 "code": "operation-running",
                 "message": "System firmware operation is running",
-                "stage": "starting",
-                "details_json": "",
-            })
+                "last_message": "System firmware operation started",
+            }
+            if not self.operation_store.admit(operation_id, operation):
+                return self._operation_failure(
+                    "firmware-busy",
+                    "System firmware operation is already running",
+                )
+            self.log_hub.publish(
+                operation_id, "System firmware operation started"
+            )
 
-            def progress(stage):
+            def progress(stage, message=None):
                 try:
-                    self.operation_store.update(operation_id, stage=stage)
+                    message = message or self.LOG_MESSAGES.get(
+                        stage, stage.replace("-", " ").capitalize()
+                    )
+                    self.operation_store.update(
+                        operation_id,
+                        last_message=message,
+                    )
+                    self.log_hub.publish(
+                        operation_id, message,
+                    )
                 except (OSError, KeyError):
                     pass
 
             def run():
+                operation_record = self.operation_store.read(operation_id)
                 try:
                     details = function(progress)
+                    result = json.loads(self._json(details))
                     outcome = {
+                        "operation": operation_record.get("operation", "update"),
                         "state": "succeeded",
-                        "ok": True,
                         "code": "ok",
                         "message": "System firmware operation completed",
-                        "stage": "completed",
-                        "details_json": self._json(details),
+                        "last_message": "System firmware operation completed",
+                        "result": result,
                     }
                 except Exception as error:
                     outcome = self._failure(error)
+                    outcome["operation"] = operation_record.get("operation", "update")
                     outcome["state"] = "failed"
-                self.operation_store.update(operation_id, **outcome)
+                    outcome["last_message"] = outcome["message"]
+                    outcome["error"] = {
+                        "code": outcome["code"],
+                        "message": outcome["message"],
+                    }
+                try:
+                    self.operation_store.update(operation_id, **outcome)
+                    self.log_hub.publish(operation_id, outcome["message"])
+                except Exception:
+                    finalize_error = traceback.format_exc()
+                    fallback = {
+                        "operation": operation_record.get("operation", "update"),
+                        "state": "failed",
+                        "code": "operation-finalize-failed",
+                        "message": "System firmware operation failed to finalize",
+                        "last_message": "System firmware operation failed to finalize",
+                        "error": {
+                            "code": "operation-finalize-failed",
+                            "message": "System firmware operation failed to finalize",
+                            "details": finalize_error,
+                        },
+                    }
+                    try:
+                        self.operation_store.update(operation_id, **fallback)
+                        self.log_hub.publish(operation_id, fallback["message"])
+                    except Exception:
+                        print(finalize_error, file=sys.stderr, flush=True)
+                finally:
+                    self.log_hub.close(operation_id)
 
             self.operations_executor.submit(run)
-            return OperationReply(
-                ok=True,
-                code="operation-started",
-                message="System firmware operation started",
-                operation_id=operation_id,
-                state="running",
-                stage="starting",
-            )
+            return self._typed_reply({
+                **self.operation_store.read(operation_id),
+                "code": "operation-started",
+                "message": "System firmware operation started",
+            })
 
         def _operation(self, operation_id):
             try:
                 operation = self.operation_store.read(operation_id)
             except KeyError:
-                return OperationReply(
-                    ok=False,
-                    code="operation-not-found",
-                    message="System firmware operation was not found",
-                    state="unknown",
+                return self._operation_failure(
+                    "operation-not-found",
+                    "System firmware operation was not found",
+                    operation_id,
                 )
-            return OperationReply(
-                ok=operation["ok"],
-                code=operation["code"],
-                message=operation["message"],
-                details_json=operation["details_json"],
-                operation_id=operation_id,
-                state=operation["state"],
-                stage=operation.get("stage", ""),
-            )
+            return self._typed_reply(operation, operation_id)
 
         def _perform_update(self, request, progress=None):
             firmware_path = self._firmware_path(request.firmware_path)
@@ -1501,9 +1640,9 @@ def serve():
                 allow_custom=request.legacy_cli,
             )
             if request.force:
-                return force_update_system_firmware(firmware_path,
+                return force_update_firmware(firmware_path,
                                                     progress=progress)
-            return update_system_firmware(
+            return update_firmware(
                 firmware_path,
                 backup_dir,
                 preserve_list=list(request.preserve_list) or None,
@@ -1521,7 +1660,7 @@ def serve():
                 request.backup_dir,
                 allow_custom=request.legacy_cli,
             )
-            return rollback_system_firmware(backup_dir, progress=progress)
+            return rollback_firmware(backup_dir, progress=progress)
 
         def GetCapabilities(self, request: Empty, context):
             return CapabilitiesReply(
@@ -1536,7 +1675,7 @@ def serve():
 
         def Inspect(self, request, context):
             try:
-                details = inspect_system_firmware(
+                details = inspect_firmware(
                     self._firmware_path(request.firmware_path),
                     pg2_only=request.pg2_only,
                 )
@@ -1550,23 +1689,47 @@ def serve():
                 return InspectionReply(**self._failure(error))
 
         def Update(self, request, context):
-            try:
-                details = self._perform_update(request)
-                return OperationReply(
-                    ok=True,
-                    code="ok",
-                    message="System firmware update completed",
-                    details_json=self._json(details),
-                )
-            except Exception as error:
-                return OperationReply(**self._failure(error))
-
-        def StartUpdate(self, request, context):
             return self._submit(
-                lambda progress: self._perform_update(request, progress))
+                lambda progress: self._perform_update(request, progress),
+                "update")
 
         def GetOperation(self, request: OperationRequest, context):
             return self._operation(request.operation_id)
+
+        def StreamOperationLogs(self, request, context):
+            try:
+                operation = self.operation_store.read(request.operation_id)
+            except KeyError:
+                context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    "System firmware operation was not found",
+                )
+            if operation.get("state") != "running":
+                return
+            subscriber, entries = self.log_hub.subscribe(
+                request.operation_id, request.after_sequence
+            )
+            try:
+                for entry in entries:
+                    yield OperationLog(
+                        sequence=entry["sequence"],
+                        timestamp=entry["timestamp"],
+                        message=entry["message"],
+                    )
+                while context.is_active():
+                    try:
+                        entry = subscriber.get(timeout=1)
+                    except queue.Empty:
+                        continue
+                    if entry is self.log_hub._CLOSED:
+                        return
+                    yield OperationLog(
+                        sequence=entry["sequence"],
+                        timestamp=entry["timestamp"],
+                        message=entry["message"],
+                    )
+            finally:
+                self.log_hub.unsubscribe(request.operation_id, subscriber)
 
         def InspectRollback(self, request, context):
             try:
@@ -1585,20 +1748,9 @@ def serve():
                 return RollbackReply(**self._failure(error))
 
         def Rollback(self, request, context):
-            try:
-                details = self._perform_rollback(request)
-                return OperationReply(
-                    ok=True,
-                    code="ok",
-                    message="System firmware rollback completed",
-                    details_json=self._json(details),
-                )
-            except Exception as error:
-                return OperationReply(**self._failure(error))
-
-        def StartRollback(self, request, context):
             return self._submit(
-                lambda progress: self._perform_rollback(request, progress))
+                lambda progress: self._perform_rollback(request, progress),
+                "rollback")
 
     socket_file = Path(socket_path)
     socket_file.parent.mkdir(parents=True, exist_ok=True)
@@ -1608,16 +1760,16 @@ def serve():
         pass
 
     server = grpc.server(
-        concurrent.futures.ThreadPoolExecutor(max_workers=1),
+        concurrent.futures.ThreadPoolExecutor(max_workers=4),
         options=(
             ("grpc.max_receive_message_length", max_firmware_size),
             ("grpc.max_send_message_length", max_firmware_size),
         ),
     )
     service = Service()
-    add_SystemFirmwareServicer_to_server(service, server)
+    add_FirmwareServicer_to_server(service, server)
     if server.add_insecure_port(f"unix://{socket_path}") == 0:
-        raise RuntimeError("Unable to bind the System Firmware gRPC socket")
+        raise RuntimeError("Unable to bind the Firmware gRPC socket")
     old_umask = os.umask(0o177)
     try:
         server.start()
@@ -1670,7 +1822,7 @@ def inspect_system_rollback(backup_dir=None):
     }
 
 
-def rollback_system_firmware(backup_dir=None, progress=None):
+def rollback_firmware(backup_dir=None, progress=None):
     """Perform one non-interactive rollback using the shared local backup."""
     progress and progress("preparing-rollback")
     details = inspect_system_rollback(backup_dir)

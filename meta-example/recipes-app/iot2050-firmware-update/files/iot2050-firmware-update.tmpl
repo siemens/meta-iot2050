@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-"""CLI client for the System Firmware gRPC service."""
+"""CLI client for the Firmware gRPC service."""
 
 import argparse
 import json
@@ -17,20 +17,17 @@ import time
 
 import grpc
 
-from gRPC.iot2050_system_firmware_pb2 import (
+from gRPC.iot2050_firmware_pb2 import (
     OperationRequest,
     RollbackRequest,
+    StreamOperationLogsRequest,
     UpdateRequest,
 )
-from gRPC.iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
-from iot2050_firmware_global import SYSTEM_FIRMWARE_SOCKET_TARGET
+from gRPC.iot2050_firmware_pb2_grpc import FirmwareStub
+from iot2050_firmware_global import FIRMWARE_SOCKET_TARGET
 
 
-SOCKET_TARGET = SYSTEM_FIRMWARE_SOCKET_TARGET
-ACTIVE_PROGRESS_STAGES = ("backing-up", "updating-uboot", "updating-env")
-FLASHING_STAGES = ("flashing-system",) + ACTIVE_PROGRESS_STAGES[1:]
-PROGRESS_DOT_INTERVAL = 0.4
-LINE_STAGES = ACTIVE_PROGRESS_STAGES + ("preparing-rollback",)
+SOCKET_TARGET = FIRMWARE_SOCKET_TARGET
 # Semantic service error codes mapped to the documented CLI exit codes.
 EXIT_CODES = {
     "backup-failed": 3,
@@ -119,7 +116,7 @@ def confirm(message, quiet, auto_answer="y"):
 
 
 def result_code(response, rollback=False):
-    if response.ok:
+    if response.status == 2:
         return 1 if rollback else 0
     return EXIT_CODES.get(response.code, 8)
 
@@ -195,60 +192,38 @@ def print_preserved_environment(firmware_path, preserve_list):
     print()
 
 
-def print_stage(stage, stages, backup):
-    previous_stage = stages[-1] if stages else None
-    if previous_stage in LINE_STAGES and stage != previous_stage:
-        print()
-    if stage == "preparing-backup" and backup:
-        print("\nFirmware backup started")
-    elif stage == "backing-up":
-        if previous_stage != "preparing-backup":
-            print("\nFirmware backup started")
-        print("Backing up     ", end="", flush=True)
-    elif stage in FLASHING_STAGES:
-        if not any(item in FLASHING_STAGES for item in stages):
-            if backup:
-                print("Firmware backup ended\n")
-            print(
-                "===================================================\n"
-                "IOT2050 firmware update started - DO NOT INTERRUPT!\n"
-                "==================================================="
-            )
-        if stage == "updating-uboot":
-            print("Updating uboot ", end="", flush=True)
-        elif stage == "updating-env":
-            print("Updating env   ", end="", flush=True)
-    elif stage == "preparing-rollback":
-        print("Preparing rollback", end="", flush=True)
-    elif stage == "retrying-flash":
-        print("Retrying firmware update")
-    stages.append(stage)
-
-
 def wait_for_operation(stub, operation_id, quiet, backup, timeout=3600):
     deadline = time.monotonic() + timeout
-    next_progress_at = 0.0
-    stages = []
-    while True:
-        response = stub.GetOperation(
-            OperationRequest(operation_id=operation_id), timeout=10
-        )
-        now = time.monotonic()
-        if response.stage != (stages[-1] if stages else None):
-            print_stage(response.stage, stages, backup)
-            if response.stage in ACTIVE_PROGRESS_STAGES:
-                next_progress_at = now + PROGRESS_DOT_INTERVAL
-        if response.state != "running":
-            if stages and stages[-1] in LINE_STAGES:
-                print()
-            return response
-        if (stages and stages[-1] in ACTIVE_PROGRESS_STAGES and
-            now >= next_progress_at):
-            print(".", end="", flush=True)
-            next_progress_at = now + PROGRESS_DOT_INTERVAL
-        if now >= deadline:
-            raise TimeoutError("System firmware operation timed out")
-        time.sleep(0.2)
+    last_sequence = 0
+    while time.monotonic() < deadline:
+        try:
+            for entry in stub.StreamOperationLogs(
+                    StreamOperationLogsRequest(
+                        operation_id=operation_id,
+                        after_sequence=last_sequence,
+                    ),
+                    timeout=min(10, max(1, deadline - time.monotonic()))):
+                last_sequence = max(last_sequence, entry.sequence)
+                if entry.message == "Some progress messages were skipped":
+                    print(entry.message)
+                elif entry.message == "Backing up":
+                    print("Backing up ......", flush=True)
+                elif entry.message == "Updating uboot":
+                    print("Updating uboot ......", flush=True)
+                elif entry.message == "Updating env":
+                    print("Updating env ......", flush=True)
+                else:
+                    print(entry.message)
+            response = stub.GetOperation(
+                OperationRequest(operation_id=operation_id), timeout=10
+            )
+            if response.status != 1:
+                return response
+        except grpc.RpcError:
+            if time.monotonic() >= deadline:
+                raise
+            continue
+    raise TimeoutError("System firmware operation timed out")
 
 
 def main(argv=None):
@@ -284,21 +259,21 @@ def main(argv=None):
         print_preserved_environment(absolute_path(args.firmware), preserve_list)
 
     channel = grpc.insecure_channel(SOCKET_TARGET)
-    stub = SystemFirmwareStub(channel)
+    stub = FirmwareStub(channel)
     try:
         if args.rollback:
-            response = stub.StartRollback(
+            response = stub.Rollback(
                 RollbackRequest(
                     backup_dir=absolute_path(
                         args.backup_dir[0] if args.backup_dir else ""),
                     legacy_cli=True,
                 ), timeout=10)
-            if response.ok:
+            if response.operation_id:
                 response = wait_for_operation(
                     stub, response.operation_id, args.quiet, False
                 )
         else:
-            response = stub.StartUpdate(
+            response = stub.Update(
                 UpdateRequest(
                     firmware_path=absolute_path(args.firmware),
                     backup_dir=absolute_path(
@@ -310,7 +285,7 @@ def main(argv=None):
                     verify_signature=args.verify,
                     legacy_cli=True,
                 ), timeout=10)
-            if response.ok:
+            if response.operation_id:
                 response = wait_for_operation(
                     stub,
                     response.operation_id,
@@ -318,7 +293,7 @@ def main(argv=None):
                     not args.no_backup and not args.force,
                 )
     except grpc.RpcError as error:
-        print(f"System Firmware service unavailable: {error.details()}",
+        print(f"Firmware service unavailable: {error.details()}",
               file=sys.stderr)
         return 8
     except TimeoutError as error:
@@ -327,7 +302,7 @@ def main(argv=None):
     finally:
         channel.close()
 
-    if not response.ok:
+    if response.status != 2:
         print(response.message, file=sys.stderr)
         if response.code == "flashing-failed":
             print(
