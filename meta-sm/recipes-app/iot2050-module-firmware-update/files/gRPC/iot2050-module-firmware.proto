@@ -5,9 +5,10 @@ package iot2050.modulefirmware;
 service ModuleFirmware {
   rpc GetCapabilities (Empty) returns (CapabilitiesReply) {}
   rpc Inspect (InspectRequest) returns (InspectionReply) {}
-  rpc Update (UpdateRequest) returns (UpdateReply) {}
-  rpc StartUpdate (UpdateRequest) returns (OperationReply) {}
+  rpc Update (UpdateRequest) returns (OperationReply) {}
   rpc GetOperation (OperationRequest) returns (OperationReply) {}
+  rpc StreamOperationLogs (StreamOperationLogsRequest)
+      returns (stream OperationLog) {}
 }
 
 message Empty {}
@@ -61,16 +62,53 @@ message UpdateReply {
   bool reboot_required = 8;
 }
 
+enum OperationStatus {
+  OPERATION_STATUS_UNSPECIFIED = 0;
+  OPERATION_RUNNING = 1;
+  OPERATION_SUCCEEDED = 2;
+  OPERATION_FAILED = 3;
+  OPERATION_INTERRUPTED = 4;
+}
+
+message OperationError {
+  string code = 1;
+  string message = 2;
+}
+
+message ModuleUpdateResult {
+  int32 slot = 1;
+  ChipResult chip_a = 2;
+  ChipResult chip_b = 3;
+  bool partial_failure = 4;
+  bool reboot_required = 5;
+}
+
 message OperationRequest {
   string operation_id = 1;
 }
 
 message OperationReply {
-  bool ok = 1;
-  string code = 2;
+  string operation_id = 1;
+  OperationStatus status = 2;
+  string code = 3;
+  string message = 4;
+  string created_at = 5;
+  string updated_at = 6;
+  string finished_at = 7;
+  string last_message = 8;
+  oneof outcome {
+    ModuleUpdateResult update_result = 9;
+    OperationError operation_error = 10;
+  }
+}
+
+message StreamOperationLogsRequest {
+  string operation_id = 1;
+  uint64 after_sequence = 2;
+}
+
+message OperationLog {
+  uint64 sequence = 1;
+  string timestamp = 2;
   string message = 3;
-  string details_json = 4;
-  string operation_id = 5;
-  string state = 6;
-  string stage = 7;
 }
