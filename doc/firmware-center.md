@@ -20,7 +20,7 @@ The provider transport matrix is:
 
 | Domain | Provider transport | Hardware backend |
 | --- | --- | --- |
-| System Firmware | Root-only System Firmware gRPC | OSPI, U-Boot, MTD |
+| Firmware | Root-only Firmware gRPC | OSPI, U-Boot, MTD |
 | EIO Controller | Existing EIOManager gRPC | flashrom and EIO controller |
 | EIO Module | Root-only Module Firmware gRPC | Existing EIOFS module backend |
 
@@ -31,18 +31,21 @@ itself is started by `iot2050-module-firmware.service` from the
 
 ## Operation contracts
 
-System and Module Firmware services expose `StartUpdate` and `GetOperation`.
-System Firmware also exposes `StartRollback`. Long-running writes return an
-operation ID so callers do not hold a gRPC request open for the duration of a
-flash. Operation records are stored by the service and running records are
-marked interrupted after a service restart. The fwmgr task remains the
-user-facing durable recovery record.
+Firmware services execute long-running writes asynchronously. `Update` and,
+for the firmware service, `Rollback` return an operation ID without
+holding the gRPC request open for the duration of a flash. `GetOperation`
+returns the durable lifecycle and final result. `StreamOperationLogs` provides
+live, human-readable messages while the operation is running; log messages are
+not persisted or replayed after a service restart.
 
-System Firmware uses the service process `HOME` as its backup identity. The
-managed path does not accept a caller-selected backup directory. The legacy
-CLI may pass `--backup-dir` for compatibility, subject to root-owned private
-path validation. Managed requests always verify the package signature; the
-legacy `--verify` option remains optional for compatibility.
+The service persists the operation status and final result. A running
+operation is marked interrupted after a service restart and is never resumed
+automatically. The fwmgr task remains the user-facing durable recovery record.
+
+Firmware uses the service process `HOME` as its backup identity. Managed
+requests use this service-owned backup and always verify the package
+signature. Explicit backup-directory and signature options are restricted to
+the command-line firmware client and require the configured security checks.
 
 EIO Controller keeps the legacy `CheckFWU` status and JSON message for old
 clients. New clients may consume the typed `inspection` field. Module results
@@ -51,7 +54,7 @@ include slot, Chip A, Chip B, and partial-completion information.
 ## Resource ownership
 
 All firmware writes are serialized by the single-threaded gRPC services
-(`max_workers=1`) that own the hardware backends. The System Firmware and
+(`max_workers=1`) that own the hardware backends. The Firmware and
 EIO services each accept every client (Cockpit page, fwmgr provider, CLI)
 through one endpoint, so concurrent requests queue inside the service
 instead of racing on the flash. No separate cross-process file locks are
