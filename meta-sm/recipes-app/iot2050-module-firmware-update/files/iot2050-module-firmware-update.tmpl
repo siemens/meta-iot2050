@@ -13,11 +13,17 @@ import argparse
 import os
 import sys
 import textwrap
+import time
 
 import grpc
 
 from iot2050_eio_common import MODULE_FIRMWARE_SOCKET
-from gRPC.iot2050_module_firmware_pb2 import UpdateRequest
+from gRPC.iot2050_module_firmware_pb2 import (
+    OperationRequest,
+    StreamOperationLogsRequest,
+    UpdateRequest,
+    OPERATION_SUCCEEDED,
+)
 from gRPC.iot2050_module_firmware_pb2_grpc import ModuleFirmwareStub
 
 SOCKET_TARGET = "unix://" + MODULE_FIRMWARE_SOCKET
@@ -87,8 +93,35 @@ def main(argv=None):
                 firmware_a=firmware_a,
                 firmware_b=firmware_b,
             ),
-            timeout=3600,
+            timeout=10,
         )
+        if not response.operation_id:
+            print(f"Error: {response.message}", file=sys.stderr)
+            return 1
+        operation_id = response.operation_id
+        deadline = time.monotonic() + 3600
+        last_sequence = 0
+        while time.monotonic() < deadline:
+            try:
+                for entry in stub.StreamOperationLogs(
+                    StreamOperationLogsRequest(
+                        operation_id=operation_id,
+                        after_sequence=last_sequence,
+                    ),
+                    timeout=10,
+                ):
+                    last_sequence = max(last_sequence, entry.sequence)
+                    print(entry.message)
+            except grpc.RpcError:
+                continue
+            response = stub.GetOperation(
+                OperationRequest(operation_id=operation_id), timeout=10
+            )
+            if response.status != 1:
+                break
+        else:
+            print("Error: Module firmware update timed out", file=sys.stderr)
+            return 1
     except grpc.RpcError as error:
         print(f"Module Firmware service unavailable: {error.details()}",
               file=sys.stderr)
@@ -96,9 +129,9 @@ def main(argv=None):
     finally:
         channel.close()
 
-    if not response.ok:
+    if response.status != OPERATION_SUCCEEDED:
         print(f"Error: {response.message}", file=sys.stderr)
-        if response.partial_failure:
+        if response.HasField("update_result") and response.update_result.partial_failure:
             print("Partial update: some chips were written successfully.",
                   file=sys.stderr)
         return 1

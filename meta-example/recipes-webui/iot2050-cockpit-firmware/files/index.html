@@ -31,22 +31,22 @@
         <div class="card-heading">
           <div>
             <span class="tag">SYSTEM</span>
-            <h2>System Firmware</h2>
+            <h2>Firmware</h2>
           </div>
           <span class="status neutral">Inspecting</span>
         </div>
         <p>OSPI boot-chain firmware for the IOT2050 device.</p>
         <dl id="system-details"></dl>
-        <label for="system-firmware">Custom firmware package (optional)</label>
+        <label for="firmware">Custom firmware package (optional)</label>
         <div class="file-picker">
-          <input id="system-firmware" class="file-input" type="file" accept=".tar,.xz,.txz">
-          <label id="choose-system-firmware" class="file-picker-button secondary" for="system-firmware">Choose file</label>
+          <input id="firmware" class="file-input" type="file" accept=".tar,.xz,.txz">
+          <label id="choose-firmware" class="file-picker-button secondary" for="firmware">Choose file</label>
           <span id="system-file-name" class="file-name placeholder" title="Default package: checking image firmware…">Default package: checking image firmware…</span>
         </div>
         <p id="system-file-hint" class="file-hint">Leave empty to use the default package.</p>
         <div class="card-actions">
-          <button id="update-system" aria-label="Update System Firmware">Update</button>
-          <button id="rollback-system" class="secondary hidden" aria-label="Rollback System Firmware">Rollback</button>
+          <button id="update-system" aria-label="Update Firmware">Update</button>
+          <button id="rollback-system" class="secondary hidden" aria-label="Rollback Firmware">Rollback</button>
         </div>
       </article>
 

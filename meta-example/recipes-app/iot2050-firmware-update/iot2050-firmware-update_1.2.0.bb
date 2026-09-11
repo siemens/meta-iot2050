@@ -19,9 +19,10 @@ SRC_URI = " \
     file://iot2050-fwu-service.py \
     file://iot2050-firmware-update.tmpl \
     file://iot2050-fwu.service \
-    file://gRPC/iot2050-system-firmware.proto \
-    file://gRPC/iot2050_system_firmware_pb2.py \
-    file://gRPC/iot2050_system_firmware_pb2_grpc.py \
+    file://gRPC/iot2050-firmware.proto \
+    file://gRPC/iot2050_firmware_pb2.py \
+    file://gRPC/iot2050_firmware_pb2_grpc.py \
+    file://gRPC/iot2050_firmware_pb2.pyi \
     file://custMpk.crt"
 SRC_URI:append:trust-center = " file://tc-pub.pem"
 SRC_URI:remove:trust-center = " file://custMpk.crt"
@@ -55,11 +56,13 @@ do_install() {
         ${D}/usr/bin/iot2050-fwu-service
 
     install -v -d ${D}/usr/share/iot2050/fwu/gRPC/
-    install -v -m 755 ${WORKDIR}/gRPC/iot2050_system_firmware_pb2.py \
+    install -v -m 755 ${WORKDIR}/gRPC/iot2050_firmware_pb2.py \
         ${D}/usr/share/iot2050/fwu/gRPC/
-    install -v -m 755 ${WORKDIR}/gRPC/iot2050_system_firmware_pb2_grpc.py \
+    install -v -m 755 ${WORKDIR}/gRPC/iot2050_firmware_pb2_grpc.py \
         ${D}/usr/share/iot2050/fwu/gRPC/
-    install -v -m 755 ${WORKDIR}/gRPC/iot2050-system-firmware.proto \
+    install -v -m 644 ${WORKDIR}/gRPC/iot2050_firmware_pb2.pyi \
+        ${D}/usr/share/iot2050/fwu/gRPC/
+    install -v -m 755 ${WORKDIR}/gRPC/iot2050-firmware.proto \
         ${D}/usr/share/iot2050/fwu/gRPC/
 
     install -v -d ${D}/usr/lib/systemd/system

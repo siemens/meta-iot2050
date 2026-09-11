@@ -11,6 +11,7 @@ import concurrent.futures
 import io
 import json
 import os
+import queue
 import uuid
 
 import grpc
@@ -112,8 +113,15 @@ def serve():
     from gRPC.iot2050_module_firmware_pb2 import (
         CapabilitiesReply,
         InspectionReply,
+        OperationLog,
         OperationReply,
         OperationRequest,
+        OPERATION_FAILED,
+        OPERATION_INTERRUPTED,
+        OPERATION_RUNNING,
+        OPERATION_SUCCEEDED,
+        ModuleUpdateResult,
+        OperationError,
         SlotInspection,
         UpdateReply,
     )
@@ -121,13 +129,17 @@ def serve():
         ModuleFirmwareServicer,
         add_ModuleFirmwareServicer_to_server,
     )
-    from iot2050_firmware_operation_store import FirmwareOperationStore
+    from iot2050_firmware_operation_store import (
+        FirmwareOperationLogHub,
+        FirmwareOperationStore,
+    )
 
     class Service(ModuleFirmwareServicer):
         def __init__(self):
             self.operation_store = FirmwareOperationStore(
                 "/var/lib/iot2050/module-firmware/operations"
             )
+            self.log_hub = FirmwareOperationLogHub()
             self.operation_store.recover_running()
             self.operations_executor = concurrent.futures.ThreadPoolExecutor(
                 max_workers=1
@@ -233,29 +245,43 @@ def serve():
                 )
 
         def Update(self, request, context):
-            return self._update(request)
-
-        def StartUpdate(self, request, context):
-            if self.operation_store.has_running():
-                return OperationReply(
-                    ok=False,
-                    code="firmware-busy",
-                    message="Module firmware operation is already running",
-                    state="unknown",
-                )
             operation_id = str(uuid.uuid4())
-            self.operation_store.create(operation_id, {
+            operation = {
+                "operation_id": operation_id,
+                "operation": "update",
                 "state": "running",
                 "ok": False,
                 "code": "operation-running",
                 "message": "Module firmware operation is running",
-                "stage": "starting",
-                "details_json": "",
-            })
+                "last_message": "Module firmware operation started",
+            }
+            if not self.operation_store.admit(operation_id, operation):
+                return OperationReply(
+                    status=OPERATION_FAILED,
+                    code="firmware-busy",
+                    message="Module firmware operation is already running",
+                    operation_error=OperationError(
+                        code="firmware-busy",
+                        message="Module firmware operation is already running",
+                    ),
+                )
+            self.log_hub.publish(
+                operation_id, "Module firmware operation started"
+            )
+            if request.firmware_a:
+                self.log_hub.publish(operation_id, "Updating firmware A ...")
+            if request.firmware_b:
+                self.log_hub.publish(operation_id, "Updating firmware B ...")
 
             def progress(stage):
                 try:
-                    self.operation_store.update(operation_id, stage=stage)
+                    message = stage.replace("-", " ").capitalize()
+                    self.operation_store.update(
+                        operation_id, last_message=message
+                    )
+                    self.log_hub.publish(
+                        operation_id, message
+                    )
                 except (OSError, KeyError):
                     pass
 
@@ -264,33 +290,38 @@ def serve():
                     response = self._update(request, progress)
                     outcome = {
                         "state": "succeeded" if response.ok else "failed",
-                        "ok": response.ok,
                         "code": response.code,
                         "message": response.message,
-                        "stage": "completed",
-                        "details_json": json.dumps(
-                            self._operation_details(response),
-                            separators=(",", ":"),
-                        ),
+                        "last_message": response.message,
+                        "result": self._operation_details(response),
+                        "error": None if response.ok else {
+                            "code": response.code,
+                            "message": response.message,
+                        },
                     }
                 except Exception:
                     outcome = {
                         "state": "failed",
-                        "ok": False,
                         "code": "module-update-failed",
                         "message": "Module firmware operation failed",
-                        "details_json": "",
+                        "last_message": "Module firmware operation failed",
+                        "error": {
+                            "code": "module-update-failed",
+                            "message": "Module firmware operation failed",
+                        },
                     }
-                self.operation_store.update(operation_id, **outcome)
+                try:
+                    self.operation_store.update(operation_id, **outcome)
+                    self.log_hub.publish(operation_id, outcome["message"])
+                finally:
+                    self.log_hub.close(operation_id)
 
             self.operations_executor.submit(run)
             return OperationReply(
-                ok=True,
+                operation_id=operation_id,
+                status=OPERATION_RUNNING,
                 code="operation-started",
                 message="Module firmware operation started",
-                operation_id=operation_id,
-                state="running",
-                stage="starting",
             )
 
         def GetOperation(self, request: OperationRequest, context):
@@ -298,23 +329,76 @@ def serve():
                 operation = self.operation_store.read(request.operation_id)
             except KeyError:
                 return OperationReply(
-                    ok=False,
+                    operation_id=request.operation_id,
+                    status=OPERATION_FAILED,
                     code="operation-not-found",
                     message="Module firmware operation was not found",
-                    state="unknown",
+                    operation_error=OperationError(
+                        code="operation-not-found",
+                        message="Module firmware operation was not found",
+                    ),
                 )
             return OperationReply(
-                ok=operation["ok"],
+                operation_id=request.operation_id,
+                status={
+                    "running": OPERATION_RUNNING,
+                    "succeeded": OPERATION_SUCCEEDED,
+                    "failed": OPERATION_FAILED,
+                    "interrupted": OPERATION_INTERRUPTED,
+                }.get(operation["state"], 0),
                 code=operation["code"],
                 message=operation["message"],
-                details_json=operation["details_json"],
-                operation_id=request.operation_id,
-                state=operation["state"],
-                stage=operation.get("stage", ""),
+                created_at=operation.get("created_at", ""),
+                updated_at=operation.get("updated_at", ""),
+                finished_at=operation.get("finished_at", ""),
+                last_message=operation.get("last_message", ""),
+                update_result=(
+                    ModuleUpdateResult(**operation["result"])
+                    if operation.get("result") else None
+                ),
+                operation_error=(
+                    OperationError(**operation["error"])
+                    if operation.get("error") else None
+                ),
             )
 
+        def StreamOperationLogs(self, request, context):
+            try:
+                operation = self.operation_store.read(request.operation_id)
+            except KeyError:
+                context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    "Module firmware operation was not found",
+                )
+            if operation.get("state") != "running":
+                return
+            subscriber, entries = self.log_hub.subscribe(
+                request.operation_id, request.after_sequence
+            )
+            try:
+                for entry in entries:
+                    yield OperationLog(
+                        sequence=entry["sequence"],
+                        timestamp=entry["timestamp"],
+                        message=entry["message"],
+                    )
+                while context.is_active():
+                    try:
+                        entry = subscriber.get(timeout=1)
+                    except queue.Empty:
+                        continue
+                    if entry is self.log_hub._CLOSED:
+                        return
+                    yield OperationLog(
+                        sequence=entry["sequence"],
+                        timestamp=entry["timestamp"],
+                        message=entry["message"],
+                    )
+            finally:
+                self.log_hub.unsubscribe(request.operation_id, subscriber)
+
     server = grpc.server(
-        concurrent.futures.ThreadPoolExecutor(max_workers=1),
+        concurrent.futures.ThreadPoolExecutor(max_workers=4),
         options=[
             ("grpc.max_receive_message_length", MAX_MODULE_FIRMWARE_SIZE * 2),
             ("grpc.max_send_message_length", 1024 * 1024),

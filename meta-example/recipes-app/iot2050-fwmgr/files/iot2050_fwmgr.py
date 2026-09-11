@@ -25,8 +25,8 @@ from iot2050_firmware_global import (
     DEFAULT_FIRMWARE_DIR,
     DEFAULT_FIRMWARE_PATTERN,
     DEFAULT_MAX_FIRMWARE_SIZE,
-    SYSTEM_FIRMWARE_RUNTIME_DIR,
-    SYSTEM_FIRMWARE_SOCKET_TARGET as SYSTEM_FIRMWARE_SOCKET,
+    FIRMWARE_RUNTIME_DIR,
+    FIRMWARE_SOCKET_TARGET as FIRMWARE_SOCKET,
 )
 
 
@@ -48,8 +48,21 @@ class FirmwareError(Exception):
         self.details = details
 
 
-class SystemFirmwareBackend:
+class FirmwareBackend:
     name = "system"
+    STAGE_NAMES = {
+        1: "starting",
+        2: "checking-compatibility-and-signature",
+        3: "preparing-backup",
+        4: "backing-up",
+        5: "flashing-system",
+        6: "verifying-signature",
+        7: "signature-verified",
+        8: "updating-uboot",
+        9: "updating-env",
+        10: "retrying-flash",
+        11: "preparing-rollback",
+    }
 
     def __init__(self, backup_dir=None,
                  firmware_dir=DEFAULT_FIRMWARE_DIR):
@@ -67,7 +80,7 @@ class SystemFirmwareBackend:
         default_package = self._default_package()
         return {
             "backend": self.name,
-            "label": "System Firmware",
+            "label": "Firmware",
             "operations": ["inspect", "update", "rollback"],
             "source": ["image-default", "upload"],
             "requires_signature": True,
@@ -84,56 +97,99 @@ class SystemFirmwareBackend:
 
     @staticmethod
     def _system_stub():
-        if SYSTEM_FIRMWARE_RUNTIME_DIR not in sys.path:
-            sys.path.insert(0, SYSTEM_FIRMWARE_RUNTIME_DIR)
+        if FIRMWARE_RUNTIME_DIR not in sys.path:
+            sys.path.insert(0, FIRMWARE_RUNTIME_DIR)
         from gRPC import (
-            iot2050_system_firmware_pb2 as system_pb2,
-            iot2050_system_firmware_pb2_grpc as system_pb2_grpc,
+            iot2050_firmware_pb2 as system_pb2,
+            iot2050_firmware_pb2_grpc as system_pb2_grpc,
         )
 
-        channel = grpc.insecure_channel(SYSTEM_FIRMWARE_SOCKET)
-        return channel, system_pb2_grpc.SystemFirmwareStub(channel), system_pb2
+        channel = grpc.insecure_channel(FIRMWARE_SOCKET)
+        return channel, system_pb2_grpc.FirmwareStub(channel), system_pb2
 
     @staticmethod
     def _system_response(response):
+        if hasattr(response, "status"):
+            if response.status != 2:
+                error = response.operation_error
+                raise FirmwareError(
+                    error.code or response.code,
+                    error.message or response.message,
+                )
+            return {}
         if not response.ok:
             raise FirmwareError(response.code, response.message)
         try:
             return json.loads(response.details_json) if response.details_json else {}
         except ValueError as error:
             raise FirmwareError(
-                "system-firmware-invalid-response",
-                "System Firmware service returned invalid response data",
+                "firmware-invalid-response",
+                "Firmware service returned invalid response data",
             ) from error
 
     @staticmethod
     def _wait_system_operation(stub, system_pb2, operation_id,
                                progress=None, timeout=3600):
         deadline = time.monotonic() + timeout
+        last_sequence = 0
         while True:
+            try:
+                for entry in stub.StreamOperationLogs(
+                    system_pb2.StreamOperationLogsRequest(
+                        operation_id=operation_id,
+                        after_sequence=last_sequence),
+                    timeout=10,
+                ):
+                    if entry.sequence <= last_sequence:
+                        continue
+                    last_sequence = entry.sequence
+                    if progress:
+                        progress("running", entry.message)
+            except grpc.RpcError:
+                if time.monotonic() >= deadline:
+                    raise
+                continue
             response = stub.GetOperation(
                 system_pb2.OperationRequest(operation_id=operation_id),
                 timeout=10,
             )
-            if response.state == "running":
+            if response.status == system_pb2.OPERATION_RUNNING:
                 if time.monotonic() >= deadline:
                     raise FirmwareError(
                         "system-update-timeout",
-                        "System firmware update timed out",
+                        "Firmware update timed out",
                     )
-                if progress and response.stage:
-                    progress(response.stage)
                 time.sleep(1)
                 continue
-            if not response.ok:
-                raise FirmwareError(response.code, response.message)
-            try:
-                return json.loads(response.details_json) if response.details_json else {}
-            except ValueError as error:
+            if response.status != system_pb2.OPERATION_SUCCEEDED:
+                error = response.operation_error
                 raise FirmwareError(
-                    "system-firmware-invalid-response",
-                    "System Firmware service returned invalid operation data",
-                ) from error
+                    error.code or response.code,
+                    error.message or response.message,
+                )
+            if response.HasField("update_result"):
+                return {
+                    "firmware_name": response.update_result.firmware_name,
+                    "target_version": response.update_result.target_version,
+                    "target_board": response.update_result.target_board,
+                    "firmware_sha256": response.update_result.firmware_sha256,
+                    "signature_verified": response.update_result.signature_verified,
+                    "backup_path": response.update_result.backup_path,
+                    "mode": response.update_result.mode,
+                    "reboot_required": response.update_result.reboot_required,
+                }
+            if response.HasField("rollback_result"):
+                return {
+                    "available": response.rollback_result.available,
+                    "size": response.rollback_result.size,
+                    "sha256": response.rollback_result.sha256,
+                    "created_at": response.rollback_result.created_at,
+                    "updater_version": response.rollback_result.updater_version,
+                    "source": response.rollback_result.source,
+                    "mode": response.rollback_result.mode,
+                    "reboot_required": response.rollback_result.reboot_required,
+                }
+            return {}
 
     def inspect(self, request):
         path, package = self._resolve(request)
@@ -150,8 +206,8 @@ class SystemFirmwareBackend:
             details = self._system_response(response)
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
         result = {**details, "package": package}
         if request.get("device_info"):
@@ -191,12 +247,12 @@ class SystemFirmwareBackend:
             "name": values.get("board_name"),
             "mlfb": values.get("mlfb"),
             "serial": values.get("board_serial"),
-            "os_image_version": SystemFirmwareBackend._version_label(
+            "os_image_version": FirmwareBackend._version_label(
                 os_release.get("BUILD_ID")
                 or os_release.get("IMAGE_VERSION")
                 or os_release.get("VERSION_ID")
             ),
-            "firmware_version": SystemFirmwareBackend._version_label(
+            "firmware_version": FirmwareBackend._version_label(
                 values.get("fw_version")
             ),
         }
@@ -214,7 +270,7 @@ class SystemFirmwareBackend:
             progress("checking-compatibility-and-signature")
             channel, stub, system_pb2 = self._system_stub()
             try:
-                response = stub.StartUpdate(
+                response = stub.Update(
                     system_pb2.UpdateRequest(
                         firmware_path=str(path),
                         backup_dir=str(self.backup_dir) if self.backup_dir else "",
@@ -224,7 +280,7 @@ class SystemFirmwareBackend:
                     ),
                     timeout=10,
                 )
-                if not response.ok:
+                if not response.operation_id:
                     raise FirmwareError(response.code, response.message)
                 result = self._wait_system_operation(
                     stub, system_pb2, response.operation_id, progress)
@@ -232,8 +288,8 @@ class SystemFirmwareBackend:
                 channel.close()
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
         return {**result, "package": package}
 
@@ -248,17 +304,17 @@ class SystemFirmwareBackend:
             return self._system_response(response)
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
 
     def rollback(self, request, progress, staging_store):
         try:
             channel, stub, system_pb2 = self._system_stub()
             try:
-                response = stub.StartRollback(
+                response = stub.Rollback(
                     system_pb2.RollbackRequest(), timeout=10)
-                if not response.ok:
+                if not response.operation_id:
                     raise FirmwareError(response.code, response.message)
                 result = self._wait_system_operation(
                     stub, system_pb2, response.operation_id, progress)
@@ -267,8 +323,8 @@ class SystemFirmwareBackend:
             return result
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
 
     def _resolve(self, request, staging_store=None):
@@ -277,7 +333,7 @@ class SystemFirmwareBackend:
             if package is None:
                 raise FirmwareError(
                     "default-firmware-unavailable",
-                    "The image-default system firmware package is unavailable",
+                    "The image-default firmware package is unavailable",
                 )
             return package, {
                 "source": "image-default",
@@ -287,7 +343,7 @@ class SystemFirmwareBackend:
         token = request.get("token")
         if store is None or not token:
             raise FirmwareError(
-                "staging-required", "A staged system firmware package is required")
+                "staging-required", "A staged firmware package is required")
         path, metadata = store.resolve(token)
         return path, {"source": "upload", **metadata}
 
@@ -298,11 +354,11 @@ class SystemFirmwareBackend:
         code = getattr(error, "code", None)
         if code is None:
             raise FirmwareError(
-                "system-update-failed", "System firmware operation failed"
+                "system-update-failed", "Firmware operation failed"
             ) from error
         messages = {
-            3: "System firmware backup failed",
-            5: "System firmware flashing or readback failed",
+            3: "Firmware backup failed",
+            5: "Firmware flashing or readback failed",
             7: "The firmware package is not compatible with this device",
             9: "The firmware signature is missing",
             10: "The firmware verification key is unavailable",
@@ -311,7 +367,7 @@ class SystemFirmwareBackend:
         if code in (7, 9, 10, 11) and getattr(error, "err", None):
             message = str(error.err)
         else:
-            message = messages.get(code, "System firmware operation was rejected")
+            message = messages.get(code, "Firmware operation was rejected")
         raise FirmwareError(
             "system-update-rejected",
             message,
@@ -324,7 +380,7 @@ class BackendRegistry:
         self.backend_dir = Path(backend_dir)
         self.backends = {}
         self.discovery_errors = []
-        for backend in builtins or [SystemFirmwareBackend()]:
+        for backend in builtins or [FirmwareBackend()]:
             self.register(backend)
 
     def register(self, backend):
@@ -738,6 +794,7 @@ class FirmwareTaskCore:
                     "payload": payload,
                     "state": "running",
                     "phase": "starting",
+                    "progress_message": None,
                     "result": None,
                     "error": None,
                     "staging_tokens": staging_tokens,
@@ -778,8 +835,10 @@ class FirmwareTaskCore:
         if task.get("state") != "running":
             return task
 
-        def progress(phase):
+        def progress(phase, message=None):
             task["phase"] = phase
+            if message:
+                task["progress_message"] = message
             try:
                 self.task_store.write(task)
             except OSError:

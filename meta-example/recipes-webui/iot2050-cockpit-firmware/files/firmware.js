@@ -98,7 +98,7 @@ const PHASE_LABELS = {
   'starting': 'Starting',
   'checking-compatibility-and-signature': 'Checking compatibility and signature',
   'preparing-backup': 'Creating rollback backup',
-  'flashing-system': 'Flashing system firmware',
+  'flashing-system': 'Flashing firmware',
   'retrying-flash': 'Flashing failed, retrying',
   'preparing-rollback': 'Preparing rollback',
   'flashing-module': 'Flashing module firmware',
@@ -274,9 +274,9 @@ function setWriteControlsDisabled (disabled) {
 
 function setSystemUpdateDisabled (disabled) {
   document.getElementById('update-system').disabled = disabled || backendAvailability.system === false;
-  document.getElementById('system-firmware').disabled = disabled;
-  document.getElementById('choose-system-firmware').classList.toggle('disabled', disabled);
-  document.getElementById('choose-system-firmware').setAttribute('aria-disabled', String(disabled));
+  document.getElementById('firmware').disabled = disabled;
+  document.getElementById('choose-firmware').classList.toggle('disabled', disabled);
+  document.getElementById('choose-firmware').setAttribute('aria-disabled', String(disabled));
   document.getElementById('rollback-system').disabled = disabled;
 }
 
@@ -299,7 +299,7 @@ function showUnavailable (statusElement, detailsElement, reason) {
 }
 
 async function updateSystemFileHint () {
-  const file = document.getElementById('system-firmware').files[0];
+  const file = document.getElementById('firmware').files[0];
   const fileName = file
     ? `Selected package: ${file.name}`
     : `Default package: ${defaultSystemPackage || 'unavailable'}`;
@@ -326,7 +326,7 @@ async function startRollback () {
   setWriteControlsDisabled(true);
   try {
     const details = await runManager(['inspect', 'system', '--rollback']);
-    if (!window.confirm(`Rollback System Firmware from the local backup created at ${details.created_at}?\n\nSHA-256: ${details.sha256}\n\nThis restores the firmware saved before the update. Do not power off or reset the device during rollback.`)) return;
+    if (!window.confirm(`Rollback Firmware from the local backup created at ${details.created_at}?\n\nSHA-256: ${details.sha256}\n\nThis restores the firmware saved before the update. Do not power off or reset the device during rollback.`)) return;
     const task = await runManager(['rollback', 'system']);
     await pollTask(task.id);
   } finally {
@@ -344,12 +344,12 @@ async function startSystemUpdate () {
   setSystemUpdateDisabled(true);
   let staged = null;
   try {
-    const file = document.getElementById('system-firmware').files[0];
+    const file = document.getElementById('firmware').files[0];
     if (file) staged = await stageFile(file);
     const payload = staged ? { token: staged.token } : { source: 'image-default' };
     const preview = await runManager(['inspect', 'system', '--payload', JSON.stringify(payload)]);
     const summary = [
-      `Update System Firmware now?`,
+      `Update Firmware now?`,
       `Firmware: ${preview.firmware_name || 'unknown'}`,
       `Target board: ${preview.target_board || 'unknown'}`,
       `Target version: ${preview.target_version || 'unknown'}`,
@@ -383,7 +383,10 @@ async function pollTask (taskId) {
   setWriteControlsDisabled(true);
   const task = await runManager(['task', taskId]);
   document.getElementById('task-title').textContent = `${task.backend} firmware update`;
-  document.getElementById('task-message').textContent = (task.error && task.error.message) || phaseLabel(task.phase);
+  document.getElementById('task-message').textContent =
+    (task.error && task.error.message) ||
+    (task.state === 'running' && task.progress_message) ||
+    phaseLabel(task.phase);
   const state = document.getElementById('task-state');
   const safety = document.getElementById('task-safety');
   const rebootButton = document.getElementById('reboot-device');
@@ -591,7 +594,7 @@ async function loadCapabilities () {
 }
 
 document.getElementById('refresh').addEventListener('click', loadCapabilities);
-document.getElementById('system-firmware').addEventListener('change', updateSystemFileHint);
+document.getElementById('firmware').addEventListener('change', updateSystemFileHint);
 document.getElementById('firmware-a').addEventListener('change', () => updateModuleFileName('firmware-a', 'firmware-a-name'));
 document.getElementById('firmware-b').addEventListener('change', () => updateModuleFileName('firmware-b', 'firmware-b-name'));
 document.getElementById('update-system').addEventListener('click', () => startSystemUpdate().catch(showError));

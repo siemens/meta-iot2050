@@ -14,13 +14,15 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1diot2050-module-firmware.proto\x12\x16iot2050.modulefirmware\"\x07\n\x05\x45mpty\"m\n\x11\x43\x61pabilitiesReply\x12\x11\n\tsupported\x18\x01 \x01(\x08\x12\x11\n\tmax_slots\x18\x02 \x01(\x05\x12\x18\n\x10\x63hip_a_supported\x18\x03 \x01(\x08\x12\x18\n\x10\x63hip_b_supported\x18\x04 \x01(\x08\",\n\x0eInspectRequest\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x0c\n\x04scan\x18\x02 \x01(\x08\"[\n\x0eSlotInspection\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x11\n\tavailable\x18\x02 \x01(\x08\x12\x13\n\x0b\x63hip_a_node\x18\x03 \x01(\x08\x12\x13\n\x0b\x63hip_b_node\x18\x04 \x01(\x08\"s\n\x0fInspectionReply\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x35\n\x05slots\x18\x04 \x03(\x0b\x32&.iot2050.modulefirmware.SlotInspection\"E\n\rUpdateRequest\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x12\n\nfirmware_a\x18\x02 \x01(\x0c\x12\x12\n\nfirmware_b\x18\x03 \x01(\x0c\"?\n\nChipResult\x12\x11\n\tattempted\x18\x01 \x01(\x08\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"\xe0\x01\n\x0bUpdateReply\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x0c\n\x04slot\x18\x04 \x01(\x05\x12\x32\n\x06\x63hip_a\x18\x05 \x01(\x0b\x32\".iot2050.modulefirmware.ChipResult\x12\x32\n\x06\x63hip_b\x18\x06 \x01(\x0b\x32\".iot2050.modulefirmware.ChipResult\x12\x17\n\x0fpartial_failure\x18\x07 \x01(\x08\x12\x17\n\x0freboot_required\x18\x08 \x01(\x08\"(\n\x10OperationRequest\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\"\x85\x01\n\x0eOperationReply\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x14\n\x0c\x64\x65tails_json\x18\x04 \x01(\t\x12\x14\n\x0coperation_id\x18\x05 \x01(\t\x12\r\n\x05state\x18\x06 \x01(\t\x12\r\n\x05stage\x18\x07 \x01(\t2\xe9\x03\n\x0eModuleFirmware\x12]\n\x0fGetCapabilities\x12\x1d.iot2050.modulefirmware.Empty\x1a).iot2050.modulefirmware.CapabilitiesReply\"\x00\x12\\\n\x07Inspect\x12&.iot2050.modulefirmware.InspectRequest\x1a\'.iot2050.modulefirmware.InspectionReply\"\x00\x12V\n\x06Update\x12%.iot2050.modulefirmware.UpdateRequest\x1a#.iot2050.modulefirmware.UpdateReply\"\x00\x12^\n\x0bStartUpdate\x12%.iot2050.modulefirmware.UpdateRequest\x1a&.iot2050.modulefirmware.OperationReply\"\x00\x12\x62\n\x0cGetOperation\x12(.iot2050.modulefirmware.OperationRequest\x1a&.iot2050.modulefirmware.OperationReply\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1diot2050-module-firmware.proto\x12\x16iot2050.modulefirmware\"\x07\n\x05\x45mpty\"m\n\x11\x43\x61pabilitiesReply\x12\x11\n\tsupported\x18\x01 \x01(\x08\x12\x11\n\tmax_slots\x18\x02 \x01(\x05\x12\x18\n\x10\x63hip_a_supported\x18\x03 \x01(\x08\x12\x18\n\x10\x63hip_b_supported\x18\x04 \x01(\x08\",\n\x0eInspectRequest\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x0c\n\x04scan\x18\x02 \x01(\x08\"[\n\x0eSlotInspection\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x11\n\tavailable\x18\x02 \x01(\x08\x12\x13\n\x0b\x63hip_a_node\x18\x03 \x01(\x08\x12\x13\n\x0b\x63hip_b_node\x18\x04 \x01(\x08\"s\n\x0fInspectionReply\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x35\n\x05slots\x18\x04 \x03(\x0b\x32&.iot2050.modulefirmware.SlotInspection\"E\n\rUpdateRequest\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x12\n\nfirmware_a\x18\x02 \x01(\x0c\x12\x12\n\nfirmware_b\x18\x03 \x01(\x0c\"?\n\nChipResult\x12\x11\n\tattempted\x18\x01 \x01(\x08\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\r\n\x05\x65rror\x18\x03 \x01(\t\"\xe0\x01\n\x0bUpdateReply\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x0c\n\x04slot\x18\x04 \x01(\x05\x12\x32\n\x06\x63hip_a\x18\x05 \x01(\x0b\x32\".iot2050.modulefirmware.ChipResult\x12\x32\n\x06\x63hip_b\x18\x06 \x01(\x0b\x32\".iot2050.modulefirmware.ChipResult\x12\x17\n\x0fpartial_failure\x18\x07 \x01(\x08\x12\x17\n\x0freboot_required\x18\x08 \x01(\x08\"/\n\x0eOperationError\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\"\xbc\x01\n\x12ModuleUpdateResult\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x32\n\x06\x63hip_a\x18\x02 \x01(\x0b\x32\".iot2050.modulefirmware.ChipResult\x12\x32\n\x06\x63hip_b\x18\x03 \x01(\x0b\x32\".iot2050.modulefirmware.ChipResult\x12\x17\n\x0fpartial_failure\x18\x04 \x01(\x08\x12\x17\n\x0freboot_required\x18\x05 \x01(\x08\"(\n\x10OperationRequest\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\"\xe4\x02\n\x0eOperationReply\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\x12\x37\n\x06status\x18\x02 \x01(\x0e\x32\'.iot2050.modulefirmware.OperationStatus\x12\x0c\n\x04\x63ode\x18\x03 \x01(\t\x12\x0f\n\x07message\x18\x04 \x01(\t\x12\x12\n\ncreated_at\x18\x05 \x01(\t\x12\x12\n\nupdated_at\x18\x06 \x01(\t\x12\x13\n\x0b\x66inished_at\x18\x07 \x01(\t\x12\x14\n\x0clast_message\x18\x08 \x01(\t\x12\x43\n\rupdate_result\x18\t \x01(\x0b\x32*.iot2050.modulefirmware.ModuleUpdateResultH\x00\x12\x41\n\x0foperation_error\x18\n \x01(\x0b\x32&.iot2050.modulefirmware.OperationErrorH\x00\x42\t\n\x07outcome\"J\n\x1aStreamOperationLogsRequest\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\x12\x16\n\x0e\x61\x66ter_sequence\x18\x02 \x01(\x04\"D\n\x0cOperationLog\x12\x10\n\x08sequence\x18\x01 \x01(\x04\x12\x11\n\ttimestamp\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t*\x94\x01\n\x0fOperationStatus\x12 \n\x1cOPERATION_STATUS_UNSPECIFIED\x10\x00\x12\x15\n\x11OPERATION_RUNNING\x10\x01\x12\x17\n\x13OPERATION_SUCCEEDED\x10\x02\x12\x14\n\x10OPERATION_FAILED\x10\x03\x12\x19\n\x15OPERATION_INTERRUPTED\x10\x04\x32\x81\x04\n\x0eModuleFirmware\x12]\n\x0fGetCapabilities\x12\x1d.iot2050.modulefirmware.Empty\x1a).iot2050.modulefirmware.CapabilitiesReply\"\x00\x12\\\n\x07Inspect\x12&.iot2050.modulefirmware.InspectRequest\x1a\'.iot2050.modulefirmware.InspectionReply\"\x00\x12Y\n\x06Update\x12%.iot2050.modulefirmware.UpdateRequest\x1a&.iot2050.modulefirmware.OperationReply\"\x00\x12\x62\n\x0cGetOperation\x12(.iot2050.modulefirmware.OperationRequest\x1a&.iot2050.modulefirmware.OperationReply\"\x00\x12s\n\x13StreamOperationLogs\x12\x32.iot2050.modulefirmware.StreamOperationLogsRequest\x1a$.iot2050.modulefirmware.OperationLog\"\x00\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'iot2050_module_firmware_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
+  _globals['_OPERATIONSTATUS']._serialized_start=1584
+  _globals['_OPERATIONSTATUS']._serialized_end=1732
   _globals['_EMPTY']._serialized_start=57
   _globals['_EMPTY']._serialized_end=64
   _globals['_CAPABILITIESREPLY']._serialized_start=66
@@ -37,10 +39,18 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_CHIPRESULT']._serialized_end=567
   _globals['_UPDATEREPLY']._serialized_start=570
   _globals['_UPDATEREPLY']._serialized_end=794
-  _globals['_OPERATIONREQUEST']._serialized_start=796
-  _globals['_OPERATIONREQUEST']._serialized_end=836
-  _globals['_OPERATIONREPLY']._serialized_start=839
-  _globals['_OPERATIONREPLY']._serialized_end=972
-  _globals['_MODULEFIRMWARE']._serialized_start=975
-  _globals['_MODULEFIRMWARE']._serialized_end=1464
+  _globals['_OPERATIONERROR']._serialized_start=796
+  _globals['_OPERATIONERROR']._serialized_end=843
+  _globals['_MODULEUPDATERESULT']._serialized_start=846
+  _globals['_MODULEUPDATERESULT']._serialized_end=1034
+  _globals['_OPERATIONREQUEST']._serialized_start=1036
+  _globals['_OPERATIONREQUEST']._serialized_end=1076
+  _globals['_OPERATIONREPLY']._serialized_start=1079
+  _globals['_OPERATIONREPLY']._serialized_end=1435
+  _globals['_STREAMOPERATIONLOGSREQUEST']._serialized_start=1437
+  _globals['_STREAMOPERATIONLOGSREQUEST']._serialized_end=1511
+  _globals['_OPERATIONLOG']._serialized_start=1513
+  _globals['_OPERATIONLOG']._serialized_end=1581
+  _globals['_MODULEFIRMWARE']._serialized_start=1735
+  _globals['_MODULEFIRMWARE']._serialized_end=2248
 # @@protoc_insertion_point(module_scope)

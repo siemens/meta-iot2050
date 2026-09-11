@@ -118,41 +118,55 @@ def _module_grpc_client():
         module_pb2.InspectRequest,
         module_pb2.UpdateRequest,
         module_pb2.OperationRequest,
+        module_pb2.StreamOperationLogsRequest,
     )
 
 
 def _wait_module_operation(stub, operation_id, operation_request,
+                           stream_request,
                            progress=None, timeout=3600):
     deadline = time.monotonic() + timeout
+    last_sequence = 0
     while True:
+        try:
+            for entry in stub.StreamOperationLogs(
+                stream_request(
+                    operation_id=operation_id,
+                    after_sequence=last_sequence,
+                ), timeout=10
+            ):
+                if entry.sequence <= last_sequence:
+                    continue
+                last_sequence = entry.sequence
+                if progress:
+                    progress("running", entry.message)
+        except grpc.RpcError:
+            if time.monotonic() >= deadline:
+                raise
+            continue
         response = stub.GetOperation(
-            operation_request(operation_id=operation_id),
-            timeout=min(10, max(1, deadline - time.monotonic())),
+            operation_request(operation_id=operation_id), timeout=10
         )
-        if response.state == "running":
+        if response.status == 1:
             if time.monotonic() >= deadline:
                 raise FirmwareError(
                     "module-update-timeout",
                     "Module firmware update timed out",
                 )
-            if progress and response.stage:
-                progress(response.stage)
             time.sleep(1)
             continue
-        if not response.ok:
-            details = {}
-            try:
-                details = json.loads(response.details_json)
-            except (TypeError, ValueError):
-                pass
-            raise FirmwareError(response.code, response.message, details)
-        try:
-            return json.loads(response.details_json) if response.details_json else {}
-        except (TypeError, ValueError) as error:
-            raise FirmwareError(
-                "module-invalid-response",
-                "Module firmware service returned invalid operation data",
-            ) from error
+        if response.status != 2:
+            raise FirmwareError(response.code, response.message)
+        if response.HasField("update_result"):
+            result = response.update_result
+            return {
+                "slot": result.slot,
+                "chip_a": result.chip_a,
+                "chip_b": result.chip_b,
+                "partial_failure": result.partial_failure,
+                "reboot_required": result.reboot_required,
+            }
+        return {}
 
 
 def _module_inspection_response(response, scan=False):
@@ -347,9 +361,12 @@ class ModuleFirmwareBackend:
                 ) from error
 
         progress("flashing-module")
-        channel, stub, _, update_request, operation_request = _module_grpc_client()
+        (
+            channel, stub, _, update_request, operation_request,
+            stream_request,
+        ) = _module_grpc_client()
         try:
-            response = stub.StartUpdate(
+            response = stub.Update(
                 update_request(
                     slot=slot,
                     firmware_a=firmware.get("A", b""),
@@ -357,10 +374,11 @@ class ModuleFirmwareBackend:
                 ),
                 timeout=10,
             )
-            if not response.ok:
+            if not response.operation_id:
                 raise FirmwareError(response.code, response.message)
             result = _wait_module_operation(
-                stub, response.operation_id, operation_request, progress)
+                stub, response.operation_id, operation_request,
+                stream_request, progress)
         except grpc.RpcError as error:
             raise FirmwareError(
                 "module-service-unavailable",
