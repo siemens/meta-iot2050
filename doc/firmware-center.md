@@ -32,17 +32,23 @@ itself is started by `iot2050-module-firmware.service` from the
 ## Operation contracts
 
 Firmware services execute long-running writes asynchronously. `Update` and,
-for the firmware service, `Rollback` return an operation ID without
-holding the gRPC request open for the duration of a flash. `GetOperation`
-returns the durable lifecycle and final result. `WatchOperation` provides
-live, human-readable messages while the operation is running; log messages are
-not persisted or replayed after a service restart.
+for the firmware service, `Rollback` return only after the service accepts the
+single local operation; the gRPC request is not held open for the duration of
+the flash. `GetStatus` returns the durable state of the current or latest
+operation. `WatchLogs` provides best-effort, human-readable messages while a
+write is running; messages are not persisted, replayed, or resumed after a
+disconnect or service restart.
 
-Firmware uses the service process `HOME` as its backup identity. The
-managed path does not accept a caller-selected backup directory. The legacy
-CLI may pass `--backup-dir` for compatibility, subject to root-owned private
-path validation. Managed requests always verify the package signature; the
-legacy `--verify` option remains optional for compatibility.
+Each domain service admits one local hardware write at a time and keeps only
+its current/latest state in memory. A service restart clears that state and
+never resumes hardware work. The fwmgr task remains the user-facing durable
+history and records an interrupted worker, while globally serializing managed
+writes across firmware providers.
+
+Firmware uses the service process `HOME` as its backup identity. Managed
+requests use this service-owned backup and always verify the package
+signature. Explicit backup-directory and signature options are restricted to
+the command-line firmware client and require the configured security checks.
 
 EIO Controller keeps the legacy `CheckFWU` status and JSON message for old
 clients. New clients may consume the typed `inspection` field. Module results
@@ -50,12 +56,10 @@ include slot, Chip A, Chip B, and partial-completion information.
 
 ## Resource ownership
 
-All firmware writes are serialized by the single-threaded gRPC services
-(`max_workers=1`) that own the hardware backends. The Firmware and
-EIO services each accept every client (Cockpit page, fwmgr provider, CLI)
-through one endpoint, so concurrent requests queue inside the service
-instead of racing on the flash. No separate cross-process file locks are
-used. The fwmgr task layer performs admission and scheduling only.
+Firmware and Module Firmware operations use a single worker for hardware
+writes. Each service atomically admits one running operation, while its gRPC
+request executor can concurrently serve log streams and status queries. The
+fwmgr task layer separately serializes operations across providers.
 
 ## Staging and privilege invariants
 
