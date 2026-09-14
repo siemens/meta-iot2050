@@ -13,14 +13,22 @@ import argparse
 import os
 import sys
 import textwrap
+import time
 
 import grpc
+from google.protobuf.empty_pb2 import Empty
 
 from iot2050_eio_common import MODULE_FIRMWARE_SOCKET
-from gRPC.iot2050_module_firmware_pb2 import UpdateRequest
+from gRPC.iot2050_module_firmware_pb2 import (
+    UpdateRequest,
+    OPERATION_SUCCEEDED,
+    CHIP_UPDATE_FAILED,
+)
 from gRPC.iot2050_module_firmware_pb2_grpc import ModuleFirmwareStub
 
 SOCKET_TARGET = "unix://" + MODULE_FIRMWARE_SOCKET
+RPC_TIMEOUT = 10
+OPERATION_TIMEOUT = 120
 
 
 def parser():
@@ -68,7 +76,6 @@ def main(argv=None):
             return 1
         with open(args.firmware_a, "rb") as f:
             firmware_a = f.read()
-        print("Updating firmware A ...")
     if args.firmware_b:
         if not os.path.isfile(args.firmware_b):
             print(f"Error: Firmware file not found: {args.firmware_b}",
@@ -76,7 +83,6 @@ def main(argv=None):
             return 1
         with open(args.firmware_b, "rb") as f:
             firmware_b = f.read()
-        print("Updating firmware B ...")
 
     channel = grpc.insecure_channel(SOCKET_TARGET)
     stub = ModuleFirmwareStub(channel)
@@ -87,8 +93,40 @@ def main(argv=None):
                 firmware_a=firmware_a,
                 firmware_b=firmware_b,
             ),
-            timeout=3600,
+            timeout=RPC_TIMEOUT,
         )
+        deadline = time.monotonic() + OPERATION_TIMEOUT
+        while time.monotonic() < deadline:
+            try:
+                for entry in stub.WatchLogs(
+                    Empty(),
+                    timeout=min(
+                        RPC_TIMEOUT, max(1, deadline - time.monotonic())
+                    ),
+                ):
+                    print(entry.message)
+            except grpc.RpcError as error:
+                if error.code() == grpc.StatusCode.NOT_FOUND:
+                    print(
+                        "Error: Module firmware service restarted during the operation",
+                        file=sys.stderr,
+                    )
+                    return 1
+            try:
+                response = stub.GetStatus(Empty(), timeout=RPC_TIMEOUT)
+            except grpc.RpcError as error:
+                if error.code() == grpc.StatusCode.NOT_FOUND:
+                    print(
+                        "Error: Module firmware service restarted during the operation",
+                        file=sys.stderr,
+                    )
+                    return 1
+                continue
+            if response.status != 1:
+                break
+        else:
+            print("Error: Module firmware update timed out", file=sys.stderr)
+            return 1
     except grpc.RpcError as error:
         print(f"Module Firmware service unavailable: {error.details()}",
               file=sys.stderr)
@@ -96,9 +134,10 @@ def main(argv=None):
     finally:
         channel.close()
 
-    if not response.ok:
+    if response.status != OPERATION_SUCCEEDED:
         print(f"Error: {response.message}", file=sys.stderr)
-        if response.partial_failure:
+        if (response.outcome.chip_a.status == CHIP_UPDATE_FAILED or
+            response.outcome.chip_b.status == CHIP_UPDATE_FAILED):
             print("Partial update: some chips were written successfully.",
                   file=sys.stderr)
         return 1

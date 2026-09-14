@@ -11,7 +11,8 @@ import concurrent.futures
 import io
 import json
 import os
-import uuid
+import queue
+from types import SimpleNamespace
 
 import grpc
 
@@ -75,16 +76,17 @@ MAX_MODULE_FIRMWARE_SIZE = 64 * 1024 * 1024
 def _chip_result(result, chip):
     value = result.get(chip, {})
     return {
-        "attempted": chip in result,
-        "success": bool(value.get("success", False)),
-        "error": str(value.get("error", "")),
+        "status": "CHIP_UPDATE_SUCCEEDED" if value.get("success")
+        else "CHIP_UPDATE_FAILED" if chip in result
+        else "CHIP_UPDATE_NOT_ATTEMPTED",
+        "message": str(value.get("error", "")),
     }
 
 
-def _update_reply(reply_type, request, results=None, error=None):
+def _update_outcome(request, results=None, error=None):
     results = results or {}
     if error is None:
-        return reply_type(
+        return SimpleNamespace(
             ok=True,
             code="OK",
             message="Module firmware updated successfully",
@@ -94,55 +96,52 @@ def _update_reply(reply_type, request, results=None, error=None):
             reboot_required=True,
         )
 
-    return reply_type(
+    return SimpleNamespace(
         ok=False,
         code="module-update-failed",
         message=str(error.error),
         slot=request.slot,
         chip_a=_chip_result(results, "A"),
         chip_b=_chip_result(results, "B"),
-        partial_failure=any(
-            value.get("success") for value in results.values()
-        ) and bool(results),
         reboot_required=bool(results),
     )
 
 
 def serve():
+    from google.protobuf.empty_pb2 import Empty
     from gRPC.iot2050_module_firmware_pb2 import (
-        CapabilitiesReply,
-        InspectionReply,
-        OperationReply,
-        OperationRequest,
-        SlotInspection,
+        GetStatusReply,
+        ModuleInspection,
         UpdateReply,
+        WatchLogsReply,
+        OPERATION_FAILED,
+        OPERATION_INTERRUPTED,
+        OPERATION_RUNNING,
+        OPERATION_SUCCEEDED,
+        SlotInspection,
+        CHIP_UPDATE_FAILED,
+        CHIP_UPDATE_NOT_ATTEMPTED,
+        CHIP_UPDATE_SUCCEEDED,
     )
     from gRPC.iot2050_module_firmware_pb2_grpc import (
         ModuleFirmwareServicer,
         add_ModuleFirmwareServicer_to_server,
     )
-    from iot2050_firmware_operation_store import FirmwareOperationStore
+    from iot2050_firmware_operation_store import (
+        FirmwareOperationLogHub,
+        FirmwareOperationStore,
+    )
 
     class Service(ModuleFirmwareServicer):
         def __init__(self):
-            self.operation_store = FirmwareOperationStore(
-                "/var/lib/iot2050/module-firmware/operations"
-            )
-            self.operation_store.recover_running()
+            self.operation_store = FirmwareOperationStore()
+            self.log_hub = FirmwareOperationLogHub()
             self.operations_executor = concurrent.futures.ThreadPoolExecutor(
                 max_workers=1
             )
 
-        def GetCapabilities(self, request, context):
-            return CapabilitiesReply(
-                supported=True,
-                max_slots=6,
-                chip_a_supported=True,
-                chip_b_supported=True,
-            )
-
         def Inspect(self, request, context):
-            if request.scan:
+            if request.slot == 0:
                 slots = [
                     ModuleFirmwareUpdateSlot.inspect(slot)
                     for slot in range(1, 7)
@@ -154,16 +153,9 @@ def serve():
                 try:
                     ModuleFirmwareUpdateSlot.validate(request.slot)
                 except ValueError as error:
-                    return InspectionReply(
-                        ok=False,
-                        code="invalid-slot",
-                        message=str(error),
-                    )
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))
                 slots = [ModuleFirmwareUpdateSlot.inspect(request.slot)]
-            return InspectionReply(
-                ok=True,
-                code="OK",
-                message="OK",
+            return ModuleInspection(
                 slots=[SlotInspection(**slot) for slot in slots],
             )
 
@@ -171,25 +163,14 @@ def serve():
         def _operation_details(response):
             return {
                 "slot": response.slot,
-                "chips": {
-                    "A": {
-                        "attempted": response.chip_a.attempted,
-                        "success": response.chip_a.success,
-                        "error": response.chip_a.error,
-                    },
-                    "B": {
-                        "attempted": response.chip_b.attempted,
-                        "success": response.chip_b.success,
-                        "error": response.chip_b.error,
-                    },
-                },
-                "partial_failure": response.partial_failure,
-                "reboot_required": response.reboot_required,
+                "chip_a": getattr(response, "chip_a", _chip_result({}, "A")),
+                "chip_b": getattr(response, "chip_b", _chip_result({}, "B")),
+                "reboot_required": bool(getattr(response, "reboot_required", False)),
             }
 
         def _update(self, request, progress=None):
             if not request.firmware_a and not request.firmware_b:
-                return UpdateReply(
+                return SimpleNamespace(
                     ok=False,
                     code="missing-firmware",
                     message="Firmware for chip A or chip B is required",
@@ -201,7 +182,7 @@ def serve():
                     DEFAULT_CONTROLLER_PATH, f"slot{request.slot}"
                 )
                 if not os.path.isdir(slot_path):
-                    return UpdateReply(
+                    return SimpleNamespace(
                         ok=False,
                         code="slot-unavailable",
                         message="Module slot is unavailable",
@@ -209,7 +190,7 @@ def serve():
                     )
                 if len(request.firmware_a) > MAX_MODULE_FIRMWARE_SIZE or \
                         len(request.firmware_b) > MAX_MODULE_FIRMWARE_SIZE:
-                    return UpdateReply(
+                    return SimpleNamespace(
                         ok=False,
                         code="firmware-too-large",
                         message="Firmware file exceeds the size limit",
@@ -221,11 +202,11 @@ def serve():
                     io.BytesIO(request.firmware_a) if request.firmware_a else None,
                     io.BytesIO(request.firmware_b) if request.firmware_b else None,
                 )
-                return _update_reply(UpdateReply, request, results)
+                return _update_outcome(request, results)
             except ModuleFirmwareUpdateError as error:
-                return _update_reply(UpdateReply, request, error.results, error)
+                return _update_outcome(request, error.results, error)
             except ValueError as error:
-                return UpdateReply(
+                return SimpleNamespace(
                     ok=False,
                     code="invalid-slot",
                     message=str(error),
@@ -233,29 +214,29 @@ def serve():
                 )
 
         def Update(self, request, context):
-            return self._update(request)
-
-        def StartUpdate(self, request, context):
-            if self.operation_store.has_running():
-                return OperationReply(
-                    ok=False,
-                    code="firmware-busy",
-                    message="Module firmware operation is already running",
-                    state="unknown",
-                )
-            operation_id = str(uuid.uuid4())
-            self.operation_store.create(operation_id, {
+            operation = {
+                "operation": "update",
                 "state": "running",
-                "ok": False,
                 "code": "operation-running",
                 "message": "Module firmware operation is running",
-                "stage": "starting",
-                "details_json": "",
-            })
+                "last_message": "Module firmware operation started",
+            }
+            if not self.operation_store.admit(operation):
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED,
+                              "Module firmware operation is already running")
+            self.log_hub.close()
+            self.log_hub.reset()
+            self.log_hub.publish("Module firmware operation started")
+            if request.firmware_a:
+                self.log_hub.publish("Updating firmware A ...")
+            if request.firmware_b:
+                self.log_hub.publish("Updating firmware B ...")
 
             def progress(stage):
                 try:
-                    self.operation_store.update(operation_id, stage=stage)
+                    message = stage.replace("-", " ").capitalize()
+                    self.operation_store.update(last_message=message)
+                    self.log_hub.publish(message)
                 except (OSError, KeyError):
                     pass
 
@@ -264,57 +245,103 @@ def serve():
                     response = self._update(request, progress)
                     outcome = {
                         "state": "succeeded" if response.ok else "failed",
-                        "ok": response.ok,
                         "code": response.code,
                         "message": response.message,
-                        "stage": "completed",
-                        "details_json": json.dumps(
-                            self._operation_details(response),
-                            separators=(",", ":"),
-                        ),
+                        "last_message": response.message,
+                        "result": self._operation_details(response),
+                        "error": None if response.ok else {
+                            "code": response.code,
+                            "message": response.message,
+                        },
                     }
                 except Exception:
                     outcome = {
                         "state": "failed",
-                        "ok": False,
                         "code": "module-update-failed",
                         "message": "Module firmware operation failed",
-                        "details_json": "",
+                        "last_message": "Module firmware operation failed",
+                        "error": {
+                            "code": "module-update-failed",
+                            "message": "Module firmware operation failed",
+                        },
                     }
-                self.operation_store.update(operation_id, **outcome)
+                try:
+                    self.operation_store.update(**outcome)
+                    self.log_hub.publish(outcome["message"])
+                finally:
+                    self.log_hub.close()
 
             self.operations_executor.submit(run)
-            return OperationReply(
-                ok=True,
-                code="operation-started",
-                message="Module firmware operation started",
-                operation_id=operation_id,
-                state="running",
-                stage="starting",
-            )
+            return UpdateReply()
 
-        def GetOperation(self, request: OperationRequest, context):
-            try:
-                operation = self.operation_store.read(request.operation_id)
-            except KeyError:
-                return OperationReply(
-                    ok=False,
-                    code="operation-not-found",
-                    message="Module firmware operation was not found",
-                    state="unknown",
-                )
-            return OperationReply(
-                ok=operation["ok"],
-                code=operation["code"],
-                message=operation["message"],
-                details_json=operation["details_json"],
-                operation_id=request.operation_id,
-                state=operation["state"],
-                stage=operation.get("stage", ""),
+        @staticmethod
+        def _typed_status(operation):
+            result = operation.get("result") or {}
+            outcome = None
+            if result:
+                outcome = {
+                    "slot": result.get("slot", 0),
+                    "chip_a": result.get("chip_a", {}),
+                    "chip_b": result.get("chip_b", {}),
+                }
+            response = GetStatusReply(
+                status={
+                    "running": OPERATION_RUNNING,
+                    "succeeded": OPERATION_SUCCEEDED,
+                    "failed": OPERATION_FAILED,
+                    "interrupted": OPERATION_INTERRUPTED,
+                }.get(operation.get("state"), 0),
+                code=operation.get("code", ""),
+                message=operation.get(
+                    "last_message", operation.get("message", "")
+                ),
             )
+            if outcome:
+                response.outcome.slot = outcome["slot"]
+                for name in ("chip_a", "chip_b"):
+                    chip = outcome[name]
+                    target = getattr(response.outcome, name)
+                    target.status = {
+                        "CHIP_UPDATE_NOT_ATTEMPTED": CHIP_UPDATE_NOT_ATTEMPTED,
+                        "CHIP_UPDATE_SUCCEEDED": CHIP_UPDATE_SUCCEEDED,
+                        "CHIP_UPDATE_FAILED": CHIP_UPDATE_FAILED,
+                    }.get(chip.get("status"), 0)
+                    target.message = chip.get("message", "")
+            return response
+
+        def GetStatus(self, request, context):
+            try:
+                operation = self.operation_store.read()
+            except KeyError:
+                context.abort(grpc.StatusCode.NOT_FOUND,
+                              "No module firmware operation has been accepted")
+            return self._typed_status(operation)
+
+        def WatchLogs(self, request, context):
+            try:
+                operation = self.operation_store.read()
+            except KeyError:
+                context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    "No module firmware operation has been accepted",
+                )
+            if operation.get("state") != "running":
+                return
+            subscriber = self.log_hub.subscribe()
+            try:
+                while context.is_active():
+                    try:
+                        entry = subscriber.get(timeout=1)
+                    except queue.Empty:
+                        continue
+                    if entry is self.log_hub._CLOSED:
+                        return
+                    yield WatchLogsReply(message=entry["message"])
+            finally:
+                self.log_hub.unsubscribe(subscriber)
 
     server = grpc.server(
-        concurrent.futures.ThreadPoolExecutor(max_workers=1),
+        concurrent.futures.ThreadPoolExecutor(max_workers=4),
         options=[
             ("grpc.max_receive_message_length", MAX_MODULE_FIRMWARE_SIZE * 2),
             ("grpc.max_send_message_length", 1024 * 1024),
@@ -355,7 +382,6 @@ class ModuleFirmwareUpdateSlot:
         slot_path = os.path.join(DEFAULT_CONTROLLER_PATH, f"slot{slot}")
         return {
             "slot": slot,
-            "available": os.path.isdir(slot_path),
             "chip_a_node": os.path.exists(os.path.join(slot_path, "fwa")),
             "chip_b_node": os.path.exists(os.path.join(slot_path, "fwb")),
         }
