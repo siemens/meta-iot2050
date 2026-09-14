@@ -198,7 +198,6 @@ async function inspectModule () {
   const data = await runManager(['inspect', 'module', '--payload', JSON.stringify({ slot })]);
   document.getElementById('module-details').replaceChildren(
     detail('Slot', data.slot),
-    detail('Slot available', data.available ? 'Yes' : 'No'),
     detail('Chip A node', data.chip_a_node ? 'Available' : 'Unavailable'),
     detail('Chip B node', data.chip_b_node ? 'Available' : 'Unavailable')
   );
@@ -326,7 +325,7 @@ async function startRollback () {
   setWriteControlsDisabled(true);
   try {
     const details = await runManager(['inspect', 'system', '--rollback']);
-    if (!window.confirm(`Rollback Firmware from the local backup created at ${details.created_at}?\n\nSHA-256: ${details.sha256}\n\nThis restores the firmware saved before the update. Do not power off or reset the device during rollback.`)) return;
+    if (!window.confirm('Rollback Firmware from the verified local backup?\n\nThis restores the firmware saved before the update. Do not power off or reset the device during rollback.')) return;
     const task = await runManager(['rollback', 'system']);
     await pollTask(task.id);
   } finally {
@@ -353,8 +352,6 @@ async function startSystemUpdate () {
       `Firmware: ${preview.firmware_name || 'unknown'}`,
       `Target board: ${preview.target_board || 'unknown'}`,
       `Target version: ${preview.target_version || 'unknown'}`,
-      `SHA-256: ${preview.firmware_sha256 || 'unknown'}`,
-      `Signature: ${preview.signature_verified ? 'verified' : 'not verified'}`,
       'WARNING: An interrupted firmware update can leave the device unbootable.',
       'The system will create a rollback backup, flash the firmware, and verify readback. Do not power off or reset the device.'
     ].join('\n\n');
@@ -383,7 +380,10 @@ async function pollTask (taskId) {
   setWriteControlsDisabled(true);
   const task = await runManager(['task', taskId]);
   document.getElementById('task-title').textContent = `${task.backend} firmware update`;
-  document.getElementById('task-message').textContent = (task.error && task.error.message) || phaseLabel(task.phase);
+  document.getElementById('task-message').textContent =
+    (task.error && task.error.message) ||
+    (task.state === 'running' && task.progress_message) ||
+    phaseLabel(task.phase);
   const state = document.getElementById('task-state');
   const safety = document.getElementById('task-safety');
   const rebootButton = document.getElementById('reboot-device');
