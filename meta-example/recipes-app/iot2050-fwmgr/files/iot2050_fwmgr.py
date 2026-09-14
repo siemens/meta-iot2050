@@ -25,8 +25,8 @@ from iot2050_firmware_global import (
     DEFAULT_FIRMWARE_DIR,
     DEFAULT_FIRMWARE_PATTERN,
     DEFAULT_MAX_FIRMWARE_SIZE,
-    SYSTEM_FIRMWARE_RUNTIME_DIR,
-    SYSTEM_FIRMWARE_SOCKET_TARGET as SYSTEM_FIRMWARE_SOCKET,
+    FIRMWARE_RUNTIME_DIR,
+    FIRMWARE_SOCKET_TARGET as FIRMWARE_SOCKET,
 )
 
 
@@ -48,7 +48,7 @@ class FirmwareError(Exception):
         self.details = details
 
 
-class SystemFirmwareBackend:
+class FirmwareBackend:
     name = "system"
 
     def __init__(self, backup_dir=None,
@@ -67,7 +67,7 @@ class SystemFirmwareBackend:
         default_package = self._default_package()
         return {
             "backend": self.name,
-            "label": "System Firmware",
+            "label": "Firmware",
             "operations": ["inspect", "update", "rollback"],
             "source": ["image-default", "upload"],
             "requires_signature": True,
@@ -84,15 +84,15 @@ class SystemFirmwareBackend:
 
     @staticmethod
     def _system_stub():
-        if SYSTEM_FIRMWARE_RUNTIME_DIR not in sys.path:
-            sys.path.insert(0, SYSTEM_FIRMWARE_RUNTIME_DIR)
+        if FIRMWARE_RUNTIME_DIR not in sys.path:
+            sys.path.insert(0, FIRMWARE_RUNTIME_DIR)
         from gRPC import (
-            iot2050_system_firmware_pb2 as system_pb2,
-            iot2050_system_firmware_pb2_grpc as system_pb2_grpc,
+            iot2050_firmware_pb2 as system_pb2,
+            iot2050_firmware_pb2_grpc as system_pb2_grpc,
         )
 
-        channel = grpc.insecure_channel(SYSTEM_FIRMWARE_SOCKET)
-        return channel, system_pb2_grpc.SystemFirmwareStub(channel), system_pb2
+        channel = grpc.insecure_channel(FIRMWARE_SOCKET)
+        return channel, system_pb2_grpc.FirmwareStub(channel), system_pb2
 
     @staticmethod
     def _system_response(response):
@@ -102,8 +102,8 @@ class SystemFirmwareBackend:
             return json.loads(response.details_json) if response.details_json else {}
         except ValueError as error:
             raise FirmwareError(
-                "system-firmware-invalid-response",
-                "System Firmware service returned invalid response data",
+                "firmware-invalid-response",
+                "Firmware service returned invalid response data",
             ) from error
 
     @staticmethod
@@ -119,7 +119,7 @@ class SystemFirmwareBackend:
                 if time.monotonic() >= deadline:
                     raise FirmwareError(
                         "system-update-timeout",
-                        "System firmware update timed out",
+                        "Firmware update timed out",
                     )
                 if progress and response.stage:
                     progress(response.stage)
@@ -131,8 +131,8 @@ class SystemFirmwareBackend:
                 return json.loads(response.details_json) if response.details_json else {}
             except ValueError as error:
                 raise FirmwareError(
-                    "system-firmware-invalid-response",
-                    "System Firmware service returned invalid operation data",
+                    "firmware-invalid-response",
+                    "Firmware service returned invalid operation data",
                 ) from error
 
     def inspect(self, request):
@@ -150,8 +150,8 @@ class SystemFirmwareBackend:
             details = self._system_response(response)
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
         result = {**details, "package": package}
         if request.get("device_info"):
@@ -191,12 +191,12 @@ class SystemFirmwareBackend:
             "name": values.get("board_name"),
             "mlfb": values.get("mlfb"),
             "serial": values.get("board_serial"),
-            "os_image_version": SystemFirmwareBackend._version_label(
+            "os_image_version": FirmwareBackend._version_label(
                 os_release.get("BUILD_ID")
                 or os_release.get("IMAGE_VERSION")
                 or os_release.get("VERSION_ID")
             ),
-            "firmware_version": SystemFirmwareBackend._version_label(
+            "firmware_version": FirmwareBackend._version_label(
                 values.get("fw_version")
             ),
         }
@@ -232,8 +232,8 @@ class SystemFirmwareBackend:
                 channel.close()
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
         return {**result, "package": package}
 
@@ -248,8 +248,8 @@ class SystemFirmwareBackend:
             return self._system_response(response)
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
 
     def rollback(self, request, progress, staging_store):
@@ -267,8 +267,8 @@ class SystemFirmwareBackend:
             return result
         except grpc.RpcError as error:
             raise FirmwareError(
-                "system-firmware-service-unavailable",
-                "System Firmware service is unavailable",
+                "firmware-service-unavailable",
+                "Firmware service is unavailable",
             ) from error
 
     def _resolve(self, request, staging_store=None):
@@ -277,7 +277,7 @@ class SystemFirmwareBackend:
             if package is None:
                 raise FirmwareError(
                     "default-firmware-unavailable",
-                    "The image-default system firmware package is unavailable",
+                    "The image-default firmware package is unavailable",
                 )
             return package, {
                 "source": "image-default",
@@ -287,7 +287,7 @@ class SystemFirmwareBackend:
         token = request.get("token")
         if store is None or not token:
             raise FirmwareError(
-                "staging-required", "A staged system firmware package is required")
+                "staging-required", "A staged firmware package is required")
         path, metadata = store.resolve(token)
         return path, {"source": "upload", **metadata}
 
@@ -298,11 +298,11 @@ class SystemFirmwareBackend:
         code = getattr(error, "code", None)
         if code is None:
             raise FirmwareError(
-                "system-update-failed", "System firmware operation failed"
+                "system-update-failed", "Firmware operation failed"
             ) from error
         messages = {
-            3: "System firmware backup failed",
-            5: "System firmware flashing or readback failed",
+            3: "Firmware backup failed",
+            5: "Firmware flashing or readback failed",
             7: "The firmware package is not compatible with this device",
             9: "The firmware signature is missing",
             10: "The firmware verification key is unavailable",
@@ -311,7 +311,7 @@ class SystemFirmwareBackend:
         if code in (7, 9, 10, 11) and getattr(error, "err", None):
             message = str(error.err)
         else:
-            message = messages.get(code, "System firmware operation was rejected")
+            message = messages.get(code, "Firmware operation was rejected")
         raise FirmwareError(
             "system-update-rejected",
             message,
@@ -324,7 +324,7 @@ class BackendRegistry:
         self.backend_dir = Path(backend_dir)
         self.backends = {}
         self.discovery_errors = []
-        for backend in builtins or [SystemFirmwareBackend()]:
+        for backend in builtins or [FirmwareBackend()]:
             self.register(backend)
 
     def register(self, backend):

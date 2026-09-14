@@ -135,7 +135,7 @@ from iot2050_firmware_global import (
     DEFAULT_FIRMWARE_DIR,
     DEFAULT_FIRMWARE_PATTERN,
     DEFAULT_MAX_FIRMWARE_SIZE,
-    SYSTEM_FIRMWARE_SOCKET_PATH,
+    FIRMWARE_SOCKET_PATH,
 )
 
 
@@ -1226,7 +1226,7 @@ class NonInteractiveInterface(object):
             self.progress(info.lower().replace(" ", "-"))
 
 
-def inspect_system_firmware(firmware_path, public_key_path=None, pg2_only=False):
+def inspect_firmware(firmware_path, public_key_path=None, pg2_only=False):
     """Validate compatibility and signature without accessing flash devices."""
     interactor = NonInteractiveInterface()
     with open(firmware_path, "rb") as archive:
@@ -1243,7 +1243,7 @@ def inspect_system_firmware(firmware_path, public_key_path=None, pg2_only=False)
             package.close()
 
 
-def update_system_firmware(firmware_path, backup_dir=None,
+def update_firmware(firmware_path, backup_dir=None,
                            preserve_list=None, reset=False, progress=None,
                            public_key_path=None, pg2_only=False,
                            backup=True, verify_signature=True):
@@ -1312,7 +1312,7 @@ def update_system_firmware(firmware_path, backup_dir=None,
             package.close()
 
 
-def force_update_system_firmware(firmware_path, progress=None):
+def force_update_firmware(firmware_path, progress=None):
     """Perform a raw U-Boot update without a package backup."""
     interactor = NonInteractiveInterface(progress)
     with open(firmware_path, "rb") as firmware:
@@ -1328,7 +1328,7 @@ def force_update_system_firmware(firmware_path, progress=None):
 def serve():
     """Serve Firmware operations through gRPC."""
     import grpc
-    from gRPC.iot2050_system_firmware_pb2 import (
+    from gRPC.iot2050_firmware_pb2 import (
         CapabilitiesReply,
         Empty,
         InspectionReply,
@@ -1336,21 +1336,21 @@ def serve():
         OperationReply,
         RollbackReply,
     )
-    from gRPC.iot2050_system_firmware_pb2_grpc import (
-        SystemFirmwareServicer,
-        add_SystemFirmwareServicer_to_server,
+    from gRPC.iot2050_firmware_pb2_grpc import (
+        FirmwareServicer,
+        add_FirmwareServicer_to_server,
     )
     from iot2050_firmware_operation_store import FirmwareOperationStore
 
-    socket_path = SYSTEM_FIRMWARE_SOCKET_PATH
+    socket_path = FIRMWARE_SOCKET_PATH
     firmware_dir = DEFAULT_FIRMWARE_DIR
     firmware_pattern = DEFAULT_FIRMWARE_PATTERN
     max_firmware_size = DEFAULT_MAX_FIRMWARE_SIZE
 
-    class Service(SystemFirmwareServicer):
+    class Service(FirmwareServicer):
         def __init__(self):
             self.operation_store = FirmwareOperationStore(
-                "/var/lib/iot2050/system-firmware/operations"
+                "/var/lib/iot2050/firmware/operations"
             )
             self.operation_store.recover_running()
             self.operations_executor = concurrent.futures.ThreadPoolExecutor(
@@ -1376,9 +1376,9 @@ def serve():
         @classmethod
         def _message(cls, error):
             messages = {
-                3: "System firmware backup failed",
-                4: "System firmware rollback failed",
-                5: "System firmware flashing or readback failed",
+                3: "Firmware backup failed",
+                4: "Firmware rollback failed",
+                5: "Firmware flashing or readback failed",
                 7: "The firmware package is not compatible with this device",
                 9: "The firmware signature is missing",
                 10: "The firmware verification key is unavailable",
@@ -1386,7 +1386,7 @@ def serve():
             }
             return messages.get(
                 getattr(error, "code", None),
-                "System firmware operation failed",
+                "Firmware operation failed",
             )
 
         @classmethod
@@ -1412,12 +1412,12 @@ def serve():
                 )
                 path = candidates[-1] if candidates else None
             if path is None:
-                raise ValueError("The system firmware package is unavailable")
+                raise ValueError("The firmware package is unavailable")
             if os.path.islink(path) or not os.path.isfile(path):
                 raise ValueError(
-                    "The system firmware package must be a regular file")
+                    "The firmware package must be a regular file")
             if os.path.getsize(path) > max_firmware_size:
-                raise ValueError("The system firmware package is too large")
+                raise ValueError("The firmware package is too large")
             return path
 
         @staticmethod
@@ -1429,7 +1429,7 @@ def serve():
                 return OperationReply(
                     ok=False,
                     code="firmware-busy",
-                    message="System firmware operation is already running",
+                    message="Firmware operation is already running",
                     state="unknown",
                 )
             operation_id = str(uuid.uuid4())
@@ -1437,7 +1437,7 @@ def serve():
                 "state": "running",
                 "ok": False,
                 "code": "operation-running",
-                "message": "System firmware operation is running",
+                "message": "Firmware operation is running",
                 "stage": "starting",
                 "details_json": "",
             })
@@ -1455,7 +1455,7 @@ def serve():
                         "state": "succeeded",
                         "ok": True,
                         "code": "ok",
-                        "message": "System firmware operation completed",
+                        "message": "Firmware operation completed",
                         "stage": "completed",
                         "details_json": self._json(details),
                     }
@@ -1468,7 +1468,7 @@ def serve():
             return OperationReply(
                 ok=True,
                 code="operation-started",
-                message="System firmware operation started",
+                message="Firmware operation started",
                 operation_id=operation_id,
                 state="running",
                 stage="starting",
@@ -1481,7 +1481,7 @@ def serve():
                 return OperationReply(
                     ok=False,
                     code="operation-not-found",
-                    message="System firmware operation was not found",
+                    message="Firmware operation was not found",
                     state="unknown",
                 )
             return OperationReply(
@@ -1501,9 +1501,9 @@ def serve():
                 allow_custom=request.legacy_cli,
             )
             if request.force:
-                return force_update_system_firmware(firmware_path,
+                return force_update_firmware(firmware_path,
                                                     progress=progress)
-            return update_system_firmware(
+            return update_firmware(
                 firmware_path,
                 backup_dir,
                 preserve_list=list(request.preserve_list) or None,
@@ -1521,7 +1521,7 @@ def serve():
                 request.backup_dir,
                 allow_custom=request.legacy_cli,
             )
-            return rollback_system_firmware(backup_dir, progress=progress)
+            return rollback_firmware(backup_dir, progress=progress)
 
         def GetCapabilities(self, request: Empty, context):
             return CapabilitiesReply(
@@ -1536,14 +1536,14 @@ def serve():
 
         def Inspect(self, request, context):
             try:
-                details = inspect_system_firmware(
+                details = inspect_firmware(
                     self._firmware_path(request.firmware_path),
                     pg2_only=request.pg2_only,
                 )
                 return InspectionReply(
                     ok=True,
                     code="ok",
-                    message="System firmware inspection completed",
+                    message="Firmware inspection completed",
                     details_json=self._json(details),
                 )
             except Exception as error:
@@ -1555,7 +1555,7 @@ def serve():
                 return OperationReply(
                     ok=True,
                     code="ok",
-                    message="System firmware update completed",
+                    message="Firmware update completed",
                     details_json=self._json(details),
                 )
             except Exception as error:
@@ -1578,7 +1578,7 @@ def serve():
                 return RollbackReply(
                     ok=True,
                     code="ok",
-                    message="System firmware rollback inspection completed",
+                    message="Firmware rollback inspection completed",
                     details_json=self._json(details),
                 )
             except Exception as error:
@@ -1590,7 +1590,7 @@ def serve():
                 return OperationReply(
                     ok=True,
                     code="ok",
-                    message="System firmware rollback completed",
+                    message="Firmware rollback completed",
                     details_json=self._json(details),
                 )
             except Exception as error:
@@ -1615,9 +1615,9 @@ def serve():
         ),
     )
     service = Service()
-    add_SystemFirmwareServicer_to_server(service, server)
+    add_FirmwareServicer_to_server(service, server)
     if server.add_insecure_port(f"unix://{socket_path}") == 0:
-        raise RuntimeError("Unable to bind the System Firmware gRPC socket")
+        raise RuntimeError("Unable to bind the Firmware gRPC socket")
     old_umask = os.umask(0o177)
     try:
         server.start()
@@ -1670,7 +1670,7 @@ def inspect_system_rollback(backup_dir=None):
     }
 
 
-def rollback_system_firmware(backup_dir=None, progress=None):
+def rollback_firmware(backup_dir=None, progress=None):
     """Perform one non-interactive rollback using the shared local backup."""
     progress and progress("preparing-rollback")
     details = inspect_system_rollback(backup_dir)

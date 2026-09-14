@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-"""CLI client for the System Firmware gRPC service."""
+"""CLI client for the Firmware gRPC service."""
 
 import argparse
 import json
@@ -17,16 +17,16 @@ import time
 
 import grpc
 
-from gRPC.iot2050_system_firmware_pb2 import (
+from gRPC.iot2050_firmware_pb2 import (
     OperationRequest,
     RollbackRequest,
     UpdateRequest,
 )
-from gRPC.iot2050_system_firmware_pb2_grpc import SystemFirmwareStub
-from iot2050_firmware_global import SYSTEM_FIRMWARE_SOCKET_TARGET
+from gRPC.iot2050_firmware_pb2_grpc import FirmwareStub
+from iot2050_firmware_global import FIRMWARE_SOCKET_TARGET
 
 
-SOCKET_TARGET = SYSTEM_FIRMWARE_SOCKET_TARGET
+SOCKET_TARGET = FIRMWARE_SOCKET_TARGET
 ACTIVE_PROGRESS_STAGES = ("backing-up", "updating-uboot", "updating-env")
 FLASHING_STAGES = ("flashing-system",) + ACTIVE_PROGRESS_STAGES[1:]
 PROGRESS_DOT_INTERVAL = 0.4
@@ -247,7 +247,7 @@ def wait_for_operation(stub, operation_id, quiet, backup, timeout=3600):
             print(".", end="", flush=True)
             next_progress_at = now + PROGRESS_DOT_INTERVAL
         if now >= deadline:
-            raise TimeoutError("System firmware operation timed out")
+            raise TimeoutError("Firmware operation timed out")
         time.sleep(0.2)
 
 
@@ -284,7 +284,7 @@ def main(argv=None):
         print_preserved_environment(absolute_path(args.firmware), preserve_list)
 
     channel = grpc.insecure_channel(SOCKET_TARGET)
-    stub = SystemFirmwareStub(channel)
+    stub = FirmwareStub(channel)
     try:
         if args.rollback:
             response = stub.StartRollback(
@@ -318,7 +318,7 @@ def main(argv=None):
                     not args.no_backup and not args.force,
                 )
     except grpc.RpcError as error:
-        print(f"System Firmware service unavailable: {error.details()}",
+        print(f"Firmware service unavailable: {error.details()}",
               file=sys.stderr)
         return 8
     except TimeoutError as error:

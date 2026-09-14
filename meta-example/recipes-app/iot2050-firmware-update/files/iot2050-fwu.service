@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 [Unit]
-Description=IOT2050 System Firmware gRPC service
+Description=IOT2050 Firmware gRPC service
 After=local-fs.target
 
 [Service]

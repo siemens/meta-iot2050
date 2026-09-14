@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from . import iot2050_system_firmware_pb2 as iot2050__system__firmware__pb2
+from . import iot2050_firmware_pb2 as iot2050__system__firmware__pb2
 
 
-class SystemFirmwareStub(object):
+class FirmwareStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,48 +15,48 @@ class SystemFirmwareStub(object):
             channel: A grpc.Channel.
         """
         self.GetCapabilities = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/GetCapabilities',
+                '/iot2050.firmware.Firmware/GetCapabilities',
                 request_serializer=iot2050__system__firmware__pb2.Empty.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.CapabilitiesReply.FromString,
                 )
         self.Inspect = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/Inspect',
+                '/iot2050.firmware.Firmware/Inspect',
                 request_serializer=iot2050__system__firmware__pb2.InspectRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.InspectionReply.FromString,
                 )
         self.Update = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/Update',
+                '/iot2050.firmware.Firmware/Update',
                 request_serializer=iot2050__system__firmware__pb2.UpdateRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.OperationReply.FromString,
                 )
         self.StartUpdate = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/StartUpdate',
+                '/iot2050.firmware.Firmware/StartUpdate',
                 request_serializer=iot2050__system__firmware__pb2.UpdateRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.OperationReply.FromString,
                 )
         self.GetOperation = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/GetOperation',
+                '/iot2050.firmware.Firmware/GetOperation',
                 request_serializer=iot2050__system__firmware__pb2.OperationRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.OperationReply.FromString,
                 )
         self.InspectRollback = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/InspectRollback',
+                '/iot2050.firmware.Firmware/InspectRollback',
                 request_serializer=iot2050__system__firmware__pb2.RollbackRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.RollbackReply.FromString,
                 )
         self.Rollback = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/Rollback',
+                '/iot2050.firmware.Firmware/Rollback',
                 request_serializer=iot2050__system__firmware__pb2.RollbackRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.OperationReply.FromString,
                 )
         self.StartRollback = channel.unary_unary(
-                '/iot2050.systemfirmware.SystemFirmware/StartRollback',
+                '/iot2050.firmware.Firmware/StartRollback',
                 request_serializer=iot2050__system__firmware__pb2.RollbackRequest.SerializeToString,
                 response_deserializer=iot2050__system__firmware__pb2.OperationReply.FromString,
                 )
 
 
-class SystemFirmwareServicer(object):
+class FirmwareServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetCapabilities(self, request, context):
@@ -108,7 +108,7 @@ class SystemFirmwareServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_SystemFirmwareServicer_to_server(servicer, server):
+def add_FirmwareServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetCapabilities': grpc.unary_unary_rpc_method_handler(
                     servicer.GetCapabilities,
@@ -152,12 +152,12 @@ def add_SystemFirmwareServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'iot2050.systemfirmware.SystemFirmware', rpc_method_handlers)
+            'iot2050.firmware.Firmware', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class SystemFirmware(object):
+class Firmware(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -171,7 +171,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/GetCapabilities',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/GetCapabilities',
             iot2050__system__firmware__pb2.Empty.SerializeToString,
             iot2050__system__firmware__pb2.CapabilitiesReply.FromString,
             options, channel_credentials,
@@ -188,7 +188,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/Inspect',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/Inspect',
             iot2050__system__firmware__pb2.InspectRequest.SerializeToString,
             iot2050__system__firmware__pb2.InspectionReply.FromString,
             options, channel_credentials,
@@ -205,7 +205,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/Update',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/Update',
             iot2050__system__firmware__pb2.UpdateRequest.SerializeToString,
             iot2050__system__firmware__pb2.OperationReply.FromString,
             options, channel_credentials,
@@ -222,7 +222,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/StartUpdate',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/StartUpdate',
             iot2050__system__firmware__pb2.UpdateRequest.SerializeToString,
             iot2050__system__firmware__pb2.OperationReply.FromString,
             options, channel_credentials,
@@ -239,7 +239,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/GetOperation',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/GetOperation',
             iot2050__system__firmware__pb2.OperationRequest.SerializeToString,
             iot2050__system__firmware__pb2.OperationReply.FromString,
             options, channel_credentials,
@@ -256,7 +256,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/InspectRollback',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/InspectRollback',
             iot2050__system__firmware__pb2.RollbackRequest.SerializeToString,
             iot2050__system__firmware__pb2.RollbackReply.FromString,
             options, channel_credentials,
@@ -273,7 +273,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/Rollback',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/Rollback',
             iot2050__system__firmware__pb2.RollbackRequest.SerializeToString,
             iot2050__system__firmware__pb2.OperationReply.FromString,
             options, channel_credentials,
@@ -290,7 +290,7 @@ class SystemFirmware(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/iot2050.systemfirmware.SystemFirmware/StartRollback',
+        return grpc.experimental.unary_unary(request, target, '/iot2050.firmware.Firmware/StartRollback',
             iot2050__system__firmware__pb2.RollbackRequest.SerializeToString,
             iot2050__system__firmware__pb2.OperationReply.FromString,
             options, channel_credentials,
