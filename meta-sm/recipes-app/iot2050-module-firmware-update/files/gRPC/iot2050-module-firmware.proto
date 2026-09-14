@@ -1,76 +1,105 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
+// IOT2050 module firmware update API.
 package iot2050.modulefirmware;
 
 service ModuleFirmware {
-  rpc GetCapabilities (Empty) returns (CapabilitiesReply) {}
-  rpc Inspect (InspectRequest) returns (InspectionReply) {}
+  // Inspect one slot, or scan all slots when slot is zero.
+  rpc Inspect (ModuleInspectionRequest)
+      returns (ModuleInspection) {}
+  // Start an asynchronous module firmware update.
   rpc Update (UpdateRequest) returns (UpdateReply) {}
-  rpc StartUpdate (UpdateRequest) returns (OperationReply) {}
-  rpc GetOperation (OperationRequest) returns (OperationReply) {}
+  // Read the current durable operation state.
+  rpc GetStatus (google.protobuf.Empty) returns (GetStatusReply) {}
+  // Stream best-effort live messages; messages are not replayed.
+  rpc WatchLogs (google.protobuf.Empty)
+      returns (stream WatchLogsReply) {}
 }
 
-message Empty {}
-
-message CapabilitiesReply {
-  bool supported = 1;
-  int32 max_slots = 2;
-  bool chip_a_supported = 3;
-  bool chip_b_supported = 4;
-}
-
-message InspectRequest {
+message ModuleInspectionRequest {
+  // Inspect one slot; zero scans all available slots.
   int32 slot = 1;
-  bool scan = 2;
 }
 
 message SlotInspection {
+  // Module slot number.
   int32 slot = 1;
-  bool available = 2;
-  bool chip_a_node = 3;
-  bool chip_b_node = 4;
+  // Whether chip A has a writable firmware node.
+  bool chip_a_node = 2;
+  // Whether chip B has a writable firmware node.
+  bool chip_b_node = 3;
 }
 
-message InspectionReply {
-  bool ok = 1;
-  string code = 2;
-  string message = 3;
-  repeated SlotInspection slots = 4;
+message ModuleInspection {
+  // Slots matching the inspection request.
+  repeated SlotInspection slots = 1;
 }
 
 message UpdateRequest {
+  // Target module slot.
   int32 slot = 1;
+  // Firmware bytes for chip A; empty means do not update A.
   bytes firmware_a = 2;
+  // Firmware bytes for chip B; empty means do not update B.
   bytes firmware_b = 3;
 }
 
-message ChipResult {
-  bool attempted = 1;
-  bool success = 2;
-  string error = 3;
-}
+message UpdateReply {}
 
-message UpdateReply {
-  bool ok = 1;
+message GetStatusReply {
+  // Current durable lifecycle state of the latest operation.
+  OperationStatus status = 1;
+  // Stable machine-readable result or error code.
   string code = 2;
+  // Current progress or terminal summary.
   string message = 3;
-  int32 slot = 4;
-  ChipResult chip_a = 5;
-  ChipResult chip_b = 6;
-  bool partial_failure = 7;
-  bool reboot_required = 8;
+  // Per-chip final outcome, available after the update reaches a terminal state.
+  ModuleFirmwareOutcome outcome = 4;
 }
 
-message OperationRequest {
-  string operation_id = 1;
+message WatchLogsReply {
+  // Best-effort display message emitted after subscription.
+  string message = 1;
 }
 
-message OperationReply {
-  bool ok = 1;
-  string code = 2;
-  string message = 3;
-  string details_json = 4;
-  string operation_id = 5;
-  string state = 6;
-  string stage = 7;
+enum ChipUpdateStatus {
+  // Default proto3 value; not a valid normal chip result.
+  CHIP_UPDATE_STATUS_UNSPECIFIED = 0;
+  // No firmware was supplied for this chip.
+  CHIP_UPDATE_NOT_ATTEMPTED = 1;
+  // The chip update completed successfully.
+  CHIP_UPDATE_SUCCEEDED = 2;
+  // The chip update was attempted and failed.
+  CHIP_UPDATE_FAILED = 3;
+}
+
+message ChipUpdateOutcome {
+  // Final state of one chip update.
+  ChipUpdateStatus status = 1;
+  // Human-readable failure detail when status is FAILED.
+  string message = 2;
+}
+
+message ModuleFirmwareOutcome {
+  // Target module slot.
+  int32 slot = 1;
+  // Final state for chip A.
+  ChipUpdateOutcome chip_a = 2;
+  // Final state for chip B.
+  ChipUpdateOutcome chip_b = 3;
+}
+
+enum OperationStatus {
+  // Default proto3 value; not a valid normal lifecycle state.
+  OPERATION_STATUS_UNSPECIFIED = 0;
+  // The operation was accepted and is still executing.
+  OPERATION_RUNNING = 1;
+  // The operation completed successfully.
+  OPERATION_SUCCEEDED = 2;
+  // The operation completed with an error.
+  OPERATION_FAILED = 3;
+  // The service stopped before the operation completed.
+  OPERATION_INTERRUPTED = 4;
 }
