@@ -21,6 +21,10 @@ from iot2050_eio_common import (
 
 SM_COMPATIBLE = "siemens,iot2050-advanced-sm"
 SM_MARKER = "/run/iot2050/sm-board"
+MODULE_OPERATION_TIMEOUT = 120
+RPC_TIMEOUT = 10
+
+
 def _eio_grpc_client():
     if EIO_RUNTIME_DIR not in sys.path:
         sys.path.insert(0, EIO_RUNTIME_DIR)
@@ -115,56 +119,73 @@ def _module_grpc_client():
     return (
         channel,
         module_pb2_grpc.ModuleFirmwareStub(channel),
-        module_pb2.InspectRequest,
+        module_pb2.ModuleInspectionRequest,
         module_pb2.UpdateRequest,
-        module_pb2.OperationRequest,
     )
 
 
-def _wait_module_operation(stub, operation_id, operation_request,
-                           progress=None, timeout=3600):
+def _wait_module_operation(stub, progress=None, timeout=MODULE_OPERATION_TIMEOUT):
+    from google.protobuf.empty_pb2 import Empty
+
     deadline = time.monotonic() + timeout
     while True:
-        response = stub.GetOperation(
-            operation_request(operation_id=operation_id),
-            timeout=min(10, max(1, deadline - time.monotonic())),
-        )
-        if response.state == "running":
+        try:
+            for entry in stub.WatchLogs(
+                    Empty(),
+                    timeout=min(
+                        RPC_TIMEOUT, max(1, deadline - time.monotonic())
+                    ),
+            ):
+                if progress:
+                    progress("running", entry.message)
+        except grpc.RpcError as error:
+            if error.code() == grpc.StatusCode.NOT_FOUND:
+                raise FirmwareError(
+                    "operation-interrupted",
+                    "Module firmware service restarted during the operation",
+                ) from error
+            if time.monotonic() >= deadline:
+                raise
+        try:
+            response = stub.GetStatus(Empty(), timeout=RPC_TIMEOUT)
+        except grpc.RpcError as error:
+            if error.code() == grpc.StatusCode.NOT_FOUND:
+                raise FirmwareError(
+                    "operation-interrupted",
+                    "Module firmware service restarted during the operation",
+                ) from error
+            if time.monotonic() >= deadline:
+                raise
+            continue
+        if response.status == 1:
             if time.monotonic() >= deadline:
                 raise FirmwareError(
                     "module-update-timeout",
                     "Module firmware update timed out",
                 )
-            if progress and response.stage:
-                progress(response.stage)
             time.sleep(1)
             continue
-        if not response.ok:
-            details = {}
-            try:
-                details = json.loads(response.details_json)
-            except (TypeError, ValueError):
-                pass
+        result = response.outcome
+        details = {
+            "slot": result.slot,
+            "chip_a": {"status": result.chip_a.status,
+                        "message": result.chip_a.message},
+            "chip_b": {"status": result.chip_b.status,
+                        "message": result.chip_b.message},
+            "reboot_required": True,
+        }
+        if response.status != 2:
             raise FirmwareError(response.code, response.message, details)
-        try:
-            return json.loads(response.details_json) if response.details_json else {}
-        except (TypeError, ValueError) as error:
-            raise FirmwareError(
-                "module-invalid-response",
-                "Module firmware service returned invalid operation data",
-            ) from error
+        return details
 
 
 def _module_inspection_response(response, scan=False):
-    if not response.ok:
-        raise FirmwareError(response.code, response.message)
     if scan or len(response.slots) != 1:
         return {
             "eiofs_available": os.path.isdir("/eiofs/controller"),
             "slots": [
                 {
                     "slot": slot.slot,
-                    "available": slot.available,
                     "chip_a_node": slot.chip_a_node,
                     "chip_b_node": slot.chip_b_node,
                 }
@@ -174,7 +195,6 @@ def _module_inspection_response(response, scan=False):
     slot = response.slots[0]
     return {
         "slot": slot.slot,
-        "available": slot.available,
         "chip_a_node": slot.chip_a_node,
         "chip_b_node": slot.chip_b_node,
     }
@@ -281,20 +301,24 @@ class ModuleFirmwareBackend:
         }
 
     def inspect(self, request):
-        scan = bool(request.get("scan"))
+        scan = int(request.get("slot", 0) or 0) == 0
         channel, stub, inspect_request, _, _ = _module_grpc_client()
         try:
             response = stub.Inspect(
                 inspect_request(
                     slot=int(request.get("slot", 0) or 0),
-                    scan=scan,
                 ),
                 timeout=10,
             )
         except grpc.RpcError as error:
+            code = (
+                "invalid-slot"
+                if error.code() == grpc.StatusCode.INVALID_ARGUMENT
+                else "module-service-unavailable"
+            )
             raise FirmwareError(
-                "module-service-unavailable",
-                "Module firmware service is unavailable",
+                code,
+                error.details() or "Module firmware inspection failed",
             ) from error
         finally:
             channel.close()
@@ -305,7 +329,6 @@ class ModuleFirmwareBackend:
         slot_path = f"/eiofs/controller/slot{slot}"
         return {
             "slot": slot,
-            "available": os.path.isdir(slot_path),
             "chip_a_node": os.path.exists(os.path.join(slot_path, "fwa")),
             "chip_b_node": os.path.exists(os.path.join(slot_path, "fwb")),
         }
@@ -347,9 +370,11 @@ class ModuleFirmwareBackend:
                 ) from error
 
         progress("flashing-module")
-        channel, stub, _, update_request, operation_request = _module_grpc_client()
+        (
+            channel, stub, _, update_request,
+        ) = _module_grpc_client()
         try:
-            response = stub.StartUpdate(
+            response = stub.Update(
                 update_request(
                     slot=slot,
                     firmware_a=firmware.get("A", b""),
@@ -357,10 +382,7 @@ class ModuleFirmwareBackend:
                 ),
                 timeout=10,
             )
-            if not response.ok:
-                raise FirmwareError(response.code, response.message)
-            result = _wait_module_operation(
-                stub, response.operation_id, operation_request, progress)
+            result = _wait_module_operation(stub, progress)
         except grpc.RpcError as error:
             raise FirmwareError(
                 "module-service-unavailable",
