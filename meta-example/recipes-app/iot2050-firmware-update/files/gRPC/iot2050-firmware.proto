@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package iot2050.systemfirmware;
+package iot2050.firmware;
 
-service SystemFirmware {
+service Firmware {
   rpc GetCapabilities (Empty) returns (CapabilitiesReply) {}
   rpc Inspect (InspectRequest) returns (InspectionReply) {}
   rpc Update (UpdateRequest) returns (OperationReply) {}
