@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_ADMIN_GROUPS = ('sudo', 'adm', 'dialout')
+DEFAULT_ADMIN_GROUPS = ('sudo', 'adm', 'dialout', 'gpio', 'pinctrl', 'i2c', 'spi', 'pwm', 'iio')
 RESERVED_USERNAMES = {'root'}
 USERNAME_PATTERN = re.compile(r'^[a-z_][a-z0-9_-]{0,31}$')
 HOSTNAME_PATTERN = re.compile(r'^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$')
@@ -34,10 +34,10 @@ def run_command(arguments, input_text=None):
     )
 
 
-def existing_admin_groups():
-    groups = []
+def existing_groups(group_names: tuple[str, ...]) -> list[str]:
+    groups: list[str] = []
 
-    for group_name in DEFAULT_ADMIN_GROUPS:
+    for group_name in group_names:
         try:
             grp.getgrnam(group_name)
         except KeyError:
@@ -122,7 +122,7 @@ def password_policy_message(result):
     return 'PAM rejected the password.'
 
 
-def create_user(username, password, admin_groups):
+def create_user(username, password, supplementary_groups):
     user_shell = '/bin/bash' if Path('/bin/bash').exists() else '/bin/sh'
     command = [
         'useradd',
@@ -131,8 +131,8 @@ def create_user(username, password, admin_groups):
         '--shell', user_shell,
     ]
 
-    if admin_groups:
-        command.extend(['--groups', ','.join(admin_groups)])
+    if supplementary_groups:
+        command.extend(['--groups', ','.join(supplementary_groups)])
 
     command.append(username)
 
@@ -232,7 +232,7 @@ def main():
         print(json.dumps(result))
         return
 
-    admin_groups = existing_admin_groups() if grant_admin else []
+    admin_groups = existing_groups(DEFAULT_ADMIN_GROUPS) if grant_admin else []
     user_error = create_user(username, password, admin_groups)
     if user_error:
         field = user_error['field']
