@@ -31,12 +31,12 @@ itself is started by `iot2050-module-firmware.service` from the
 
 ## Operation contracts
 
-System and Module Firmware services expose `StartUpdate` and `GetOperation`.
-Firmware also exposes `StartRollback`. Long-running writes return an
-operation ID so callers do not hold a gRPC request open for the duration of a
-flash. Operation records are stored by the service and running records are
-marked interrupted after a service restart. The fwmgr task remains the
-user-facing durable recovery record.
+Firmware services execute long-running writes asynchronously. `Update` and,
+for the firmware service, `Rollback` return an operation ID without
+holding the gRPC request open for the duration of a flash. `GetOperation`
+returns the durable lifecycle and final result. `WatchOperation` provides
+live, human-readable messages while the operation is running; log messages are
+not persisted or replayed after a service restart.
 
 Firmware uses the service process `HOME` as its backup identity. The
 managed path does not accept a caller-selected backup directory. The legacy
