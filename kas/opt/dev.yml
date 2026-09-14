@@ -15,8 +15,6 @@ header:
 
 local_conf_header:
   dev_compat_accounts: |
-    GROUPS += "gpio pinctrl i2c spi pwm iio dialout sudo"
-
     USERS += "root iot2050"
 
     USER_root[password] ??= "root"

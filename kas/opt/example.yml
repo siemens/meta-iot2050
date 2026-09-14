@@ -17,3 +17,7 @@ repos:
   meta-iot2050:
     layers:
       meta-example:
+
+local_conf_header:
+  iot2050_groups: |
+    GROUPS += "gpio pinctrl i2c spi pwm iio led dialout sudo"
