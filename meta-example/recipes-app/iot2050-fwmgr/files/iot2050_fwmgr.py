@@ -36,6 +36,8 @@ DEFAULT_TASK_DIR = "/var/lib/iot2050-fwmgr/tasks"
 DEFAULT_STAGING_DIR = "/var/lib/iot2050-fwmgr/staging"
 TASK_ADMISSION_LOCK = "/run/iot2050/firmware-task-admission.lock"
 TASK_UNIT = "iot2050-firmware-task@{}.service"
+SYSTEM_OPERATION_TIMEOUT = 600
+RPC_TIMEOUT = 10
 
 
 class FirmwareError(Exception):
@@ -83,75 +85,97 @@ class FirmwareBackend:
         return candidates[-1] if candidates else None
 
     @staticmethod
-    def _system_stub():
+    def _firmware_stub():
         if FIRMWARE_RUNTIME_DIR not in sys.path:
             sys.path.insert(0, FIRMWARE_RUNTIME_DIR)
         from gRPC import (
-            iot2050_firmware_pb2 as system_pb2,
-            iot2050_firmware_pb2_grpc as system_pb2_grpc,
+            iot2050_firmware_pb2 as firmware_pb2,
+            iot2050_firmware_pb2_grpc as firmware_pb2_grpc,
         )
 
         channel = grpc.insecure_channel(FIRMWARE_SOCKET)
-        return channel, system_pb2_grpc.FirmwareStub(channel), system_pb2
+        return channel, firmware_pb2_grpc.FirmwareStub(channel), firmware_pb2
 
     @staticmethod
     def _system_response(response):
-        if not response.ok:
-            raise FirmwareError(response.code, response.message)
-        try:
-            return json.loads(response.details_json) if response.details_json else {}
-        except ValueError as error:
-            raise FirmwareError(
-                "firmware-invalid-response",
-                "Firmware service returned invalid response data",
-            ) from error
+        fields = (
+            "firmware_name", "target_version", "target_board",
+        )
+        return {field: getattr(response, field) for field in fields
+                if hasattr(response, field) and getattr(response, field)}
 
     @staticmethod
-    def _wait_system_operation(stub, system_pb2, operation_id,
-                               progress=None, timeout=3600):
+    def _wait_firmware_operation(stub, firmware_pb2, progress=None,
+                               timeout=SYSTEM_OPERATION_TIMEOUT):
         deadline = time.monotonic() + timeout
         while True:
-            response = stub.GetOperation(
-                system_pb2.OperationRequest(operation_id=operation_id),
-                timeout=10,
-            )
-            if response.state == "running":
+            try:
+                from google.protobuf.empty_pb2 import Empty
+                for entry in stub.WatchLogs(
+                    Empty(),
+                    timeout=min(RPC_TIMEOUT, max(1, deadline - time.monotonic())),
+                ):
+                    if progress:
+                        progress("running", entry.message)
+            except grpc.RpcError as error:
+                if error.code() == grpc.StatusCode.NOT_FOUND:
+                    raise FirmwareError(
+                        "operation-interrupted",
+                        "Firmware service restarted during the operation",
+                    ) from error
+                if time.monotonic() >= deadline:
+                    raise
+            try:
+                response = stub.GetStatus(Empty(), timeout=RPC_TIMEOUT)
+            except grpc.RpcError as error:
+                if error.code() == grpc.StatusCode.NOT_FOUND:
+                    raise FirmwareError(
+                        "operation-interrupted",
+                        "Firmware service restarted during the operation",
+                    ) from error
+                if time.monotonic() >= deadline:
+                    raise
+                continue
+            if response.status == firmware_pb2.OPERATION_RUNNING:
                 if time.monotonic() >= deadline:
                     raise FirmwareError(
                         "system-update-timeout",
                         "Firmware update timed out",
                     )
-                if progress and response.stage:
-                    progress(response.stage)
                 time.sleep(1)
                 continue
-            if not response.ok:
-                raise FirmwareError(response.code, response.message)
-            try:
-                return json.loads(response.details_json) if response.details_json else {}
-            except ValueError as error:
+            if response.status != firmware_pb2.OPERATION_SUCCEEDED:
                 raise FirmwareError(
-                    "firmware-invalid-response",
-                    "Firmware service returned invalid operation data",
-                ) from error
+                    response.code,
+                    response.message,
+                )
+            return {"reboot_required": True}
 
     def inspect(self, request):
         path, package = self._resolve(request)
         try:
-            channel, stub, system_pb2 = self._system_stub()
+            channel, stub, firmware_pb2 = self._firmware_stub()
             try:
                 response = stub.Inspect(
-                    system_pb2.InspectRequest(
-                        firmware_path=str(path), pg2_only=True),
+                    firmware_pb2.InspectRequest(
+                        package=firmware_pb2.PackageInspection(
+                            firmware_path=str(path),
+                        ),
+                    ),
                     timeout=10,
                 )
             finally:
                 channel.close()
-            details = self._system_response(response)
+            details = self._system_response(response.package)
         except grpc.RpcError as error:
+            code = {
+                grpc.StatusCode.INVALID_ARGUMENT: "invalid-firmware",
+                grpc.StatusCode.FAILED_PRECONDITION: "firmware-incompatible",
+                grpc.StatusCode.NOT_FOUND: "firmware-not-found",
+            }.get(error.code(), "firmware-service-unavailable")
             raise FirmwareError(
-                "firmware-service-unavailable",
-                "Firmware service is unavailable",
+                code,
+                error.details() or "Firmware inspection failed",
             ) from error
         result = {**details, "package": package}
         if request.get("device_info"):
@@ -212,56 +236,76 @@ class FirmwareBackend:
         path, package = self._resolve(request, staging_store)
         try:
             progress("checking-compatibility-and-signature")
-            channel, stub, system_pb2 = self._system_stub()
-            try:
-                response = stub.StartUpdate(
-                    system_pb2.UpdateRequest(
-                        firmware_path=str(path),
-                        backup_dir=str(self.backup_dir) if self.backup_dir else "",
-                        preserve_list=request.get("preserve_list") or [],
-                        reset=bool(request.get("reset", False)),
-                        pg2_only=True,
+            channel, stub, firmware_pb2 = self._firmware_stub()
+            inspection = self._system_response(
+                stub.Inspect(
+                    firmware_pb2.InspectRequest(
+                        package=firmware_pb2.PackageInspection(
+                            firmware_path=str(path),
+                        ),
                     ),
                     timeout=10,
                 )
-                if not response.ok:
-                    raise FirmwareError(response.code, response.message)
-                result = self._wait_system_operation(
-                    stub, system_pb2, response.operation_id, progress)
+            )
+            try:
+                response = stub.Update(
+                    firmware_pb2.UpdateRequest(
+                        package=firmware_pb2.PackageUpdate(
+                            firmware_path=str(path),
+                            backup_dir=str(self.backup_dir)
+                            if self.backup_dir else "",
+                            preserve_list=request.get("preserve_list") or [],
+                            reset=bool(request.get("reset", False)),
+                        ),
+                    ),
+                    timeout=10,
+                )
+                result = self._wait_firmware_operation(
+                    stub, firmware_pb2, progress)
             finally:
                 channel.close()
         except grpc.RpcError as error:
+            code = {
+                grpc.StatusCode.INVALID_ARGUMENT: "invalid-rollback-request",
+                grpc.StatusCode.NOT_FOUND: "rollback-unavailable",
+                grpc.StatusCode.RESOURCE_EXHAUSTED: "firmware-busy",
+            }.get(error.code(), "firmware-service-unavailable")
             raise FirmwareError(
-                "firmware-service-unavailable",
-                "Firmware service is unavailable",
+                code,
+                error.details() or "Firmware rollback inspection failed",
             ) from error
-        return {**result, "package": package}
+        return {**inspection, **result, "package": package}
 
     def inspect_rollback(self, request):
         try:
-            channel, stub, system_pb2 = self._system_stub()
+            channel, stub, firmware_pb2 = self._firmware_stub()
             try:
-                response = stub.InspectRollback(
-                    system_pb2.RollbackRequest(), timeout=10)
+                response = stub.Inspect(
+                    firmware_pb2.InspectRequest(
+                        rollback=firmware_pb2.RollbackInspection(),
+                    ), timeout=10)
             finally:
                 channel.close()
-            return self._system_response(response)
+            return {}
         except grpc.RpcError as error:
+            code = {
+                grpc.StatusCode.INVALID_ARGUMENT: "invalid-rollback-request",
+                grpc.StatusCode.NOT_FOUND: "rollback-unavailable",
+                grpc.StatusCode.RESOURCE_EXHAUSTED: "firmware-busy",
+            }.get(error.code(), "firmware-service-unavailable")
             raise FirmwareError(
-                "firmware-service-unavailable",
-                "Firmware service is unavailable",
+                code,
+                error.details() or "Firmware service is unavailable",
             ) from error
 
     def rollback(self, request, progress, staging_store):
         try:
-            channel, stub, system_pb2 = self._system_stub()
+            channel, stub, firmware_pb2 = self._firmware_stub()
             try:
-                response = stub.StartRollback(
-                    system_pb2.RollbackRequest(), timeout=10)
-                if not response.ok:
-                    raise FirmwareError(response.code, response.message)
-                result = self._wait_system_operation(
-                    stub, system_pb2, response.operation_id, progress)
+                response = stub.Rollback(
+                    firmware_pb2.RollbackRequest(), timeout=10)
+                result = self._wait_firmware_operation(
+                    stub, firmware_pb2, progress)
             finally:
                 channel.close()
             return result
@@ -738,6 +782,7 @@ class FirmwareTaskCore:
                     "payload": payload,
                     "state": "running",
                     "phase": "starting",
+                    "progress_message": None,
                     "result": None,
                     "error": None,
                     "staging_tokens": staging_tokens,
@@ -778,8 +823,10 @@ class FirmwareTaskCore:
         if task.get("state") != "running":
             return task
 
-        def progress(phase):
+        def progress(phase, message=None):
             task["phase"] = phase
+            if message:
+                task["progress_message"] = message
             try:
                 self.task_store.write(task)
             except OSError:
