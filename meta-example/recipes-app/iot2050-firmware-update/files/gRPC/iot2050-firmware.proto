@@ -1,71 +1,112 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
+// Main IOT2050 OSPI firmware update API.
 package iot2050.firmware;
 
 service Firmware {
-  rpc GetCapabilities (Empty) returns (CapabilitiesReply) {}
-  rpc Inspect (InspectRequest) returns (InspectionReply) {}
-  rpc Update (UpdateRequest) returns (OperationReply) {}
-  rpc StartUpdate (UpdateRequest) returns (OperationReply) {}
-  rpc GetOperation (OperationRequest) returns (OperationReply) {}
-  rpc InspectRollback (RollbackRequest) returns (RollbackReply) {}
-  rpc Rollback (RollbackRequest) returns (OperationReply) {}
-  rpc StartRollback (RollbackRequest) returns (OperationReply) {}
-}
-
-message Empty {}
-
-message CapabilitiesReply {
-  bool supported = 1;
-  string details_json = 2;
+  // Inspect a package or validate the service-owned rollback artifact.
+  rpc Inspect (InspectRequest) returns (InspectReply) {}
+  // Start a package-based or raw firmware update.
+  rpc Update (UpdateRequest) returns (UpdateReply) {}
+  // Read the current durable operation state.
+  rpc GetStatus (google.protobuf.Empty) returns (GetStatusReply) {}
+  // Stream best-effort live messages; messages are not replayed.
+  rpc WatchLogs (google.protobuf.Empty)
+      returns (stream WatchLogsReply) {}
+  // Start a rollback from the service-owned backup artifact.
+  rpc Rollback (RollbackRequest) returns (RollbackReply) {}
 }
 
 message InspectRequest {
-  string firmware_path = 1;
-  bool pg2_only = 2;
+  oneof target {
+    PackageInspection package = 1;
+    RollbackInspection rollback = 2;
+  }
 }
 
-message InspectionReply {
-  bool ok = 1;
-  string code = 2;
-  string message = 3;
-  string details_json = 4;
+message PackageInspection {
+  // Empty selects the service image-default package.
+  string firmware_path = 1;
+}
+
+message RollbackInspection {}
+
+message InspectReply {
+  oneof result {
+    FirmwareInspection package = 1;
+    RollbackInspectionResult rollback = 2;
+  }
+}
+
+message RollbackInspectionResult {}
+
+message FirmwareInspection {
+  // Name of the selected firmware image inside the package.
+  string firmware_name = 1;
+  // Version declared by the package metadata.
+  string target_version = 2;
+  // Board selected by package compatibility matching.
+  string target_board = 3;
 }
 
 message UpdateRequest {
+  oneof payload {
+    PackageUpdate package = 1;
+    RawUpdate raw = 2;
+  }
+}
+
+message PackageUpdate {
+  // Empty selects the service image-default package.
   string firmware_path = 1;
+  // Empty selects the service-owned default rollback location.
   string backup_dir = 2;
+  // U-Boot variables to preserve during the update.
   repeated string preserve_list = 3;
+  // Reset the U-Boot environment instead of preserving it.
   bool reset = 4;
-  bool pg2_only = 5;
-  bool no_backup = 6;
-  bool force = 7;
-  bool verify_signature = 8;
-  bool legacy_cli = 9;
+  // Do not create a rollback backup before flashing.
+  bool no_backup = 5;
+  // Explicitly skip signature verification for a trusted local package.
+  bool no_verify = 6;
 }
 
-message RollbackRequest {
-  string backup_dir = 1;
-  bool legacy_cli = 2;
+message RawUpdate {
+  // Raw firmware binary to write without package validation.
+  string firmware_path = 1;
 }
 
-message RollbackReply {
-  bool ok = 1;
+message UpdateReply {}
+
+message GetStatusReply {
+  // Current durable lifecycle state of the latest operation.
+  OperationStatus status = 1;
+  // Stable machine-readable result or error code.
   string code = 2;
+  // Current progress or terminal summary.
   string message = 3;
-  string details_json = 4;
 }
 
-message OperationReply {
-  bool ok = 1;
-  string code = 2;
-  string message = 3;
-  string details_json = 4;
-  string operation_id = 5;
-  string state = 6;
-  string stage = 7;
+message WatchLogsReply {
+  // Best-effort display message emitted after subscription.
+  string message = 1;
 }
 
-message OperationRequest {
-  string operation_id = 1;
+message RollbackRequest {}
+
+message RollbackReply {}
+
+enum OperationStatus {
+  // Default proto3 value; not a valid normal lifecycle state.
+  OPERATION_STATUS_UNSPECIFIED = 0;
+  // The operation was accepted and is still executing.
+  OPERATION_RUNNING = 1;
+  // The operation completed successfully.
+  OPERATION_SUCCEEDED = 2;
+  // The operation completed with an error.
+  OPERATION_FAILED = 3;
+  // The service stopped before the operation completed.
+  OPERATION_INTERRUPTED = 4;
 }

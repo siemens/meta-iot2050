@@ -36,6 +36,12 @@ iot2050-firmware-update <firmware-package>.tar.xz
 The tool will automatically back up the current firmware before proceeding. If the
 update fails, it can be rolled back.
 
+Firmware writes run asynchronously in the firmware service. The command
+receives an operation ID, displays live operation messages, and waits for the
+durable final result. The service keeps the operation status and final result
+available after a client disconnect or service restart; live messages are not
+stored for later replay.
+
 ### Key Features and Options
 
 - **Rollback (`-b`, `--rollback`)**:
@@ -68,6 +74,10 @@ update fails, it can be rolled back.
   ```sh
   iot2050-firmware-update -f <firmware>.bin
   ```
+
+- **Skip signature verification (`--no-verify`)**:
+  Skips signature verification for a trusted local package. This is unsafe for
+  firmware from an untrusted source and cannot be combined with `--force`.
 
 ## Secure Firmware Update
 
@@ -168,7 +178,8 @@ package alongside the `firmware.bin` file.
 
 ### On-Device Verification
 
-The on-device verification is triggered by the `--verify` flag.
+Package verification is enabled by default. The `--no-verify` option explicitly
+disables it for a trusted local package.
 
 #### Prerequisites
 
@@ -182,10 +193,10 @@ it is trusted.
 
 #### Verification Command
 
-To run an update with signature verification, use the `--verify` flag:
+To run an update with signature verification, omit `--no-verify`:
 
 ```sh
-iot2050-firmware-update --verify <firmware-package>.tar.xz
+iot2050-firmware-update <firmware-package>.tar.xz
 ```
 
 The tool will perform these steps:
