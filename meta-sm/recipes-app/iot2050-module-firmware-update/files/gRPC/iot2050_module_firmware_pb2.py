@@ -3,7 +3,8 @@
 # source: gRPC/iot2050-module-firmware.proto
 # Protobuf Python Version: 4.25.0
 """Generated protocol buffer code."""
-from google.protobuf import descriptor as _descriptor
+from base64 import b64decode as _b64decode
+
 from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
@@ -11,39 +12,16 @@ from google.protobuf.internal import builder as _builder
 
 _sym_db = _symbol_database.Default()
 
-
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"gRPC/iot2050-module-firmware.proto\x12\x16iot2050.modulefirmware\x1a\x1bgoogle/protobuf/empty.proto\"\'\n\x17ModuleInspectionRequest\x12\x0c\n\x04slot\x18\x01 \x01(\x05\"H\n\x0eSlotInspection\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x13\n\x0b\x63hip_a_node\x18\x02 \x01(\x08\x12\x13\n\x0b\x63hip_b_node\x18\x03 \x01(\x08\"I\n\x10ModuleInspection\x12\x35\n\x05slots\x18\x01 \x03(\x0b\x32&.iot2050.modulefirmware.SlotInspection\"E\n\rUpdateRequest\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x12\n\nfirmware_a\x18\x02 \x01(\x0c\x12\x12\n\nfirmware_b\x18\x03 \x01(\x0c\"\r\n\x0bUpdateReply\"\xa8\x01\n\x0eGetStatusReply\x12\x37\n\x06status\x18\x01 \x01(\x0e\x32\'.iot2050.modulefirmware.OperationStatus\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12>\n\x07outcome\x18\x04 \x01(\x0b\x32-.iot2050.modulefirmware.ModuleFirmwareOutcome\"!\n\x0eWatchLogsReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"^\n\x11\x43hipUpdateOutcome\x12\x38\n\x06status\x18\x01 \x01(\x0e\x32(.iot2050.modulefirmware.ChipUpdateStatus\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x9b\x01\n\x15ModuleFirmwareOutcome\x12\x0c\n\x04slot\x18\x01 \x01(\x05\x12\x39\n\x06\x63hip_a\x18\x02 \x01(\x0b\x32).iot2050.modulefirmware.ChipUpdateOutcome\x12\x39\n\x06\x63hip_b\x18\x03 \x01(\x0b\x32).iot2050.modulefirmware.ChipUpdateOutcome*\x88\x01\n\x10\x43hipUpdateStatus\x12\"\n\x1e\x43HIP_UPDATE_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n\x19\x43HIP_UPDATE_NOT_ATTEMPTED\x10\x01\x12\x19\n\x15\x43HIP_UPDATE_SUCCEEDED\x10\x02\x12\x16\n\x12\x43HIP_UPDATE_FAILED\x10\x03*\x94\x01\n\x0fOperationStatus\x12 \n\x1cOPERATION_STATUS_UNSPECIFIED\x10\x00\x12\x15\n\x11OPERATION_RUNNING\x10\x01\x12\x17\n\x13OPERATION_SUCCEEDED\x10\x02\x12\x14\n\x10OPERATION_FAILED\x10\x03\x12\x19\n\x15OPERATION_INTERRUPTED\x10\x04\x32\xf0\x02\n\x0eModuleFirmware\x12\x66\n\x07Inspect\x12/.iot2050.modulefirmware.ModuleInspectionRequest\x1a(.iot2050.modulefirmware.ModuleInspection\"\x00\x12V\n\x06Update\x12%.iot2050.modulefirmware.UpdateRequest\x1a#.iot2050.modulefirmware.UpdateReply\"\x00\x12M\n\tGetStatus\x12\x16.google.protobuf.Empty\x1a&.iot2050.modulefirmware.GetStatusReply\"\x00\x12O\n\tWatchLogs\x12\x16.google.protobuf.Empty\x1a&.iot2050.modulefirmware.WatchLogsReply\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(_b64decode(
+    b"CiJnUlBDL2lvdDIwNTAtbW9kdWxlLWZpcm13YXJlLnByb3RvEhZpb3QyMDUwLm1vZHVsZWZpcm13YXJlGhtnb29nbGUvcHJvdG9idWYvZW1wdHkucHJvdG8iJwoXTW9kdWxlSW5zcGVjdGlvblJlcXVlc3QSDAoEc2xvdBgBIAEoBSI8Cg5TbG90SW5zcGVjdGlvbhIMCgRzbG90GAEgASgFEgwKBG1sZmIYAyABKAkSDgoGc3RhdHVzGAQgASgJIkkKEE1vZHVsZUluc3BlY3Rpb24SNQoFc2xvdHMYASADKAsyJi5pb3QyMDUwLm1vZHVsZWZpcm13YXJlLlNsb3RJbnNwZWN0aW9uIkUKDVVwZGF0ZVJlcXVlc3QSDAoEc2xvdBgBIAEoBRISCgpmaXJtd2FyZV9hGAIgASgMEhIKCmZpcm13YXJlX2IYAyABKAwiDQoLVXBkYXRlUmVwbHkiqAEKDkdldFN0YXR1c1JlcGx5EjcKBnN0YXR1cxgBIAEoDjInLmlvdDIwNTAubW9kdWxlZmlybXdhcmUuT3BlcmF0aW9uU3RhdHVzEgwKBGNvZGUYAiABKAkSDwoHbWVzc2FnZRgDIAEoCRI+CgdvdXRjb21lGAQgASgLMi0uaW90MjA1MC5tb2R1bGVmaXJtd2FyZS5Nb2R1bGVGaXJtd2FyZU91dGNvbWUiIQoOV2F0Y2hMb2dzUmVwbHkSDwoHbWVzc2FnZRgBIAEoCSJeChFDaGlwVXBkYXRlT3V0Y29tZRI4CgZzdGF0dXMYASABKA4yKC5pb3QyMDUwLm1vZHVsZWZpcm13YXJlLkNoaXBVcGRhdGVTdGF0dXMSDwoHbWVzc2FnZRgCIAEoCSKbAQoVTW9kdWxlRmlybXdhcmVPdXRjb21lEgwKBHNsb3QYASABKAUSOQoGY2hpcF9hGAIgASgLMikuaW90MjA1MC5tb2R1bGVmaXJtd2FyZS5DaGlwVXBkYXRlT3V0Y29tZRI5CgZjaGlwX2IYAyABKAsyKS5pb3QyMDUwLm1vZHVsZWZpcm13YXJlLkNoaXBVcGRhdGVPdXRjb21lKogBChBDaGlwVXBkYXRlU3RhdHVzEiIKHkNISVBfVVBEQVRFX1NUQVRVU19VTlNQRUNJRklFRBAAEh0KGUNISVBfVVBEQVRFX05PVF9BVFRFTVBURUQQARIZChVDSElQX1VQREFURV9TVUNDRUVERUQQAhIWChJDSElQX1VQREFURV9GQUlMRUQQAyqUAQoPT3BlcmF0aW9uU3RhdHVzEiAKHE9QRVJBVElPTl9TVEFUVVNfVU5TUEVDSUZJRUQQABIVChFPUEVSQVRJT05fUlVOTklORxABEhcKE09QRVJBVElPTl9TVUNDRUVERUQQAhIUChBPUEVSQVRJT05fRkFJTEVEEAMSGQoVT1BFUkFUSU9OX0lOVEVSUlVQVEVEEAQy8AIKDk1vZHVsZUZpcm13YXJlEmYKB0luc3BlY3QSLy5pb3QyMDUwLm1vZHVsZWZpcm13YXJlLk1vZHVsZUluc3BlY3Rpb25SZXF1ZXN0GiguaW90MjA1MC5tb2R1bGVmaXJtd2FyZS5Nb2R1bGVJbnNwZWN0aW9uIgASVgoGVXBkYXRlEiUuaW90MjA1MC5tb2R1bGVmaXJtd2FyZS5VcGRhdGVSZXF1ZXN0GiMuaW90MjA1MC5tb2R1bGVmaXJtd2FyZS5VcGRhdGVSZXBseSIAEk0KCUdldFN0YXR1cxIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRomLmlvdDIwNTAubW9kdWxlZmlybXdhcmUuR2V0U3RhdHVzUmVwbHkiABJPCglXYXRjaExvZ3MSFi5nb29nbGUucHJvdG9idWYuRW1wdHkaJi5pb3QyMDUwLm1vZHVsZWZpcm13YXJlLldhdGNoTG9nc1JlcGx5IgAwAWIGcHJvdG8z"
+))
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'gRPC.iot2050_module_firmware_pb2', _globals)
-if _descriptor._USE_C_DESCRIPTORS == False:
-  DESCRIPTOR._options = None
-  _globals['_CHIPUPDATESTATUS']._serialized_start=828
-  _globals['_CHIPUPDATESTATUS']._serialized_end=964
-  _globals['_OPERATIONSTATUS']._serialized_start=967
-  _globals['_OPERATIONSTATUS']._serialized_end=1115
-  _globals['_MODULEINSPECTIONREQUEST']._serialized_start=91
-  _globals['_MODULEINSPECTIONREQUEST']._serialized_end=130
-  _globals['_SLOTINSPECTION']._serialized_start=132
-  _globals['_SLOTINSPECTION']._serialized_end=204
-  _globals['_MODULEINSPECTION']._serialized_start=206
-  _globals['_MODULEINSPECTION']._serialized_end=279
-  _globals['_UPDATEREQUEST']._serialized_start=281
-  _globals['_UPDATEREQUEST']._serialized_end=350
-  _globals['_UPDATEREPLY']._serialized_start=352
-  _globals['_UPDATEREPLY']._serialized_end=365
-  _globals['_GETSTATUSREPLY']._serialized_start=368
-  _globals['_GETSTATUSREPLY']._serialized_end=536
-  _globals['_WATCHLOGSREPLY']._serialized_start=538
-  _globals['_WATCHLOGSREPLY']._serialized_end=571
-  _globals['_CHIPUPDATEOUTCOME']._serialized_start=573
-  _globals['_CHIPUPDATEOUTCOME']._serialized_end=667
-  _globals['_MODULEFIRMWAREOUTCOME']._serialized_start=670
-  _globals['_MODULEFIRMWAREOUTCOME']._serialized_end=825
-  _globals['_MODULEFIRMWARE']._serialized_start=1118
-  _globals['_MODULEFIRMWARE']._serialized_end=1486
+_builder.BuildTopDescriptorsAndMessages(
+    DESCRIPTOR, 'gRPC.iot2050_module_firmware_pb2', _globals
+)
 # @@protoc_insertion_point(module_scope)

@@ -21,6 +21,8 @@ from iot2050_eio_common import (
 
 SM_COMPATIBLE = "siemens,iot2050-advanced-sm"
 SM_MARKER = "/run/iot2050/sm-board"
+SUPPORTED_MODULE_MLFB = "6ES7 647-0CM00-1AA2"
+MODULE_LOST_STATUS = "status: module lost"
 MODULE_OPERATION_TIMEOUT = 120
 RPC_TIMEOUT = 10
 
@@ -180,24 +182,34 @@ def _wait_module_operation(stub, progress=None, timeout=MODULE_OPERATION_TIMEOUT
 
 
 def _module_inspection_response(response, scan=False):
-    if scan or len(response.slots) != 1:
+    slots = [
+        {
+            "slot": slot.slot,
+            "mlfb": slot.mlfb,
+            "status": slot.status,
+        }
+        for slot in response.slots
+    ]
+    if scan:
         return {
             "eiofs_available": os.path.isdir("/eiofs/controller"),
-            "slots": [
-                {
-                    "slot": slot.slot,
-                    "chip_a_node": slot.chip_a_node,
-                    "chip_b_node": slot.chip_b_node,
-                }
-                for slot in response.slots
-            ],
+            "slots": [slot for slot in slots if _module_is_available(slot)],
         }
-    slot = response.slots[0]
+    if len(slots) == 1:
+        return slots[0]
     return {
-        "slot": slot.slot,
-        "chip_a_node": slot.chip_a_node,
-        "chip_b_node": slot.chip_b_node,
+        "eiofs_available": os.path.isdir("/eiofs/controller"),
+        "slots": slots,
     }
+
+
+def _module_is_available(inspection):
+    status = inspection["status"]
+    return (
+        inspection["mlfb"] == SUPPORTED_MODULE_MLFB
+        and bool(status)
+        and MODULE_LOST_STATUS not in status.lower()
+    )
 
 
 class EIOControllerBackend:
@@ -282,11 +294,8 @@ class ModuleFirmwareBackend:
             return False, "not an SM variant"
         if not os.path.isdir("/eiofs/controller"):
             return False, "EIO controller filesystem is unavailable"
-        if not any(
-            slot["chip_a_node"] or slot["chip_b_node"]
-            for slot in self.scan_slots()
-        ):
-            return False, "No module firmware nodes (fwa/fwb) detected"
+        if not any(_module_is_available(slot) for slot in self.scan_slots()):
+            return False, "No configured EIO modules are available"
         return True, None
 
     def capabilities(self):
@@ -302,7 +311,7 @@ class ModuleFirmwareBackend:
 
     def inspect(self, request):
         scan = int(request.get("slot", 0) or 0) == 0
-        channel, stub, inspect_request, _, _ = _module_grpc_client()
+        channel, stub, inspect_request, _ = _module_grpc_client()
         try:
             response = stub.Inspect(
                 inspect_request(
@@ -327,11 +336,22 @@ class ModuleFirmwareBackend:
     @classmethod
     def inspect_slot(cls, slot):
         slot_path = f"/eiofs/controller/slot{slot}"
+        mlfb = cls._read_slot_attribute(slot_path, "article_number")
+        status = cls._read_slot_attribute(slot_path, "status")
         return {
             "slot": slot,
-            "chip_a_node": os.path.exists(os.path.join(slot_path, "fwa")),
-            "chip_b_node": os.path.exists(os.path.join(slot_path, "fwb")),
+            "mlfb": mlfb or "",
+            "status": status or "",
         }
+
+    @staticmethod
+    def _read_slot_attribute(slot_path, name):
+        try:
+            path = os.path.join(slot_path, name)
+            with open(path, encoding="utf-8") as attribute:
+                return attribute.read().strip()
+        except OSError:
+            return None
 
     @classmethod
     def scan_slots(cls):
@@ -346,6 +366,9 @@ class ModuleFirmwareBackend:
         slot_path = f"/eiofs/controller/slot{slot}"
         if not os.path.isdir(slot_path):
             raise FirmwareError("slot-unavailable", "Module slot is unavailable")
+        if not _module_is_available(self.inspect_slot(slot)):
+            raise FirmwareError(
+                "slot-unavailable", "Module is unavailable or has been removed")
         tokens = {
             "A": request.get("firmware_a"),
             "B": request.get("firmware_b"),

@@ -380,11 +380,25 @@ class ModuleFirmwareUpdateSlot:
     def inspect(slot):
         ModuleFirmwareUpdateSlot.validate(slot)
         slot_path = os.path.join(DEFAULT_CONTROLLER_PATH, f"slot{slot}")
+        mlfb = ModuleFirmwareUpdateSlot._read_attribute(
+            os.path.join(slot_path, "article_number")
+        )
+        status = ModuleFirmwareUpdateSlot._read_attribute(
+            os.path.join(slot_path, "status")
+        )
         return {
             "slot": slot,
-            "chip_a_node": os.path.exists(os.path.join(slot_path, "fwa")),
-            "chip_b_node": os.path.exists(os.path.join(slot_path, "fwb")),
+            "mlfb": mlfb or "",
+            "status": status or "",
         }
+
+    @staticmethod
+    def _read_attribute(path):
+        try:
+            with open(path, encoding="utf-8") as attribute:
+                return attribute.read().strip()
+        except OSError:
+            return None
 
 if __name__ == '__main__':
     serve()
