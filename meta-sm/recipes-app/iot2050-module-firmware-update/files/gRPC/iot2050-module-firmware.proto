@@ -19,17 +19,17 @@ service ModuleFirmware {
 }
 
 message ModuleInspectionRequest {
-  // Inspect one slot; zero scans all available slots.
+  // Inspect one slot; zero scans all known slots.
   int32 slot = 1;
 }
 
 message SlotInspection {
   // Module slot number.
   int32 slot = 1;
-  // Whether chip A has a writable firmware node.
-  bool chip_a_node = 2;
-  // Whether chip B has a writable firmware node.
-  bool chip_b_node = 3;
+  // Module MLFB reported by EIOFS.
+  string mlfb = 3;
+  // Raw module status reported by EIOFS.
+  string status = 4;
 }
 
 message ModuleInspection {

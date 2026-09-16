@@ -198,10 +198,9 @@ async function inspectModule () {
   const data = await runManager(['inspect', 'module', '--payload', JSON.stringify({ slot })]);
   document.getElementById('module-details').replaceChildren(
     detail('Slot', data.slot),
-    detail('Chip A node', data.chip_a_node ? 'Available' : 'Unavailable'),
-    detail('Chip B node', data.chip_b_node ? 'Available' : 'Unavailable')
+    detail('MLFB', data.mlfb || 'Unavailable')
   );
-  applyModuleInspection(data);
+  applyModuleInspection();
 }
 
 function setModuleFilePickerDisabled (inputId, buttonId, disabled) {
@@ -220,18 +219,18 @@ function updateModuleFileName (inputId, nameId) {
   element.classList.toggle('placeholder', !file);
 }
 
-function applyModuleInspection (inspection) {
-  setModuleFilePickerDisabled('firmware-a', 'choose-firmware-a', !inspection.chip_a_node);
-  setModuleFilePickerDisabled('firmware-b', 'choose-firmware-b', !inspection.chip_b_node);
-  document.getElementById('update-module').disabled =
-    !inspection.chip_a_node && !inspection.chip_b_node;
+function applyModuleInspection () {
+  const disabled = backendAvailability.module === false;
+  setModuleFilePickerDisabled('firmware-a', 'choose-firmware-a', disabled);
+  setModuleFilePickerDisabled('firmware-b', 'choose-firmware-b', disabled);
+  document.getElementById('update-module').disabled = disabled;
 }
 
 async function scanModuleSlots () {
   const select = document.getElementById('module-slot');
   const slotLabel = document.getElementById('module-slot-label');
   const scan = await runManager(['inspect', 'module', '--payload', JSON.stringify({ scan: true })]);
-  const slots = scan.slots.filter(slot => slot.chip_a_node || slot.chip_b_node);
+  const slots = scan.slots;
   document.getElementById('module-card').classList.toggle('hidden', !slots.length);
   select.replaceChildren();
   slots.forEach(slot => {
@@ -459,20 +458,14 @@ async function startModuleUpdate () {
   const stagedTokens = [];
   try {
     const inspection = await runManager(['inspect', 'module', '--payload', JSON.stringify({ slot })]);
-    if (!inspection.available || (!inspection.chip_a_node && !inspection.chip_b_node)) {
-      throw new Error(`Module slot ${slot} is unavailable or has no writable firmware nodes.`);
-    }
-    if ((fileA && !inspection.chip_a_node) || (fileB && !inspection.chip_b_node)) {
-      throw new Error(`Selected firmware targets an unavailable chip in slot ${slot}.`);
-    }
     const stagedA = fileA ? await stageFile(fileA) : null;
     const stagedB = fileB ? await stageFile(fileB) : null;
     if (stagedA) stagedTokens.push(stagedA.token);
     if (stagedB) stagedTokens.push(stagedB.token);
     const lines = [
       `Update module in slot ${slot}?`,
-      `Chip A node: ${inspection.chip_a_node ? 'available' : 'unavailable'}`,
-      `Chip B node: ${inspection.chip_b_node ? 'available' : 'unavailable'}`
+      `MLFB: ${inspection.mlfb || 'unknown'}`,
+      `Status: ${inspection.status || 'unknown'}`
     ];
     if (stagedA) lines.push(`Chip A: ${stagedA.name} (${stagedA.size} bytes)\nSHA-256: ${stagedA.sha256}`);
     if (stagedB) lines.push(`Chip B: ${stagedB.name} (${stagedB.size} bytes)\nSHA-256: ${stagedB.sha256}`);

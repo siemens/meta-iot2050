@@ -38,14 +38,14 @@ class ModuleInspectionRequest(_message.Message):
     def __init__(self, slot: _Optional[int] = ...) -> None: ...
 
 class SlotInspection(_message.Message):
-    __slots__ = ("slot", "chip_a_node", "chip_b_node")
+    __slots__ = ("slot", "mlfb", "status")
     SLOT_FIELD_NUMBER: _ClassVar[int]
-    CHIP_A_NODE_FIELD_NUMBER: _ClassVar[int]
-    CHIP_B_NODE_FIELD_NUMBER: _ClassVar[int]
+    MLFB_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
     slot: int
-    chip_a_node: bool
-    chip_b_node: bool
-    def __init__(self, slot: _Optional[int] = ..., chip_a_node: bool = ..., chip_b_node: bool = ...) -> None: ...
+    mlfb: str
+    status: str
+    def __init__(self, slot: _Optional[int] = ..., mlfb: _Optional[str] = ..., status: _Optional[str] = ...) -> None: ...
 
 class ModuleInspection(_message.Message):
     __slots__ = ("slots",)
