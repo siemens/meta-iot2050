@@ -34,12 +34,42 @@ function installShellStyleSync () {
 installShellStyleSync();
 
 function runManager (args) {
-  return cockpit.spawn([command, ...args], { superuser: 'require', err: 'message' })
-    .then(output => {
+  return cockpit.spawn(
+    [command, '--json', ...args],
+    { superuser: 'require', err: 'message' },
+  ).then(
+    output => {
       const response = JSON.parse(output);
-      if (!response.ok) throw new Error(response.error.message);
+      if (!response.ok) throw managerError(response.error);
       return response.data;
-    });
+    },
+    error => {
+      const response = parseManagerError(error);
+      throw response ? managerError(response.error) : error;
+    },
+  );
+}
+
+function managerError (error) {
+  const result = new Error(errorText(error));
+  result.code = error && error.code;
+  result.details = error && error.details;
+  return result;
+}
+
+function parseManagerError (error) {
+  for (const value of [error && error.message, error && error.stdout]) {
+    if (typeof value !== 'string') continue;
+    for (const line of value.trim().split('\n').reverse()) {
+      try {
+        const response = JSON.parse(line);
+        if (response && response.ok === false && response.error) return response;
+      } catch (ignored) {
+        // This process failure did not originate from iot2050-fwmgr JSON.
+      }
+    }
+  }
+  return null;
 }
 
 function stageFile (file) {
@@ -124,8 +154,23 @@ function showError (error) {
   const alert = document.getElementById('error');
   alert.textContent = error && error.problem === 'access-denied'
     ? 'You don\'t have permission to access this page. If your account has administrator privileges, switch to Administrative access using the lock menu, authenticate if prompted, and refresh the page.'
-    : error.message || String(error);
+    : errorText(error);
   alert.classList.remove('hidden');
+}
+
+function errorText (error) {
+  if (!error) return 'Unknown error';
+  if (typeof error.message === 'string' && error.message.trim()) {
+    return error.message;
+  }
+  if (typeof error.details === 'string' && error.details.trim()) {
+    return error.details;
+  }
+  if (error.details !== undefined && error.details !== null) {
+    return JSON.stringify(error.details);
+  }
+  if (error.code) return String(error.code);
+  return String(error);
 }
 
 function clearError () {
@@ -293,7 +338,7 @@ function setModuleControlsDisabled (disabled) {
 function showUnavailable (statusElement, detailsElement, reason) {
   statusElement.textContent = 'Unavailable';
   statusElement.className = 'status bad';
-  detailsElement.replaceChildren(detail('Reason', reason || 'Backend is unavailable'));
+  detailsElement.replaceChildren(detail('Reason', errorText(reason)));
 }
 
 async function updateSystemFileHint () {
@@ -314,8 +359,11 @@ async function updateSystemFileHint () {
 }
 
 async function inspectRollback () {
-  await runManager(['inspect', 'system', '--rollback']);
-  document.getElementById('rollback-system').classList.remove('hidden');
+  const details = await runManager(['inspect', 'system', '--rollback']);
+  document.getElementById('rollback-system').classList.toggle(
+    'hidden', details && details.available === false,
+  );
+  return details;
 }
 
 async function startRollback () {
@@ -362,10 +410,10 @@ async function startSystemUpdate () {
     const task = await runManager(['start', 'system', '--payload', JSON.stringify(payload)]);
     staged = null;
     setSystemUpdateDisabled(true);
-  await pollTask(task.id);
+    await pollTask(task.id);
   } catch (error) {
     if (staged) await runManager(['staging-delete', staged.token]).catch(() => {});
-    throw error;
+    showError(error);
   } finally {
     if (!taskRunning) setSystemUpdateDisabled(false);
   }
@@ -380,9 +428,9 @@ async function pollTask (taskId) {
   const task = await runManager(['task', taskId]);
   document.getElementById('task-title').textContent = `${task.backend} firmware update`;
   document.getElementById('task-message').textContent =
-    (task.error && task.error.message) ||
+    (task.error && errorText(task.error)) ||
     (task.state === 'running' && task.progress_message) ||
-    phaseLabel(task.phase);
+    phaseLabel(task.phase) || 'Unknown task state';
   const state = document.getElementById('task-state');
   const safety = document.getElementById('task-safety');
   const rebootButton = document.getElementById('reboot-device');
@@ -421,9 +469,8 @@ async function pollTask (taskId) {
         task.operation === 'update') {
       try {
         await inspectRollback();
-        document.getElementById('task-message').textContent += ' A rollback backup is available; use Rollback to restore the previous firmware before rebooting.';
       } catch (error) {
-        document.getElementById('task-message').textContent += ' No verified rollback backup is available; keep the device powered and follow the recovery procedure.';
+        document.getElementById('rollback-system').classList.add('hidden');
       }
     }
     if (task.result && task.result.reboot_required) {
@@ -556,7 +603,7 @@ async function loadCapabilities () {
       try {
         await inspectSystem();
       } catch (error) {
-        setSystemUpdateDisabled(true);
+        setSystemUpdateDisabled(false);
         showUnavailable(
           document.querySelector('#system-card .status'),
           document.getElementById('system-details'),
@@ -593,6 +640,14 @@ document.getElementById('reboot-device').addEventListener('click', () => rebootD
 document.getElementById('inspect-module').addEventListener('click', () => inspectModule().catch(showError));
 document.getElementById('update-controller').addEventListener('click', () => startControllerUpdate().catch(showError));
 document.getElementById('update-module').addEventListener('click', () => startModuleUpdate().catch(showError));
+window.addEventListener('unhandledrejection', event => {
+  event.preventDefault();
+  showError(event.reason);
+});
+window.addEventListener('error', event => {
+  event.preventDefault();
+  showError(event.error || event.message);
+});
 window.addEventListener('beforeunload', event => {
   if (!taskRunning) return;
   event.preventDefault();

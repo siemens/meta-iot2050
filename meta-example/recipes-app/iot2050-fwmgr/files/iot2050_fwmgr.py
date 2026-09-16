@@ -105,6 +105,15 @@ class FirmwareBackend:
                 if hasattr(response, field) and getattr(response, field)}
 
     @staticmethod
+    def _grpc_error(error):
+        message = error.details() or str(error)
+        return FirmwareError(
+            error.code().name,
+            message,
+            {"grpc_status": error.code().name},
+        )
+
+    @staticmethod
     def _wait_firmware_operation(stub, firmware_pb2, progress=None,
                                timeout=SYSTEM_OPERATION_TIMEOUT):
         deadline = time.monotonic() + timeout
@@ -119,20 +128,14 @@ class FirmwareBackend:
                         progress("running", entry.message)
             except grpc.RpcError as error:
                 if error.code() == grpc.StatusCode.NOT_FOUND:
-                    raise FirmwareError(
-                        "operation-interrupted",
-                        "Firmware service restarted during the operation",
-                    ) from error
+                    raise FirmwareBackend._grpc_error(error) from error
                 if time.monotonic() >= deadline:
                     raise
             try:
                 response = stub.GetStatus(Empty(), timeout=RPC_TIMEOUT)
             except grpc.RpcError as error:
                 if error.code() == grpc.StatusCode.NOT_FOUND:
-                    raise FirmwareError(
-                        "operation-interrupted",
-                        "Firmware service restarted during the operation",
-                    ) from error
+                    raise FirmwareBackend._grpc_error(error) from error
                 if time.monotonic() >= deadline:
                     raise
                 continue
@@ -168,15 +171,7 @@ class FirmwareBackend:
                 channel.close()
             details = self._system_response(response.package)
         except grpc.RpcError as error:
-            code = {
-                grpc.StatusCode.INVALID_ARGUMENT: "invalid-firmware",
-                grpc.StatusCode.FAILED_PRECONDITION: "firmware-incompatible",
-                grpc.StatusCode.NOT_FOUND: "firmware-not-found",
-            }.get(error.code(), "firmware-service-unavailable")
-            raise FirmwareError(
-                code,
-                error.details() or "Firmware inspection failed",
-            ) from error
+            raise self._grpc_error(error) from error
         result = {**details, "package": package}
         if request.get("device_info"):
             result["device_info"] = self._device_info()
@@ -229,8 +224,11 @@ class FirmwareBackend:
     def _version_label(value):
         if not value:
             return None
-        match = re.search(r"V[0-9]+(?:\.[0-9]+)+(?:-[0-9A-Za-z._+-]+)?", value)
-        return match.group(0) if match else value
+        # Device firmware values may carry an image release prefix such as
+        # 2026.07-. Keep the actual version for both V-prefixed and numeric
+        # internal versions.
+        release_prefix = re.match(r"^\d{4}\.\d{2}-(.+)$", value)
+        return release_prefix.group(1) if release_prefix else value
 
     def start(self, request, progress, staging_store):
         path, package = self._resolve(request, staging_store)
@@ -265,15 +263,7 @@ class FirmwareBackend:
             finally:
                 channel.close()
         except grpc.RpcError as error:
-            code = {
-                grpc.StatusCode.INVALID_ARGUMENT: "invalid-rollback-request",
-                grpc.StatusCode.NOT_FOUND: "rollback-unavailable",
-                grpc.StatusCode.RESOURCE_EXHAUSTED: "firmware-busy",
-            }.get(error.code(), "firmware-service-unavailable")
-            raise FirmwareError(
-                code,
-                error.details() or "Firmware rollback inspection failed",
-            ) from error
+            raise self._grpc_error(error) from error
         return {**inspection, **result, "package": package}
 
     def inspect_rollback(self, request):
@@ -286,17 +276,12 @@ class FirmwareBackend:
                     ), timeout=10)
             finally:
                 channel.close()
-            return {}
+            return {"available": True}
         except grpc.RpcError as error:
-            code = {
-                grpc.StatusCode.INVALID_ARGUMENT: "invalid-rollback-request",
-                grpc.StatusCode.NOT_FOUND: "rollback-unavailable",
-                grpc.StatusCode.RESOURCE_EXHAUSTED: "firmware-busy",
-            }.get(error.code(), "firmware-service-unavailable")
-            raise FirmwareError(
-                code,
-                error.details() or "Firmware service is unavailable",
-            ) from error
+            if (error.code() == grpc.StatusCode.FAILED_PRECONDITION and
+                    error.details() == "No rollback firmware exists"):
+                return {"available": False}
+            raise self._grpc_error(error) from error
 
     def rollback(self, request, progress, staging_store):
         try:
@@ -310,10 +295,7 @@ class FirmwareBackend:
                 channel.close()
             return result
         except grpc.RpcError as error:
-            raise FirmwareError(
-                "firmware-service-unavailable",
-                "Firmware service is unavailable",
-            ) from error
+            raise self._grpc_error(error) from error
 
     def _resolve(self, request, staging_store=None):
         if request.get("source") == "image-default":
@@ -334,34 +316,6 @@ class FirmwareBackend:
                 "staging-required", "A staged firmware package is required")
         path, metadata = store.resolve(token)
         return path, {"source": "upload", **metadata}
-
-    @staticmethod
-    def _raise_update_error(error):
-        # Keep updater internals and paths out of the IPC while preserving the
-        # stable numeric code needed by support and existing CLI documentation.
-        code = getattr(error, "code", None)
-        if code is None:
-            raise FirmwareError(
-                "system-update-failed", "Firmware operation failed"
-            ) from error
-        messages = {
-            3: "Firmware backup failed",
-            5: "Firmware flashing or readback failed",
-            7: "The firmware package is not compatible with this device",
-            9: "The firmware signature is missing",
-            10: "The firmware verification key is unavailable",
-            11: "The firmware signature is invalid",
-        }
-        if code in (7, 9, 10, 11) and getattr(error, "err", None):
-            message = str(error.err)
-        else:
-            message = messages.get(code, "Firmware operation was rejected")
-        raise FirmwareError(
-            "system-update-rejected",
-            message,
-            {"updater_code": code},
-        ) from error
-
 
 class BackendRegistry:
     def __init__(self, backend_dir=DEFAULT_BACKEND_DIR, builtins=None):
@@ -440,10 +394,16 @@ class BackendRegistry:
         return capabilities
 
     def get(self, name):
-        backend = self.available_backends().get(name)
+        backend = self.backends.get(name)
         if backend is None:
             raise FirmwareError(
-                "backend-unavailable", f"Backend '{name}' is unavailable")
+                "backend-not-found", f"Backend '{name}' is not registered")
+        is_available, reason = backend.available()
+        if not is_available:
+            raise FirmwareError(
+                "backend-unavailable",
+                reason or f"Backend '{name}' is unavailable",
+            )
         return backend
 
 
@@ -746,7 +706,8 @@ class FirmwareTaskCore:
             return []
         tokens = []
         for key, value in payload.items():
-            if (key == "token" or key.startswith("firmware_")) and isinstance(value, str):
+            if key in ("token", "firmware_a", "firmware_b") and \
+                    isinstance(value, str):
                 tokens.append(value)
             elif isinstance(value, dict):
                 tokens.extend(FirmwareTaskCore._staging_tokens(value))
@@ -852,9 +813,10 @@ class FirmwareTaskCore:
                 if error.details is not None:
                     task["error"]["details"] = error.details
             else:
+                message = str(error).strip() or type(error).__name__
                 task["error"] = {
-                    "code": "backend-failed",
-                    "message": "Firmware operation failed",
+                    "code": type(error).__name__,
+                    "message": message,
                 }
         finally:
             try:
@@ -953,7 +915,7 @@ class FirmwareTaskCore:
                 "data": data,
             }
         except FirmwareError as error:
-            return {
+            response = {
                 "v": PROTOCOL_VERSION,
                 "id": request_id,
                 "ok": False,
@@ -962,14 +924,17 @@ class FirmwareTaskCore:
                     "message": error.message,
                 },
             }
-        except Exception:
+            if error.details is not None:
+                response["error"]["details"] = error.details
+            return response
+        except Exception as error:
             return {
                 "v": PROTOCOL_VERSION,
                 "id": request_id,
                 "ok": False,
                 "error": {
-                    "code": "internal-error",
-                    "message": "Internal firmware task error",
+                    "code": type(error).__name__,
+                    "message": str(error).strip() or type(error).__name__,
                 },
             }
 
