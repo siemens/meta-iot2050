@@ -124,6 +124,10 @@ def confirm(message, quiet, auto_answer="y"):
 def result_code(response, rollback=False):
     if response.status == 2:
         return 1 if rollback else 0
+    try:
+        return int(response.code)
+    except (TypeError, ValueError):
+        pass
     return EXIT_CODES.get(response.code, 8)
 
 

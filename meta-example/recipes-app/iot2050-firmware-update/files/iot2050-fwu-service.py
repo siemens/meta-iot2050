@@ -1588,9 +1588,11 @@ def serve():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(error))
             except OSError as error:
                 context.abort(grpc.StatusCode.UNAVAILABLE, str(error))
-            except Exception:
-                context.abort(grpc.StatusCode.INTERNAL,
-                              "Firmware inspection failed")
+            except Exception as error:
+                context.abort(
+                    grpc.StatusCode.INTERNAL,
+                    str(error).strip() or type(error).__name__,
+                )
 
         def Update(self, request, context):
             payload = request.WhichOneof("payload")
