@@ -897,7 +897,7 @@ class FirmwareTarball(object):
         return True
 
     def inspect(self):
-        """Return the selected package metadata without touching the flash."""
+        """Return compatible package images without touching the flash."""
         firmware_name = self.get_file_name(self.FIRMWARE_TYPES[0])
         if not firmware_name:
             raise UpgradeError(
@@ -913,11 +913,6 @@ class FirmwareTarball(object):
             firmware for firmware in self._jsonobj.firmware
             if firmware.name == firmware_name
         )
-        firmware_path = self.get_file_path(firmware_name)
-        digest = hashlib.sha256()
-        with open(firmware_path, "rb") as firmware:
-            for chunk in iter(lambda: firmware.read(1024 * 1024), b""):
-                digest.update(chunk)
         return {
             "firmware_name": firmware_name,
             "target_version": getattr(selected, "version", None),
@@ -948,60 +943,46 @@ class FirmwareTarball(object):
             f"'{self._board_info.os_info.get('VERSION_ID', 'unknown')}'"
         )
 
-    def get_file_name(self, firmware_type):
-        """Get the file names of working firmware"""
-        res = []
+    def compatible_firmware_names(self, firmware_type):
+        """Return all package images compatible with the current device."""
         if self.FIRMWARE_TYPES[1] == firmware_type:
-            res = self.UBOOT_ENV_FILE
-            return res
+            return [self.UBOOT_ENV_FILE]
         if self.FIRMWARE_TYPES[2] == firmware_type:
-            res = self.CONF_JSON
-            return res
-        if not self.firmware_names[firmware_type]:
-            for firmware in self._jsonobj.firmware:
-                target_boards = getattr(firmware, "target_boards", [])
-                if self._board_info.board_name in firmware.target_boards:
-                    # Be forward compatible, the previous uboot firmware
-                    # tarballs don't have the type node
-                    if not hasattr(firmware, "type"):
-                        firmware.type = self.FIRMWARE_TYPES[0]
+            return [self.CONF_JSON]
+        candidates = []
+        global_target_os = getattr(self._jsonobj, "target_os", [])
+        for firmware in self._jsonobj.firmware:
+            target_boards = getattr(firmware, "target_boards", [])
+            if self._board_info.board_name not in target_boards:
+                continue
+            # Be forward compatible, the previous uboot firmware tarballs
+            # do not have a type node.
+            if not hasattr(firmware, "type"):
+                firmware.type = self.FIRMWARE_TYPES[0]
+            if firmware.type != firmware_type:
+                continue
+            # A firmware entry may override the package-wide OS constraint.
+            target_os = getattr(firmware, "target_os", global_target_os)
+            if not target_os or self.__check_os(
+                    target_os, self._board_info.os_info):
+                candidates.append(firmware.name)
+        return candidates
 
-                    if firmware.type ==  firmware_type:
-                        target_os = []
-                        try:
-                            target_os = self._jsonobj.target_os
-                        except AttributeError:
-                            pass
-
-                        # local target_os configuration prior to global
-                        try:
-                            target_os = firmware.target_os
-                        except AttributeError:
-                            pass
-
-                        # Get available firmware names by checking the board name
-                        # and the os information, or the firmware w/o target_os node
-                        # which means it doesn't care the OS info.
-                        if len(target_os) == 0 or \
-                                self.__check_os(target_os, self._board_info.os_info):
-                            res.append(firmware.name)
-
-            if len(res) > 1:
-                # Ask user to pick one firmware image to update
-                print("Please select which firmware image to update:")
-                for n in res:
-                    print("{}\t{}".format(res.index(n) + 1, n))
-
-                choice = int(self.interactor.interact("-> "))
-                while choice > len(res) or choice < 1:
-                    print("Out of range, please reinput your choice:")
-                    choice = int(self.interactor.interact("-> "))
-
-                res = res[choice - 1]
-
-            self.firmware_names[firmware_type] = "".join(res)
-
-        return self.firmware_names[firmware_type]
+    def get_file_name(self, firmware_type):
+        """Return the uniquely compatible package image name."""
+        if firmware_type != self.FIRMWARE_TYPES[0]:
+            return self.compatible_firmware_names(firmware_type)[0]
+        candidates = self.compatible_firmware_names(firmware_type)
+        if not candidates:
+            return ""
+        if len(candidates) == 1:
+            return candidates[0]
+        raise UpgradeError(
+            "Firmware package contains multiple compatible images for board "
+            f"'{self._board_info.board_name}': {', '.join(candidates)}. "
+            "Provide an unambiguous firmware package.",
+            ErrorCode.INVALID_FIRMWARE.value,
+        )
 
     def get_file(self, name):
         """Get the file object of specified name"""
@@ -1223,14 +1204,12 @@ class NonInteractiveInterface(object):
             self.report(info.lower().replace(" ", "-"))
 
 
-def inspect_firmware(firmware_path, public_key_path=None):
-    """Validate compatibility and signature without accessing flash devices."""
+def inspect_firmware(firmware_path):
+    """Validate a uniquely compatible package without accessing flash."""
     interactor = NonInteractiveInterface()
     with open(firmware_path, "rb") as archive:
         package = FirmwareTarball(archive, interactor, None, True)
         try:
-            if public_key_path is not None:
-                package.PUBLIC_KEY_PATH = public_key_path
             details = package.inspect()
             package.verify_firmware_signature(details["firmware_name"])
             return details
@@ -1252,18 +1231,19 @@ def update_firmware(firmware_path, backup_dir=None,
     with open(firmware_path, "rb") as archive:
         package = FirmwareTarball(
             archive, interactor, preserve_list,
-            verify_package=verify_package
+            verify_package=verify_package,
         )
         updater = None
         try:
             if public_key_path is not None:
                 package.PUBLIC_KEY_PATH = public_key_path
             details = package.inspect()
+            selected_name = details["firmware_name"]
             # Verify before FirmwareUpdate gathers environment state or opens
             # flash devices. FirmwareUpdate verifies again immediately before
             # writing, using the same private extracted files.
             if verify_package:
-                package.verify_firmware_signature(details["firmware_name"])
+                package.verify_firmware_signature(selected_name)
             updater = FirmwareUpdate(
                 package, backup_dir, interactor,
                 rollback=False, reset=reset,
