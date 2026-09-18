@@ -22,6 +22,12 @@ hostname=${2:-$(hostname -f || hostname)}
 issue_file=/run/cockpit/active.issue
 issue_net_file=/etc/issue.net
 
+# Show every routable IPv4 address instead of a placeholder URL.  Restricting
+# the query to global addresses excludes loopback and link-local addresses,
+# while retaining addresses on all interfaces that can be reached locally.
+network_addresses=$(ip -o -4 addr show scope global 2>/dev/null \
+	| awk '{sub(/\/.*/, "", $4); if (!seen[$4]++) print $4}') || true
+
 mkdir -p /run/cockpit
 ln -snf active.issue /run/cockpit/issue
 
@@ -39,7 +45,16 @@ render_banner() {
 	printf '%s\n' '----------------------------------------'
 	printf '\n'
 	printf '%s\n' "${title}"
-	printf 'Visit: https://my-ip/\n'
+	printf 'Visit:\n'
+	if [ -n "${network_addresses}" ]; then
+		printf '%s\n' "${network_addresses}" | while IFS= read -r address; do
+			[ -n "${address}" ] || continue
+			printf '    https://%s/\n' "${address}"
+		done
+	else
+		printf '    No network address.\n'
+		printf '    Connect the device to a network to access the %s.\n' "${title#IOT2050 }"
+	fi
 	if [ -n "${hostname}" ] && [ "${hostname}" != "localhost" ]; then
 		printf '\nHost: %s\n' "${hostname}"
 	fi
