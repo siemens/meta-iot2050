@@ -7,6 +7,7 @@ let taskRunning = false;
 let backendAvailability = {};
 let defaultSystemPackage = '';
 let deviceIdentity = {};
+let refreshPromise = null;
 
 function applyShellStyle (style) {
   const selected = style || window.localStorage.getItem('shell:style') || 'auto';
@@ -336,6 +337,18 @@ function setModuleControlsDisabled (disabled) {
   document.getElementById('update-module').disabled = disabled;
 }
 
+function restoreControlState () {
+  const busy = taskRunning;
+  setSystemUpdateDisabled(busy);
+  setControllerControlsDisabled(
+    busy || backendAvailability.controller === false,
+  );
+  setModuleControlsDisabled(
+    busy || backendAvailability.module === false,
+  );
+  document.getElementById('refresh').disabled = false;
+}
+
 function showUnavailable (statusElement, detailsElement, reason) {
   statusElement.textContent = 'Unavailable';
   statusElement.className = 'status bad';
@@ -416,7 +429,7 @@ async function startSystemUpdate () {
     if (staged) await runManager(['staging-delete', staged.token]).catch(() => {});
     showError(error);
   } finally {
-    if (!taskRunning) setSystemUpdateDisabled(false);
+    restoreControlState();
   }
 }
 
@@ -453,8 +466,7 @@ async function pollTask (taskId) {
   } else {
     taskRunning = false;
     window.sessionStorage.removeItem('iot2050FirmwareTask');
-    setWriteControlsDisabled(false);
-    setSystemUpdateDisabled(false);
+    restoreControlState();
     if (task.state === 'succeeded') {
       clearError();
     }
@@ -628,10 +640,31 @@ async function loadCapabilities () {
     showError(error);
   } finally {
     document.getElementById('loading').classList.add('hidden');
+    restoreControlState();
   }
 }
 
-document.getElementById('refresh').addEventListener('click', loadCapabilities);
+function refreshPage (manual = false) {
+  if (refreshPromise) return refreshPromise;
+  if (taskRunning && !manual) return Promise.resolve();
+  const button = document.getElementById('refresh');
+  const label = button.textContent;
+  if (manual) {
+    button.disabled = true;
+    button.textContent = 'Refreshing…';
+  }
+  refreshPromise = loadCapabilities().finally(() => {
+    refreshPromise = null;
+    restoreControlState();
+    if (manual) {
+      button.disabled = false;
+      button.textContent = label;
+    }
+  });
+  return refreshPromise;
+}
+
+document.getElementById('refresh').addEventListener('click', () => refreshPage(true));
 document.getElementById('firmware').addEventListener('change', updateSystemFileHint);
 document.getElementById('firmware-a').addEventListener('change', () => updateModuleFileName('firmware-a', 'firmware-a-name'));
 document.getElementById('firmware-b').addEventListener('change', () => updateModuleFileName('firmware-b', 'firmware-b-name'));
@@ -654,7 +687,7 @@ window.addEventListener('beforeunload', event => {
   event.preventDefault();
   event.returnValue = '';
 });
-loadCapabilities().then(() => {
+refreshPage().then(() => {
   if (activeTask) pollTask(activeTask).catch(error => {
     window.sessionStorage.removeItem('iot2050FirmwareTask');
     showError(error);
