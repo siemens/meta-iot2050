@@ -4,6 +4,7 @@
 const command = '/usr/sbin/iot2050-device-admin';
 const MAX_CERTIFICATE_SIZE = 512 * 1024;
 const MAX_PRIVATE_KEY_SIZE = 256 * 1024;
+let refreshPromise = null;
 
 function applyShellStyle (style) {
   const selected = style || window.localStorage.getItem('shell:style') || 'auto';
@@ -176,14 +177,32 @@ async function installCertificate () {
     updateFileName(document.getElementById('certificate-file'));
     updateFileName(document.getElementById('private-key-file'));
     showMessage('The custom certificate is active and nginx has been reloaded.');
-    await loadStatus();
+    await refreshPage();
   } finally {
     setCertificateBusy(false);
   }
 }
 
-document.getElementById('refresh').addEventListener('click', () => loadStatus().catch(showError));
+function refreshPage (manual = false) {
+  if (refreshPromise) return refreshPromise;
+  const button = document.getElementById('refresh');
+  const label = button.textContent;
+  if (manual) {
+    button.disabled = true;
+    button.textContent = 'Refreshing…';
+  }
+  refreshPromise = loadStatus().finally(() => {
+    refreshPromise = null;
+    if (manual) {
+      button.disabled = false;
+      button.textContent = label;
+    }
+  });
+  return refreshPromise;
+}
+
+document.getElementById('refresh').addEventListener('click', () => refreshPage(true).catch(showError));
 document.getElementById('certificate-file').addEventListener('change', event => updateFileName(event.target));
 document.getElementById('private-key-file').addEventListener('change', event => updateFileName(event.target));
 document.getElementById('install-certificate').addEventListener('click', () => installCertificate().catch(showError));
-loadStatus().catch(showError);
+refreshPage().catch(showError);
