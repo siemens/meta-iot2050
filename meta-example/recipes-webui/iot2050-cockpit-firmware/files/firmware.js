@@ -94,7 +94,8 @@ function stageFile (file) {
         sink.input(null);
         return sink;
       }
-      sink.input(value);
+      // Keep stdin open until the complete File stream has been sent.
+      sink.input(value, true);
       return pump();
     });
     return pump();
