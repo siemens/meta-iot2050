@@ -11,20 +11,31 @@ set -eu
 action="${2:-}"
 
 case "${action}" in
-	up|connectivity-change)
+	up|down|dhcp4-change|dhcp6-change|connectivity-change)
 		;;
 	*)
 		exit 0
 		;;
 esac
 
-update_script=/usr/lib/iot2050/cockpit/update-issue
-issue_file=/run/cockpit/active.issue
+refresh_script=/usr/lib/iot2050/cockpit/refresh-issue
+address_file=/run/cockpit/network-addresses
 
-[ -x "${update_script}" ] || exit 0
-"${update_script}" || true
-[ -s "${issue_file}" ] || exit 0
+[ -x "${refresh_script}" ] || exit 0
 
-# Only update the issue file. getty will display it before each login prompt.
-# Do NOT write to /dev/console here; that caused repeated banners on every
-# network event (up, down, dhcp4-change, etc.).
+# Wait for DHCP and multiple interfaces to settle before taking the address
+# snapshot. NetworkManager serializes dispatcher scripts, so queued events
+# will compare against the snapshot written by the preceding invocation.
+sleep 2
+
+# Update the banner and redraw idle serial login consoles only when the address
+# set changes. The refresh helper preserves active serial login sessions.
+current_addresses=$(ip -o -4 addr show scope global 2>/dev/null \
+	| awk '{sub(/\/.*/, "", $4); print $4}' \
+	| LC_ALL=C sort -u) || true
+
+if ! printf '%s\n' "${current_addresses}" \
+	| cmp -s "${address_file}" - 2>/dev/null; then
+	printf '%s\n' "${current_addresses}" > "${address_file}"
+	"${refresh_script}" || true
+fi

@@ -17,6 +17,7 @@ DEBIAN_REPLACES = "cockpit-ws"
 
 SRC_URI = " \
     file://update-issue \
+    file://refresh-issue \
     file://90-iot2050-cockpit-issue-update \
     file://50-iot2050-banner.conf \
     file://cockpit-issue.service.d/override.conf \
@@ -30,6 +31,7 @@ do_install() {
     # --- Issue banner ---
     install -d -m 755 ${D}/usr/lib/iot2050/cockpit
     install -m 755 ${WORKDIR}/update-issue ${D}/usr/lib/iot2050/cockpit/update-issue
+    install -m 755 ${WORKDIR}/refresh-issue ${D}/usr/lib/iot2050/cockpit/refresh-issue
 
     install -d -m 755 ${D}/usr/lib/NetworkManager/dispatcher.d
     install -m 755 ${WORKDIR}/90-iot2050-cockpit-issue-update ${D}/usr/lib/NetworkManager/dispatcher.d/
