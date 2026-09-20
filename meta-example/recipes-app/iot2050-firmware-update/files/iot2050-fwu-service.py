@@ -567,6 +567,13 @@ class FirmwareUpdate():
                         self.tarball.get_file(name)
                     )
                 elif firmware_type ==  self.tarball.FIRMWARE_TYPES[1]:
+                    if rollback:
+                        # BootloaderFirmware backs up the raw OSPI region,
+                        # including both environment partitions. Do not
+                        # regenerate the environment during rollback: that
+                        # would replace the backed-up boot flow with one
+                        # assembled for the target firmware.
+                        continue
                     if not reset:
                         env_list = self.tarball.get_preserved_uboot_env()
                         env_path, env_binary = \
