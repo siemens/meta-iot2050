@@ -22,6 +22,7 @@ const STATIC_DIR = '/usr/share/iot2050-firstboot-onboarding';
 const APPLY_HELPER = '/usr/lib/iot2050/onboarding/iot2050-firstboot-apply-user.py';
 const SERVICE_NAME = 'iot2050-firstboot-onboarding.service';
 const GATEWAY_SELECTOR = '/usr/lib/iot2050/web-gateway/iot2050-web-gateway-select-mode';
+const BANNER_REFRESH = '/usr/lib/iot2050/cockpit/refresh-issue';
 const LISTEN_HOST = '127.0.0.1';
 const LISTEN_PORT = 9080;
 const PUBLIC_PORTS = [80, 443];
@@ -479,6 +480,7 @@ async function switchToRuntime(payload) {
   }
 
   markComplete(payload);
+  runCommand([BANNER_REFRESH]);
   runCommand(['systemctl', 'disable', SERVICE_NAME]);
   return {
     ok: true,

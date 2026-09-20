@@ -12,7 +12,7 @@ inherit dpkg-raw
 
 DESCRIPTION = "IOT2050 first-boot onboarding web service"
 
-DEBIAN_DEPENDS = "cockpit, iot2050-branding, iot2050-pam-conf, iot2050-web-gateway-nginx, nodejs, passwd, python3, systemd"
+DEBIAN_DEPENDS = "cockpit, iot2050-branding, iot2050-cockpit-customization, iot2050-pam-conf, iot2050-web-gateway-nginx, nodejs, passwd, python3, systemd"
 
 SRC_URI = " \
     file://iot2050-firstboot-onboarding.service \
