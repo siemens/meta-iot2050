@@ -187,8 +187,6 @@ async function inspectController () {
   details.replaceChildren(
     detail('Current version', data.current_version),
     detail('Bundled version', data.bundled_version),
-    detail('Metadata SHA-1', data.metadata_sha1),
-    detail('Actual SHA-256', data.actual_sha256),
     detail('Update needed', data.update_needed ? 'Yes' : 'No')
   );
   setMatchStatus(
@@ -219,8 +217,6 @@ function renderSystemInfo (data) {
     detail('OS image version', info.os_image_version),
     detail('Firmware version', info.firmware_version),
     detail('Expected version', data.target_version),
-    detail('Source', 'Signed update package'),
-    detail('Protection', 'Signature, compatibility, backup'),
   );
   setMatchStatus(
     document.querySelector('#system-card .status'),
