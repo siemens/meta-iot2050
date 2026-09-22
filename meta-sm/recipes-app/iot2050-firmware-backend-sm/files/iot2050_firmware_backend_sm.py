@@ -22,7 +22,7 @@ from iot2050_eio_common import (
 SM_COMPATIBLE = "siemens,iot2050-advanced-sm"
 SM_MARKER = "/run/iot2050/sm-board"
 SUPPORTED_MODULE_MLFB = "6ES7 647-0CM00-1AA2"
-MODULE_LOST_STATUS = "status: module lost"
+MODULE_CONFIGURED_STATUS = "configured: yes"
 MODULE_OPERATION_TIMEOUT = 120
 RPC_TIMEOUT = 10
 
@@ -190,10 +190,12 @@ def _module_inspection_response(response, scan=False):
         }
         for slot in response.slots
     ]
+    for slot in slots:
+        slot["available"] = _module_is_available(slot)
     if scan:
         return {
             "eiofs_available": os.path.isdir("/eiofs/controller"),
-            "slots": [slot for slot in slots if _module_is_available(slot)],
+            "slots": [slot for slot in slots if slot["available"]],
         }
     if len(slots) == 1:
         return slots[0]
@@ -207,8 +209,7 @@ def _module_is_available(inspection):
     status = inspection["status"]
     return (
         inspection["mlfb"] == SUPPORTED_MODULE_MLFB
-        and bool(status)
-        and MODULE_LOST_STATUS not in status.lower()
+        and MODULE_CONFIGURED_STATUS in status.lower()
     )
 
 
