@@ -5,6 +5,7 @@ const command = '/usr/sbin/iot2050-fwmgr';
 let activeTask = window.sessionStorage.getItem('iot2050FirmwareTask');
 let taskRunning = false;
 let backendAvailability = {};
+let moduleAvailable = true;
 let defaultSystemPackage = '';
 let deviceIdentity = {};
 let refreshPromise = null;
@@ -239,11 +240,18 @@ async function inspectModule () {
   const slot = Number(document.getElementById('module-slot').value);
   if (!slot) throw new Error('No EIO module slot is available.');
   const data = await runManager(['inspect', 'module', '--payload', JSON.stringify({ slot })]);
+  moduleAvailable = data.available !== false;
+  if (!moduleAvailable) {
+    document.getElementById('module-card').classList.add('hidden');
+    setModuleControlsDisabled(true);
+    return data;
+  }
   document.getElementById('module-details').replaceChildren(
     detail('Slot', data.slot),
     detail('MLFB', data.mlfb || 'Unavailable')
   );
   applyModuleInspection();
+  return data;
 }
 
 function setModuleFilePickerDisabled (inputId, buttonId, disabled) {
@@ -263,7 +271,7 @@ function updateModuleFileName (inputId, nameId) {
 }
 
 function applyModuleInspection () {
-  const disabled = backendAvailability.module === false;
+  const disabled = backendAvailability.module === false || !moduleAvailable;
   setModuleFilePickerDisabled('firmware-a', 'choose-firmware-a', disabled);
   setModuleFilePickerDisabled('firmware-b', 'choose-firmware-b', disabled);
   document.getElementById('update-module').disabled = disabled;
@@ -274,6 +282,7 @@ async function scanModuleSlots () {
   const slotLabel = document.getElementById('module-slot-label');
   const scan = await runManager(['inspect', 'module', '--payload', JSON.stringify({ scan: true })]);
   const slots = scan.slots;
+  moduleAvailable = Boolean(slots.length);
   document.getElementById('module-card').classList.toggle('hidden', !slots.length);
   select.replaceChildren();
   slots.forEach(slot => {
@@ -310,7 +319,8 @@ async function scanModuleSlots () {
 function setWriteControlsDisabled (disabled) {
   setSystemUpdateDisabled(disabled);
   document.getElementById('update-controller').disabled = disabled || backendAvailability.controller === false;
-  document.getElementById('update-module').disabled = disabled || backendAvailability.module === false;
+  document.getElementById('update-module').disabled =
+    disabled || backendAvailability.module === false || !moduleAvailable;
 }
 
 function setSystemUpdateDisabled (disabled) {
@@ -340,7 +350,7 @@ function restoreControlState () {
     busy || backendAvailability.controller === false,
   );
   setModuleControlsDisabled(
-    busy || backendAvailability.module === false,
+    busy || backendAvailability.module === false || !moduleAvailable,
   );
   document.getElementById('refresh').disabled = false;
 }
@@ -514,6 +524,12 @@ async function startModuleUpdate () {
   const stagedTokens = [];
   try {
     const inspection = await runManager(['inspect', 'module', '--payload', JSON.stringify({ slot })]);
+    if (inspection.available === false) {
+      moduleAvailable = false;
+      document.getElementById('module-card').classList.add('hidden');
+      setModuleControlsDisabled(true);
+      return;
+    }
     const stagedA = fileA ? await stageFile(fileA) : null;
     const stagedB = fileB ? await stageFile(fileB) : null;
     if (stagedA) stagedTokens.push(stagedA.token);
@@ -555,13 +571,16 @@ async function loadCapabilities () {
       capabilities.map(capability => [capability.backend, capability.available !== false]),
     );
     const systemCapability = capabilities.find(capability => capability.backend === 'system');
+    const moduleCapability = capabilityMap.get('module');
     defaultSystemPackage = systemCapability && systemCapability.default_package
       ? systemCapability.default_package
       : '';
     updateSystemFileHint();
     document.getElementById('system-card').classList.toggle('hidden', !capabilityMap.has('system'));
     document.getElementById('controller-card').classList.toggle('hidden', !capabilityMap.has('controller'));
-    document.getElementById('module-card').classList.toggle('hidden', !capabilityMap.has('module'));
+    document.getElementById('module-card').classList.toggle(
+      'hidden', !(moduleCapability && moduleCapability.available),
+    );
     document.getElementById('backends').classList.remove('hidden');
     const controllerCapability = capabilityMap.get('controller');
     if (controllerCapability && controllerCapability.available) {
@@ -584,8 +603,8 @@ async function loadCapabilities () {
         controllerCapability.availability_reason,
       );
     }
-    const moduleCapability = capabilityMap.get('module');
     if (moduleCapability && moduleCapability.available) {
+      moduleAvailable = true;
       document.getElementById('module-status').textContent = 'Available';
       document.getElementById('module-status').className = 'status neutral';
       try {
@@ -600,6 +619,7 @@ async function loadCapabilities () {
         );
       }
     } else if (moduleCapability) {
+      moduleAvailable = false;
       document.getElementById('module-card').classList.add('hidden');
       setModuleControlsDisabled(true);
       showUnavailable(
