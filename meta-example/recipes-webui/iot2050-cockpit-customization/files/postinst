@@ -18,3 +18,8 @@ fi
 # Run once immediately so the console banner appears without waiting for
 # a reboot or a NetworkManager interface change.
 /usr/lib/iot2050/cockpit/update-issue >/dev/null 2>&1 || true
+
+# Cockpit's shell manifest advertises the Display language menu through its
+# top-level `locales` field. Keep the translation assets installed, but hide
+# the menu while the product uses the English-only UI policy.
+/usr/lib/iot2050/cockpit/force-english-cockpit.py
