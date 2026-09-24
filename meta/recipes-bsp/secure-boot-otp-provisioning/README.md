@@ -26,7 +26,11 @@ openssl req -x509 -newkey rsa:4096 -keyout custBmpk.pem -nodes -outform pem -out
 ```
 
 > :warning:
-> Do remove the example dummy keys under the keys folder!
+> The keys in this repository are public demonstration keys only. Follow the
+> [demo signing key policy](../../../doc/build-config.md#demo-signing-keys)
+> and replace them with customer-owned keys before signing production
+> firmware or provisioning OTP fuses. Never provision the bundled demo keys
+> into a production device.
 
 ## OTP programming
 

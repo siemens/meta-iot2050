@@ -100,8 +100,20 @@ The syntax follows this pattern:
   accounts.
 
 ### Security, Provisioning & Reproducibility
-**Demo Keys Warning**: `secure-boot.yml` ships with **DEMONSTRATION** keys.
-These **MUST** be replaced before any production use.
+#### Demo signing keys
+
+`secure-boot.yml` and the default FWU/SWUpdate signing providers use
+**DEMONSTRATION** keys from this repository. These keys are public test
+material, are not a production trust root, and **MUST** be replaced with
+customer-owned keys or the Trust Center signing flow before production
+signing, provisioning, or deployment. Never provision the bundled demo keys
+into production OTP fuses.
+
+The bundled keys are provided only to validate the open-source secure-boot,
+SWUpdate, and FWU workflows. A successful example build does not indicate
+that its signing material is suitable for production. Release pipelines should
+reject the known demo key fingerprints once an authoritative release-build
+profile is available.
 
 Provisioning fragments (`otpcmd/*`) trigger irreversible OTP hardware fuse
 burns. Include exactly one and only when intentionally programming the device.

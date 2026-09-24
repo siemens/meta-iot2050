@@ -35,11 +35,16 @@ TEMPLATE_VARS += "OS_VERSION_KEY MIN_OS_VERSION IMAGE_FULLNAME"
 
 DPKG_ARCH = "any"
 
-inherit dpkg-raw
+inherit dpkg-raw iot2050-demo-signing-warning
+
+IOT2050_WARN_DEMO_SIGNING_KEYS = "1"
+IOT2050_WARN_DEMO_SIGNING_KEYS:trust-center = "0"
 
 DEBIAN_DEPENDS = "python3-cryptography, python3-grpcio, python3-packaging, u-boot-tools, iot2050-firmware-common"
 DEBIAN_BUILD_DEPENDS = "openssl"
 DEPENDS = "iot2050-firmware-common"
+
+do_install[prefuncs] += "iot2050_warn_demo_signing_keys"
 
 do_install() {
     install -v -d ${D}/usr/share/iot2050/fwu

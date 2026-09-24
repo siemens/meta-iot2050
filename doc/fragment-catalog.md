@@ -31,6 +31,10 @@ The `secure-boot.yml` fragment enables the core secure boot feature set. It can
 be combined with provisioning fragments to prepare the device for secure
 operation.
 
+The secure-boot, SWUpdate, and FWU examples use public demonstration signing
+keys. See the [demo signing key policy](build-config.md#demo-signing-keys)
+before production signing or provisioning.
+
 - `rpmb-setup.yml`: Used solely for RPMB (Replay Protected Memory Block)
   provisioning. This prepares the secure storage partition.
 - `kas/opt/otpcmd/*.yml`: A collection of fragments for specific provisioning

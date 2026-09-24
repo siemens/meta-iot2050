@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-inherit u-boot
+inherit u-boot iot2050-demo-signing-warning
 
 SRC_URI += " \
     file://rules.tmpl \
@@ -66,6 +66,10 @@ SB_SIGN_OPT:trust-center = "--provider extsign_provider --propquery provider=ext
 OPENSSL_ENVS:trust-center = "OPENSSL_CONF=/usr/share/trust-center-remote-signer/openssl.conf \
     OPENSSL_MODULES=/usr/lib/extsign-provider"
 
+IOT2050_WARN_DEMO_SIGNING_KEYS:secureboot = "1"
+IOT2050_WARN_DEMO_SIGNING_KEYS:trust-center = "0"
+IOT2050_WARN_DEMO_SIGNING_KEYS:otpcmd = "0"
+
 TEMPLATE_FILES += "rules.tmpl"
 TEMPLATE_VARS += "FIRMWARE_SECURE_VER \
     SB_SIGN SB_DTS_KEY SB_SIGN_KEY SB_SIGN_OPT OPENSSL_ENVS"
@@ -95,6 +99,8 @@ do_prepare_build:append:secureboot() {
     sed -ni '/### Secure boot config/q;p' ${S}/configs/${U_BOOT_CONFIG}
     cat ${WORKDIR}/secure-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
 }
+
+do_prepare_build[prefuncs] += "iot2050_warn_demo_signing_keys"
 
 dpkg_runbuild:append:secureboot() {
     if [ "${SB_USE_LOCAL_KEY}" = "1" ]; then
