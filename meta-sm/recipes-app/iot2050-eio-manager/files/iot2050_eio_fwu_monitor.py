@@ -13,12 +13,15 @@ import os
 import textwrap
 import subprocess
 import json
+import logging
 import grpc
 from gRPC.EIOManager.iot2050_eio_pb2 import CheckFWURequest
 from gRPC.EIOManager.iot2050_eio_pb2_grpc import EIOManagerStub
 from iot2050_eio_global import (
     iot2050_eio_api_server
 )
+
+logger = logging.getLogger(__name__)
 
 
 def stat_led_toggle():
@@ -46,7 +49,10 @@ def broadcast_update_info(message):
 
 Hit the Enter Key to Exit:
     '''
-    os.system(f'wall "{prompt}"')
+    try:
+        subprocess.run(["wall"], input=prompt, text=True, check=False)
+    except OSError as error:
+        logger.warning("Unable to broadcast FWU update information: %s", error)
 
 def list_logged_in_users():
     """Return a list of (user, tty) for logged-in sessions.
