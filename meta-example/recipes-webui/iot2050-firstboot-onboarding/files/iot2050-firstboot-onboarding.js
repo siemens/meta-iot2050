@@ -30,6 +30,9 @@ const MAX_BODY_SIZE = 16 * 1024;
 const COCKPIT_WAIT_SECONDS = 60;
 const GATEWAY_WAIT_SECONDS = 15;
 const ONBOARDING_SHUTDOWN_GRACE_MS = 3000;
+// Keep the onboarding UI in English for the current product release. The
+// locale parser and all generated bundles remain available for future use.
+const FORCE_ENGLISH = true;
 const USERNAME_PATTERN = /^[a-z_][a-z0-9_-]{0,31}$/;
 const HOSTNAME_PATTERN = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
 const RESERVED_USERNAMES = new Set(['root']);
@@ -226,6 +229,10 @@ function resolveTranslationAsset(headerValue) {
   const translations = getTranslationAssets();
   if (translations.size === 0) {
     return null;
+  }
+
+  if (FORCE_ENGLISH) {
+    return translations.get('en') || null;
   }
 
   for (const locale of parseAcceptLanguage(headerValue)) {

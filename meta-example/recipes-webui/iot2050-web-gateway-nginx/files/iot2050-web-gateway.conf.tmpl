@@ -3,6 +3,21 @@ map $http_upgrade $iot2050_connection_upgrade {
     '' close;
 }
 
+# Cockpit keeps its selected language in the CockpitLang cookie. Normalize
+# that cookie at the gateway so a browser profile with a previous language
+# selection cannot override the English-only runtime policy. Other cookies,
+# including authentication and session cookies, are preserved.
+map $http_cookie $iot2050_cockpit_cookie {
+    default "$http_cookie; CockpitLang=en";
+    "" "CockpitLang=en";
+    "~*^CockpitLang=[^;]*$" "CockpitLang=en";
+    "~*^CockpitLang=[^;]*;\s*$" "CockpitLang=en";
+    "~*^(?<iot2050_cookie_before_trailing>.*);\s*CockpitLang=[^;]*;\s*$" "$iot2050_cookie_before_trailing; CockpitLang=en";
+    "~*^(?<iot2050_cookie_before_last>.*);\s*CockpitLang=[^;]*$" "$iot2050_cookie_before_last; CockpitLang=en";
+    "~*^CockpitLang=[^;]*;\s*(?<iot2050_cookie_after_first>.+)$" "$iot2050_cookie_after_first; CockpitLang=en";
+    "~*^(?<iot2050_cookie_before>.+);\s*CockpitLang=[^;]*;\s*(?<iot2050_cookie_after>.+)$" "$iot2050_cookie_before; $iot2050_cookie_after; CockpitLang=en";
+}
+
 server {
     listen 80;
     listen [::]:80;
