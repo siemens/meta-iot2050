@@ -11,7 +11,7 @@ DESCRIPTION = "Generate The Firmware Update Package"
 MAINTAINER = "Li Hua Qian <huaqian.li@siemens.com>"
 PR = "1"
 
-inherit dpkg
+inherit dpkg iot2050-demo-signing-warning
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
@@ -20,6 +20,7 @@ DEPENDS = "u-boot-iot2050"
 DEPENDS:append:trust-center = " trust-center-credential trust-center-remote-signer"
 DEBIAN_BUILD_DEPENDS:append:trust-center = ", trust-center-credential, trust-center-remote-signer"
 SIGNING_METHOD:trust-center ?= "production"
+IOT2050_WARN_DEMO_SIGNING_KEYS = "${@ '1' if (d.getVar('SIGNING_METHOD') or '') != 'production' else '0'}"
 
 SRC_URI = " \
     file://iot2050-generate-fwu-tarball.sh \
@@ -32,6 +33,7 @@ S = "${WORKDIR}/${P}"
 
 do_prepare_build[cleandirs] += "${S}/debian"
 do_prepare_build[depends] = "u-boot-iot2050:do_deploy"
+do_prepare_build[prefuncs] += "iot2050_warn_demo_signing_keys"
 do_prepare_build() {
     deb_debianize
     rm -f ${S}/debian/compat

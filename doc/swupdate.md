@@ -20,6 +20,13 @@ content, Node-RED, and SM variant support:
 The typical deployment path for these files is:
 `build/tmp/deploy/images/iot2050/`
 
+### Signing key warning
+
+The default SWUpdate providers use public demonstration keys for workflow
+validation. Before generating or deploying production update bundles, follow
+the [demo signing key policy](build-config.md#demo-signing-keys) and replace
+the bundled material.
+
 ## Flashing for Initial Deployment
 
 Flash the `.wic` file to an SD card. For example, using `/dev/mmcblk0`:

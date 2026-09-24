@@ -55,16 +55,21 @@ check_dummy_hash() {
 	    1e436ba092a4a134102ac68489cf64d5978fb28813d348b94331c98194dd7a09 \
 	    fcdf0f123e9a4eba4c8fd4f7b375e110c10fe4c4b916bb800c7a27466c5d791a"
 
+    dummy_keys=""
     for key in ${OTPCMD_KEYS}; do
-        HASH=`openssl rsa -in ${key} -pubout -outform der 2>/dev/null \
+        HASH=`openssl rsa -in ${S}/${key} -pubout -outform der 2>/dev/null \
             | openssl dgst -sha256 -binary | hexdump -ve '1/1 "%.2x"'`
         for dummy in ${DUMMY_KEY_HASHES}; do
             if [ "$dummy" = "$HASH" ]; then
-                bbwarn "Warning: Dummy key ${key} is used for OTP provisioning!" \
-                    "Please make sure this is what you really want!"
+                dummy_keys="${dummy_keys} ${key}"
             fi
         done
     done
+
+    if [ -n "${dummy_keys}" ]; then
+        bbwarn "IOT2050 demo signing keys${dummy_keys} are used for OTP\
+ provisioning. Replace them before production provisioning."
+    fi
 }
 
 do_prepare_build[cleandirs] += "${S}/debian"
