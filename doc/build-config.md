@@ -96,8 +96,8 @@ The syntax follows this pattern:
   baseline and first-boot onboarding.
 - Dev compatibility (`kas-iot2050-example.yml:kas/opt/dev.yml`): appends
   `ssh-root-login`, removes `iot2050-pam-conf` and
-  `iot2050-firstboot-onboarding`, and restores the legacy `root` and `iot2050`
-  accounts.
+  `iot2050-firstboot-onboarding`, restores the legacy `root` and `iot2050`
+  accounts, and installs the TCF debug agent.
 
 ### Security, Provisioning & Reproducibility
 #### Demo signing keys

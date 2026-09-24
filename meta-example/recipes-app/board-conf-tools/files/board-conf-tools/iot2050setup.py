@@ -137,15 +137,25 @@ class SoftwareMenu:
                                              stdout=subprocess.PIPE,
                                              stderr=open(os.devnull, 'wb')).stdout.read().decode('utf-8')
 
+    @staticmethod
+    def serviceInstalled(service):
+        return subprocess.call(['systemctl', 'cat', service],
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL) == 0
+
     def changeAutostart(self):
         sshEnabled = SoftwareMenu.serviceEnabled('ssh')
-        tcfAgentEnabled = SoftwareMenu.serviceEnabled('tcf-agent')
+        tcfAgentInstalled = SoftwareMenu.serviceInstalled('tcf-agent')
+        tcfAgentEnabled = (SoftwareMenu.serviceEnabled('tcf-agent')
+                           if tcfAgentInstalled else False)
         mosquittoAutostartEnabled = SoftwareMenu.serviceEnabled('mosquitto')
         noderedAutostartEnabled = SoftwareMenu.serviceEnabled('node-red')
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
-        ct = CheckboxTree(height=4, scroll=0)
+        service_count = 3 + int(tcfAgentInstalled)
+        ct = CheckboxTree(height=service_count, scroll=0)
         ct.append('SSH Server enabled', selected=sshEnabled)
-        ct.append('TCF Agent enabled', selected=tcfAgentEnabled)
+        if tcfAgentInstalled:
+            ct.append('TCF Agent enabled', selected=tcfAgentEnabled)
         ct.append('Autostart Mosquitto Broker', selected=mosquittoAutostartEnabled)
         ct.append('Autostart Node-RED', selected=noderedAutostartEnabled)
         g = GridForm(self.topmenu.gscreen, 'Advanced Options', 1, 2)
@@ -156,13 +166,14 @@ class SoftwareMenu:
             return
         selectedOptions = ct.getSelection()
         sshEnabledNew = 'SSH Server enabled' in selectedOptions
-        tcfAgentEnabledNew = 'TCF Agent enabled' in selectedOptions
         mosquittoAutostartEnabledNew = 'Autostart Mosquitto Broker' in selectedOptions
         noderedAutostartEnabledNew = 'Autostart Node-RED' in selectedOptions
         if sshEnabled != sshEnabledNew:
             self.changeServiceSetting('ssh', sshEnabledNew)
-        if tcfAgentEnabled != tcfAgentEnabledNew:
-            self.changeServiceSetting('tcf-agent', tcfAgentEnabledNew)
+        if tcfAgentInstalled:
+            tcfAgentEnabledNew = 'TCF Agent enabled' in selectedOptions
+            if tcfAgentEnabled != tcfAgentEnabledNew:
+                self.changeServiceSetting('tcf-agent', tcfAgentEnabledNew)
         if mosquittoAutostartEnabled != mosquittoAutostartEnabledNew:
             self.changeServiceSetting('mosquitto', mosquittoAutostartEnabledNew)
         if noderedAutostartEnabled != noderedAutostartEnabledNew:
