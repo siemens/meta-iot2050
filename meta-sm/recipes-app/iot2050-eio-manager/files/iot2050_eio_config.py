@@ -573,6 +573,9 @@ class ConfigError(Exception):
 
 class EIOConfigValidator(object):
     def __init__(self) -> None:
+        # These schemas are installed with the package and are not supplied by
+        # the configuration request. Keep their loader separate from the
+        # untrusted configuration parser below.
         with open(eio_schema_top, 'r', encoding='ascii') as f:
             schema_top = yaml.load(f.read(), Loader=Loader)
 
@@ -628,7 +631,15 @@ class EIOConfigValidator(object):
 
 class EIOConfigParser(object):
     def __init__(self, config_yaml: str) -> None:
-        self._config: dict = yaml.load(config_yaml, Loader=Loader)
+        try:
+            config = yaml.safe_load(config_yaml)
+        except yaml.YAMLError as error:
+            raise ConfigError(f"Invalid YAML data: {error}") from error
+
+        if not isinstance(config, dict):
+            raise ConfigError("Invalid YAML data: configuration must be a mapping")
+
+        self._config: dict = config
         self._validator = EIOConfigValidator()
 
     def validate(self):
