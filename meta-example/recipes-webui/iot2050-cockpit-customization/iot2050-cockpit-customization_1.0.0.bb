@@ -10,9 +10,9 @@ PR = "1"
 
 inherit dpkg-raw
 
-DESCRIPTION = "IOT2050 Cockpit customization (issue banner, branding, SM marker)"
+DESCRIPTION = "IOT2050 Cockpit customization (English UI, issue banner, branding, SM marker)"
 
-DEBIAN_DEPENDS = "cockpit, iot2050-branding, systemd, network-manager"
+DEBIAN_DEPENDS = "cockpit, iot2050-branding, python3, systemd, network-manager"
 DEBIAN_REPLACES = "cockpit-ws"
 
 SRC_URI = " \
@@ -24,6 +24,7 @@ SRC_URI = " \
     file://cockpit.socket.d/override.conf \
     file://iot2050-board-marker.service \
     file://postinst \
+    file://force-english-cockpit.py \
     file://branding.css \
     "
 
@@ -32,6 +33,8 @@ do_install() {
     install -d -m 755 ${D}/usr/lib/iot2050/cockpit
     install -m 755 ${WORKDIR}/update-issue ${D}/usr/lib/iot2050/cockpit/update-issue
     install -m 755 ${WORKDIR}/refresh-issue ${D}/usr/lib/iot2050/cockpit/refresh-issue
+    install -m 755 ${WORKDIR}/force-english-cockpit.py \
+        ${D}/usr/lib/iot2050/cockpit/force-english-cockpit.py
 
     install -d -m 755 ${D}/usr/lib/NetworkManager/dispatcher.d
     install -m 755 ${WORKDIR}/90-iot2050-cockpit-issue-update ${D}/usr/lib/NetworkManager/dispatcher.d/
