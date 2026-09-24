@@ -50,7 +50,6 @@ IMAGE_INSTALL += " \
     change-root-homedir \
     iot2050-firmware-update \
     ${@ 'firmware-update-package' if d.getVar('QEMU_IMAGE') != '1' else '' } \
-    tcf-agent \
     mraa \
     ${@ 'board-conf-tools' if d.getVar('QEMU_IMAGE') != '1' else '' } \
     libteec1 \

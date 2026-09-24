@@ -22,7 +22,7 @@ local_conf_header:
 
     USER_iot2050[password] ??= "iot2050"
     USER_iot2050[flags] ??= "clear-text-password create-home"
-    IMAGE_INSTALL:append = " ssh-root-login"
+    IMAGE_INSTALL:append = " ssh-root-login tcf-agent"
     IMAGE_INSTALL:remove = "iot2050-pam-conf iot2050-firstboot-onboarding"
     USER_iot2050[groups] ??= "sudo gpio pinctrl i2c spi pwm iio dialout"
     USER_iot2050[shell] ??= "/bin/bash"
