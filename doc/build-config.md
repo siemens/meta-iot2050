@@ -91,14 +91,6 @@ The syntax follows this pattern:
 | SDK | `kas-iot2050-example.yml:kas/opt/sdk.yml` | SDK tarball | cross toolchain |
 | QEMU parity build | `kas/iot2050.yml:kas/opt/example.yml:kas/opt/node-red.yml:kas/opt/sm.yml:kas-iot2050-qemu.yml` | virt .wic | emulated target |
 
-### Descriptor Roles
-- `kas-iot2050-example.yml`: Full showcase (fastest path).
-- `kas-iot2050-swupdate.yml`: A/B layout + .swu artifact.
-- `kas/iot2050.yml`: Minimal base; compose features explicitly.
-- `kas-iot2050-boot.yml`: Boot firmware only (for signing/provisioning flows).
-- `kas-iot2050-fwu-package.yml`: Field firmware update bundle.
-- `kas-iot2050-qemu.yml`: Emulation add-on (always chained).
-
 ### Authentication Profiles
 - Example image (`kas-iot2050-example.yml`): installs the Product PAM security
   baseline and first-boot onboarding.

@@ -49,61 +49,33 @@ IOT2050_SM_SUPPORT       ?= "0"
 IOT2050_HAILO_SUPPORT    ?= "0"
 ```
 
-The example image descriptors (non-minimal) set these flags to enable bundled
-content. When starting from the minimal base descriptor, you must add the
-optional fragments instead:
-```sh
-./kas-container build \
-	kas/iot2050.yml:kas/opt/example.yml:kas/opt/node-red.yml:kas/opt/sm.yml
-```
+The example image descriptors set these flags through KAS fragments. See the
+[build configuration guide](../doc/build-config.md) for composition details.
 
 ## How to Use This Layer
 
-**Fast path** (already includes this layer + demos, Node-RED, SM):
+Build the full example image, which includes this layer, Node-RED, and SM:
+
 ```sh
 ./kas-container build kas-iot2050-example.yml
 ```
 
-**SWUpdate A/B variant** (dual rootfs + .swu output):
-```sh
-./kas-container build kas-iot2050-swupdate.yml
-```
+To add only this layer's demos to the minimal image:
 
-**From a lean minimal base**, opt-in only to this layer’s demos:
 ```sh
 ./kas-container build kas/iot2050.yml:kas/opt/example.yml
 ```
 
-**Add Node-RED & SM** (achieves feature parity with the full example path):
-```sh
-./kas-container build \
-	kas/iot2050.yml:kas/opt/example.yml:kas/opt/node-red.yml:kas/opt/sm.yml
-```
-
 ## Customization & Extensibility
 
-Two common paths exist: start broad to explore, or start lean for control.
-
-**Path A: Fast evaluation**
-1. Build the reference Example image: `kas-iot2050-example.yml`. This
-   includes this layer, Node-RED, SM, and other helper tooling.
-2. Optionally, test A/B updates with `kas-iot2050-swupdate.yml`.
-3. Make a list of what you actually used and need for your product.
-
-**Path B: Controlled minimal start**
-1. Build the minimal base image: `kas/iot2050.yml`.
-2. Add only the required optional fragments (e.g., `example.yml` for demos,
-   plus `node-red.yml`, `sm.yml`, etc.).
-3. Create a downstream layer (e.g., `meta-yourprod`) with an image recipe
-   that derives from the minimal one.
-4. Introduce feature flags following the established pattern and collect them
-   in an include file.
-5. From there, do what you need—prune demos and add reproducibility or
-   security fragments only when they become relevant.
+For product images, start from the minimal image, add only the required
+fragments, and maintain the resulting image recipe in a downstream layer.
 
 ## Security & Production Note
+
 This layer is for demonstration purposes. Before productization:
-- Replace any demo certificates or keys.
+
+- Follow the [demo signing key policy](../doc/build-config.md#demo-signing-keys).
 - Remove unneeded developer utilities introduced by this layer.
 - Rebuild with reproducibility fragments (`package-lock.yml`, optional
   `debian-mirror.yml`) for audit trails.
