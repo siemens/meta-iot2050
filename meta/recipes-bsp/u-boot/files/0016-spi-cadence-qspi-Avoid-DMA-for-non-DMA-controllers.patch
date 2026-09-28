@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Mon, 28 Sep 2026 14:24:24 +0800
+Subject: [PATCH] spi: cadence-qspi: Avoid DMA for non-DMA controllers
+
+The Cadence QSPI AHB read path attempted dma_memcpy() for large reads
+even when the controller was not configured for DMA. This can return
+corrupted data when reading SPI NOR through the AHB window and cause
+environment CRC failures on TI AM654 OSPI.
+
+Only use the DMA copy path when is_dma is set, and fall back to
+memcpy_fromio() for non-DMA controllers.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ drivers/spi/cadence_qspi_apb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/cadence_qspi_apb.c b/drivers/spi/cadence_qspi_apb.c
+index 0d4bc685f5db..c4c36e4ef456 100644
+--- a/drivers/spi/cadence_qspi_apb.c
++++ b/drivers/spi/cadence_qspi_apb.c
+@@ -774,7 +774,7 @@ int cadence_qspi_apb_read_execute(struct cadence_spi_priv *priv,
+ 	cadence_qspi_apb_enable_linear_mode(true);
+ 
+ 	if (priv->use_dac_mode && (from + len < priv->ahbsize)) {
+-		if (len < 256 ||
++		if (len < 256 || !priv->is_dma ||
+ 		    dma_memcpy(buf, priv->ahbbase + from, len) < 0) {
+ 			memcpy_fromio(buf, priv->ahbbase + from, len);
+ 		}
