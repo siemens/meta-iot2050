@@ -13,11 +13,11 @@ bias modes through the GPIO chardev v2 interface.
 
 Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
 ---
- src/arm/siemens/iot2050.c | 1857 ++++++++++++++-----------------------
- 1 file changed, 683 insertions(+), 1174 deletions(-)
+ src/arm/siemens/iot2050.c | 1858 ++++++++++++++-----------------------
+ 1 file changed, 684 insertions(+), 1174 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index df60ed0e51e0..4431110493fe 100644
+index df60ed0e51e0..036d69c0df1e 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -21,24 +21,26 @@
@@ -85,68 +85,68 @@ index df60ed0e51e0..4431110493fe 100644
 +                             { "d3-gpio", "d3-uart0-rtsn", NULL, NULL, NULL } },
 +    [4] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
 +                             33,
-+                             { 7, 5, -1, -1, -1 },
-+                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                             { "d4-gpio", "d4-ehrpwm0-a", NULL, NULL, NULL },
-+                             { "d4-gpio", "d4-ehrpwm0-a", NULL, NULL, NULL } },
++                             { 7, -1, -1, -1, 5 },
++                             { "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL, "11c000.pinctrl-pinctrl-single" },
++                             { "d4-gpio", NULL, NULL, NULL, "d4-ehrpwm0-a" },
++                             { "d4-gpio", NULL, NULL, NULL, "d4-ehrpwm0-a" } },
 +    [5] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
 +                             35,
-+                             { 7, 5, -1, -1, -1 },
-+                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                             { "d5-gpio", "d5-ehrpwm1-a", NULL, NULL, NULL },
-+                             { "d5-gpio", "d5-ehrpwm1-a", NULL, NULL, NULL } },
++                             { 7, -1, -1, -1, 5 },
++                             { "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL, "11c000.pinctrl-pinctrl-single" },
++                             { "d5-gpio", NULL, NULL, NULL, "d5-ehrpwm1-a" },
++                             { "d5-gpio", NULL, NULL, NULL, "d5-ehrpwm1-a" } },
 +    [6] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
 +                             38,
-+                             { 7, 5, -1, -1, -1 },
-+                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                             { "d6-gpio", "d6-ehrpwm2-a", NULL, NULL, NULL },
-+                             { "d6-gpio", "d6-ehrpwm2-a", NULL, NULL, NULL } },
++                             { 7, -1, -1, -1, 5 },
++                             { "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL, "11c000.pinctrl-pinctrl-single" },
++                             { "d6-gpio", NULL, NULL, NULL, "d6-ehrpwm2-a" },
++                             { "d6-gpio", NULL, NULL, NULL, "d6-ehrpwm2-a" } },
 +    [7] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
 +                             43,
-+                             { 7, 5, -1, -1, -1 },
-+                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                             { "d7-gpio", "d7-ehrpwm3-a", NULL, NULL, NULL },
-+                             { "d7-gpio", "d7-ehrpwm3-a", NULL, NULL, NULL } },
++                             { 7, -1, -1, -1, 5 },
++                             { "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL, "11c000.pinctrl-pinctrl-single" },
++                             { "d7-gpio", NULL, NULL, NULL, "d7-ehrpwm3-a" },
++                             { "d7-gpio", NULL, NULL, NULL, "d7-ehrpwm3-a" } },
 +    [8] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
 +                             48,
-+                             { 7, 5, -1, -1, -1 },
-+                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                             { "d8-gpio", "d8-ehrpwm4-a", NULL, NULL, NULL },
-+                             { "d8-gpio", "d8-ehrpwm4-a", NULL, NULL, NULL } },
++                             { 7, -1, -1, -1, 5 },
++                             { "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL, "11c000.pinctrl-pinctrl-single" },
++                             { "d8-gpio", NULL, NULL, NULL, "d8-ehrpwm4-a" },
++                             { "d8-gpio", NULL, NULL, NULL, "d8-ehrpwm4-a" } },
 +    [9] = &(regmux_info_t) { PINMUX_GROUP_MAIN,
 +                             51,
-+                             { 7, 5, -1, -1, -1 },
-+                             { "11c000.pinctrl-pinctrl-single", "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                             { "d9-gpio", "d9-ehrpwm5-a", NULL, NULL, NULL },
-+                             { "d9-gpio", "d9-ehrpwm5-a", NULL, NULL, NULL } },
++                             { 7, -1, -1, -1, 5 },
++                             { "11c000.pinctrl-pinctrl-single", NULL, NULL, NULL, "11c000.pinctrl-pinctrl-single" },
++                             { "d9-gpio", NULL, NULL, NULL, "d9-ehrpwm5-a" },
++                             { "d9-gpio", NULL, NULL, NULL, "d9-ehrpwm5-a" } },
 +    [10] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
 +                              39,
-+                              { 7, 0, -1, -1, -1 },
++                              { 7, -1, -1, 0, -1 },
 +                              { "4301c000.pinctrl-pinctrl-single",
-+                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                              { "d10-gpio", "d10-spi0-cs0", NULL, NULL, NULL },
-+                              { "d10-gpio", "d10-spi0-cs0", NULL, NULL, NULL } },
++                                NULL, NULL, "4301c000.pinctrl-pinctrl-single", NULL },
++                              { "d10-gpio", NULL, NULL, "d10-spi0-cs0", NULL },
++                              { "d10-gpio", NULL, NULL, "d10-spi0-cs0", NULL } },
 +    [11] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
 +                              37,
-+                              { 7, 0, -1, -1, -1 },
++                              { 7, -1, -1, 0, -1 },
 +                              { "4301c000.pinctrl-pinctrl-single",
-+                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                              { "d11-gpio", "d11-spi0-d0", NULL, NULL, NULL },
-+                              { "d11-gpio", "d11-spi0-d0", NULL, NULL, NULL } },
++                                NULL, NULL, "4301c000.pinctrl-pinctrl-single", NULL },
++                              { "d11-gpio", NULL, NULL, "d11-spi0-d0", NULL },
++                              { "d11-gpio", NULL, NULL, "d11-spi0-d0", NULL } },
 +    [12] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
 +                              38,
-+                              { 7, 0, -1, -1, -1 },
++                              { 7, -1, -1, 0, -1 },
 +                              { "4301c000.pinctrl-pinctrl-single",
-+                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                              { "d12-gpio", "d12-spi0-d1", NULL, NULL, NULL },
-+                              { "d12-gpio", "d12-spi0-d1", NULL, NULL, NULL } },
++                                NULL, NULL, "4301c000.pinctrl-pinctrl-single", NULL },
++                              { "d12-gpio", NULL, NULL, "d12-spi0-d1", NULL },
++                              { "d12-gpio", NULL, NULL, "d12-spi0-d1", NULL } },
 +    [13] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
 +                              36,
-+                              { 7, 0, -1, -1, -1 },
++                              { 7, -1, -1, 0, -1 },
 +                              { "4301c000.pinctrl-pinctrl-single",
-+                                "4301c000.pinctrl-pinctrl-single", NULL, NULL, NULL },
-+                              { "d13-gpio", "d13-spi0-clk", NULL, NULL, NULL },
-+                              { "d13-gpio", "d13-spi0-clk", NULL, NULL, NULL } },
++                                NULL, NULL, "4301c000.pinctrl-pinctrl-single", NULL },
++                              { "d13-gpio", NULL, NULL, "d13-spi0-clk", NULL },
++                              { "d13-gpio", NULL, NULL, "d13-spi0-clk", NULL } },
 +    [14] = &(regmux_info_t) { PINMUX_GROUP_WAKUP,
 +                              33,
 +                              { 7, -1, -1, -1, -1 },
@@ -500,7 +500,7 @@ index df60ed0e51e0..4431110493fe 100644
      b->adc_raw = 12;
      b->adc_supported = 12;
      b->pwm_default_period = 1000; /*us*/
-@@ -644,1201 +816,552 @@ mraa_siemens_iot2050()
+@@ -644,1201 +816,553 @@ mraa_siemens_iot2050()
          goto error;
      }
  
@@ -1598,7 +1598,8 @@ index df60ed0e51e0..4431110493fe 100644
 +        mux_info[0].pin = wkup_gpio0_base + 44;
 +        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
 +        mux_info[0].value = MRAA_GPIO_OUT_LOW;
-+        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 44, wkup_gpio0_base + 37, -1, mux_info, 1);
++        iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 44, wkup_gpio0_base + 37,
++                             d4200_gpio_base + 1, mux_info, 1);
 +        mux_info[0].pin = d4200_gpio_base + 9;
 +        mux_info[0].pincmd = PINCMD_SET_DIRECTION;
 +        mux_info[0].value = MRAA_GPIO_IN;
@@ -2138,7 +2139,7 @@ index df60ed0e51e0..4431110493fe 100644
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 25, -1, -1, NULL, 0);
      pin_index++;
  
-@@ -1879,6 +1402,8 @@ mraa_siemens_iot2050_sm()
+@@ -1879,6 +1403,8 @@ mraa_siemens_iot2050_sm()
      unsigned line_offset;
      mraa_board_t* b = (mraa_board_t*) calloc(1, sizeof(mraa_board_t));
  
@@ -2147,7 +2148,7 @@ index df60ed0e51e0..4431110493fe 100644
      if (NULL == b) {
          goto error_board;
      }
-@@ -1905,24 +1430,8 @@ mraa_siemens_iot2050_sm()
+@@ -1905,24 +1431,8 @@ mraa_siemens_iot2050_sm()
  
      /* USER BUTTON */
      iot2050_setup_pins(b, pin_index, "USER",
