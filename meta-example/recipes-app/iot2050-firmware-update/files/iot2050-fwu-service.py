@@ -101,7 +101,6 @@ preserved list from cli, this would not use the preserved env variable in the
 `suggest_preserved_uboot_env` node.
 """
 
-import argparse
 import concurrent.futures
 import datetime
 import fcntl
@@ -117,15 +116,13 @@ import stat
 import struct
 import subprocess
 import tarfile
-import textwrap
 import tempfile
 import traceback
 from pathlib import Path
-from packaging import version
-from abc import ABC, abstractmethod
-from ctypes import *
+from abc import abstractmethod
 from enum import Enum
 from types import SimpleNamespace as Namespace
+from packaging import version
 
 # Import cryptography modules for signature verification
 from cryptography.hazmat.primitives import hashes, serialization
@@ -165,7 +162,6 @@ DEFAULT_ROLLBACK_DIR = os.path.join(
 DEFAULT_ROLLBACK_TAR = os.path.join(
     DEFAULT_ROLLBACK_DIR, "rollback_backup_fw.tar"
 )
-DEFAULT_ROLLBACK_METADATA = DEFAULT_ROLLBACK_TAR + ".json"
 
 
 def resolve_rollback_path(backup_path=None):
@@ -377,7 +373,6 @@ class BootloaderFirmware(Firmware):
         self.firmware.seek(0)
         self.firmware.seek(0, os.SEEK_END)
         firmware_size = self.firmware.tell()
-        self.firmware_len = firmware_size
         self.firmware.seek(0)
 
         while True:
@@ -532,8 +527,6 @@ class ForceUpdate():
             raise UpgradeError("Firmware digest verification failed",
                ErrorCode.FLASHING_FAILED.value)
 
-    def backup(self):
-        pass
 
 class FirmwareUpdate():
     """
@@ -542,7 +535,7 @@ class FirmwareUpdate():
     """
     def __init__(self, tarball, backup_path, interactor,
                 rollback=False, reset=False, verify_package=False):
-        self.rollback_fw_tar = self.__resolve_rollback_path(backup_path)
+        self.rollback_fw_tar = resolve_rollback_path(backup_path)
         self.back_fw_path = os.path.dirname(self.rollback_fw_tar)
         self.interactor = interactor
         self.verify_package = verify_package
@@ -591,9 +584,6 @@ class FirmwareUpdate():
         except UpgradeError as e:
             raise UpgradeError(e.err, e.code)
 
-    @staticmethod
-    def __resolve_rollback_path(backup_path):
-        return resolve_rollback_path(backup_path)
 
     def close(self):
         """Release package files deterministically after a manager task."""
@@ -897,12 +887,6 @@ class FirmwareTarball(object):
 
         return False
 
-    def check_firmware(self):
-        """Check if the tarball is a valid upgrade package"""
-        if len(self.get_file_name(self.FIRMWARE_TYPES[0])) <= 0:
-            return False
-        return True
-
     def inspect(self):
         """Return compatible package images without touching the flash."""
         firmware_name = self.get_file_name(self.FIRMWARE_TYPES[0])
@@ -1197,15 +1181,6 @@ class NonInteractiveInterface(object):
     def report(self, stage, message=None):
         self.progress(stage, message)
 
-    def interact(self, *args):
-        raise UpgradeError(
-            "Interactive input is not allowed for managed updates",
-            ErrorCode.FAILED.value,
-        )
-
-    def print_info(self, *args):
-        pass
-
     def progress_bar(self, info="", interval=0.2, start=True):
         if start and info:
             self.report(info.lower().replace(" ", "-"))
@@ -1424,10 +1399,6 @@ def serve():
                 raise ValueError("The firmware package is too large")
             return path
 
-        @staticmethod
-        def _response(response):
-            return response
-
         @classmethod
         def _status_reply(cls, operation):
             return GetStatusReply(
@@ -1541,12 +1512,6 @@ def serve():
                 verify_package=not request.no_verify,
                 progress=progress,
             )
-
-        def _perform_rollback(self, request, progress=None):
-            backup_dir = validate_backup_dir(
-                request.backup_dir,
-            )
-            return rollback_firmware(backup_dir, progress=progress)
 
         def Inspect(self, request, context):
             target = request.WhichOneof("target")
