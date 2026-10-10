@@ -110,6 +110,7 @@ import io
 import json
 import os
 import queue
+import re
 import sys
 import shutil
 import stat
@@ -155,6 +156,17 @@ def _updater_version():
 
 
 __version__ = _updater_version()
+
+
+def firmware_version_at_least(value: str | None,
+                              minimum: str) -> bool:
+    """Find a V-prefixed firmware version anywhere in a version string."""
+    try:
+        match = re.search(r"V\d+\.\d+\.\d+", value or "")
+        return bool(match and version.parse(match[0]) >= version.parse(minimum))
+    except version.InvalidVersion:
+        return False
+
 
 DEFAULT_ROLLBACK_DIR = os.path.join(
     os.environ.get("HOME") or os.path.expanduser("~"), ".rollback_fw"
@@ -751,6 +763,7 @@ class FirmwareTarball(object):
     UBOOT_ENV_FILE = 'u-boot-initial-env'
     FIRMWARE_SIG_EXT = '.sig'
     PUBLIC_KEY_PATH = '/usr/share/iot2050/fwu/public.key'
+    SECURITY_ENV_MIN_VERSION = 'V01.07.01'
 
     # "env" must be after "uboot" because uboot update will overwrite env
     # partition
@@ -992,6 +1005,24 @@ class FirmwareTarball(object):
 
         return file
 
+    def get_preserved_uboot_env_names(self) -> list[str]:
+        """Return the U-Boot environment names selected for preservation."""
+        names = self.env_list or self.__get_suggest_preserved_uboot_env()
+        if isinstance(names, str):
+            names = names.split(',')
+        if not isinstance(names, (list, tuple)):
+            raise UpgradeError(
+                "Invalid preserved U-Boot environment list",
+                ErrorCode.INVALID_FIRMWARE.value,
+            )
+        if any(not isinstance(name, str) or not name.strip()
+               for name in names):
+            raise UpgradeError(
+                "Invalid preserved U-Boot environment name",
+                ErrorCode.INVALID_FIRMWARE.value,
+            )
+        return [name.strip() for name in names]
+
     def __get_suggest_preserved_uboot_env(self):
         """Get the default uboot env list from tarball"""
         try:
@@ -1001,38 +1032,15 @@ class FirmwareTarball(object):
 
     def get_preserved_uboot_env(self):
         try:
-            if self.env_list:
-                if isinstance(self.env_list, (list, tuple)):
-                    preserved_uboot_env_name = self.env_list
-                elif isinstance(self.env_list, str):
-                    preserved_uboot_env_name = self.env_list.split(',')
-                else:
-                    raise UpgradeError(
-                        "Invalid preserved U-Boot environment list",
-                        ErrorCode.INVALID_FIRMWARE.value,
-                    )
-            else:
-                preserved_uboot_env_name = \
-                   self.__get_suggest_preserved_uboot_env()
-                if not isinstance(preserved_uboot_env_name, (list, tuple)):
-                    raise UpgradeError(
-                        "Invalid preserved U-Boot environment list",
-                        ErrorCode.INVALID_FIRMWARE.value,
-                    )
-
+            preserved_uboot_env_name = self.get_preserved_uboot_env_names()
             if not preserved_uboot_env_name:
                 return []
 
             preserved_uboot_env_value = []
             for env_name in preserved_uboot_env_name:
-                if not isinstance(env_name, str) or not env_name.strip():
-                    raise UpgradeError(
-                        "Invalid preserved U-Boot environment name",
-                        ErrorCode.INVALID_FIRMWARE.value,
-                    )
                 try:
                     env_value = subprocess.run(
-                        ["fw_printenv", env_name.strip()],
+                        ["fw_printenv", env_name],
                         stdout=subprocess.PIPE, text=True, check=True,
                         timeout=10).stdout.strip()
                 except (OSError, subprocess.CalledProcessError,
@@ -1226,6 +1234,43 @@ def update_firmware(firmware_path, backup_dir=None,
             # writing, using the same private extracted files.
             if verify_package:
                 package.verify_firmware_signature(selected_name)
+            if not reset:
+                preserved_names = package.get_preserved_uboot_env_names()
+                if preserved_names:
+                    current_fw_version = None
+                    try:
+                        current_fw_version = subprocess.run(
+                            ["fw_printenv", "-n", "fw_version"],
+                            capture_output=True, text=True, check=True,
+                            timeout=10,
+                        ).stdout.strip()
+                    except (OSError, subprocess.CalledProcessError,
+                            subprocess.TimeoutExpired):
+                        pass
+
+                    target_fw_version = details.get("target_version")
+                    security_versions = [
+                        f"{label} ({fw_version})"
+                        for label, fw_version in (
+                            ("current firmware", current_fw_version),
+                            ("target firmware", target_fw_version),
+                        )
+                        if firmware_version_at_least(
+                            fw_version, FirmwareTarball.SECURITY_ENV_MIN_VERSION
+                        )
+                    ]
+
+                    if security_versions:
+                        verb = "have" if len(security_versions) > 1 else "has"
+                        progress and progress(
+                            "security-env-preserve-warning",
+                            f"\033[1mWarning: The {' and '.join(security_versions)} "
+                            f"likely {verb} security enabled. When security is "
+                            "enabled, only U-Boot environment variables on the "
+                            "firmware's security whitelist, such as boot_targets, "
+                            "can be preserved. Preservation of variables outside "
+                            "the whitelist may not take effect.\033[0m",
+                        )
             updater = FirmwareUpdate(
                 package, backup_dir, interactor,
                 rollback=False, reset=reset,
