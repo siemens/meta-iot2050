@@ -14,8 +14,7 @@ inherit u-boot iot2050-demo-signing-warning
 SRC_URI += " \
     file://rules.tmpl \
     file://prebuild \
-    file://fw_env.config \
-    file://efi-boot.cfg"
+    file://fw_env.config"
 SRC_URI:append:secureboot = " \
     file://keys/custMpk.crt \
     file://keys/custMpk.key \
@@ -79,7 +78,6 @@ U_BOOT_CONFIG_PACKAGE = "1"
 do_prepare_build:append() {
     ln -f ${WORKDIR}/prebuild/* ${S}
     ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
-    cat ${WORKDIR}/efi-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
     echo "flash-pg1.bin /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     echo "flash-pg2.bin /usr/lib/u-boot/${MACHINE}" >> \

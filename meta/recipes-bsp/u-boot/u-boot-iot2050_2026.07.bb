@@ -31,6 +31,7 @@ SRC_URI += " \
     file://0014-arm-armv8-mmu-Match-reserved-memory-basenames.patch \
     file://0015-board-siemens-iot2050-Add-Arduino-rev-support.patch \
     file://0016-spi-cadence-qspi-Avoid-DMA-for-non-DMA-controllers.patch \
+    file://0017-board-siemens-iot2050-Switch-to-standard-EFI-boot.patch \
     "
 
 SRC_URI[sha256sum] = "78e8bfc382fe388f9b55aa1daf8c563522a037779b5d4c349d1415e381f1243e"
