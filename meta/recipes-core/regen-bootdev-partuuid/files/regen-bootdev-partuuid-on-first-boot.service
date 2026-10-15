@@ -1,5 +1,5 @@
 #
-# Copyright (c) Siemens AG, 2020
+# Copyright (c) Siemens AG, 2020-2026
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: MIT
 
 [Unit]
-Description=Generate new UUID for rootfs partition
+Description=Regenerate GPT partition UUIDs on first boot
 DefaultDependencies=no
 Conflicts=shutdown.target
 After=systemd-remount-fs.service expand-on-first-boot.service
@@ -17,8 +17,8 @@ ConditionPathIsReadWrite=/etc
 [Service]
 Type=simple
 RemainAfterExit=yes
-ExecStart=/usr/share/regen-rootfs-uuid/regen-rootfs-uuid.sh
-ExecStartPost=-/bin/systemctl disable regen-rootfs-uuid-on-first-boot.service
+ExecStart=/usr/share/regen-bootdev-partuuid/regen-bootdev-partuuid.sh
+ExecStartPost=-/bin/systemctl disable regen-bootdev-partuuid-on-first-boot.service
 
 [Install]
 WantedBy=sysinit.target
