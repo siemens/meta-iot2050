@@ -35,7 +35,7 @@ IMAGE_INITRD = "${INITRAMFS_RECIPE}"
 do_image_wic[depends] += "${INITRAMFS_RECIPE}:do_build"
 
 # not compatible with SWUpdate images
-IMAGE_INSTALL:remove = "install-on-emmc"
+IMAGE_INSTALL:remove = "regen-bootdev-partuuid install-on-emmc"
 
 # not compatible with disk encryption
 IMAGE_INSTALL:remove:secureboot = "expand-on-first-boot"

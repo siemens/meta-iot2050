@@ -1,0 +1,3 @@
+#!/bin/sh
+
+systemctl enable regen-bootdev-partuuid-on-first-boot.service
