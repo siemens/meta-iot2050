@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Thu, 15 Oct 2026 13:33:54 +0800
+Subject: [PATCH] board: siemens: iot2050: Switch to standard EFI boot
+
+Replace distroboot with bootflow scanning for /EFI/BOOT/BOOTAA64.EFI
+on MMC and USB storage. Keep watchdog setup before the scan and
+preserve the boot order in the text environment.
+
+Disable unused boot methods and explicitly retain Hush, FAT and USB
+storage support previously provided by DISTRO_DEFAULTS.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ board/siemens/iot2050/iot2050.env |  3 +++
+ configs/iot2050_defconfig         | 13 +++++++++++--
+ include/configs/iot2050.h         | 20 --------------------
+ 3 files changed, 14 insertions(+), 22 deletions(-)
+
+diff --git a/board/siemens/iot2050/iot2050.env b/board/siemens/iot2050/iot2050.env
+index 8bbd7abe98f0..8cbc6c6243c7 100644
+--- a/board/siemens/iot2050/iot2050.env
++++ b/board/siemens/iot2050/iot2050.env
+@@ -8,6 +8,9 @@
+ 
+ #include <env/ti/ti_common.env>
+ 
++/* Basic boards remove the unavailable mmc1 target at runtime. */
++boot_targets=mmc1 mmc0 usb0 usb1 usb2
++
+ usb_pgood_delay=900
+ 
+ watchdog_timeout_ms=CONFIG_WATCHDOG_TIMEOUT_MSECS
+diff --git a/configs/iot2050_defconfig b/configs/iot2050_defconfig
+index e904c283c0e8..fd8696df22f6 100644
+--- a/configs/iot2050_defconfig
++++ b/configs/iot2050_defconfig
+@@ -31,7 +31,12 @@ CONFIG_SPL_SPI=y
+ CONFIG_PCI=y
+ # CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
+ CONFIG_EFI_SCROLL_ON_CLEAR_SCREEN=y
+-CONFIG_DISTRO_DEFAULTS=y
++CONFIG_BOOTSTD_FULL=y
++# CONFIG_BOOTSTD_DEFAULTS is not set
++# CONFIG_BOOTMETH_EXTLINUX is not set
++# CONFIG_BOOTMETH_EFI_BOOTMGR is not set
++# CONFIG_BOOTMETH_VBE is not set
++# CONFIG_BOOTMETH_SCRIPT is not set
+ CONFIG_BOOTSTAGE=y
+ CONFIG_SHOW_BOOT_PROGRESS=y
+ CONFIG_SPL_SHOW_BOOT_PROGRESS=y
+@@ -41,7 +46,8 @@ CONFIG_AUTOBOOT_PROMPT="Hit SPACE to stop autoboot in %d seconds...\n"
+ CONFIG_AUTOBOOT_STOP_STR=" "
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_OF_SYSTEM_SETUP=y
+-CONFIG_BOOTCOMMAND="run start_watchdog; run distro_bootcmd"
++CONFIG_USE_BOOTCOMMAND=y
++CONFIG_BOOTCOMMAND="run start_watchdog; bootflow scan -lb"
+ CONFIG_SYS_PBSIZE=1050
+ # CONFIG_DISPLAY_CPUINFO is not set
+ # CONFIG_BOARD_INIT is not set
+@@ -61,6 +67,7 @@ CONFIG_SPL_SPI_FLASH_SFDP_SUPPORT=y
+ CONFIG_SPL_SPI_LOAD=y
+ CONFIG_SYS_SPI_U_BOOT_OFFS=0x380000
+ CONFIG_SYS_PROMPT="IOT2050> "
++CONFIG_HUSH_PARSER=y
+ CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_DFU=y
+ CONFIG_CMD_GPT=y
+@@ -142,6 +149,7 @@ CONFIG_USB_XHCI_HCD=y
+ CONFIG_USB_XHCI_DWC3=y
+ CONFIG_USB_DWC3=y
+ CONFIG_USB_DWC3_GENERIC=y
++CONFIG_USB_STORAGE=y
+ CONFIG_USB_KEYBOARD=y
+ # CONFIG_WATCHDOG is not set
+ # CONFIG_WATCHDOG_AUTOSTART is not set
+@@ -149,3 +157,4 @@ CONFIG_WDT=y
+ CONFIG_WDT_K3_RTI=y
+ # CONFIG_K3_RPROC_FIRMWARE_AUTH is not set
+ CONFIG_WDT_K3_RTI_LOAD_FW=y
++CONFIG_FS_FAT=y
+diff --git a/include/configs/iot2050.h b/include/configs/iot2050.h
+index 908bb8500a77..fd9f583172d9 100644
+--- a/include/configs/iot2050.h
++++ b/include/configs/iot2050.h
+@@ -15,29 +15,9 @@
+ 
+ #include <configs/ti_armv7_common.h>
+ 
+-/* allow up to 3 USB storage devices */
+-#ifdef CONFIG_CMD_USB
+-#undef BOOT_TARGET_USB
+-#define BOOT_TARGET_USB(func) \
+-	func(USB, usb, 0) \
+-	func(USB, usb, 1) \
+-	func(USB, usb, 2)
+-#endif
+-
+ /* DDR Configuration */
+ #define CFG_SYS_SDRAM_BASE1		0x880000000
+ 
+-/*
+- * This defines all MMC devices, even if the basic variant has no mmc1.
+- * The non-supported device will be removed from the boot targets during
+- * runtime, when that board was detected.
+- */
+-#undef BOOT_TARGET_DEVICES
+-#define BOOT_TARGET_DEVICES(func) \
+-       func(MMC, mmc, 1) \
+-       func(MMC, mmc, 0) \
+-       BOOT_TARGET_USB(func)
+-
+ #ifdef CONFIG_ENV_WRITEABLE_LIST
+ #define CFG_ENV_FLAGS_LIST_STATIC					\
+ 	"board_uuid:sw,board_name:sw,board_serial:sw,board_a5e:sw,"	\
