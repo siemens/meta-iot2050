@@ -79,9 +79,7 @@ U_BOOT_CONFIG_PACKAGE = "1"
 do_prepare_build:append() {
     ln -f ${WORKDIR}/prebuild/* ${S}
     ln -sf /lib/firmware/k3-rti-wdt.fw ${S}
-    if [ "${SB_SIGN}" = "0" ]; then
-        cat ${WORKDIR}/efi-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
-    fi
+    cat ${WORKDIR}/efi-boot.cfg >> ${S}/configs/${U_BOOT_CONFIG}
     echo "flash-pg1.bin /usr/lib/u-boot/${MACHINE}" > \
         ${S}/debian/u-boot-${MACHINE}.install
     echo "flash-pg2.bin /usr/lib/u-boot/${MACHINE}" >> \
