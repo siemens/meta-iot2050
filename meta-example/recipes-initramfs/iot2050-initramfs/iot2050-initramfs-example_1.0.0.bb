@@ -7,6 +7,8 @@ PR = "1"
 
 require recipes-initramfs/iot2050-initramfs/iot2050-initramfs_0.1.bb
 
+INITRAMFS_INSTALL:remove = "initramfs-abrootfs-hook"
+
 INITRAMFS_INSTALL:remove:secureboot = " \
 	initramfs-verity-hook \
 	initramfs-crypt-hook \
