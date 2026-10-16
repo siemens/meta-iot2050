@@ -6,18 +6,9 @@
 
 prereqs()
 {
-	# Run after the generic root-selection hooks so we can override an ambiguous
-	# PARTLABEL=rootfs choice with the rootfs on the same disk as the booted
-	# medium. U-Boot exports the selected EFI boot device via the
-	# IOT2050BootDevice EFI variable before launching the EFI payload.
-	for req in "${0%/*}"/*; do
-		script="${req##*/}"
-		if [ "$script" != "${0##*/}" ] && \
-		   [ "$script" != "cryptroot" ]; then
-			printf '%s\n' "$script"
-		fi
-	done
+	:
 }
+
 case $1 in
 prereqs)
 	prereqs
@@ -27,145 +18,140 @@ esac
 
 . /scripts/functions
 
-log_efi_rootfs()
+# LoaderDevicePartUUID contains the PARTUUID of the ESP partition.
+# The variable name and GUID follow the Boot Loader Interface specification.
+efivar=/sys/firmware/efi/efivars/LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f
+
+fail()
 {
-	message="efi-rootfs: $*"
-	echo "${message}" >&2
+	ROOT=/dev/null
+	export ROOT
+	echo "ROOT=${ROOT}" >/conf/param.conf
+	panic "efi-rootfs: $*"
+	exit 1
 }
 
-boot_device_from_efivar()
+# Read the PARTUUID of the ESP partition from efivarfs.
+read_loader_partition_uuid()
 {
 	mkdir -p /sys/firmware/efi/efivars
-	if ! /sbin/modprobe efivarfs 2>/dev/null; then
-		log_efi_rootfs "modprobe efivarfs failed"
-	fi
-	if ! mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2>/dev/null; then
-		log_efi_rootfs "mount efivarfs failed"
-	fi
-
-	set -- /sys/firmware/efi/efivars/IOT2050BootDevice-*
-	if [ "$1" = "/sys/firmware/efi/efivars/IOT2050BootDevice-*" ]; then
-		log_efi_rootfs "IOT2050BootDevice efivar not visible"
-		return 1
-	fi
-
-	efivar="$1"
-	log_efi_rootfs "IOT2050BootDevice efivar=${efivar}"
+	/sbin/modprobe efivarfs 2>/dev/null || true
+	mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2>/dev/null || true
+	[ -r "${efivar}" ] || return 1
 	dd if="${efivar}" bs=1 skip=4 2>/dev/null | tr -d '\000\r\n'
 }
 
-boot_disk_device()
+# Resolve a partition device node to its parent disk device node.
+partition_to_disk()
 {
-	case "$1" in
-	mmc[0-9]*)
-		printf '/dev/mmcblk%s\n' "${1#mmc}"
-		return 0
-		;;
-	esac
-
-	return 1
+	partition_sysfs="$(readlink -f "/sys/class/block/${1##*/}" 2>/dev/null)"
+	[ -f "${partition_sysfs}/partition" ] || return 1
+	disk_sysfs="${partition_sysfs%/*}"
+	printf '/dev/%s\n' "${disk_sysfs##*/}"
 }
 
-default_rootfs_device()
+# Find the unique rootfs partition on the specified boot disk.
+find_rootfs_on_disk()
 {
-	blkid --list-one --output device --match-token PARTLABEL=rootfs 2>/dev/null
-}
+	boot_disk_sysfs="$(readlink -f "/sys/class/block/${1##*/}" 2>/dev/null)"
+	[ -n "${boot_disk_sysfs}" ] || return 1
 
-rootfs_partition_on_boot_device()
-{
-	boot_disk="$(boot_disk_device "$1")"
-	if [ -z "${boot_disk}" ] || [ ! -b "${boot_disk}" ]; then
-		return 1
-	fi
-
-	ext4_candidate=""
-	for candidate in "${boot_disk}"p*; do
-		[ -b "${candidate}" ] || continue
-		partlabel="$(blkid -s PARTLABEL -o value "${candidate}" 2>/dev/null)"
-		label="$(blkid -s LABEL -o value "${candidate}" 2>/dev/null)"
-		fstype="$(blkid -s TYPE -o value "${candidate}" 2>/dev/null)"
-
-		if [ "${partlabel}" = "rootfs" ] || [ "${label}" = "rootfs" ]; then
-			printf '%s\n' "${candidate}"
-			return 0
-		fi
-
-		if [ "${fstype}" = "ext4" ] && [ -z "${ext4_candidate}" ]; then
-			ext4_candidate="${candidate}"
-		fi
-	done
-
-	if [ -n "${ext4_candidate}" ]; then
-		printf '%s\n' "${ext4_candidate}"
-		return 0
-	fi
-
-	return 1
-}
-
-wait_for_boot_device_rootfs()
-{
-	boot_device="$1"
-	timeout="${2:-10}"
+	rootfs=
 	count=0
+	for partition in /sys/class/block/*; do
+		[ -f "${partition}/partition" ] || continue
+		partition_sysfs="$(readlink -f "${partition}" 2>/dev/null)"
+		[ "${partition_sysfs%/*}" = "${boot_disk_sysfs}" ] || continue
+		device="/dev/${partition_sysfs##*/}"
+		[ -b "${device}" ] || continue
 
-	while [ "${count}" -lt "${timeout}" ]; do
-		found_root="$(rootfs_partition_on_boot_device "${boot_device}")"
-		if [ -n "${found_root}" ]; then
-			printf '%s\n' "${found_root}"
-			return 0
+		partlabel="$(blkid -s PARTLABEL -o value "${device}" 2>/dev/null || true)"
+		label="$(blkid -s LABEL -o value "${device}" 2>/dev/null || true)"
+		if [ "${partlabel}" = "rootfs" ] || [ "${label}" = "rootfs" ]; then
+			rootfs="${device}"
+			count=$((count + 1))
 		fi
-		count=$((count + 1))
-		sleep 1
 	done
 
+	case ${count} in
+	1) printf '%s\n' "${rootfs}" ;;
+	0) return 1 ;;
+	*) return 2 ;;
+	esac
+}
+
+# Wait for the ESP partition to appear and reject duplicate PARTUUIDs.
+wait_for_loader_partition()
+{
+	loader_partition_uuid="$1"
+	count=0
+	while [ "${count}" -lt 15 ]; do
+		matches="$(blkid --match-token "PARTUUID=${loader_partition_uuid}" --output device 2>/dev/null || true)"
+		set -f
+		# shellcheck disable=SC2086
+		set -- ${matches}
+		set +f
+		case $# in
+		1)
+			printf '%s\n' "$1"
+			return 0
+			;;
+		[2-9]|[1-9][0-9]*) return 2 ;;
+		esac
+		sleep 1
+		count=$((count + 1))
+	done
 	return 1
 }
 
-set_root()
+# Wait for a unique rootfs partition to appear on the boot disk.
+wait_for_rootfs()
 {
-	ROOT="$1"
-	export ROOT
-	echo "ROOT=${ROOT}" >/conf/param.conf
-	log_efi_rootfs "selected ROOT=${ROOT}"
+	boot_disk="$1"
+	count=0
+	while [ "${count}" -lt 15 ]; do
+		rootfs="$(find_rootfs_on_disk "${boot_disk}")"
+		status=$?
+		[ "${status}" -eq 0 ] && {
+			printf '%s\n' "${rootfs}"
+			return 0
+		}
+		[ "${status}" -eq 2 ] && return 2
+		sleep 1
+		count=$((count + 1))
+	done
+	return 1
 }
 
-fallback_root()
-{
-	found_root="$(default_rootfs_device)"
-	if [ -z "${found_root}" ]; then
-		return 1
-	fi
-
-	set_root "${found_root}"
-	return 0
-}
-
+# Prevent initramfs-tools from resolving an ambiguous PARTLABEL globally.
+ROOT=/dev/null
+export ROOT
+echo "ROOT=${ROOT}" >/conf/param.conf
 wait_for_udev 10
 
-boot_device="$(boot_device_from_efivar || true)"
-log_efi_rootfs "IOT2050BootDevice=${boot_device:-<empty>}"
+# Read the PARTUUID of the ESP partition; fail if it is unavailable.
+loader_partition_uuid="$(read_loader_partition_uuid)" ||
+	fail "LoaderDevicePartUUID is unavailable"
+[ -n "${loader_partition_uuid}" ] || fail "LoaderDevicePartUUID is empty"
+loader_partition_uuid="$(printf '%s' "${loader_partition_uuid}" | tr '[:upper:]' '[:lower:]')"
 
-if [ -z "${boot_device}" ]; then
-	log_efi_rootfs "no boot device, using fallback root"
-	fallback_root || exit 0
-	exit 0
-fi
+# Find the ESP partition by UUID, waiting for device enumeration.
+loader_partition="$(wait_for_loader_partition "${loader_partition_uuid}")"
+status=$?
+[ "${status}" -eq 2 ] && fail "duplicate loader partition UUID ${loader_partition_uuid}"
+[ "${status}" -eq 0 ] || fail "loader partition ${loader_partition_uuid} was not found"
 
-boot_disk="$(boot_disk_device "${boot_device}" || true)"
-log_efi_rootfs "boot disk=${boot_disk:-<empty>}"
-if [ -z "${boot_disk}" ]; then
-	log_efi_rootfs "boot disk unsupported, using fallback root"
-	fallback_root || exit 0
-	exit 0
-fi
+# Resolve the disk containing the ESP partition.
+boot_disk="$(partition_to_disk "${loader_partition}")" ||
+	fail "cannot determine disk for ${loader_partition}"
 
-found_root="$(wait_for_boot_device_rootfs "${boot_device}" 10)"
-log_efi_rootfs "boot-device root candidate=${found_root:-<empty>}"
-if [ -z "${found_root}" ]; then
-	log_efi_rootfs "boot-device root not found, using fallback root"
-	fallback_root || exit 0
-	exit 0
-fi
+# Find the unique rootfs partition on the boot disk, waiting for it to appear.
+rootfs="$(wait_for_rootfs "${boot_disk}")"
+status=$?
+[ "${status}" -eq 2 ] && fail "multiple rootfs partitions found on ${boot_disk}"
+[ "${status}" -eq 0 ] || fail "rootfs label not found on ${boot_disk}"
 
-set_root "${found_root}"
+ROOT="${rootfs}"
+export ROOT
+echo "ROOT=${ROOT}" >/conf/param.conf
+echo "efi-rootfs: boot disk=${boot_disk}, selected ROOT=${ROOT}" >&2
