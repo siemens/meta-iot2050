@@ -14,6 +14,7 @@ Before=systemd-remount-fs.service shutdown.target
 
 [Service]
 Type=oneshot
+TimeoutStartSec=infinity
 RemainAfterExit=yes
 ExecStart=/usr/share/install-on-emmc/install-on-emmc.sh
 StandardOutput=journal+console

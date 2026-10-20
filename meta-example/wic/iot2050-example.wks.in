@@ -12,4 +12,4 @@ part --source efibootguard-efi --fixed-size 16M --label efi --align 1024 --part-
 part --source efibootguard-boot --fixed-size 128M --label BOOT --align 1024 --part-type=0700 --sourceparams "revision=1"
 part / --source rootfs --fstype ext4 --label rootfs --align 1024 --use-uuid
 
-bootloader --ptable gpt --timeout=0 --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 root=PARTLABEL=rootfs rw rootwait ${EXTRA_KERNEL_PARAMS}"
+bootloader --ptable gpt --timeout=0 --append "console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02810000 root=PARTLABEL=rootfs ro rootwait ${EXTRA_KERNEL_PARAMS}"

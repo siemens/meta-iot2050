@@ -1,0 +1,12 @@
+#
+# Copyright (c) Siemens AG, 2026
+#
+# SPDX-License-Identifier: MIT
+#
+
+header:
+  version: 14
+
+local_conf_header:
+  install-on-emmc: |
+    IOT2050_INSTALL_ON_EMMC_AUTO = "1"
