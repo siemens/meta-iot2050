@@ -120,8 +120,30 @@ at least 5 seconds to start the installation.
 **NOTE**: All content on the eMMC will be overwritten by this procedure!
 
 The ongoing installation is signaled by a fast-blinking status LED. Wait for
-several minutes until the LED stops blinking and the device reboots to the eMMC.
+several minutes until the LED stops blinking and the device reboots.
 You can safely remove the SD card or USB stick at that point.
+
+To enable automatic installation at build time, run `./kas-container menu`,
+select **Example image**, and enable **Automatic installation on eMMC**.
+This option is disabled by default and includes `/etc/install-on-emmc` in the
+final image when enabled, so no USER button press is needed on first boot.
+It is not available for QEMU images. Disabling the option omits the trigger
+file but still allows installation using the USER button.
+
+With this option enabled, the image is an installation image rather than a
+normal runtime image for SD card or USB use: it automatically installs to
+eMMC and then waits with a steady green status LED. On failure, it waits with
+a steady red status LED. It does not reboot or continue normal startup.
+After success, disconnect power, remove the installation medium, and power
+the device on again. The medium remains reusable and starts installation
+again on its next boot. Leave this option disabled to use the image normally
+from an SD card or USB stick. Booting the installed system from eMMC skips
+the copier mode and continues normal startup.
+
+For a non-interactive build, append the corresponding KAS fragment:
+```sh
+./kas-container build kas-iot2050-example.yml:kas/opt/install-on-emmc.yml
+```
 
 The installation can also be triggered automatically by creating the file
 `/etc/install-on-emmc` on the vanilla image by mounting it under Linux and

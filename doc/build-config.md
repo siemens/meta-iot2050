@@ -49,6 +49,7 @@ if prompt wording evolves.
 | LXDE graphical UI | `kas/opt/lxde.yml` | Lightweight desktop | All images |
 | Meta-Hailo AI card support | `kas/opt/hailo.yml` | Hailo driver & runtime | All (board HW required) |
 | Preempt-RT kernel | `kas/opt/preempt-rt.yml` | RT tuned kernel | All images |
+| Automatic installation on eMMC | `kas/opt/install-on-emmc.yml` | Includes `/etc/install-on-emmc` to skip the USER button on first boot; disabled by default | Example only, excluding QEMU |
 | Build SDK | `kas/opt/sdk.yml` | Cross SDK outputs | Example/SWUpdate menu (produces SDK tarball) |
 | Secure boot & Data encryption | `kas/opt/secure-boot.yml` | Signing, verity, encrypted data | SWUpdate/Firmware contexts |
 | OTP Provisioning | `kas/opt/otpcmd/*.yml` | Embed OTP command payload | With secure boot & firmware images |
@@ -63,6 +64,15 @@ if prompt wording evolves.
   base descriptor (firmware / secure boot context) is selected.
 
 Visibility of options follows `depends on` in `Kconfig`.
+
+**Automatic installation on eMMC** creates an installation image: when booted
+from an SD card or USB stick, it installs to eMMC without a USER button press
+and waits with a steady green status LED on success or a steady red status LED
+on failure. It does not reboot or continue normal startup. After success,
+disconnect power and remove the installation medium before powering on again.
+The medium remains reusable; each boot starts installation again. Booting
+from eMMC skips copier mode. Leave the option disabled for normal SD card or
+USB operation. USER button installation still cleans up and reboots.
 
 ## Manual Composition
 The syntax follows this pattern:

@@ -90,6 +90,26 @@ config KAS_INCLUDE_RT
 	default "kas/opt/preempt-rt.yml"
 	depends on PREEMPT_RT
 
+config INSTALL_ON_EMMC_AUTO
+	bool "Automatic installation on eMMC"
+	depends on IMAGE_EXAMPLE && !IMAGE_QEMU
+	help
+	  Include /etc/install-on-emmc in the image to install it on eMMC
+	  automatically during the first boot from an SD card or USB stick,
+	  without pressing the USER button. All data on eMMC is overwritten.
+	  After installation, the device waits with a steady green status LED.
+	  On failure, it waits with a steady red status LED. It does not reboot
+	  or continue normal startup. Disconnect power and remove the installation
+	  medium before powering on after a successful installation.
+	  This creates an installation image that cannot be used as a normal
+	  runtime image from an SD card or USB stick.
+	  If disabled, installation can still be requested with the USER button.
+
+config KAS_INCLUDE_INSTALL_ON_EMMC_AUTO
+	string
+	default "kas/opt/install-on-emmc.yml"
+	depends on INSTALL_ON_EMMC_AUTO
+
 # Example demo content (apps / sample configs) selectable only for Base.
 config NODE_RED
 	bool "Node-RED support" if IMAGE_BASE
