@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Baocheng Su <baocheng.su@siemens.com>
+Date: Wed, 21 Oct 2026 11:27:22 +0800
+Subject: [PATCH] net: ti: icssg-prueth: wait for RX teardown before resetting
+ rings
+
+Adapt the RX teardown fix from upstream
+commit 41dde7f1d013 ("net: ti: icssg-prueth: Add functions to create and destroy Rx/Tx queues")
+to the skb-based 6.12 ICSSG driver.
+
+The RX reset helper assumes that the completion ring is empty. Wait
+for NAPI to consume the teardown marker, then disable NAPI before
+resetting the RX rings. Otherwise pending completion descriptors can
+be lost during interface shutdown under heavy RX load.
+
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
+---
+ drivers/net/ethernet/ti/icssg/icssg_common.c |  4 +++-
+ drivers/net/ethernet/ti/icssg/icssg_prueth.c | 16 +++++++++++++++-
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_common.c b/drivers/net/ethernet/ti/icssg/icssg_common.c
+index 74f0f200a89d..8d178f97eea7 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_common.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_common.c
+@@ -554,8 +554,10 @@ static int emac_rx_packet(struct prueth_emac *emac, u32 flow_id)
+ 		return ret;
+ 	}
+ 
+-	if (cppi5_desc_is_tdcm(desc_dma)) /* Teardown ? */
++	if (cppi5_desc_is_tdcm(desc_dma)) { /* Teardown ? */
++		complete(&emac->tdown_complete);
+ 		return 0;
++	}
+ 
+ 	desc_rx = k3_cppi_desc_pool_dma2virt(rx_chn->desc_pool, desc_dma);
+ 
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_prueth.c b/drivers/net/ethernet/ti/icssg/icssg_prueth.c
+index 5e1133c322a7..192cd94ee3e3 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_prueth.c
+@@ -856,13 +856,27 @@ static int emac_ndo_stop(struct net_device *ndev)
+ 	}
+ 
+ 	max_rx_flows = PRUETH_MAX_RX_FLOWS;
++	reinit_completion(&emac->tdown_complete);
+ 	k3_udma_glue_tdown_rx_chn(emac->rx_chns.rx_chn, true);
+ 
+-	prueth_reset_rx_chan(&emac->rx_chns, max_rx_flows, true);
++	/* Drain RX completions through the teardown marker before resetting
++	 * the rings. Force a poll even when RX interrupt pacing is active.
++	 */
++	if (!napi_if_scheduled_mark_missed(&emac->napi_rx)) {
++		if (napi_schedule_prep(&emac->napi_rx))
++			__napi_schedule(&emac->napi_rx);
++	}
++
++	ret = wait_for_completion_timeout(&emac->tdown_complete,
++					  msecs_to_jiffies(1000));
++	if (!ret)
++		netdev_err(ndev, "rx teardown timeout\n");
+ 
+ 	napi_disable(&emac->napi_rx);
+ 	hrtimer_cancel(&emac->rx_hrtimer);
+ 
++	prueth_reset_rx_chan(&emac->rx_chns, max_rx_flows, true);
++
+ 	cancel_work_sync(&emac->rx_mode_work);
+ 
+ 	/* Destroying the queued work in ndo_stop() */
