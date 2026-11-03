@@ -11,16 +11,34 @@ onboard multiplexers via mraa_gpio_init_raw(), since the
 mraa_gpio_init_internal() currently only handles sysfs pin
 initialization.
 
+Skip interface-pin bookkeeping for raw GPIOs and reject out-of-range
+indices before accessing the pin tables.
+
 Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+Signed-off-by: Baocheng Su <baocheng.su@siemens.com>
 ---
- src/arm/siemens/iot2050.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ src/arm/siemens/iot2050.c | 45 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 44 insertions(+), 1 deletion(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index 4e51f4cbf98c..60a01f861900 100644
+index 4e51f4cbf98c..4e9aeab628cd 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
-@@ -268,19 +268,26 @@ iot2050_gpio_dir_pre(mraa_gpio_context dev, mraa_gpio_dir_t dir)
+@@ -251,6 +251,13 @@ iot2050_gpio_dir_pre(mraa_gpio_context dev, mraa_gpio_dir_t dir)
+ {
+     int pin = dev->phy_pin;
+ 
++    if (pin < 0) {
++        return MRAA_SUCCESS;
++    }
++    if (pin >= plat->phy_pin_count || pin >= MRAA_IOT2050_PINCOUNT) {
++        return MRAA_ERROR_INVALID_RESOURCE;
++    }
++
+     if(pin >= 0) {
+         if(plat->pins[pin].gpio.complex_cap.complex_pin != 1) {
+             return MRAA_SUCCESS;
+@@ -268,19 +275,26 @@ iot2050_gpio_dir_pre(mraa_gpio_context dev, mraa_gpio_dir_t dir)
                      goto failed;
                  }
              }
@@ -47,7 +65,7 @@ index 4e51f4cbf98c..60a01f861900 100644
      return MRAA_SUCCESS;
  failed:
      syslog(LOG_ERR, "iot2050: Error setting gpio direction");
-@@ -363,6 +370,34 @@ failed:
+@@ -363,6 +377,34 @@ failed:
      return ret;
  }
  
@@ -82,7 +100,7 @@ index 4e51f4cbf98c..60a01f861900 100644
  static inline void
  iot2050_setup_pins(mraa_board_t *board, int pin_index, char *pin_name, mraa_pincapabilities_t cap, regmux_info_t mux_info)
  {
-@@ -588,7 +623,7 @@ mraa_siemens_iot2050()
+@@ -588,7 +630,7 @@ mraa_siemens_iot2050()
      memset(output_en_pins, 0, sizeof(mraa_gpio_context) * MRAA_IOT2050_PINCOUNT);
      b->platform_name = PLATFORM_NAME;
      b->phy_pin_count = MRAA_IOT2050_PINCOUNT;
@@ -91,7 +109,7 @@ index 4e51f4cbf98c..60a01f861900 100644
      b->adc_raw = 12;
      b->adc_supported = 12;
      b->pwm_default_period = 1000; /*us*/
-@@ -599,6 +634,7 @@ mraa_siemens_iot2050()
+@@ -599,6 +641,7 @@ mraa_siemens_iot2050()
      if(b->adv_func == NULL) {
          goto error;
      }

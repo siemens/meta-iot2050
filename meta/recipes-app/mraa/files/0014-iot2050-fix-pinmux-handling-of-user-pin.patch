@@ -14,7 +14,7 @@ Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
  1 file changed, 18 insertions(+), 12 deletions(-)
 
 diff --git a/src/arm/siemens/iot2050.c b/src/arm/siemens/iot2050.c
-index 60a01f861900..df60ed0e51e0 100644
+index 4e9aeab628cd..7b20652c643f 100644
 --- a/src/arm/siemens/iot2050.c
 +++ b/src/arm/siemens/iot2050.c
 @@ -124,17 +124,17 @@ iot2050_get_regmux_by_pinmap(int pinmap)
@@ -74,7 +74,7 @@ index 60a01f861900..df60ed0e51e0 100644
      if (ret != MRAA_SUCCESS)
          return iot2050_mux_mmap(phy_pin, mode, 0);
      return ret;
-@@ -324,7 +324,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -331,7 +331,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
                  goto failed;
              }
              if(info) {
@@ -83,7 +83,7 @@ index 60a01f861900..df60ed0e51e0 100644
                  if (ret != MRAA_SUCCESS)
                      ret = iot2050_mux_mmap(dev->phy_pin, 0, mode);
  
-@@ -336,7 +336,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -343,7 +343,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
                  goto failed;
              }
              if(info) {
@@ -92,7 +92,7 @@ index 60a01f861900..df60ed0e51e0 100644
                  if (ret != MRAA_SUCCESS)
                      ret = iot2050_mux_mmap(dev->phy_pin, 0, mode);
              }
-@@ -348,7 +348,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
+@@ -355,7 +355,7 @@ iot2050_gpio_mode_replace(mraa_gpio_context dev, mraa_gpio_mode_t mode)
                  goto failed;
              }
              if(info) {
@@ -101,7 +101,7 @@ index 60a01f861900..df60ed0e51e0 100644
                  if (ret != MRAA_SUCCESS)
                      ret = iot2050_mux_mmap(dev->phy_pin, 0, mode);
              }
-@@ -1834,7 +1834,10 @@ mraa_siemens_iot2050()
+@@ -1841,7 +1841,10 @@ mraa_siemens_iot2050()
                              -1,
                              -1,
                              wkup_gpio0_base+25,
@@ -113,7 +113,7 @@ index 60a01f861900..df60ed0e51e0 100644
                          });
      iot2050_pin_add_gpio(b, pin_index, wkup_gpio0_chip, 25, -1, -1, NULL, 0);
      pin_index++;
-@@ -1915,7 +1918,10 @@ mraa_siemens_iot2050_sm()
+@@ -1922,7 +1925,10 @@ mraa_siemens_iot2050_sm()
                              .group = -1,
                              .index = -1,
                              .pinmap = wkup_gpio0_base+25,
