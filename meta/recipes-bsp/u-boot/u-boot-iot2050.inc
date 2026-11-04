@@ -102,7 +102,9 @@ dpkg_runbuild:append:secureboot() {
     if [ "${SB_USE_LOCAL_KEY}" = "1" ]; then
         # remove private keys from source archive
         gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
-        tar --delete -f ${WORKDIR}/${PN}_${PV}.tar u-boot-${PV}/keys/custMpk.key u-boot-${PV}/keys/custMpk.pem
+        tar --delete -f ${WORKDIR}/${PN}_${PV}.tar \
+            "$(basename "${S}")/keys/custMpk.key" \
+            "$(basename "${S}")/keys/custMpk.pem"
         gzip ${WORKDIR}/${PN}_${PV}.tar
     fi
 }
