@@ -14,7 +14,7 @@ require u-boot-iot2050.inc
 PR = "1"
 
 SRC_URI += " \
-    https://ftp.denx.de/pub/u-boot/u-boot-${PV}.tar.bz2 \
+    https://git.u-boot-project.org/u-boot/u-boot/-/archive/v${PV}/u-boot-v${PV}.tar.bz2 \
     file://0001-arm-dts-iot2050-Add-overlay-for-DMA-isolation-for-de.patch \
     file://0002-board-siemens-iot2050-Generalize-overlay_prepare.patch \
     file://0003-board-siemens-iot2050-Allow-to-enable-and-adjust-res.patch \
@@ -34,6 +34,6 @@ SRC_URI += " \
     file://0017-board-siemens-iot2050-Switch-to-standard-EFI-boot.patch \
     "
 
-SRC_URI[sha256sum] = "78e8bfc382fe388f9b55aa1daf8c563522a037779b5d4c349d1415e381f1243e"
+SRC_URI[sha256sum] = "5be3cddfd5e6ac023dbdc62b2a117231de2c180dcc598f3788e5b482c21fa28c"
 
-S = "${WORKDIR}/u-boot-${PV}"
+S = "${WORKDIR}/u-boot-v${PV}"
