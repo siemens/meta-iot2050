@@ -1,0 +1,121 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Clauger 3E <dev@clauger.fr>
+Date: Thu, 1 Oct 2026 17:00:00 +0200
+Subject: [PATCH] net: ti: icssg-prueth: reclaim completed RX descriptors on
+ stop
+
+k3_udma_glue_reset_rx_chn() returns the free descriptor queue to the pool
+but only resets the completion ring, expecting it to be empty. Descriptors
+completed by the DMA and not yet consumed by NAPI are lost along with
+their skbs, and the next k3_cppi_desc_pool_destroy() in ndo_stop() finds
+the pool not full: WARN "k3_knav_desc_pool size 65536 != avail 0", then
+BUG() in gen_pool_destroy().
+
+Nothing synchronises the reset with NAPI, so a few descriptors can leak in
+normal operation too. The massive case is an RX path whose interrupt
+never fired (e.g. the SR1 open race): all 512 RX descriptors sit in the
+completion rings and stopping the interface brings the kernel down.
+Observed on an IOT2050 Advanced (AM65x SR1.0) with `ip link set eno2 down`.
+The SR2 stop path has the same reset/NAPI ordering and also destroys the
+pool on each stop.
+
+Disable NAPI (and, on SR1, free the management IRQs whose threads pop the
+management ring) before resetting the RX channels, then drain each flow's
+completion ring, skipping teardown completion markers, and give every
+descriptor back through prueth_rx_cleanup() before the reset.
+---
+ drivers/net/ethernet/ti/icssg/icssg_common.c  | 22 +++++++++++++++++--
+ drivers/net/ethernet/ti/icssg/icssg_prueth.c  |  7 ++++--
+ .../net/ethernet/ti/icssg/icssg_prueth_sr1.c  | 10 +++++----
+ 3 files changed, 31 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_common.c b/drivers/net/ethernet/ti/icssg/icssg_common.c
+index 74f0f200a89d..11507141c9d7 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_common.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_common.c
+@@ -951,11 +951,29 @@ EXPORT_SYMBOL_GPL(prueth_reset_tx_chan);
+ void prueth_reset_rx_chan(struct prueth_rx_chn *chn,
+ 			  int num_flows, bool disable)
+ {
+-	int i;
++	dma_addr_t desc_dma;
++	int i, reclaimed;
++
++	for (i = 0; i < num_flows; i++) {
++		/* k3_udma_glue_reset_rx_chn() only returns the FDQ descriptors
++		 * to the pool and resets the completion ring without cleanup.
++		 * Reclaim the descriptors completed but never processed by
++		 * NAPI first, else they leak along with their skbs and
++		 * k3_cppi_desc_pool_destroy() finds the pool not full.
++		 */
++		reclaimed = 0;
++		while (!k3_udma_glue_pop_rx_chn(chn->rx_chn, i, &desc_dma)) {
++			if (cppi5_desc_is_tdcm(desc_dma))
++				continue;
++			prueth_rx_cleanup(chn, desc_dma);
++			reclaimed++;
++		}
++		dev_dbg(chn->dev, "%s flow %d: %d completed descs reclaimed\n",
++			chn->name, i, reclaimed);
+ 
+-	for (i = 0; i < num_flows; i++)
+ 		k3_udma_glue_reset_rx_chn(chn->rx_chn, i, chn,
+ 					  prueth_rx_cleanup, !!i);
++	}
+ 	if (disable)
+ 		k3_udma_glue_disable_rx_chn(chn->rx_chn);
+ }
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_prueth.c b/drivers/net/ethernet/ti/icssg/icssg_prueth.c
+index 5e1133c322a7..e030e2a734cb 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_prueth.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_prueth.c
+@@ -858,11 +858,14 @@ static int emac_ndo_stop(struct net_device *ndev)
+ 	max_rx_flows = PRUETH_MAX_RX_FLOWS;
+ 	k3_udma_glue_tdown_rx_chn(emac->rx_chns.rx_chn, true);
+ 
+-	prueth_reset_rx_chan(&emac->rx_chns, max_rx_flows, true);
+-
++	/* NAPI pops the RX rings: stop it before prueth_reset_rx_chan()
++	 * drains the same rings.
++	 */
+ 	napi_disable(&emac->napi_rx);
+ 	hrtimer_cancel(&emac->rx_hrtimer);
+ 
++	prueth_reset_rx_chan(&emac->rx_chns, max_rx_flows, true);
++
+ 	cancel_work_sync(&emac->rx_mode_work);
+ 
+ 	/* Destroying the queued work in ndo_stop() */
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c b/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c
+index cabc49bce869..d8937c145eb5 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c
+@@ -696,22 +696,24 @@ static int emac_ndo_stop(struct net_device *ndev)
+ 	max_rx_flows = PRUETH_MAX_RX_FLOWS_SR1;
+ 	k3_udma_glue_tdown_rx_chn(emac->rx_chns.rx_chn, true);
+ 
++	/* NAPI and the mgm IRQ threads pop the RX rings: stop them before
++	 * prueth_reset_rx_chan() drains the same rings.
++	 */
++	napi_disable(&emac->napi_rx);
+ 	prueth_reset_rx_chan(&emac->rx_chns, max_rx_flows, true);
+ 	/* Teardown RX MGM channel */
+ 	k3_udma_glue_tdown_rx_chn(emac->rx_mgm_chn.rx_chn, true);
++	free_irq(emac->rx_mgm_chn.irq[PRUETH_RX_MGM_FLOW_TIMESTAMP_SR1], emac);
++	free_irq(emac->rx_mgm_chn.irq[PRUETH_RX_MGM_FLOW_RESPONSE_SR1], emac);
+ 	prueth_reset_rx_chan(&emac->rx_mgm_chn,
+ 			     PRUETH_MAX_RX_MGM_FLOWS_SR1, true);
+ 
+-	napi_disable(&emac->napi_rx);
+-
+ 	/* Destroying the queued work in ndo_stop() */
+ 	cancel_delayed_work_sync(&emac->stats_work);
+ 
+ 	/* stop PRUs */
+ 	prueth_emac_stop(emac);
+ 
+-	free_irq(emac->rx_mgm_chn.irq[PRUETH_RX_MGM_FLOW_TIMESTAMP_SR1], emac);
+-	free_irq(emac->rx_mgm_chn.irq[PRUETH_RX_MGM_FLOW_RESPONSE_SR1], emac);
+ 	free_irq(emac->rx_chns.irq[rx_flow], emac);
+ 	prueth_ndev_del_tx_napi(emac, emac->tx_ch_num);
+ 	prueth_cleanup_tx_chns(emac);

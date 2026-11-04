@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Clauger 3E <dev@clauger.fr>
+Date: Thu, 1 Oct 2026 14:30:00 +0200
+Subject: [PATCH] net: ti: icssg-prueth-sr1: open the classifier only once RX
+ is ready
+
+emac_ndo_open() programs the default classifier first and boots the
+PRU/RTU firmware before the RX channels are enabled and before
+napi_enable(). Unlike the SR2 firmware, which forwards nothing until
+ICSSG_EMAC_PORT_FORWARD is set on link up, the SR1 firmware pushes
+received frames to the host as soon as it runs. With traffic on the wire,
+the first RX interrupt can therefore fire while NAPI_STATE_SCHED is still
+set by netif_napi_add(): prueth_rx_irq() disables the IRQ, napi_schedule()
+does nothing, and the poll that would re-enable the IRQ never runs. RX is
+dead until the next open.
+
+Observed on an IOT2050 Advanced (AM65x SR1.0): MAC statistics keep
+counting received frames, the RX data IRQ count stays at exactly 1, and
+nothing reaches the stack for the whole boot. Reproduced on 4 consecutive
+boots with traffic on the port at open time; opening the same port
+without link, then plugging the cable, works. With this patch: 14 out of
+14 boots with traffic at open time, both ports receiving.
+
+Keep the classifier disabled while the firmware starts and RX is set up,
+and program the default classifier only once the RX channels and NAPI
+are enabled, mirroring emac_ndo_stop() which disables it first to block
+packets from the wire.
+---
+ drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c b/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c
+index f88cdc8f012f..cabc49bce869 100644
+--- a/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c
++++ b/drivers/net/ethernet/ti/icssg/icssg_prueth_sr1.c
+@@ -500,7 +500,13 @@ static int emac_ndo_open(struct net_device *ndev)
+ 
+ 	icssg_class_set_mac_addr(prueth->miig_rt, slice, emac->mac_addr);
+ 
+-	icssg_class_default(prueth->miig_rt, slice, 0, true);
++	/* The SR1 firmware pushes frames to the host as soon as it runs: an
++	 * RX interrupt raised before napi_enable() masks the IRQ for good
++	 * (NAPI_STATE_SCHED still set, the poll never runs). Keep frames from
++	 * the wire away until RX channels and NAPI are enabled; the classifier
++	 * is opened then, mirroring emac_ndo_stop().
++	 */
++	icssg_class_disable(prueth->miig_rt, slice);
+ 
+ 	/* Notify the stack of the actual queue counts. */
+ 	ret = netif_set_real_num_tx_queues(ndev, num_data_chn);
+@@ -599,6 +605,8 @@ static int emac_ndo_open(struct net_device *ndev)
+ 		napi_enable(&emac->tx_chns[i].napi_tx);
+ 	napi_enable(&emac->napi_rx);
+ 
++	icssg_class_default(prueth->miig_rt, slice, 0, true);
++
+ 	/* start PHY */
+ 	phy_start(ndev->phydev);
+ 
