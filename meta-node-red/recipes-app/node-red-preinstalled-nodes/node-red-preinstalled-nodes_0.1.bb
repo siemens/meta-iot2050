@@ -8,14 +8,14 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
 DPKG_ARCH = "all"
 
 REGULAR_NODE_RED_PACKAGES = " \
-    node-red-dashboard \
+    node-red-dashboard-flowfuse \
     node-red-contrib-opcua \
     node-red-contrib-modbus \
     node-red-contrib-s7 \
