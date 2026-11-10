@@ -6,7 +6,9 @@
   <title>SIMATIC IOT2050 Device Administration</title>
   <link rel="stylesheet" href="device-admin.css">
   <script src="../base1/cockpit.js"></script>
+  <script defer src="tabs.js"></script>
   <script defer src="device-admin.js"></script>
+  <script defer src="node-red.js"></script>
 </head>
 <body>
   <main class="page">
@@ -20,12 +22,54 @@
       </div>
     </header>
 
-    <div id="message" class="message hidden" role="status" aria-live="polite"></div>
-    <div id="error" class="alert hidden" role="alert"></div>
-    <div id="loading" class="loading">Reading system information…</div>
+    <div class="tabs" role="tablist" aria-label="Device Administration">
+      <button id="certificate-tab" class="tab" role="tab" aria-controls="certificate-panel" aria-selected="true" tabindex="0">Web certificate</button>
+      <button id="node-red-tab" class="tab" role="tab" aria-controls="node-red-panel" aria-selected="false" tabindex="-1" hidden>Node-RED</button>
+    </div>
 
-    <section id="settings" class="cards hidden">
-      <article class="card certificate-card">
+    <section id="node-red-panel" role="tabpanel" aria-labelledby="node-red-tab" tabindex="0" hidden>
+      <article id="node-red-card" class="card hidden">
+        <div class="card-heading"><h2>Node-RED</h2><span id="node-red-state" class="status neutral" role="status">Inspecting</span></div>
+        <p id="node-red-health-error" class="node-red-feedback error hidden" role="alert"></p>
+        <div class="node-red-controls">
+          <button id="node-red-start" disabled>Start</button>
+          <button id="node-red-stop" class="secondary" disabled>Stop</button>
+          <a id="node-red-open" class="hidden" target="_blank" rel="noopener noreferrer">Open editor ↗</a>
+        </div>
+        <div id="node-red-setup-required" class="node-red-notice hidden">Set an access password to enable Start.</div>
+        <div id="node-red-network" class="node-red-network">Remote access: allow your management network to access <strong>TCP 1880 (HTTPS)</strong> in the firewall.</div>
+        <form id="node-red-port-form" class="node-red-port">
+          <div class="node-red-port-label">
+            <label for="node-red-port">HTTPS port</label>
+            <p class="file-hint">TCP port 1024–65535 (excluding 1881).</p>
+          </div>
+          <div class="node-red-port-input">
+            <input id="node-red-port" type="number" min="1024" max="65535" step="1" inputmode="numeric" placeholder="1024–65535" required disabled>
+            <button id="node-red-save-port" type="submit" disabled>Save port</button>
+          </div>
+        </form>
+        <label class="node-red-startup" for="node-red-autostart"><span>Start on boot</span><input id="node-red-autostart" class="node-red-switch" type="checkbox" role="switch" disabled></label>
+        <details id="node-red-credentials" class="node-red-credentials">
+          <summary>Access password <span id="node-red-password-state"></span></summary>
+          <div class="node-red-password-form">
+            <p class="file-hint">Account: <strong id="node-red-actor"></strong></p>
+            <form id="node-red-password-form">
+              <div class="form-grid">
+                <div><label for="node-red-password">New password</label><input id="node-red-password" type="password" autocomplete="new-password" required></div>
+                <div><label for="node-red-password-confirm">Confirm password</label><input id="node-red-password-confirm" type="password" autocomplete="new-password" required></div>
+              </div>
+              <button id="node-red-save-password" type="submit" disabled>Save password</button>
+            </form>
+          </div>
+        </details>
+        <p id="node-red-message" role="status" aria-live="polite"></p>
+      </article>
+    </section>
+    <section id="certificate-panel" role="tabpanel" aria-labelledby="certificate-tab" tabindex="0">
+      <div id="message" class="message hidden" role="status" aria-live="polite"></div>
+      <div id="error" class="alert hidden" role="alert"></div>
+      <div id="loading" class="loading">Reading system information…</div>
+      <article id="settings" class="card certificate-card hidden">
         <div class="card-heading">
           <div>
             <span class="tag">HTTPS</span>

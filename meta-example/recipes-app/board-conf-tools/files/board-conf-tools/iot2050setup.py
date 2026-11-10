@@ -21,6 +21,10 @@ import select
 import threading
 from json_ops.json_ops import BoardConfigurationUtility
 
+NODE_RED_SERVICE = 'node-red'
+NODE_RED_SETTINGS_FILE = '/etc/node-red/settings.js'
+
+
 def threadDecorator(func):
     def wrapper(*args, **kwargs):
         thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
@@ -149,7 +153,7 @@ class SoftwareMenu:
         tcfAgentEnabled = (SoftwareMenu.serviceEnabled('tcf-agent')
                            if tcfAgentInstalled else False)
         mosquittoAutostartEnabled = SoftwareMenu.serviceEnabled('mosquitto')
-        noderedAutostartEnabled = SoftwareMenu.serviceEnabled('node-red')
+        noderedAutostartEnabled = SoftwareMenu.serviceEnabled(NODE_RED_SERVICE)
         buttonbar = ButtonBar(screen=self.topmenu.gscreen, buttonlist=[('Ok', 'ok'), ('Cancel', 'cancel', 'ESC')])
         service_count = 3 + int(tcfAgentInstalled)
         ct = CheckboxTree(height=service_count, scroll=0)
@@ -177,9 +181,15 @@ class SoftwareMenu:
         if mosquittoAutostartEnabled != mosquittoAutostartEnabledNew:
             self.changeServiceSetting('mosquitto', mosquittoAutostartEnabledNew)
         if noderedAutostartEnabled != noderedAutostartEnabledNew:
-            self.changeServiceSetting('node-red', noderedAutostartEnabledNew)
+            self.changeServiceSetting(NODE_RED_SERVICE, noderedAutostartEnabledNew)
 
-    def changeServiceSetting(self, name, status):
+    def changeServiceSetting(self, name: str, status: bool) -> None:
+        if name == NODE_RED_SERVICE and status and not os.path.isfile(NODE_RED_SETTINGS_FILE):
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                               title='Node-RED activation required',
+                               text='Activate and configure Node-RED in Cockpit Device Admin before enabling it.',
+                               buttons=['Ok'])
+            return
         if status:
             subprocess.call('systemctl enable ' + name, shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
             subprocess.call('systemctl start ' + name, shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
