@@ -62,7 +62,7 @@ EOF
 }
 
 do_deploy() {
-    dpkg --fsys-tarfile ${WORKDIR}/${PN}_${PV}*.deb | \
+    dpkg --fsys-tarfile ${DEPLOY_DIR_DEB}/${PN}_${PV}*.deb | \
         tar xOf - "./usr/share/iot2050/fwu/IOT2050-FW-Update-PKG-$(${ISAR_RELEASE_CMD}).tar.xz" \
         > "${DEPLOY_DIR_IMAGE}/IOT2050-FW-Update-PKG-$(${ISAR_RELEASE_CMD}).tar.xz"
 }
