@@ -1,0 +1,10 @@
+#!/bin/sh
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+set -e
+if [ "$1" = configure ]; then
+    systemd-sysusers /usr/lib/sysusers.d/iot2050-node-red-control.conf
+    systemd-tmpfiles --create /usr/lib/tmpfiles.d/iot2050-node-red-control.conf
+    systemctl daemon-reload
+    /usr/lib/iot2050/node-red-control/gate migrate
+fi
