@@ -86,7 +86,7 @@ do_install() {
 }
 
 do_deploy_deb:append() {
-    cp -f "${WORKDIR}/${PN}_${PV}_arm64.deb" "${DEPLOY_DIR_IMAGE}/"
+    cp -f "${DEPLOY_DIR_DEB}/${PN}_${PV}_${DISTRO_ARCH}.deb" "${DEPLOY_DIR_IMAGE}/"
 }
 
 do_deploy_deb[dirs] = "${DEPLOY_DIR_IMAGE}"

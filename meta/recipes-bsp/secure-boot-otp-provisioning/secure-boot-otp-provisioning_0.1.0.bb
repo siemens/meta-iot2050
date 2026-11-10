@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 #
 
-inherit dpkg
+inherit dpkg iot2050-strip-source
 
 DESCRIPTION = "Secure Boot OTP key provisioning tool"
 
@@ -86,9 +86,5 @@ do_prepare_build() {
             ${S}/debian/secure-boot-otp-provisioning.install
 }
 
-dpkg_runbuild:append() {
-    # remove keys from source archive
-    gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
-    tar --delete -f ${WORKDIR}/${PN}_${PV}.tar ${PN}-${PV}/keys
-    gzip ${WORKDIR}/${PN}_${PV}.tar
-}
+# remove keys from source archive
+IOT2050_SOURCE_STRIP_PATHS = "${PN}-${PV}/keys"

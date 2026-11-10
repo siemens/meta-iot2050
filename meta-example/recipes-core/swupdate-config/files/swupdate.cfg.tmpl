@@ -12,5 +12,6 @@ globals :
 {
     bootloader = "ebg";
     mtd-blacklist = "0 1 2 3 4 5 6 7";
-    public-key-file = "/usr/share/swupdate-signing/swupdate-sign.crt"
+    public-key-file = "/usr/share/swupdate-signing/swupdate-sign.crt";
+    ${SWUPDATE_DIGEST_PROVIDER}
 };

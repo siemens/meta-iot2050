@@ -9,7 +9,7 @@
 # COPYING.MIT file in the top-level directory.
 #
 
-inherit u-boot iot2050-demo-signing-warning
+inherit u-boot iot2050-demo-signing-warning iot2050-strip-source
 
 SRC_URI += " \
     file://rules.tmpl \
@@ -98,16 +98,11 @@ do_prepare_build:append:secureboot() {
 
 do_prepare_build[prefuncs] += "iot2050_warn_demo_signing_keys"
 
-dpkg_runbuild:append:secureboot() {
-    if [ "${SB_USE_LOCAL_KEY}" = "1" ]; then
-        # remove private keys from source archive
-        gunzip ${WORKDIR}/${PN}_${PV}.tar.gz
-        tar --delete -f ${WORKDIR}/${PN}_${PV}.tar \
-            "$(basename "${S}")/keys/custMpk.key" \
-            "$(basename "${S}")/keys/custMpk.pem"
-        gzip ${WORKDIR}/${PN}_${PV}.tar
-    fi
-}
+# remove private keys from source archive
+U_BOOT_SRC_DIR = "${@os.path.basename(d.getVar('S'))}"
+IOT2050_SOURCE_STRIP_PATHS:secureboot = "${@ \
+    '${U_BOOT_SRC_DIR}/keys/custMpk.key ${U_BOOT_SRC_DIR}/keys/custMpk.pem' \
+    if d.getVar('SB_USE_LOCAL_KEY') == '1' else ''}"
 
 do_prepare_build:append:otpcmd() {
     ln -sf /usr/lib/secure-boot-otp-provisioning/otpcmd.bin ${S}
@@ -122,11 +117,11 @@ do_prepare_build:append:rpmb-setup() {
 
 do_deploy() {
     for gen in pg1 pg2; do
-        dpkg --fsys-tarfile ${WORKDIR}/u-boot-${MACHINE}_${PV}*.deb | \
+        dpkg --fsys-tarfile ${DEPLOY_DIR_DEB}/u-boot-${MACHINE}_${PV}*.deb | \
             tar xOf - "./usr/lib/u-boot/${MACHINE}/flash-${gen}.bin" \
             > "${DEPLOY_DIR_IMAGE}/iot2050-${gen}-image-boot.bin"
     done
-    dpkg --fsys-tarfile ${WORKDIR}/u-boot-${MACHINE}-config_${PV}*.deb | \
+    dpkg --fsys-tarfile ${DEPLOY_DIR_DEB}/u-boot-${MACHINE}-config_${PV}*.deb | \
         tar xOf - "./etc/${U_BOOT_ENV}" \
         > "${DEPLOY_DIR_IMAGE}/${U_BOOT_ENV}"
 }
