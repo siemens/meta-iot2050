@@ -1,0 +1,16 @@
+#!/usr/bin/python3 -I
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+import os
+import sys
+
+sys.path.insert(0, "/usr/lib/iot2050/node-red-auth")
+sys.path.insert(0, "/usr/lib/iot2050/node-red-control")
+from control import check_start, close_gateway, migrate_gateway, open_gateway
+
+if os.getuid() != 0 or len(sys.argv) != 2:
+    raise SystemExit(1)
+operations = {"check": check_start, "open": open_gateway, "close": close_gateway, "migrate": migrate_gateway}
+if sys.argv[1] not in operations:
+    raise SystemExit(1)
+operations[sys.argv[1]]()

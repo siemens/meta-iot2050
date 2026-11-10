@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=com.siemens.iot2050.NodeRed
+Exec=/usr/bin/python3 -I /usr/lib/iot2050/node-red-control/dbus-service.py
+User=root
+SystemdService=iot2050-node-red-control.service

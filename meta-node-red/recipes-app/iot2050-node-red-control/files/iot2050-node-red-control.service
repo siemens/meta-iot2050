@@ -1,0 +1,14 @@
+[Unit]
+Description=IOT2050 Node-RED activation management
+After=dbus.service polkit.service
+
+[Service]
+Type=dbus
+BusName=com.siemens.iot2050.NodeRed
+User=root
+ExecStart=/usr/bin/python3 -I /usr/lib/iot2050/node-red-control/dbus-service.py
+LimitCORE=0
+UMask=0077
+NoNewPrivileges=yes
+ProtectHome=read-only
+PrivateTmp=yes
