@@ -1,0 +1,33 @@
+[Unit]
+Description=IOT2050 Node-RED private PAM authentication
+After=systemd-sysusers.service
+
+[Service]
+Type=simple
+User=root
+Group=iot2050-node-red-auth
+StateDirectory=iot2050-node-red-auth
+StateDirectoryMode=0700
+RuntimeDirectory=iot2050-node-red-auth
+RuntimeDirectoryMode=0750
+ExecStartPre=/usr/bin/python3 -I /usr/lib/iot2050/node-red-auth/backend.py initialize
+ExecStart=/usr/bin/python3 -I /usr/lib/iot2050/node-red-auth/broker.py
+ExecReload=/usr/bin/python3 -I /usr/lib/iot2050/node-red-auth/backend.py initialize
+UMask=0077
+LimitCORE=0
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+CapabilityBoundingSet=CAP_SYS_CHROOT CAP_CHOWN CAP_DAC_OVERRIDE CAP_AUDIT_WRITE CAP_MKNOD
+RestrictSUIDSGID=yes
+DevicePolicy=closed
+DeviceAllow=/dev/null rwm
+TasksMax=32
+MemoryMax=128M
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
