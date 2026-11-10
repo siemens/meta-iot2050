@@ -9,6 +9,11 @@
 
 inherit dpkg-raw
 
+# npm dependencies may contain native addons. Architecture: all makes Isar
+# choose the host chroot even with ISAR_CROSS_COMPILE=0, producing host ELF
+# binaries inside target images.
+DPKG_ARCH = "any"
+
 NPMPN ?= "${PN}"
 NPM_SHRINKWRAP ?= "file://npm-shrinkwrap.json"
 NPM_LOCAL_INSTALL_DIR ??= ""
@@ -83,8 +88,8 @@ npm_fetch_undo_mounts() {
 }
 
 def get_npm_bundled_tgz(d):
-    return "{0}-{1}-bundled.tgz".format(d.getVar('NPM_MAPPED_NAME'),
-                                        d.getVar('PV'))
+    return "{0}-{1}-{2}-bundled.tgz".format(d.getVar('NPM_MAPPED_NAME'),
+                                           d.getVar('PV'), d.getVar('NPM_ARCH'))
 
 def runcmd(d, cmd):
     import subprocess
@@ -129,6 +134,7 @@ python fetch_npm() {
     bundled_tgz_hash = bundled_tgz + ".hash"
 
     fetch_hash = d.getVar('NPM_URI') + "\n" + \
+        d.getVar('NPM_ARCH') + " " + d.getVar('BUILD_ARCH') + "\n" + \
         shrinkwarp_url + " " + shrinkwarp_chksum + "\n"
 
     if os.path.exists(bundled_tgz) and os.path.exists(bundled_tgz_hash):
@@ -232,7 +238,7 @@ do_prepare_build:append() {
         INSTALL_FLAGS="$INSTALL_FLAGS --prefer-offline  --prefix image/usr -g"
     fi
 
-    if [ -n "${NPM_REBUILD}" ]; then
+    if [ "${NPM_REBUILD}" = "1" ]; then
         INSTALL_FLAGS="$INSTALL_FLAGS --build-from-source --no-save"
     fi
 
