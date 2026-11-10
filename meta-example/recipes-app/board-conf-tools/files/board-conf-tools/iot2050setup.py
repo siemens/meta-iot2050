@@ -179,7 +179,13 @@ class SoftwareMenu:
         if noderedAutostartEnabled != noderedAutostartEnabledNew:
             self.changeServiceSetting('node-red', noderedAutostartEnabledNew)
 
-    def changeServiceSetting(self, name, status):
+    def changeServiceSetting(self, name: str, status: bool) -> None:
+        if name == 'node-red' and status and not os.path.isfile('/etc/node-red/settings.js'):
+            ButtonChoiceWindow(screen=self.topmenu.gscreen,
+                               title='Node-RED activation required',
+                               text='Activate and configure Node-RED in Cockpit Device Admin before enabling it.',
+                               buttons=['Ok'])
+            return
         if status:
             subprocess.call('systemctl enable ' + name, shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
             subprocess.call('systemctl start ' + name, shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
