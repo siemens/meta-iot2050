@@ -1,0 +1,19 @@
+#!/bin/sh
+# Copyright (c) Siemens AG, 2026
+# SPDX-License-Identifier: MIT
+set -e
+
+case "$1" in
+    configure)
+        systemd-sysusers /usr/lib/sysusers.d/iot2050-node-red-auth.conf
+        ;;
+    triggered)
+        # A chroot can return success without reporting a live unit state.
+        unit=iot2050-node-red-auth.service
+        if [ -z "${DPKG_ROOT:-}" ] && [ -d /run/systemd/system ] &&
+            state=$(systemctl show "$unit" --property=ActiveState --value) &&
+            [ "$state" = active ]; then
+            deb-systemd-invoke reload "$unit"
+        fi
+        ;;
+esac

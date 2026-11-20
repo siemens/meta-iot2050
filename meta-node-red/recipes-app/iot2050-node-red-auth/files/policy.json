@@ -1,0 +1,11 @@
+{
+  "minlen": 12,
+  "minclass": 3,
+  "maxrepeat": 3,
+  "maxsequence": 3,
+  "remember": 5,
+  "deny": 5,
+  "fail_interval": 900,
+  "unlock_time": 900,
+  "maxdays": 90
+}

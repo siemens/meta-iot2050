@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 #
 
-PR = "1"
+PR = "2"
 
 inherit dpkg-raw
 
@@ -19,6 +19,8 @@ SRC_URI = " \
     file://index.html \
     file://device-admin.css \
     file://device-admin.js \
+    file://tabs.js \
+    file://node-red.js \
     file://iot2050-device-admin \
     "
 
@@ -32,6 +34,8 @@ do_install() {
         ${D}/usr/share/cockpit/iot2050-device-admin/
     install -m 644 ${WORKDIR}/device-admin.js \
         ${D}/usr/share/cockpit/iot2050-device-admin/
+    install -m 644 ${WORKDIR}/tabs.js ${D}/usr/share/cockpit/iot2050-device-admin/
+    install -m 644 ${WORKDIR}/node-red.js ${D}/usr/share/cockpit/iot2050-device-admin/
 
     install -d -m 755 ${D}/usr/sbin
     install -m 755 ${WORKDIR}/iot2050-device-admin \
