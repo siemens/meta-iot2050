@@ -18,6 +18,7 @@ const { spawnSync } = require('child_process');
 
 const STATE_DIR = '/var/lib/iot2050-firstboot-onboarding';
 const COMPLETE_MARKER = path.join(STATE_DIR, 'complete');
+const ACCOUNT_MARKER = path.join(STATE_DIR, 'account-created');
 const STATIC_DIR = '/usr/share/iot2050-firstboot-onboarding';
 const APPLY_HELPER = '/usr/lib/iot2050/onboarding/iot2050-firstboot-apply-user.py';
 const SERVICE_NAME = 'iot2050-firstboot-onboarding.service';
@@ -108,6 +109,7 @@ function writeStateMarker(filePath, payload, timestampKey) {
     [timestampKey]: new Date().toISOString(),
     username: payload.username || '',
     deviceName: payload.deviceName || '',
+    adminGroups: payload.adminGroups || [],
   };
 
   fs.writeFileSync(filePath, JSON.stringify(content, null, 2), { mode: 0o600 });
@@ -116,6 +118,23 @@ function writeStateMarker(filePath, payload, timestampKey) {
 
 function markComplete(payload) {
   writeStateMarker(COMPLETE_MARKER, payload, 'completed_at');
+}
+
+function markAccountCreated(payload) {
+  writeStateMarker(ACCOUNT_MARKER, payload, 'created_at');
+}
+
+function readCreatedAccount() {
+  if (!fs.existsSync(ACCOUNT_MARKER)) {
+    return null;
+  }
+
+  const account = JSON.parse(fs.readFileSync(ACCOUNT_MARKER, 'utf8'));
+  if (!account.username) {
+    throw new Error('The saved onboarding account state is invalid.');
+  }
+
+  return account;
 }
 
 function extractRequestHost(hostHeader) {
@@ -624,7 +643,35 @@ async function handlePost(request, response, parsedUrl) {
     return;
   }
 
-  const helperResponse = applyOnboarding(payload);
+  let createdAccount;
+  try {
+    createdAccount = readCreatedAccount();
+  } catch (error) {
+    jsonResponse(response, 500, { message: error.message || 'Unable to read the saved onboarding account state.' });
+    return;
+  }
+
+  let helperResponse;
+  if (createdAccount) {
+    if (createdAccount.username !== String(payload.username || '').trim()) {
+      jsonResponse(response, 409, {
+        message: 'An administrator account was already created. Continue onboarding with that user name.',
+        fieldErrors: { username: 'Use the user name created during the previous attempt.' },
+      });
+      return;
+    }
+
+    // Account creation is irreversible. Reuse the recorded result when a
+    // previous request created the account but could not switch the gateway.
+    helperResponse = {
+      status: 'ok',
+      username: createdAccount.username,
+      deviceName: createdAccount.deviceName,
+      adminGroups: createdAccount.adminGroups || [],
+    };
+  } else {
+    helperResponse = applyOnboarding(payload);
+  }
   if (helperResponse.status !== 'ok') {
     jsonResponse(response, helperResponse.fieldErrors ? 422 : 500, {
       message: helperResponse.message || 'The onboarding helper rejected the request.',
@@ -637,7 +684,19 @@ async function handlePost(request, response, parsedUrl) {
     ...payload,
     username: helperResponse.username || payload.username,
     deviceName: helperResponse.deviceName || payload.deviceName,
+    adminGroups: helperResponse.adminGroups || [],
   };
+
+  if (!createdAccount) {
+    try {
+      markAccountCreated(completedPayload);
+    } catch (error) {
+      jsonResponse(response, 500, {
+        message: 'The administrator account was created, but its onboarding state could not be saved. Contact your system administrator.',
+      });
+      return;
+    }
+  }
 
   const runtimeTransition = await switchToRuntime(completedPayload);
   if (!runtimeTransition.ok) {
