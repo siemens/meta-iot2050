@@ -12,9 +12,9 @@
 #
 
 header:
-  version: 14
+  version: 23
 
-build_system: isar
+build_system: isar-rootless
 distro: iot2050-debian
 target: iot2050-image-base
 machine: iot2050

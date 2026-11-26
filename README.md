@@ -72,10 +72,17 @@ More composition patterns: [build-config](doc/build-config.md#manual-composition
 After the build completes, the final image is located at:
 `build/tmp/deploy/images/iot2050/iot2050-image-example-iot2050-debian-iot2050.wic`
 
+The image is built rootless, so no `sudo` rights are required. The container
+runs with the privileges needed to create unprivileged user namespaces, see
+the [isar documentation](https://github.com/ilbers/isar/blob/master/doc/user_manual.md#rootless-builds)
+for the requirements.
+
 To clean the build result:
 ```sh
-./kas-container --isar clean
+./kas-container --isar-rootless clean
 ```
+Files created during a rootless build may be owned by sub-ids and cannot be
+removed with a plain `rm`, so always use this command.
 
 For a more detailed reference, please visit [build-config](doc/build-config.md).
 

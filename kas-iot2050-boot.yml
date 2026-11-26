@@ -10,10 +10,10 @@
 #
 
 header:
-  version: 14
+  version: 23
   includes:
     - kas/iot2050.yml
 
-build_system: isar
+build_system: isar-rootless
 
 target: u-boot-iot2050
