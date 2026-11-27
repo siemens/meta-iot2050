@@ -69,14 +69,47 @@ DEBIAN_DEPENDS = "cockpit, iot2050-eio-manager, \${shlibs:Depends}, \${misc:Depe
 
 SCHROOT_MOUNTS = "${WORKDIR}"
 
+# unshare mode: sbuild chroot is only available as tarball, unpack it for npm
+NPM_CHROOT_DIR = "${WORKDIR}/npm-chroot"
+NPM_CHROOT_MOUNTS = "${WORKDIR} ${WORKDIR}:${PP}"
+
 npm_fetch_do_mounts() {
-    schroot_create_configs
-    insert_mounts
+    if [ "${ISAR_CHROOT_MODE}" = "unshare" ]; then
+        run_privileged rm -rf ${NPM_CHROOT_DIR}
+        mkdir -p ${NPM_CHROOT_DIR}
+        run_privileged tar -C ${NPM_CHROOT_DIR} --zstd -xpf ${SBUILD_CHROOT} \
+            --exclude='./dev/*'
+        run_privileged rm -f ${NPM_CHROOT_DIR}/etc/resolv.conf
+        run_privileged cp -L /etc/resolv.conf ${NPM_CHROOT_DIR}/etc/resolv.conf
+    else
+        schroot_create_configs
+        insert_mounts
+    fi
 }
 
 npm_fetch_undo_mounts() {
-    remove_mounts
-    schroot_delete_configs
+    if [ "${ISAR_CHROOT_MODE}" = "unshare" ]; then
+        run_privileged rm -rf ${NPM_CHROOT_DIR}
+    else
+        remove_mounts
+        schroot_delete_configs
+    fi
+}
+
+npm_unshare_run() {
+    run_privileged_heredoc <<'EONPM'
+        set -e
+        # only evaluated in unshare mode, older Isar has no insert_isar_mounts
+        ${@insert_isar_mounts(d, d.getVar('NPM_CHROOT_DIR'), d.getVar('NPM_CHROOT_MOUNTS')) if d.getVar('ISAR_CHROOT_MODE') == 'unshare' else ''}
+        chroot ${NPM_CHROOT_DIR} /bin/sh -c "cd ${NPM_RUN_CWD} && ${NPM_RUN_CMD}"
+EONPM
+}
+
+# sbuild in unshare mode does not provide /downloads, which do_dpkg_build needs
+sbuild_add_unshare_mounts:append() {
+    cat <<'EOF' >> ${SBUILD_CONFIG}
+push(@$unshare_bind_mounts, { directory => '${DL_DIR}', mountpoint => '/downloads' });
+EOF
 }
 
 def get_npm_bundled_tgz(d):
@@ -84,7 +117,19 @@ def get_npm_bundled_tgz(d):
                                         d.getVar('PV'))
 
 def runcmd(d, cmd):
-    import subprocess
+    import os, subprocess
+
+    if d.getVar('ISAR_CHROOT_MODE') == 'unshare':
+        env_vars = ['HOME', 'npm_config_registry',
+                    'http_proxy', 'https_proxy', 'no_proxy',
+                    'HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY']
+        env = ' '.join("{0}='{1}'".format(k, os.environ[k])
+                       for k in env_vars if k in os.environ)
+        d.setVar('NPM_RUN_CWD', os.getcwd())
+        d.setVar('NPM_RUN_CMD', 'env {0} {1}'.format(env, cmd))
+        bb.note("Running '{0}' in {1}".format(cmd, d.getVar('NPM_CHROOT_DIR')))
+        bb.build.exec_func('npm_unshare_run', d)
+        return
 
     chrootcmd = "schroot -c {0} -- {1}".format(d.getVar('SBUILD_CHROOT'), cmd)
     bb.note("Running " + chrootcmd)
@@ -236,8 +281,8 @@ do_prepare_build:append() {
 
     cat <<EOF >> ${S}/debian/rules
 
-export HOME=${PP}
-export npm_config_cache=${PP}/npm_cache
+export HOME=\$(CURDIR)
+export npm_config_cache=\$(CURDIR)/npm_cache
 
 override_dh_clean:
 	rm -rf ${CHDIR}/lib
@@ -245,7 +290,7 @@ override_dh_clean:
 	rm -rf ${CHDIR}/${NPMPN}.static
 	rm -rf \
 		${S}/node_modules ${S}/out ${S}/.next \
-			${PP}/npm_cache
+			\$(npm_config_cache)
 
 override_dh_auto_build:
 	cd ${CHDIR} && npm install ${INSTALL_FLAGS} ${NPM_INSTALL_FLAGS} /downloads/${@get_npm_bundled_tgz(d)}
@@ -263,3 +308,4 @@ override_dh_auto_install:
 override_dh_strip_nondeterminism:
 EOF
 }
+
