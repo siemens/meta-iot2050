@@ -7,7 +7,7 @@
 #  - npm install --install-strategy=shallow <my-favorite-package>
 #  - cp package-lock.json /path/to/recipe/files/npm-shrinkwrap.json
 
-inherit dpkg-raw
+inherit dpkg-raw iot2050-sbuild-chroot
 
 # npm dependencies may contain native addons. Architecture: all makes Isar
 # choose the host chroot even with ISAR_CROSS_COMPILE=0, producing host ELF
@@ -23,6 +23,9 @@ NPM_REBUILD ?= "1"
 
 ISAR_CROSS_COMPILE = "0"
 SBUILD_FLAVOR = "npm"
+
+# node-gyp downloads the node headers to rebuild native modules
+DPKG_BUILD_ENABLE_NETWORK = "1"
 
 SRC_URI = "npm://registry.npmjs.org;name=${NPMPN};version=${PV} \
     ${NPM_SHRINKWRAP}"
@@ -77,30 +80,9 @@ python() {
 
 SCHROOT_MOUNTS = "${WORKDIR}"
 
-npm_fetch_do_mounts() {
-    schroot_create_configs
-    insert_mounts
-}
-
-npm_fetch_undo_mounts() {
-    remove_mounts
-    schroot_delete_configs
-}
-
 def get_npm_bundled_tgz(d):
     return "{0}-{1}-{2}-bundled.tgz".format(d.getVar('NPM_MAPPED_NAME'),
                                            d.getVar('PV'), d.getVar('NPM_ARCH'))
-
-def runcmd(d, cmd):
-    import subprocess
-
-    chrootcmd = "schroot -c {0} -- {1}".format(d.getVar('SBUILD_CHROOT'), cmd)
-    bb.note("Running " + chrootcmd)
-    (retval, output) = subprocess.getstatusoutput(chrootcmd)
-    if retval:
-        bb.fatal("Failed to run '{0}'{1}".format(
-            cmd, (":\n" + output) if output else ""))
-    bb.note(output)
 
 def apply_mirrors_in_shrinkwrap(path, pattern, subst):
     import json, re
@@ -143,7 +125,7 @@ python fetch_npm() {
         if hash == fetch_hash:
             return
 
-    bb.build.exec_func("npm_fetch_do_mounts", d)
+    bb.build.exec_func("sbuild_chroot_run_prepare", d)
     bb.utils.export_proxies(d)
 
     old_cwd = os.getcwd()
@@ -153,7 +135,7 @@ python fetch_npm() {
 
     # changing the home directory to the tmpdir directory, the .npmrc will
     # be created in this directory
-    os.environ['HOME'] = d.getVar('PP') + "/fetch-tmp"
+    os.environ['HOME'] = tmpdir
 
     # apply simplified PREMIRRORS logic to NPM_REGISTRY and shrinkwrap
     npm_registry = d.getVar('NPM_REGISTRY', True)
@@ -172,7 +154,7 @@ python fetch_npm() {
         json_objs = {'dependencies': { npmpn: '' }}
         json.dump(json_objs, outfile, indent=2)
 
-    runcmd(d, "npm ci --install-strategy=shallow --ignore-scripts --verbose")
+    sbuild_chroot_run(d, "npm ci --install-strategy=shallow --ignore-scripts --verbose")
 
     package_filename = "node_modules/" + npmpn + "/package.json"
     with open(package_filename) as infile:
@@ -188,14 +170,14 @@ python fetch_npm() {
 
     os.rename("node_modules/" + npmpn, "package")
 
-    runcmd(d, "tar czf package.tgz --exclude .bin package")
+    sbuild_chroot_run(d, "tar czf package.tgz --exclude .bin package")
 
     shutil.copyfile("package.tgz", bundled_tgz)
     with open(bundled_tgz_hash, 'w') as hash_file:
         hash_file.write(fetch_hash)
 
     os.chdir(old_cwd)
-    bb.build.exec_func("npm_fetch_undo_mounts", d)
+    bb.build.exec_func("sbuild_chroot_run_cleanup", d)
 }
 do_fetch[postfuncs] += "fetch_npm"
 do_fetch[cleandirs] += "${WORKDIR}/fetch-tmp"
@@ -244,8 +226,8 @@ do_prepare_build:append() {
 
     cat <<EOF >> ${S}/debian/rules
 
-export HOME=${PP}
-export npm_config_cache=${PP}/npm_cache
+export HOME=\$(CURDIR)/..
+export npm_config_cache=\$(CURDIR)/../npm_cache
 
 override_dh_clean:
 	rm -rf ${NODE_MODULES_DIR}

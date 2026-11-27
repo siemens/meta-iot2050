@@ -13,7 +13,7 @@ mainmenu "IOT2050 Image Configuration"
 
 config KAS_BUILD_SYSTEM
 	string
-	default "isar"
+	default "isar-rootless"
 
 choice
 	prompt "Image type"

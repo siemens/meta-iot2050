@@ -13,14 +13,14 @@
 #
 
 header:
-  version: 14
+  version: 23
   includes:
    - kas/iot2050.yml
    - kas/opt/example.yml
    - kas/opt/node-red.yml
    - kas/opt/sm.yml
 
-build_system: isar
+build_system: isar-rootless
 
 target: iot2050-image-example
 

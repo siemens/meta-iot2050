@@ -9,11 +9,11 @@
 #
 
 header:
-  version: 10
+  version: 23
   includes:
     - kas/iot2050.yml
     - kas/opt/example.yml
 
-build_system: isar
+build_system: isar-rootless
 
 target: firmware-update-package
